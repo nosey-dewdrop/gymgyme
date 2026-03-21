@@ -1,6 +1,25 @@
 import SwiftUI
 
 struct ContentView: View {
+    init() {
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = UIColor(DoodleTheme.bg)
+
+        let normal = UITabBarItemAppearance()
+        normal.normal.iconColor = UIColor(DoodleTheme.dim)
+        normal.normal.titleTextAttributes = [.foregroundColor: UIColor(DoodleTheme.dim)]
+        normal.selected.iconColor = UIColor(DoodleTheme.green)
+        normal.selected.titleTextAttributes = [.foregroundColor: UIColor(DoodleTheme.green)]
+
+        appearance.stackedLayoutAppearance = normal
+        appearance.inlineLayoutAppearance = normal
+        appearance.compactInlineLayoutAppearance = normal
+
+        UITabBar.appearance().standardAppearance = appearance
+        UITabBar.appearance().scrollEdgeAppearance = appearance
+    }
+
     var body: some View {
         TabView {
             HomeView()
@@ -11,6 +30,7 @@ struct ContentView: View {
                 .tabItem { Label("discover", systemImage: "magnifyingglass") }
         }
         .tint(DoodleTheme.green)
+        .background(DoodleTheme.bg.ignoresSafeArea())
     }
 }
 
