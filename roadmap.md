@@ -12,10 +12,10 @@
 - [x] PR detection
 
 ## Phase 3: Atrophy + Plans
-- [ ] Atrophy dashboard + push notification
-- [ ] Plan creation + missing muscle group warning
+- [x] Atrophy dashboard + push notification
+- [x] Plan creation + missing muscle group warning
 
 ## Phase 4: Settings + Nice-to-have
-- [ ] Profile/BMI
+- [x] Profile/BMI
 - [ ] ExerciseDB search
 - [ ] Progress charts
