@@ -33,22 +33,11 @@ struct HomeView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                DoodleTheme.bg.ignoresSafeArea(.all)
-                ScrollView {
+            ScrollView {
                     VStack(alignment: .leading, spacing: 2) {
                     // header
-                    HStack(spacing: 0) {
-                        Text("g").foregroundStyle(DoodleTheme.pink)
-                        Text("y").foregroundStyle(DoodleTheme.orange)
-                        Text("m").foregroundStyle(DoodleTheme.yellow)
-                        Text("g").foregroundStyle(DoodleTheme.green)
-                        Text("y").foregroundStyle(DoodleTheme.blue)
-                        Text("m").foregroundStyle(DoodleTheme.purple)
-                        Text("e").foregroundStyle(DoodleTheme.teal)
-                    }
-                    .font(.system(size: 32, weight: .black, design: .monospaced))
-                    .padding(.bottom, 8)
+                    TypewriterTitle()
+                        .padding(.bottom, 8)
 
                     // inactivity
                     if let days = daysSinceAnyWorkout, days >= 1 {
@@ -79,10 +68,11 @@ struct HomeView: View {
 
                     Spacer().frame(height: 40)
                 }
-                .padding(.horizontal, 12)
-                .padding(.top, 4)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
             }
-            }
+            .background(DoodleTheme.bg.ignoresSafeArea(.all))
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {

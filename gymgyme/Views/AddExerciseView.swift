@@ -23,9 +23,7 @@ struct AddExerciseView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                DoodleTheme.bg.ignoresSafeArea(.all)
-                ScrollView {
+            ScrollView {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("add exercise")
                         .font(.system(size: 20, weight: .black, design: .monospaced))
@@ -76,7 +74,7 @@ struct AddExerciseView: View {
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
             }
-            }
+            .background(DoodleTheme.bg.ignoresSafeArea(.all))
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {

@@ -23,9 +23,7 @@ struct DiscoverView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                DoodleTheme.bg.ignoresSafeArea(.all)
-                ScrollView {
+            ScrollView {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("discover")
                         .font(.system(size: 20, weight: .black, design: .monospaced))
@@ -107,7 +105,7 @@ struct DiscoverView: View {
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
             }
-            }
+            .background(DoodleTheme.bg.ignoresSafeArea(.all))
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
             .searchable(text: $searchText, prompt: "search exercises...")
@@ -180,9 +178,7 @@ struct ExerciseDetailView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack {
-                DoodleTheme.bg.ignoresSafeArea(.all)
-                ScrollView {
+            ScrollView {
                     VStack(alignment: .leading, spacing: 8) {
                         AsyncImage(url: URL(string: item.gifUrl)) { image in
                         image.resizable().aspectRatio(contentMode: .fit)
@@ -243,7 +239,7 @@ struct ExerciseDetailView: View {
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
             }
-            }
+            .background(DoodleTheme.bg.ignoresSafeArea(.all))
             .navigationTitle(item.name.capitalized)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
