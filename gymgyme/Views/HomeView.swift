@@ -4,10 +4,26 @@ import SwiftData
 struct HomeView: View {
     @Query private var exercises: [Exercise]
 
+    private var lastAnyWorkout: Date? {
+        exercises
+            .flatMap { $0.sets }
+            .compactMap { $0.timestamp }
+            .max()
+    }
+
+    private var daysSinceAnyWorkout: Int? {
+        guard let last = lastAnyWorkout else { return nil }
+        return Calendar.current.dateComponents([.day], from: last, to: Date()).day
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
+                    if let days = daysSinceAnyWorkout, days >= 5 {
+                        InactivityWarning(days: days)
+                    }
+
                     ForEach(MuscleGroup.allCases) { group in
                         MuscleGroupCard(
                             muscleGroup: group,
@@ -20,6 +36,10 @@ struct HomeView: View {
             .background(DoodleTheme.background)
             .navigationTitle("gymgyme")
             .navigationBarTitleDisplayMode(.large)
+            .onAppear {
+                NotificationManager.shared.requestPermission()
+                NotificationManager.shared.scheduleInactivityReminder(lastWorkoutDate: lastAnyWorkout)
+            }
         }
     }
 
@@ -29,6 +49,35 @@ struct HomeView: View {
             .flatMap { $0.sets }
             .compactMap { $0.timestamp }
             .max()
+    }
+}
+
+struct InactivityWarning: View {
+    let days: Int
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .font(.title2)
+                .foregroundStyle(DoodleTheme.red)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("\(days) days without workout!")
+                    .font(DoodleTheme.handwritten(16))
+                    .foregroundStyle(DoodleTheme.ink)
+                Text("Time to get moving")
+                    .font(DoodleTheme.caption())
+                    .foregroundStyle(DoodleTheme.inkLight)
+            }
+            Spacer()
+        }
+        .padding()
+        .background(DoodleTheme.red.opacity(0.1))
+        .cornerRadius(16)
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(DoodleTheme.red.opacity(0.3), lineWidth: 1.5)
+        )
     }
 }
 

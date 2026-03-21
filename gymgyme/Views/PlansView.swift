@@ -3,6 +3,8 @@ import SwiftData
 
 struct PlansView: View {
     @Query(sort: \WorkoutPlan.createdAt, order: .reverse) private var plans: [WorkoutPlan]
+    @Environment(\.modelContext) private var modelContext
+    @State private var showCreatePlan = false
 
     var body: some View {
         NavigationStack {
@@ -17,12 +19,29 @@ struct PlansView: View {
                     ForEach(plans) { plan in
                         PlanRow(plan: plan)
                     }
+                    .onDelete { indexSet in
+                        for index in indexSet {
+                            modelContext.delete(plans[index])
+                        }
+                    }
                 }
             }
             .scrollContentBackground(.hidden)
             .background(DoodleTheme.background)
             .navigationTitle("Plans")
             .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button {
+                        showCreatePlan = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                }
+            }
+            .sheet(isPresented: $showCreatePlan) {
+                CreatePlanView()
+            }
         }
     }
 }
@@ -40,6 +59,8 @@ struct PlanRow: View {
                 Text(plan.goal.rawValue)
                 Text("·")
                 Text(plan.duration.rawValue)
+                Text("·")
+                Text("\(plan.exerciseNames.count) exercises")
             }
             .font(DoodleTheme.caption())
             .foregroundStyle(DoodleTheme.inkLight)
@@ -50,5 +71,5 @@ struct PlanRow: View {
 
 #Preview {
     PlansView()
-        .modelContainer(for: WorkoutPlan.self, inMemory: true)
+        .modelContainer(for: [WorkoutPlan.self, Exercise.self], inMemory: true)
 }
