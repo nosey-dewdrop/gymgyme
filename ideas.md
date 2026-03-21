@@ -8,3 +8,6 @@
 - sticker marketplace
 - spotify integration
 - program duration estimation
+- whimsical/cute UI style: hand-drawn doodle icons, pastel color palette, paper texture background
+- custom mascot character for the app
+- hand-drawn muscle group icons (8 total)
