@@ -7,9 +7,9 @@
 - [x] Doodle theme
 
 ## Phase 2: Logging
-- [ ] Exercise adding (manual, name + muscle group)
-- [ ] Workout logging (set/rep/kg, previous record shown)
-- [ ] PR detection
+- [x] Exercise adding (manual, name + muscle group)
+- [x] Workout logging (set/rep/kg, previous record shown)
+- [x] PR detection
 
 ## Phase 3: Atrophy + Plans
 - [ ] Atrophy dashboard + push notification
