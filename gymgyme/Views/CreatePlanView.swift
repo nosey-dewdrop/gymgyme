@@ -62,7 +62,7 @@ struct CreatePlanView: View {
 
                 Section {
                     if exercises.isEmpty {
-                        Text("Add exercises in the Workout tab first")
+                        Text("Add exercises from the Home tab first")
                             .font(DoodleTheme.body())
                             .foregroundStyle(DoodleTheme.inkLight)
                     } else {
@@ -98,7 +98,7 @@ struct CreatePlanView: View {
                 }
                 .listRowBackground(DoodleTheme.cardBackground)
 
-                if !missingMuscleGroups.isEmpty {
+                if !selectedExercises.isEmpty && !missingMuscleGroups.isEmpty {
                     Section {
                         ForEach(missingMuscleGroups) { group in
                             HStack {
