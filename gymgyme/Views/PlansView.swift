@@ -54,8 +54,8 @@ struct PlansView: View {
                         }
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.top, 8)
+                .padding(.horizontal, 12)
+                .padding(.top, 4)
             }
             }
             .navigationBarTitleDisplayMode(.inline)

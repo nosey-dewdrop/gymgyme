@@ -79,8 +79,8 @@ struct HomeView: View {
 
                     Spacer().frame(height: 40)
                 }
-                .padding(.horizontal, 16)
-                .padding(.top, 8)
+                .padding(.horizontal, 12)
+                .padding(.top, 4)
             }
             }
             .navigationBarTitleDisplayMode(.inline)

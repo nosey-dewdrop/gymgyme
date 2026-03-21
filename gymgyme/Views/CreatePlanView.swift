@@ -11,6 +11,13 @@ struct CreatePlanView: View {
     @State private var selectedDuration: PlanDuration = .oneWeek
     @State private var selectedExercises: Set<PersistentIdentifier> = []
 
+    init() {
+        UISegmentedControl.appearance().selectedSegmentTintColor = UIColor(DoodleTheme.surface)
+        UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor(DoodleTheme.fg)], for: .selected)
+        UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor(DoodleTheme.dim)], for: .normal)
+        UISegmentedControl.appearance().backgroundColor = UIColor(DoodleTheme.bg)
+    }
+
     var body: some View {
         NavigationStack {
             ZStack {
