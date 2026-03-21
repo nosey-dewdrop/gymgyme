@@ -4,6 +4,7 @@ import SwiftData
 struct SettingsView: View {
     @Query private var profiles: [UserProfile]
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
 
     private var profile: UserProfile {
         if let existing = profiles.first {
@@ -68,7 +69,12 @@ struct SettingsView: View {
             .scrollContentBackground(.hidden)
             .background(DoodleTheme.background)
             .navigationTitle("Settings")
-            .navigationBarTitleDisplayMode(.large)
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Done") { dismiss() }
+                }
+            }
         }
     }
 }

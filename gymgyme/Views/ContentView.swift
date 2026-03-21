@@ -5,12 +5,7 @@ struct ContentView: View {
         TabView {
             HomeView()
                 .tabItem {
-                    Label("Home", systemImage: "house.fill")
-                }
-
-            WorkoutView()
-                .tabItem {
-                    Label("Workout", systemImage: "dumbbell.fill")
+                    Label("Home", systemImage: "dumbbell.fill")
                 }
 
             PlansView()
@@ -18,9 +13,9 @@ struct ContentView: View {
                     Label("Plans", systemImage: "list.clipboard.fill")
                 }
 
-            SettingsView()
+            DiscoverView()
                 .tabItem {
-                    Label("Settings", systemImage: "gearshape.fill")
+                    Label("Discover", systemImage: "magnifyingglass")
                 }
         }
         .tint(DoodleTheme.accent)
