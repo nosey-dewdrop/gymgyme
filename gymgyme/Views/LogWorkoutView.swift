@@ -3,17 +3,13 @@ import SwiftData
 
 struct LogWorkoutView: View {
     let exercise: Exercise
-
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-
     @State private var sets: [SetEntry] = [SetEntry()]
     @State private var showPRBanner = false
 
     private var previousRecord: ExerciseSet? {
-        exercise.sets
-            .sorted { $0.timestamp > $1.timestamp }
-            .first
+        exercise.sets.sorted { $0.timestamp > $1.timestamp }.first
     }
 
     private var personalBest: Double {
@@ -23,53 +19,108 @@ struct LogWorkoutView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 14) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(exercise.name)
+                        .font(.system(size: 20, weight: .black, design: .monospaced))
+                        .foregroundStyle(DoodleTheme.pink)
+
+                    TagChip(tag: exercise.tag)
+                        .padding(.bottom, 4)
+
                     if let prev = previousRecord {
-                        PreviousRecordCard(exerciseSet: prev)
+                        let days = Calendar.current.dateComponents([.day], from: prev.timestamp, to: Date()).day ?? 0
+                        let timeText = days == 0 ? "today" : days == 1 ? "yesterday" : "\(days)d ago"
+                        HStack(spacing: 0) {
+                            Text("last: ")
+                                .font(DoodleTheme.monoSmall)
+                                .foregroundStyle(DoodleTheme.dim)
+                            Text("\(prev.reps) reps × \(String(format: "%.0f", prev.weight)) kg")
+                                .font(DoodleTheme.monoSmall)
+                                .foregroundStyle(DoodleTheme.fg)
+                            Text(" · \(timeText)")
+                                .font(DoodleTheme.monoSmall)
+                                .foregroundStyle(DoodleTheme.dim)
+                        }
+                        .padding(.bottom, 4)
                     }
 
+                    Text("─ sets")
+                        .font(DoodleTheme.monoBold)
+                        .foregroundStyle(DoodleTheme.blue)
+                        .padding(.top, 4)
+
                     ForEach(sets.indices, id: \.self) { index in
-                        SetEntryCard(
-                            setNumber: index + 1,
-                            entry: $sets[index],
-                            color: DoodleTheme.titleColor(for: index)
-                        )
+                        HStack(spacing: 8) {
+                            Text("\(index + 1)")
+                                .font(DoodleTheme.mono)
+                                .foregroundStyle(DoodleTheme.color(for: index))
+                                .frame(width: 20)
+
+                            TextField("reps", text: $sets[index].reps)
+                                .keyboardType(.numberPad)
+                                .font(DoodleTheme.mono)
+                                .foregroundStyle(DoodleTheme.fg)
+                                .padding(8)
+                                .background(DoodleTheme.surface)
+                                .cornerRadius(4)
+
+                            Text("×")
+                                .font(DoodleTheme.mono)
+                                .foregroundStyle(DoodleTheme.dim)
+
+                            TextField("kg", text: $sets[index].weight)
+                                .keyboardType(.decimalPad)
+                                .font(DoodleTheme.mono)
+                                .foregroundStyle(DoodleTheme.fg)
+                                .padding(8)
+                                .background(DoodleTheme.surface)
+                                .cornerRadius(4)
+                        }
+                        .padding(.vertical, 2)
                     }
 
                     Button {
                         sets.append(SetEntry())
                     } label: {
-                        HStack {
-                            Image(systemName: "plus.circle.fill")
-                            Text("Add Set")
+                        HStack(spacing: 0) {
+                            Text("+ ")
+                                .foregroundStyle(DoodleTheme.blue)
+                            Text("add set")
+                                .foregroundStyle(DoodleTheme.dim)
                         }
-                        .font(DoodleTheme.mono(14))
-                        .foregroundStyle(DoodleTheme.blue)
+                        .font(DoodleTheme.mono)
                     }
                     .padding(.top, 4)
 
                     if showPRBanner {
-                        PRBanner()
-                            .transition(.scale.combined(with: .opacity))
+                        HStack(spacing: 0) {
+                            Text("★ ")
+                                .foregroundStyle(DoodleTheme.yellow)
+                            Text("NEW PERSONAL RECORD!")
+                                .foregroundStyle(DoodleTheme.yellow)
+                        }
+                        .font(DoodleTheme.monoBold)
+                        .padding(.top, 8)
+                        .transition(.opacity)
                     }
                 }
-                .padding()
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
             }
-            .background(DoodleTheme.background)
-            .navigationTitle(exercise.name)
+            .background(DoodleTheme.bg.ignoresSafeArea())
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                        .foregroundStyle(DoodleTheme.inkLight)
+                    Button("cancel") { dismiss() }
+                        .font(DoodleTheme.mono)
+                        .foregroundStyle(DoodleTheme.dim)
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        saveWorkout()
-                    }
-                    .foregroundStyle(DoodleTheme.green)
-                    .disabled(sets.allSatisfy { $0.reps.isEmpty && $0.weight.isEmpty })
+                    Button("save") { saveWorkout() }
+                        .font(DoodleTheme.monoBold)
+                        .foregroundStyle(DoodleTheme.green)
+                        .disabled(sets.allSatisfy { $0.reps.isEmpty && $0.weight.isEmpty })
                 }
             }
         }
@@ -78,136 +129,21 @@ struct LogWorkoutView: View {
     private func saveWorkout() {
         let session = WorkoutSession()
         modelContext.insert(session)
-
         var hitPR = false
-
-        for (index, entry) in sets.enumerated() {
+        for (i, entry) in sets.enumerated() {
             guard let reps = Int(entry.reps), let weight = Double(entry.weight) else { continue }
-
-            let set = ExerciseSet(
-                reps: reps,
-                weight: weight,
-                setNumber: index + 1,
-                exercise: exercise,
-                session: session
-            )
-
-            if weight > personalBest {
-                set.isPersonalRecord = true
-                hitPR = true
-            }
-
+            let set = ExerciseSet(reps: reps, weight: weight, setNumber: i + 1, exercise: exercise, session: session)
+            if weight > personalBest { set.isPersonalRecord = true; hitPR = true }
             modelContext.insert(set)
         }
-
         if hitPR {
-            withAnimation(.spring(duration: 0.5)) {
-                showPRBanner = true
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                dismiss()
-            }
-        } else {
-            dismiss()
-        }
+            withAnimation { showPRBanner = true }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { dismiss() }
+        } else { dismiss() }
     }
 }
 
 struct SetEntry {
     var reps: String = ""
     var weight: String = ""
-}
-
-struct SetEntryCard: View {
-    let setNumber: Int
-    @Binding var entry: SetEntry
-    let color: Color
-
-    var body: some View {
-        HStack(spacing: 12) {
-            Text("SET \(setNumber)")
-                .font(DoodleTheme.mono(11))
-                .foregroundStyle(color)
-                .frame(width: 44)
-
-            VStack(spacing: 2) {
-                TextField("0", text: $entry.reps)
-                    .keyboardType(.numberPad)
-                    .multilineTextAlignment(.center)
-                    .font(DoodleTheme.handwritten(22))
-                    .foregroundStyle(DoodleTheme.ink)
-                Text("reps")
-                    .font(DoodleTheme.mono(10))
-                    .foregroundStyle(DoodleTheme.inkDim)
-            }
-            .frame(maxWidth: .infinity)
-
-            VStack(spacing: 2) {
-                TextField("0", text: $entry.weight)
-                    .keyboardType(.decimalPad)
-                    .multilineTextAlignment(.center)
-                    .font(DoodleTheme.handwritten(22))
-                    .foregroundStyle(DoodleTheme.ink)
-                Text("kg")
-                    .font(DoodleTheme.mono(10))
-                    .foregroundStyle(DoodleTheme.inkDim)
-            }
-            .frame(maxWidth: .infinity)
-        }
-        .glowCard(color: color)
-    }
-}
-
-struct PreviousRecordCard: View {
-    let exerciseSet: ExerciseSet
-
-    private var timeAgo: String {
-        let days = Calendar.current.dateComponents([.day], from: exerciseSet.timestamp, to: Date()).day ?? 0
-        switch days {
-        case 0: return "today"
-        case 1: return "yesterday"
-        default: return "\(days)d ago"
-        }
-    }
-
-    var body: some View {
-        HStack(spacing: 10) {
-            Image(systemName: "clock.arrow.circlepath")
-                .foregroundStyle(DoodleTheme.inkDim)
-
-            Text("last: \(exerciseSet.reps) reps x \(String(format: "%.0f", exerciseSet.weight)) kg")
-                .font(DoodleTheme.mono(13))
-                .foregroundStyle(DoodleTheme.ink)
-
-            Spacer()
-
-            Text(timeAgo)
-                .font(DoodleTheme.mono(11))
-                .foregroundStyle(DoodleTheme.inkLight)
-        }
-        .glowCard(color: DoodleTheme.blue)
-    }
-}
-
-struct PRBanner: View {
-    var body: some View {
-        HStack {
-            Image(systemName: "trophy.fill")
-                .foregroundStyle(DoodleTheme.yellow)
-            Text("NEW PERSONAL RECORD!")
-                .font(DoodleTheme.mono(15))
-                .foregroundStyle(DoodleTheme.yellow)
-            Image(systemName: "trophy.fill")
-                .foregroundStyle(DoodleTheme.yellow)
-        }
-        .padding()
-        .frame(maxWidth: .infinity)
-        .background(DoodleTheme.yellow.opacity(0.1))
-        .cornerRadius(16)
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(DoodleTheme.yellow.opacity(0.4), lineWidth: 2)
-        )
-        .shadow(color: DoodleTheme.yellow.opacity(0.3), radius: 12, x: 0, y: 4)
-    }
 }

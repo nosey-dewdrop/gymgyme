@@ -9,79 +9,65 @@ struct PlansView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                if plans.isEmpty {
-                    VStack(spacing: 16) {
-                        Image(systemName: "list.clipboard")
-                            .font(.system(size: 44))
-                            .foregroundStyle(DoodleTheme.inkDim)
-                        Text("no plans yet")
-                            .font(DoodleTheme.handwritten(18))
-                            .foregroundStyle(DoodleTheme.inkLight)
-                        Text("create a plan from your exercises")
-                            .font(DoodleTheme.caption())
-                            .foregroundStyle(DoodleTheme.inkDim)
-                    }
-                    .padding(.top, 80)
-                } else {
-                    VStack(spacing: 12) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("plans")
+                        .font(.system(size: 20, weight: .black, design: .monospaced))
+                        .foregroundStyle(DoodleTheme.orange)
+                        .padding(.bottom, 8)
+
+                    if plans.isEmpty {
+                        HStack(spacing: 0) {
+                            Text("~ ")
+                                .font(DoodleTheme.mono)
+                                .foregroundStyle(DoodleTheme.dim)
+                            Text("no plans yet")
+                                .font(DoodleTheme.mono)
+                                .foregroundStyle(DoodleTheme.dim)
+                        }
+                        HStack(spacing: 0) {
+                            Text("  ")
+                            Text("tap + to create a plan")
+                                .font(DoodleTheme.monoSmall)
+                                .foregroundStyle(DoodleTheme.dim)
+                        }
+                    } else {
                         ForEach(Array(plans.enumerated()), id: \.element.id) { index, plan in
-                            PlanRow(plan: plan, colorIndex: index)
+                            VStack(alignment: .leading, spacing: 1) {
+                                HStack(spacing: 0) {
+                                    Text("● ")
+                                        .font(DoodleTheme.mono)
+                                        .foregroundStyle(DoodleTheme.color(for: index))
+                                    Text(plan.name)
+                                        .font(DoodleTheme.monoBold)
+                                        .foregroundStyle(DoodleTheme.fg)
+                                }
+                                HStack(spacing: 0) {
+                                    Text("  ")
+                                    Text("\(plan.goal.rawValue) · \(plan.duration.rawValue) · \(plan.exerciseNames.count) exercises")
+                                        .font(DoodleTheme.monoSmall)
+                                        .foregroundStyle(DoodleTheme.dim)
+                                }
+                                Text("").frame(height: 6)
+                            }
                         }
                     }
-                    .padding()
                 }
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
             }
-            .background(DoodleTheme.background)
-            .navigationTitle("Plans")
-            .navigationBarTitleDisplayMode(.large)
+            .background(DoodleTheme.bg.ignoresSafeArea())
+            .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
-                    Button {
-                        showCreatePlan = true
-                    } label: {
+                    Button { showCreatePlan = true } label: {
                         Image(systemName: "plus")
-                            .foregroundStyle(DoodleTheme.accent)
+                            .foregroundStyle(DoodleTheme.green)
                     }
                 }
             }
-            .sheet(isPresented: $showCreatePlan) {
-                CreatePlanView()
-            }
+            .sheet(isPresented: $showCreatePlan) { CreatePlanView() }
         }
-    }
-}
-
-struct PlanRow: View {
-    let plan: WorkoutPlan
-    let colorIndex: Int
-
-    private var color: Color {
-        DoodleTheme.titleColor(for: colorIndex)
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                RoundedRectangle(cornerRadius: 2)
-                    .fill(color)
-                    .frame(width: 4, height: 20)
-                Text(plan.name)
-                    .font(DoodleTheme.handwritten(17))
-                    .foregroundStyle(DoodleTheme.ink)
-            }
-
-            HStack(spacing: 8) {
-                Text(plan.goal.rawValue)
-                Text("·")
-                Text(plan.duration.rawValue)
-                Text("·")
-                Text("\(plan.exerciseNames.count) exercises")
-            }
-            .font(DoodleTheme.mono(12))
-            .foregroundStyle(DoodleTheme.inkLight)
-        }
-        .glowCard(color: color)
     }
 }
 

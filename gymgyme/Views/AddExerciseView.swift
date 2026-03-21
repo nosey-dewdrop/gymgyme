@@ -8,7 +8,6 @@ struct AddExerciseView: View {
 
     @State private var name = ""
     @State private var tagInput = ""
-    @State private var showSuggestions = false
 
     private var existingTags: [String] {
         Array(Set(exercises.map(\.tag))).sorted()
@@ -24,88 +23,71 @@ struct AddExerciseView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                VStack(spacing: 20) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        ColoredHeader("NAME", color: DoodleTheme.blue)
-                        TextField("exercise name", text: $name)
-                            .font(DoodleTheme.body())
-                            .foregroundStyle(DoodleTheme.ink)
-                            .padding()
-                            .background(DoodleTheme.cardBackgroundLight)
-                            .cornerRadius(12)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(DoodleTheme.blue.opacity(0.3), lineWidth: 1)
-                            )
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("add exercise")
+                        .font(.system(size: 20, weight: .black, design: .monospaced))
+                        .foregroundStyle(DoodleTheme.green)
+                        .padding(.bottom, 4)
+
+                    HStack(spacing: 0) {
+                        Text("name: ")
+                            .font(DoodleTheme.mono)
+                            .foregroundStyle(DoodleTheme.dim)
+                        TextField("leg press", text: $name)
+                            .font(DoodleTheme.mono)
+                            .foregroundStyle(DoodleTheme.fg)
                     }
 
-                    VStack(alignment: .leading, spacing: 8) {
-                        ColoredHeader("TAG", color: DoodleTheme.green)
-                        TextField("#bacak, #omuz, #gogus...", text: $tagInput)
-                            .font(DoodleTheme.mono(15))
-                            .foregroundStyle(DoodleTheme.ink)
-                            .padding()
-                            .background(DoodleTheme.cardBackgroundLight)
-                            .cornerRadius(12)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(DoodleTheme.green.opacity(0.3), lineWidth: 1)
-                            )
-                            .onChange(of: tagInput) { _, _ in
-                                showSuggestions = !tagInput.isEmpty
-                            }
+                    HStack(spacing: 0) {
+                        Text("tag:  ")
+                            .font(DoodleTheme.mono)
+                            .foregroundStyle(DoodleTheme.dim)
+                        TextField("bacak", text: $tagInput)
+                            .font(.system(size: 14, design: .monospaced))
+                            .foregroundStyle(DoodleTheme.fg)
+                    }
 
-                        if !tagInput.isEmpty && resolvedTag != tagInput.lowercased().trimmingCharacters(in: .whitespaces) {
-                            HStack(spacing: 4) {
-                                Image(systemName: "arrow.right")
-                                    .font(.caption2)
-                                TagChip(tag: resolvedTag)
-                            }
-                            .foregroundStyle(DoodleTheme.inkLight)
-                            .transition(.opacity)
+                    if !tagInput.isEmpty && resolvedTag != tagInput.lowercased().trimmingCharacters(in: .whitespaces) {
+                        HStack(spacing: 0) {
+                            Text("      → ")
+                                .font(DoodleTheme.monoSmall)
+                                .foregroundStyle(DoodleTheme.dim)
+                            Text("#\(resolvedTag)")
+                                .font(DoodleTheme.monoSmall)
+                                .foregroundStyle(DoodleTheme.color(for: resolvedTag))
                         }
+                    }
 
-                        if showSuggestions && !suggestions.isEmpty {
-                            ScrollView(.horizontal, showsIndicators: false) {
-                                HStack(spacing: 6) {
-                                    ForEach(suggestions, id: \.self) { suggestion in
-                                        Button {
-                                            tagInput = suggestion
-                                            showSuggestions = false
-                                        } label: {
-                                            TagChip(tag: suggestion)
-                                        }
-                                    }
+                    if !suggestions.isEmpty && !tagInput.isEmpty {
+                        HStack(spacing: 8) {
+                            ForEach(suggestions.prefix(5), id: \.self) { s in
+                                Button { tagInput = s } label: {
+                                    Text("#\(s)")
+                                        .font(DoodleTheme.monoSmall)
+                                        .foregroundStyle(DoodleTheme.color(for: s))
                                 }
                             }
-                            .transition(.opacity)
                         }
                     }
                 }
-                .padding()
-
-                Spacer()
+                .padding(.horizontal, 16)
+                .padding(.top, 8)
             }
-            .background(DoodleTheme.background)
-            .navigationTitle("Add Exercise")
+            .background(DoodleTheme.bg.ignoresSafeArea())
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                        .foregroundStyle(DoodleTheme.inkLight)
+                    Button("cancel") { dismiss() }
+                        .font(DoodleTheme.mono).foregroundStyle(DoodleTheme.dim)
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        let exercise = Exercise(
-                            name: name.trimmingCharacters(in: .whitespaces),
-                            tag: resolvedTag
-                        )
-                        modelContext.insert(exercise)
+                    Button("save") {
+                        modelContext.insert(Exercise(name: name.trimmingCharacters(in: .whitespaces), tag: resolvedTag))
                         dismiss()
                     }
-                    .foregroundStyle(DoodleTheme.green)
+                    .font(DoodleTheme.monoBold).foregroundStyle(DoodleTheme.green)
                     .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty || tagInput.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
             }
@@ -114,6 +96,5 @@ struct AddExerciseView: View {
 }
 
 #Preview {
-    AddExerciseView()
-        .modelContainer(for: Exercise.self, inMemory: true)
+    AddExerciseView().modelContainer(for: Exercise.self, inMemory: true)
 }
