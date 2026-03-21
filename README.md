@@ -1,6 +1,6 @@
 # GymGyme 🌱🎀
 ### *a gym tracker that actually understands atrophy, progress, and the pain of skipping arm day*
-A workout tracker + program builder that watches what you *actually* do, warns you about what you're neglecting, and builds programs from your real exercise library - not some influencer's push-pull-legs fantasy.
+A workout tracker + program builder that watches what you *actually* do, warns you about what you're neglecting, and builds programs from your real exercise library. Men only exercise upper body and women (me) only train legs and glutes. I looked at the mirror last week and my legs are atrophicated and glutes not so impressive at all. My upper body is a full disaster. Looks like pretzel...
 
 ---
 
