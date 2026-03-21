@@ -23,7 +23,7 @@ struct LogWorkoutView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 16) {
+                VStack(spacing: 14) {
                     if let prev = previousRecord {
                         PreviousRecordCard(exerciseSet: prev)
                     }
@@ -31,7 +31,8 @@ struct LogWorkoutView: View {
                     ForEach(sets.indices, id: \.self) { index in
                         SetEntryCard(
                             setNumber: index + 1,
-                            entry: $sets[index]
+                            entry: $sets[index],
+                            color: DoodleTheme.titleColor(for: index)
                         )
                     }
 
@@ -42,10 +43,10 @@ struct LogWorkoutView: View {
                             Image(systemName: "plus.circle.fill")
                             Text("Add Set")
                         }
-                        .font(DoodleTheme.body())
-                        .foregroundStyle(DoodleTheme.accent)
+                        .font(DoodleTheme.mono(14))
+                        .foregroundStyle(DoodleTheme.blue)
                     }
-                    .padding(.top, 8)
+                    .padding(.top, 4)
 
                     if showPRBanner {
                         PRBanner()
@@ -57,14 +58,17 @@ struct LogWorkoutView: View {
             .background(DoodleTheme.background)
             .navigationTitle(exercise.name)
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .foregroundStyle(DoodleTheme.inkLight)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
                         saveWorkout()
                     }
+                    .foregroundStyle(DoodleTheme.green)
                     .disabled(sets.allSatisfy { $0.reps.isEmpty && $0.weight.isEmpty })
                 }
             }
@@ -117,22 +121,24 @@ struct SetEntry {
 struct SetEntryCard: View {
     let setNumber: Int
     @Binding var entry: SetEntry
+    let color: Color
 
     var body: some View {
         HStack(spacing: 12) {
-            Text("Set \(setNumber)")
-                .font(DoodleTheme.handwritten(15))
-                .foregroundStyle(DoodleTheme.inkLight)
-                .frame(width: 50)
+            Text("SET \(setNumber)")
+                .font(DoodleTheme.mono(11))
+                .foregroundStyle(color)
+                .frame(width: 44)
 
             VStack(spacing: 2) {
                 TextField("0", text: $entry.reps)
                     .keyboardType(.numberPad)
                     .multilineTextAlignment(.center)
-                    .font(DoodleTheme.handwritten(20))
+                    .font(DoodleTheme.handwritten(22))
+                    .foregroundStyle(DoodleTheme.ink)
                 Text("reps")
-                    .font(DoodleTheme.caption())
-                    .foregroundStyle(DoodleTheme.inkLight)
+                    .font(DoodleTheme.mono(10))
+                    .foregroundStyle(DoodleTheme.inkDim)
             }
             .frame(maxWidth: .infinity)
 
@@ -140,14 +146,15 @@ struct SetEntryCard: View {
                 TextField("0", text: $entry.weight)
                     .keyboardType(.decimalPad)
                     .multilineTextAlignment(.center)
-                    .font(DoodleTheme.handwritten(20))
+                    .font(DoodleTheme.handwritten(22))
+                    .foregroundStyle(DoodleTheme.ink)
                 Text("kg")
-                    .font(DoodleTheme.caption())
-                    .foregroundStyle(DoodleTheme.inkLight)
+                    .font(DoodleTheme.mono(10))
+                    .foregroundStyle(DoodleTheme.inkDim)
             }
             .frame(maxWidth: .infinity)
         }
-        .doodleCard()
+        .glowCard(color: color)
     }
 }
 
@@ -159,26 +166,26 @@ struct PreviousRecordCard: View {
         switch days {
         case 0: return "today"
         case 1: return "yesterday"
-        default: return "\(days) days ago"
+        default: return "\(days)d ago"
         }
     }
 
     var body: some View {
-        HStack {
+        HStack(spacing: 10) {
             Image(systemName: "clock.arrow.circlepath")
-                .foregroundStyle(DoodleTheme.inkLight)
+                .foregroundStyle(DoodleTheme.inkDim)
 
-            Text("Last: \(exerciseSet.reps) reps × \(String(format: "%.0f", exerciseSet.weight)) kg")
-                .font(DoodleTheme.body())
+            Text("last: \(exerciseSet.reps) reps x \(String(format: "%.0f", exerciseSet.weight)) kg")
+                .font(DoodleTheme.mono(13))
                 .foregroundStyle(DoodleTheme.ink)
 
             Spacer()
 
             Text(timeAgo)
-                .font(DoodleTheme.caption())
+                .font(DoodleTheme.mono(11))
                 .foregroundStyle(DoodleTheme.inkLight)
         }
-        .doodleCard()
+        .glowCard(color: DoodleTheme.blue)
     }
 }
 
@@ -186,20 +193,21 @@ struct PRBanner: View {
     var body: some View {
         HStack {
             Image(systemName: "trophy.fill")
-                .foregroundStyle(.yellow)
-            Text("New Personal Record!")
-                .font(DoodleTheme.handwritten(18))
-                .foregroundStyle(DoodleTheme.ink)
+                .foregroundStyle(DoodleTheme.yellow)
+            Text("NEW PERSONAL RECORD!")
+                .font(DoodleTheme.mono(15))
+                .foregroundStyle(DoodleTheme.yellow)
             Image(systemName: "trophy.fill")
-                .foregroundStyle(.yellow)
+                .foregroundStyle(DoodleTheme.yellow)
         }
         .padding()
         .frame(maxWidth: .infinity)
-        .background(DoodleTheme.yellow.opacity(0.2))
+        .background(DoodleTheme.yellow.opacity(0.1))
         .cornerRadius(16)
         .overlay(
             RoundedRectangle(cornerRadius: 16)
-                .stroke(DoodleTheme.yellow, lineWidth: 2)
+                .stroke(DoodleTheme.yellow.opacity(0.4), lineWidth: 2)
         )
+        .shadow(color: DoodleTheme.yellow.opacity(0.3), radius: 12, x: 0, y: 4)
     }
 }

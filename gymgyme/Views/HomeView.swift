@@ -38,7 +38,7 @@ struct HomeView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(spacing: 16) {
+                VStack(spacing: 14) {
                     if let days = daysSinceAnyWorkout, days >= 1 {
                         InactivityBanner(days: days)
                     } else if daysSinceAnyWorkout == nil && !exercises.isEmpty {
@@ -48,21 +48,21 @@ struct HomeView: View {
                     StreakCard(exercises: exercises)
 
                     if exercises.isEmpty {
-                        VStack(spacing: 12) {
+                        VStack(spacing: 16) {
                             Image(systemName: "dumbbell")
-                                .font(.system(size: 48))
-                                .foregroundStyle(DoodleTheme.inkLight)
-                            Text("No exercises yet")
+                                .font(.system(size: 44))
+                                .foregroundStyle(DoodleTheme.inkDim)
+                            Text("no exercises yet")
                                 .font(DoodleTheme.handwritten(18))
-                                .foregroundStyle(DoodleTheme.ink)
-                            Text("Tap + to add your first exercise")
-                                .font(DoodleTheme.caption())
                                 .foregroundStyle(DoodleTheme.inkLight)
+                            Text("tap + to add your first exercise")
+                                .font(DoodleTheme.caption())
+                                .foregroundStyle(DoodleTheme.inkDim)
                         }
-                        .padding(.top, 60)
+                        .padding(.top, 80)
                     } else {
-                        ForEach(sortedExercises) { exercise in
-                            ExerciseCard(exercise: exercise)
+                        ForEach(Array(sortedExercises.enumerated()), id: \.element.id) { index, exercise in
+                            ExerciseCard(exercise: exercise, colorIndex: index)
                                 .onTapGesture {
                                     selectedExercise = exercise
                                 }
@@ -74,13 +74,14 @@ struct HomeView: View {
             .background(DoodleTheme.background)
             .navigationTitle("gymgyme")
             .navigationBarTitleDisplayMode(.large)
+            .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
                         showSettings = true
                     } label: {
-                        Image(systemName: "gearshape")
-                            .foregroundStyle(DoodleTheme.ink)
+                        Image(systemName: "gearshape.fill")
+                            .foregroundStyle(DoodleTheme.inkLight)
                     }
                 }
                 ToolbarItem(placement: .primaryAction) {
@@ -88,6 +89,7 @@ struct HomeView: View {
                         showAddExercise = true
                     } label: {
                         Image(systemName: "plus")
+                            .foregroundStyle(DoodleTheme.accent)
                     }
                 }
             }
@@ -113,29 +115,33 @@ struct HomeView: View {
 struct InactivityBanner: View {
     let days: Int?
 
+    private var isUrgent: Bool { (days ?? 0) >= 5 }
+    private var color: Color { isUrgent ? DoodleTheme.red : DoodleTheme.yellow }
+
     var body: some View {
         HStack(spacing: 10) {
-            Image(systemName: days != nil && days! >= 5 ? "exclamationmark.triangle.fill" : "clock")
-                .foregroundStyle(days != nil && days! >= 5 ? DoodleTheme.red : DoodleTheme.yellow)
+            Image(systemName: isUrgent ? "exclamationmark.triangle.fill" : "clock")
+                .foregroundStyle(color)
 
             if let days {
                 Text("\(days) day\(days == 1 ? "" : "s") since last workout")
-                    .font(DoodleTheme.handwritten(15))
+                    .font(DoodleTheme.mono(13))
                     .foregroundStyle(DoodleTheme.ink)
             } else {
-                Text("No workouts logged yet")
-                    .font(DoodleTheme.handwritten(15))
+                Text("no workouts logged yet")
+                    .font(DoodleTheme.mono(13))
                     .foregroundStyle(DoodleTheme.ink)
             }
             Spacer()
         }
         .padding()
-        .background((days ?? 0) >= 5 ? DoodleTheme.red.opacity(0.1) : DoodleTheme.yellow.opacity(0.1))
+        .background(color.opacity(0.08))
         .cornerRadius(14)
         .overlay(
             RoundedRectangle(cornerRadius: 14)
-                .stroke((days ?? 0) >= 5 ? DoodleTheme.red.opacity(0.3) : DoodleTheme.yellow.opacity(0.3), lineWidth: 1.5)
+                .stroke(color.opacity(0.2), lineWidth: 1)
         )
+        .shadow(color: color.opacity(0.15), radius: 8, x: 0, y: 3)
     }
 }
 
@@ -166,26 +172,25 @@ struct StreakCard: View {
 
     var body: some View {
         if !exercises.isEmpty && exercises.contains(where: { !$0.sets.isEmpty }) {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 10) {
                 HStack {
-                    Text("21 Day Challenge")
-                        .font(DoodleTheme.handwritten(16))
-                        .foregroundStyle(DoodleTheme.ink)
+                    ColoredHeader("21 DAY CHALLENGE", color: DoodleTheme.purple)
                     Spacer()
                     Text("\(currentStreak) streak")
-                        .font(DoodleTheme.caption())
-                        .foregroundStyle(DoodleTheme.accent)
+                        .font(DoodleTheme.mono(12))
+                        .foregroundStyle(DoodleTheme.green)
                 }
 
                 HStack(spacing: 3) {
                     ForEach(0..<21, id: \.self) { index in
                         RoundedRectangle(cornerRadius: 3)
-                            .fill(last21Days[index] ? DoodleTheme.green : DoodleTheme.ink.opacity(0.1))
+                            .fill(last21Days[index] ? DoodleTheme.green : DoodleTheme.inkDim.opacity(0.4))
                             .frame(height: 14)
+                            .shadow(color: last21Days[index] ? DoodleTheme.green.opacity(0.4) : .clear, radius: 4)
                     }
                 }
             }
-            .doodleCard()
+            .glowCard(color: DoodleTheme.purple)
         }
     }
 }
@@ -194,6 +199,11 @@ struct StreakCard: View {
 
 struct ExerciseCard: View {
     let exercise: Exercise
+    let colorIndex: Int
+
+    private var accentColor: Color {
+        DoodleTheme.titleColor(for: colorIndex)
+    }
 
     private var lastSet: ExerciseSet? {
         exercise.sets
@@ -214,49 +224,53 @@ struct ExerciseCard: View {
         default:
             if days >= 30 {
                 let months = days / 30
-                return "\(months) month\(months == 1 ? "" : "s") ago"
+                return "\(months) mo ago"
             }
-            return "\(days) days ago"
+            return "\(days)d ago"
         }
     }
 
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: exercise.muscleGroup.icon)
-                .font(.title3)
-                .foregroundStyle(DoodleTheme.accent)
-                .frame(width: 32)
+            RoundedRectangle(cornerRadius: 3)
+                .fill(accentColor)
+                .frame(width: 4, height: 36)
 
-            VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 4) {
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 6) {
                     Text(exercise.name)
                         .font(DoodleTheme.handwritten(16))
                         .foregroundStyle(DoodleTheme.ink)
                     if hasPR {
                         Image(systemName: "trophy.fill")
                             .font(.caption2)
-                            .foregroundStyle(.yellow)
+                            .foregroundStyle(DoodleTheme.yellow)
                     }
                 }
 
-                if let lastSet, let timeAgo = timeAgoText {
-                    Text("\(timeAgo) / \(String(format: "%.0f", lastSet.weight)) kg")
-                        .font(DoodleTheme.caption())
-                        .foregroundStyle(DoodleTheme.inkLight)
-                } else {
-                    Text("no logs yet")
-                        .font(DoodleTheme.caption())
-                        .foregroundStyle(DoodleTheme.inkLight)
+                HStack(spacing: 8) {
+                    if let lastSet, let timeAgo = timeAgoText {
+                        Text(timeAgo)
+                            .font(DoodleTheme.mono(12))
+                            .foregroundStyle(DoodleTheme.inkLight)
+                        Text("/")
+                            .foregroundStyle(DoodleTheme.inkDim)
+                        Text("\(String(format: "%.0f", lastSet.weight)) kg")
+                            .font(DoodleTheme.mono(12))
+                            .foregroundStyle(DoodleTheme.ink)
+                    } else {
+                        Text("no logs yet")
+                            .font(DoodleTheme.mono(12))
+                            .foregroundStyle(DoodleTheme.inkDim)
+                    }
                 }
             }
 
             Spacer()
 
-            Text("#\(exercise.muscleGroup.rawValue)")
-                .font(DoodleTheme.caption())
-                .foregroundStyle(DoodleTheme.accent.opacity(0.7))
+            TagChip(tag: exercise.tag)
         }
-        .doodleCard()
+        .glowCard(color: accentColor)
     }
 }
 

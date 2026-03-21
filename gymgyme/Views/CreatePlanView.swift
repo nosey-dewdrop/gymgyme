@@ -11,122 +11,115 @@ struct CreatePlanView: View {
     @State private var selectedDuration: PlanDuration = .oneWeek
     @State private var selectedExercises: Set<PersistentIdentifier> = []
 
-    private var missingMuscleGroups: [MuscleGroup] {
-        let coveredGroups = exercises
-            .filter { selectedExercises.contains($0.persistentModelID) }
-            .map(\.muscleGroup)
-        let coveredSet = Set(coveredGroups)
-
-        let requiredGroups: [MuscleGroup]
-        switch selectedGoal {
-        case .fullBody:
-            requiredGroups = MuscleGroup.allCases
-        case .upper:
-            requiredGroups = [.chest, .back, .shoulders, .biceps, .triceps]
-        case .lower:
-            requiredGroups = [.legs, .glutes, .core]
-        }
-
-        return requiredGroups.filter { !coveredSet.contains($0) }
+    private var selectedTags: Set<String> {
+        Set(exercises.filter { selectedExercises.contains($0.persistentModelID) }.map(\.tag))
     }
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section {
-                    TextField("Plan name", text: $planName)
-                        .font(DoodleTheme.body())
-                } header: {
-                    Text("Name")
-                }
-                .listRowBackground(DoodleTheme.cardBackground)
-
-                Section {
-                    Picker("Goal", selection: $selectedGoal) {
-                        ForEach(PlanGoal.allCases, id: \.self) { goal in
-                            Text(goal.rawValue).tag(goal)
-                        }
-                    }
-                    .font(DoodleTheme.body())
-
-                    Picker("Duration", selection: $selectedDuration) {
-                        ForEach(PlanDuration.allCases, id: \.self) { duration in
-                            Text(duration.rawValue).tag(duration)
-                        }
-                    }
-                    .font(DoodleTheme.body())
-                } header: {
-                    Text("Settings")
-                }
-                .listRowBackground(DoodleTheme.cardBackground)
-
-                Section {
-                    if exercises.isEmpty {
-                        Text("Add exercises from the Home tab first")
+            ScrollView {
+                VStack(spacing: 20) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        ColoredHeader("NAME", color: DoodleTheme.blue)
+                        TextField("plan name", text: $planName)
                             .font(DoodleTheme.body())
-                            .foregroundStyle(DoodleTheme.inkLight)
-                    } else {
-                        ForEach(exercises) { exercise in
-                            Button {
-                                toggleExercise(exercise)
-                            } label: {
-                                HStack {
-                                    Image(systemName: exercise.muscleGroup.icon)
-                                        .frame(width: 30)
-                                    VStack(alignment: .leading) {
-                                        Text(exercise.name)
-                                            .font(DoodleTheme.body())
-                                        Text(exercise.muscleGroup.displayName)
-                                            .font(DoodleTheme.caption())
-                                            .foregroundStyle(DoodleTheme.inkLight)
+                            .foregroundStyle(DoodleTheme.ink)
+                            .padding()
+                            .background(DoodleTheme.cardBackgroundLight)
+                            .cornerRadius(12)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(DoodleTheme.blue.opacity(0.3), lineWidth: 1)
+                            )
+                    }
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        ColoredHeader("SETTINGS", color: DoodleTheme.orange)
+
+                        VStack(spacing: 0) {
+                            Picker("Goal", selection: $selectedGoal) {
+                                ForEach(PlanGoal.allCases, id: \.self) { goal in
+                                    Text(goal.rawValue).tag(goal)
+                                }
+                            }
+                            .tint(DoodleTheme.orange)
+
+                            Divider().background(DoodleTheme.inkDim)
+
+                            Picker("Duration", selection: $selectedDuration) {
+                                ForEach(PlanDuration.allCases, id: \.self) { duration in
+                                    Text(duration.rawValue).tag(duration)
+                                }
+                            }
+                            .tint(DoodleTheme.orange)
+                        }
+                        .padding()
+                        .background(DoodleTheme.cardBackgroundLight)
+                        .cornerRadius(12)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(DoodleTheme.orange.opacity(0.3), lineWidth: 1)
+                        )
+                    }
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        ColoredHeader("EXERCISES", color: DoodleTheme.green)
+
+                        if exercises.isEmpty {
+                            Text("add exercises from the Home tab first")
+                                .font(DoodleTheme.mono(13))
+                                .foregroundStyle(DoodleTheme.inkDim)
+                                .padding()
+                        } else {
+                            VStack(spacing: 2) {
+                                ForEach(exercises) { exercise in
+                                    Button {
+                                        toggleExercise(exercise)
+                                    } label: {
+                                        HStack {
+                                            Text(exercise.name)
+                                                .font(DoodleTheme.body())
+                                                .foregroundStyle(DoodleTheme.ink)
+                                            Spacer()
+                                            TagChip(tag: exercise.tag)
+                                            Image(systemName: selectedExercises.contains(exercise.persistentModelID) ? "checkmark.circle.fill" : "circle")
+                                                .foregroundStyle(selectedExercises.contains(exercise.persistentModelID) ? DoodleTheme.green : DoodleTheme.inkDim)
+                                        }
+                                        .padding(.vertical, 10)
+                                        .padding(.horizontal)
                                     }
-                                    Spacer()
-                                    if selectedExercises.contains(exercise.persistentModelID) {
-                                        Image(systemName: "checkmark.circle.fill")
-                                            .foregroundStyle(DoodleTheme.accent)
-                                    } else {
-                                        Image(systemName: "circle")
-                                            .foregroundStyle(DoodleTheme.inkLight)
+
+                                    if exercise.id != exercises.last?.id {
+                                        Divider().background(DoodleTheme.inkDim.opacity(0.3))
+                                            .padding(.horizontal)
                                     }
                                 }
-                                .foregroundStyle(DoodleTheme.ink)
                             }
+                            .background(DoodleTheme.cardBackgroundLight)
+                            .cornerRadius(12)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(DoodleTheme.green.opacity(0.3), lineWidth: 1)
+                            )
                         }
                     }
-                } header: {
-                    Text("Exercises")
                 }
-                .listRowBackground(DoodleTheme.cardBackground)
-
-                if !selectedExercises.isEmpty && !missingMuscleGroups.isEmpty {
-                    Section {
-                        ForEach(missingMuscleGroups) { group in
-                            HStack {
-                                Image(systemName: "exclamationmark.triangle.fill")
-                                    .foregroundStyle(DoodleTheme.yellow)
-                                Text("No \(group.displayName.lowercased()) exercise!")
-                                    .font(DoodleTheme.body())
-                                    .foregroundStyle(DoodleTheme.ink)
-                            }
-                        }
-                    } header: {
-                        Text("Missing Muscle Groups")
-                    }
-                    .listRowBackground(DoodleTheme.yellow.opacity(0.1))
-                }
+                .padding()
             }
-            .scrollContentBackground(.hidden)
             .background(DoodleTheme.background)
             .navigationTitle("New Plan")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .foregroundStyle(DoodleTheme.inkLight)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Create") {
                         savePlan()
                     }
+                    .foregroundStyle(DoodleTheme.green)
                     .disabled(planName.trimmingCharacters(in: .whitespaces).isEmpty || selectedExercises.isEmpty)
                 }
             }

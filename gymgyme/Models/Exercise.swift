@@ -4,15 +4,15 @@ import SwiftData
 @Model
 final class Exercise {
     var name: String
-    var muscleGroup: MuscleGroup
+    var tag: String
     var createdAt: Date
 
     @Relationship(deleteRule: .cascade, inverse: \ExerciseSet.exercise)
     var sets: [ExerciseSet] = []
 
-    init(name: String, muscleGroup: MuscleGroup) {
+    init(name: String, tag: String) {
         self.name = name
-        self.muscleGroup = muscleGroup
+        self.tag = tag.lowercased().trimmingCharacters(in: .whitespaces)
         self.createdAt = Date()
     }
 }

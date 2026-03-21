@@ -3,43 +3,45 @@ import SwiftData
 
 struct DiscoverView: View {
     @Environment(\.modelContext) private var modelContext
+    @Query private var myExercises: [Exercise]
     @State private var searchText = ""
-    @State private var selectedMuscleGroup: MuscleGroup?
+    @State private var selectedTag: String?
     @State private var exercises: [ExerciseDBItem] = []
     @State private var isLoading = false
     @State private var selectedDetail: ExerciseDBItem?
     @State private var addedMessage: String?
 
+    private var existingTags: [String] {
+        Array(Set(myExercises.map(\.tag))).sorted()
+    }
+
+    private let commonTags = ["bacak", "gogus", "sirt", "omuz", "biceps", "triceps", "karin", "kalca"]
+
+    private var displayTags: [String] {
+        let all = Set(commonTags + existingTags)
+        return Array(all).sorted()
+    }
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
                 ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        ForEach(MuscleGroup.allCases) { group in
+                    HStack(spacing: 6) {
+                        ForEach(displayTags, id: \.self) { tag in
                             Button {
-                                if selectedMuscleGroup == group {
-                                    selectedMuscleGroup = nil
+                                if selectedTag == tag {
+                                    selectedTag = nil
                                 } else {
-                                    selectedMuscleGroup = group
-                                    searchByMuscle(group)
+                                    selectedTag = tag
+                                    searchByMuscle(tag)
                                 }
                             } label: {
-                                Text("#\(group.rawValue)")
-                                    .font(DoodleTheme.caption())
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 6)
-                                    .background(selectedMuscleGroup == group ? DoodleTheme.accent : DoodleTheme.cardBackground)
-                                    .foregroundStyle(selectedMuscleGroup == group ? .white : DoodleTheme.ink)
-                                    .cornerRadius(20)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 20)
-                                            .stroke(DoodleTheme.ink.opacity(0.1), lineWidth: 1)
-                                    )
+                                TagChip(tag: tag, isSelected: selectedTag == tag)
                             }
                         }
                     }
                     .padding(.horizontal)
-                    .padding(.vertical, 8)
+                    .padding(.vertical, 10)
                 }
 
                 if let msg = addedMessage {
@@ -47,7 +49,7 @@ struct DiscoverView: View {
                         Image(systemName: "checkmark.circle.fill")
                             .foregroundStyle(DoodleTheme.green)
                         Text(msg)
-                            .font(DoodleTheme.caption())
+                            .font(DoodleTheme.mono(12))
                             .foregroundStyle(DoodleTheme.ink)
                     }
                     .padding(.horizontal)
@@ -62,23 +64,23 @@ struct DiscoverView: View {
                     Spacer()
                 } else if exercises.isEmpty {
                     Spacer()
-                    VStack(spacing: 12) {
+                    VStack(spacing: 14) {
                         Image(systemName: "magnifyingglass")
                             .font(.system(size: 40))
+                            .foregroundStyle(DoodleTheme.inkDim)
+                        Text("search exercises")
+                            .font(DoodleTheme.handwritten(17))
                             .foregroundStyle(DoodleTheme.inkLight)
-                        Text("Search exercises by muscle group")
-                            .font(DoodleTheme.body())
-                            .foregroundStyle(DoodleTheme.inkLight)
-                        Text("Tap a #tag above to browse")
-                            .font(DoodleTheme.caption())
-                            .foregroundStyle(DoodleTheme.inkLight)
+                        Text("tap a #tag above or search by name")
+                            .font(DoodleTheme.mono(12))
+                            .foregroundStyle(DoodleTheme.inkDim)
                     }
                     Spacer()
                 } else {
                     ScrollView {
-                        LazyVStack(spacing: 12) {
-                            ForEach(exercises) { item in
-                                DiscoverExerciseRow(item: item) {
+                        LazyVStack(spacing: 10) {
+                            ForEach(Array(exercises.enumerated()), id: \.element.id) { index, item in
+                                DiscoverExerciseRow(item: item, colorIndex: index) {
                                     selectedDetail = item
                                 }
                             }
@@ -90,7 +92,8 @@ struct DiscoverView: View {
             .background(DoodleTheme.background)
             .navigationTitle("Discover")
             .navigationBarTitleDisplayMode(.large)
-            .searchable(text: $searchText, prompt: "Search exercises...")
+            .toolbarColorScheme(.dark, for: .navigationBar)
+            .searchable(text: $searchText, prompt: "search exercises...")
             .onSubmit(of: .search) {
                 searchByName()
             }
@@ -102,24 +105,18 @@ struct DiscoverView: View {
         }
     }
 
-    private func searchByMuscle(_ group: MuscleGroup) {
+    private func searchByMuscle(_ tag: String) {
         isLoading = true
         exercises = []
 
-        let muscleMap: [MuscleGroup: String] = [
-            .chest: "chest",
-            .back: "back",
-            .shoulders: "shoulders",
-            .biceps: "biceps",
-            .triceps: "triceps",
-            .legs: "quadriceps",
-            .core: "abdominals",
-            .glutes: "glutes"
+        let muscleMap: [String: String] = [
+            "bacak": "quadriceps", "gogus": "chest", "sirt": "back",
+            "omuz": "shoulders", "biceps": "biceps", "triceps": "triceps",
+            "karin": "abdominals", "kalca": "glutes",
         ]
 
-        let muscle = muscleMap[group] ?? group.rawValue
+        let muscle = muscleMap[tag] ?? tag
         let urlString = "https://exercisedb.p.rapidapi.com/exercises/target/\(muscle)?limit=20&offset=0"
-
         fetchExercises(urlString: urlString)
     }
 
@@ -130,7 +127,6 @@ struct DiscoverView: View {
 
         let encoded = searchText.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? searchText
         let urlString = "https://exercisedb.p.rapidapi.com/exercises/name/\(encoded)?limit=20&offset=0"
-
         fetchExercises(urlString: urlString)
     }
 
@@ -143,7 +139,6 @@ struct DiscoverView: View {
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.setValue("exercisedb.p.rapidapi.com", forHTTPHeaderField: "x-rapidapi-host")
-        // API key should be stored securely - placeholder for now
         request.setValue("DEMO_KEY", forHTTPHeaderField: "x-rapidapi-key")
 
         Task {
@@ -163,19 +158,18 @@ struct DiscoverView: View {
     }
 
     private func addToMyExercises(_ item: ExerciseDBItem) {
-        let muscleGroupMap: [String: MuscleGroup] = [
-            "chest": .chest, "pectorals": .chest,
-            "back": .back, "lats": .back, "upper back": .back, "spine": .back,
-            "shoulders": .shoulders, "delts": .shoulders,
-            "biceps": .biceps,
-            "triceps": .triceps,
-            "quadriceps": .legs, "hamstrings": .legs, "calves": .legs, "adductors": .legs, "abductors": .legs,
-            "abdominals": .core, "abs": .core, "serratus anterior": .core,
-            "glutes": .glutes, "cardiovascular system": .core
+        let tagMap: [String: String] = [
+            "chest": "gogus", "pectorals": "gogus",
+            "back": "sirt", "lats": "sirt", "upper back": "sirt", "spine": "sirt",
+            "shoulders": "omuz", "delts": "omuz",
+            "biceps": "biceps", "triceps": "triceps",
+            "quadriceps": "bacak", "hamstrings": "bacak", "calves": "bacak", "adductors": "bacak", "abductors": "bacak",
+            "abdominals": "karin", "abs": "karin", "serratus anterior": "karin",
+            "glutes": "kalca", "cardiovascular system": "karin"
         ]
 
-        let group = muscleGroupMap[item.target.lowercased()] ?? .core
-        let exercise = Exercise(name: item.name.capitalized, muscleGroup: group)
+        let tag = tagMap[item.target.lowercased()] ?? selectedTag ?? item.target.lowercased()
+        let exercise = Exercise(name: item.name.capitalized, tag: tag)
         modelContext.insert(exercise)
 
         withAnimation {
@@ -204,7 +198,12 @@ struct ExerciseDBItem: Codable, Identifiable {
 
 struct DiscoverExerciseRow: View {
     let item: ExerciseDBItem
+    let colorIndex: Int
     let onTap: () -> Void
+
+    private var color: Color {
+        DoodleTheme.titleColor(for: colorIndex)
+    }
 
     var body: some View {
         Button(action: onTap) {
@@ -213,37 +212,39 @@ struct DiscoverExerciseRow: View {
                     image.resizable().aspectRatio(contentMode: .fill)
                 } placeholder: {
                     RoundedRectangle(cornerRadius: 8)
-                        .fill(DoodleTheme.ink.opacity(0.05))
+                        .fill(DoodleTheme.cardBackgroundLight)
                         .overlay(
                             Image(systemName: "figure.strengthtraining.traditional")
-                                .foregroundStyle(DoodleTheme.inkLight)
+                                .foregroundStyle(DoodleTheme.inkDim)
                         )
                 }
-                .frame(width: 56, height: 56)
+                .frame(width: 50, height: 50)
                 .cornerRadius(8)
 
-                VStack(alignment: .leading, spacing: 3) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text(item.name.capitalized)
-                        .font(DoodleTheme.handwritten(15))
+                        .font(DoodleTheme.handwritten(14))
                         .foregroundStyle(DoodleTheme.ink)
                         .lineLimit(1)
 
                     HStack(spacing: 6) {
                         Text("#\(item.target)")
+                            .foregroundStyle(color)
                         Text("·")
+                            .foregroundStyle(DoodleTheme.inkDim)
                         Text(item.equipment)
+                            .foregroundStyle(DoodleTheme.inkLight)
                     }
-                    .font(DoodleTheme.caption())
-                    .foregroundStyle(DoodleTheme.inkLight)
+                    .font(DoodleTheme.mono(11))
                 }
 
                 Spacer()
 
                 Image(systemName: "chevron.right")
-                    .font(.caption)
-                    .foregroundStyle(DoodleTheme.inkLight)
+                    .font(.caption2)
+                    .foregroundStyle(DoodleTheme.inkDim)
             }
-            .doodleCard()
+            .glowCard(color: color)
         }
     }
 }
@@ -263,34 +264,34 @@ struct ExerciseDetailView: View {
                         image.resizable().aspectRatio(contentMode: .fit)
                     } placeholder: {
                         RoundedRectangle(cornerRadius: 12)
-                            .fill(DoodleTheme.ink.opacity(0.05))
+                            .fill(DoodleTheme.cardBackgroundLight)
                             .frame(height: 200)
-                            .overlay(ProgressView())
+                            .overlay(ProgressView().tint(DoodleTheme.accent))
                     }
                     .cornerRadius(12)
+                    .shadow(color: DoodleTheme.accent.opacity(0.2), radius: 12)
 
-                    VStack(alignment: .leading, spacing: 12) {
-                        InfoRow(label: "Target", value: item.target.capitalized)
-                        InfoRow(label: "Body Part", value: item.bodyPart.capitalized)
-                        InfoRow(label: "Equipment", value: item.equipment.capitalized)
+                    VStack(alignment: .leading, spacing: 10) {
+                        ColoredHeader("INFO", color: DoodleTheme.blue)
+                        InfoRow(label: "Target", value: item.target.capitalized, color: DoodleTheme.accent)
+                        InfoRow(label: "Body Part", value: item.bodyPart.capitalized, color: DoodleTheme.orange)
+                        InfoRow(label: "Equipment", value: item.equipment.capitalized, color: DoodleTheme.blue)
 
                         if !item.secondaryMuscles.isEmpty {
-                            InfoRow(label: "Secondary", value: item.secondaryMuscles.map(\.capitalized).joined(separator: ", "))
+                            InfoRow(label: "Secondary", value: item.secondaryMuscles.map(\.capitalized).joined(separator: ", "), color: DoodleTheme.green)
                         }
                     }
-                    .doodleCard()
+                    .glowCard(color: DoodleTheme.blue)
 
                     if !item.instructions.isEmpty {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("How to do it")
-                                .font(DoodleTheme.handwritten(17))
-                                .foregroundStyle(DoodleTheme.ink)
+                        VStack(alignment: .leading, spacing: 10) {
+                            ColoredHeader("HOW TO DO IT", color: DoodleTheme.green)
 
                             ForEach(Array(item.instructions.enumerated()), id: \.offset) { index, instruction in
                                 HStack(alignment: .top, spacing: 8) {
                                     Text("\(index + 1).")
-                                        .font(DoodleTheme.caption())
-                                        .foregroundStyle(DoodleTheme.accent)
+                                        .font(DoodleTheme.mono(12))
+                                        .foregroundStyle(DoodleTheme.titleColor(for: index))
                                         .frame(width: 20)
                                     Text(instruction)
                                         .font(DoodleTheme.body())
@@ -298,7 +299,7 @@ struct ExerciseDetailView: View {
                                 }
                             }
                         }
-                        .doodleCard()
+                        .glowCard(color: DoodleTheme.green)
                     }
 
                     Button {
@@ -309,12 +310,13 @@ struct ExerciseDetailView: View {
                             Image(systemName: "plus.circle.fill")
                             Text("Add to My Exercises")
                         }
-                        .font(DoodleTheme.handwritten(17))
+                        .font(DoodleTheme.handwritten(16))
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(DoodleTheme.accent)
                         .cornerRadius(14)
+                        .shadow(color: DoodleTheme.accent.opacity(0.4), radius: 10, x: 0, y: 4)
                     }
                 }
                 .padding()
@@ -322,9 +324,11 @@ struct ExerciseDetailView: View {
             .background(DoodleTheme.background)
             .navigationTitle(item.name.capitalized)
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Close") { dismiss() }
+                        .foregroundStyle(DoodleTheme.inkLight)
                 }
             }
         }
@@ -334,13 +338,14 @@ struct ExerciseDetailView: View {
 struct InfoRow: View {
     let label: String
     let value: String
+    var color: Color = DoodleTheme.inkLight
 
     var body: some View {
         HStack {
             Text(label)
-                .font(DoodleTheme.caption())
-                .foregroundStyle(DoodleTheme.inkLight)
-                .frame(width: 80, alignment: .leading)
+                .font(DoodleTheme.mono(11))
+                .foregroundStyle(DoodleTheme.inkDim)
+                .frame(width: 75, alignment: .leading)
             Text(value)
                 .font(DoodleTheme.body())
                 .foregroundStyle(DoodleTheme.ink)

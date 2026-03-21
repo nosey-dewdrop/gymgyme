@@ -8,34 +8,40 @@ struct PlansView: View {
 
     var body: some View {
         NavigationStack {
-            List {
+            ScrollView {
                 if plans.isEmpty {
-                    ContentUnavailableView(
-                        "No plans yet",
-                        systemImage: "list.clipboard",
-                        description: Text("Create a plan from your exercises")
-                    )
-                } else {
-                    ForEach(plans) { plan in
-                        PlanRow(plan: plan)
+                    VStack(spacing: 16) {
+                        Image(systemName: "list.clipboard")
+                            .font(.system(size: 44))
+                            .foregroundStyle(DoodleTheme.inkDim)
+                        Text("no plans yet")
+                            .font(DoodleTheme.handwritten(18))
+                            .foregroundStyle(DoodleTheme.inkLight)
+                        Text("create a plan from your exercises")
+                            .font(DoodleTheme.caption())
+                            .foregroundStyle(DoodleTheme.inkDim)
                     }
-                    .onDelete { indexSet in
-                        for index in indexSet {
-                            modelContext.delete(plans[index])
+                    .padding(.top, 80)
+                } else {
+                    VStack(spacing: 12) {
+                        ForEach(Array(plans.enumerated()), id: \.element.id) { index, plan in
+                            PlanRow(plan: plan, colorIndex: index)
                         }
                     }
+                    .padding()
                 }
             }
-            .scrollContentBackground(.hidden)
             .background(DoodleTheme.background)
             .navigationTitle("Plans")
             .navigationBarTitleDisplayMode(.large)
+            .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button {
                         showCreatePlan = true
                     } label: {
                         Image(systemName: "plus")
+                            .foregroundStyle(DoodleTheme.accent)
                     }
                 }
             }
@@ -48,12 +54,22 @@ struct PlansView: View {
 
 struct PlanRow: View {
     let plan: WorkoutPlan
+    let colorIndex: Int
+
+    private var color: Color {
+        DoodleTheme.titleColor(for: colorIndex)
+    }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(plan.name)
-                .font(DoodleTheme.handwritten(17))
-                .foregroundStyle(DoodleTheme.ink)
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(color)
+                    .frame(width: 4, height: 20)
+                Text(plan.name)
+                    .font(DoodleTheme.handwritten(17))
+                    .foregroundStyle(DoodleTheme.ink)
+            }
 
             HStack(spacing: 8) {
                 Text(plan.goal.rawValue)
@@ -62,10 +78,10 @@ struct PlanRow: View {
                 Text("·")
                 Text("\(plan.exerciseNames.count) exercises")
             }
-            .font(DoodleTheme.caption())
+            .font(DoodleTheme.mono(12))
             .foregroundStyle(DoodleTheme.inkLight)
         }
-        .listRowBackground(DoodleTheme.cardBackground)
+        .glowCard(color: color)
     }
 }
 

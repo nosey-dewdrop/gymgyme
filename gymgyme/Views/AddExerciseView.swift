@@ -2,62 +2,111 @@ import SwiftUI
 import SwiftData
 
 struct AddExerciseView: View {
+    @Query private var exercises: [Exercise]
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
 
     @State private var name = ""
-    @State private var selectedMuscleGroup: MuscleGroup = .chest
+    @State private var tagInput = ""
+    @State private var showSuggestions = false
+
+    private var existingTags: [String] {
+        Array(Set(exercises.map(\.tag))).sorted()
+    }
+
+    private var suggestions: [String] {
+        TagSuggester.suggestions(for: tagInput, existingTags: existingTags)
+    }
+
+    private var resolvedTag: String {
+        TagSuggester.suggest(for: tagInput)
+    }
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section {
-                    TextField("Exercise name", text: $name)
-                        .font(DoodleTheme.body())
-                } header: {
-                    Text("Name")
-                }
-                .listRowBackground(DoodleTheme.cardBackground)
+            VStack(spacing: 0) {
+                VStack(spacing: 20) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        ColoredHeader("NAME", color: DoodleTheme.blue)
+                        TextField("exercise name", text: $name)
+                            .font(DoodleTheme.body())
+                            .foregroundStyle(DoodleTheme.ink)
+                            .padding()
+                            .background(DoodleTheme.cardBackgroundLight)
+                            .cornerRadius(12)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(DoodleTheme.blue.opacity(0.3), lineWidth: 1)
+                            )
+                    }
 
-                Section {
-                    ForEach(MuscleGroup.allCases) { group in
-                        Button {
-                            selectedMuscleGroup = group
-                        } label: {
-                            HStack {
-                                Image(systemName: group.icon)
-                                    .frame(width: 30)
-                                Text(group.displayName)
-                                    .font(DoodleTheme.body())
-                                Spacer()
-                                if selectedMuscleGroup == group {
-                                    Image(systemName: "checkmark")
-                                        .foregroundStyle(DoodleTheme.accent)
+                    VStack(alignment: .leading, spacing: 8) {
+                        ColoredHeader("TAG", color: DoodleTheme.green)
+                        TextField("#bacak, #omuz, #gogus...", text: $tagInput)
+                            .font(DoodleTheme.mono(15))
+                            .foregroundStyle(DoodleTheme.ink)
+                            .padding()
+                            .background(DoodleTheme.cardBackgroundLight)
+                            .cornerRadius(12)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(DoodleTheme.green.opacity(0.3), lineWidth: 1)
+                            )
+                            .onChange(of: tagInput) { _, _ in
+                                showSuggestions = !tagInput.isEmpty
+                            }
+
+                        if !tagInput.isEmpty && resolvedTag != tagInput.lowercased().trimmingCharacters(in: .whitespaces) {
+                            HStack(spacing: 4) {
+                                Image(systemName: "arrow.right")
+                                    .font(.caption2)
+                                TagChip(tag: resolvedTag)
+                            }
+                            .foregroundStyle(DoodleTheme.inkLight)
+                            .transition(.opacity)
+                        }
+
+                        if showSuggestions && !suggestions.isEmpty {
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 6) {
+                                    ForEach(suggestions, id: \.self) { suggestion in
+                                        Button {
+                                            tagInput = suggestion
+                                            showSuggestions = false
+                                        } label: {
+                                            TagChip(tag: suggestion)
+                                        }
+                                    }
                                 }
                             }
-                            .foregroundStyle(DoodleTheme.ink)
+                            .transition(.opacity)
                         }
                     }
-                } header: {
-                    Text("Muscle Group")
                 }
-                .listRowBackground(DoodleTheme.cardBackground)
+                .padding()
+
+                Spacer()
             }
-            .scrollContentBackground(.hidden)
             .background(DoodleTheme.background)
             .navigationTitle("Add Exercise")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
+                        .foregroundStyle(DoodleTheme.inkLight)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
-                        let exercise = Exercise(name: name.trimmingCharacters(in: .whitespaces), muscleGroup: selectedMuscleGroup)
+                        let exercise = Exercise(
+                            name: name.trimmingCharacters(in: .whitespaces),
+                            tag: resolvedTag
+                        )
                         modelContext.insert(exercise)
                         dismiss()
                     }
-                    .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
+                    .foregroundStyle(DoodleTheme.green)
+                    .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty || tagInput.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
             }
         }
