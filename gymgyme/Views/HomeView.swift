@@ -37,44 +37,47 @@ struct HomeView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 14) {
-                    if let days = daysSinceAnyWorkout, days >= 1 {
-                        InactivityBanner(days: days)
-                    } else if daysSinceAnyWorkout == nil && !exercises.isEmpty {
-                        InactivityBanner(days: nil)
-                    }
+            ZStack {
+                // Background with subtle gradient
+                DoodleTheme.background.ignoresSafeArea()
+                LinearGradient(
+                    colors: [
+                        DoodleTheme.accent.opacity(0.03),
+                        DoodleTheme.background,
+                        DoodleTheme.blue.opacity(0.02)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
 
-                    StreakCard(exercises: exercises)
+                ScrollView {
+                    VStack(spacing: 14) {
+                        if let days = daysSinceAnyWorkout, days >= 1 {
+                            InactivityBanner(days: days)
+                        } else if daysSinceAnyWorkout == nil && !exercises.isEmpty {
+                            InactivityBanner(days: nil)
+                        }
 
-                    if exercises.isEmpty {
-                        VStack(spacing: 16) {
-                            Image(systemName: "dumbbell")
-                                .font(.system(size: 44))
-                                .foregroundStyle(DoodleTheme.inkDim)
-                            Text("no exercises yet")
-                                .font(DoodleTheme.handwritten(18))
-                                .foregroundStyle(DoodleTheme.inkLight)
-                            Text("tap + to add your first exercise")
-                                .font(DoodleTheme.caption())
-                                .foregroundStyle(DoodleTheme.inkDim)
+                        StreakCard(exercises: exercises)
+
+                        if exercises.isEmpty {
+                            EmptyHomeView()
+                        } else {
+                            ForEach(Array(sortedExercises.enumerated()), id: \.element.id) { index, exercise in
+                                ExerciseCard(exercise: exercise, colorIndex: index)
+                                    .onTapGesture {
+                                        selectedExercise = exercise
+                                    }
+                            }
                         }
-                        .padding(.top, 80)
-                    } else {
-                        ForEach(Array(sortedExercises.enumerated()), id: \.element.id) { index, exercise in
-                            ExerciseCard(exercise: exercise, colorIndex: index)
-                                .onTapGesture {
-                                    selectedExercise = exercise
-                                }
-                        }
+
+                        // Bottom spacer for tab bar
+                        Spacer().frame(height: 80)
                     }
+                    .padding()
                 }
-                .padding()
             }
-            .background(DoodleTheme.background)
-            .navigationTitle("gymgyme")
-            .navigationBarTitleDisplayMode(.large)
-            .toolbarColorScheme(.dark, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
@@ -82,17 +85,33 @@ struct HomeView: View {
                     } label: {
                         Image(systemName: "gearshape.fill")
                             .foregroundStyle(DoodleTheme.inkLight)
+                            .shadow(color: DoodleTheme.purple.opacity(0.3), radius: 4)
                     }
+                }
+                ToolbarItem(placement: .principal) {
+                    Text("gymgyme")
+                        .font(.system(size: 22, weight: .black, design: .rounded))
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [DoodleTheme.accent, DoodleTheme.orange, DoodleTheme.blue],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
                 }
                 ToolbarItem(placement: .primaryAction) {
                     Button {
                         showAddExercise = true
                     } label: {
-                        Image(systemName: "plus")
+                        Image(systemName: "plus.circle.fill")
+                            .font(.title3)
                             .foregroundStyle(DoodleTheme.accent)
+                            .shadow(color: DoodleTheme.accent.opacity(0.5), radius: 6)
                     }
                 }
             }
+            .toolbarColorScheme(.dark, for: .navigationBar)
+            .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showAddExercise) {
                 AddExerciseView()
             }
@@ -110,6 +129,73 @@ struct HomeView: View {
     }
 }
 
+// MARK: - Empty Home
+
+struct EmptyHomeView: View {
+    @State private var pulse = false
+
+    var body: some View {
+        VStack(spacing: 20) {
+            ZStack {
+                Circle()
+                    .fill(DoodleTheme.accent.opacity(0.08))
+                    .frame(width: 120, height: 120)
+                    .scaleEffect(pulse ? 1.1 : 1.0)
+
+                Circle()
+                    .fill(DoodleTheme.accent.opacity(0.05))
+                    .frame(width: 160, height: 160)
+                    .scaleEffect(pulse ? 1.15 : 1.0)
+
+                Image(systemName: "dumbbell.fill")
+                    .font(.system(size: 40))
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [DoodleTheme.accent, DoodleTheme.orange],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .shadow(color: DoodleTheme.accent.opacity(0.4), radius: 10)
+            }
+            .onAppear {
+                withAnimation(.easeInOut(duration: 2).repeatForever(autoreverses: true)) {
+                    pulse = true
+                }
+            }
+
+            VStack(spacing: 8) {
+                Text("no exercises yet")
+                    .font(DoodleTheme.handwritten(20))
+                    .foregroundStyle(DoodleTheme.ink)
+
+                Text("tap ")
+                    .font(DoodleTheme.mono(13))
+                    .foregroundStyle(DoodleTheme.inkDim)
+                +
+                Text("+ ")
+                    .font(DoodleTheme.mono(13))
+                    .foregroundStyle(DoodleTheme.accent)
+                +
+                Text("to add your first exercise")
+                    .font(DoodleTheme.mono(13))
+                    .foregroundStyle(DoodleTheme.inkDim)
+            }
+
+            // Decorative dots
+            HStack(spacing: 6) {
+                ForEach(0..<5, id: \.self) { i in
+                    Circle()
+                        .fill(DoodleTheme.titleColor(for: i))
+                        .frame(width: 6, height: 6)
+                        .opacity(0.5)
+                }
+            }
+        }
+        .padding(.top, 60)
+    }
+}
+
 // MARK: - Inactivity Banner
 
 struct InactivityBanner: View {
@@ -122,9 +208,14 @@ struct InactivityBanner: View {
         HStack(spacing: 10) {
             Image(systemName: isUrgent ? "exclamationmark.triangle.fill" : "clock")
                 .foregroundStyle(color)
+                .shadow(color: color.opacity(0.5), radius: 4)
 
             if let days {
-                Text("\(days) day\(days == 1 ? "" : "s") since last workout")
+                Text("\(days)")
+                    .font(DoodleTheme.handwritten(16))
+                    .foregroundStyle(color)
+                +
+                Text(" day\(days == 1 ? "" : "s") since last workout")
                     .font(DoodleTheme.mono(13))
                     .foregroundStyle(DoodleTheme.ink)
             } else {
@@ -139,7 +230,7 @@ struct InactivityBanner: View {
         .cornerRadius(14)
         .overlay(
             RoundedRectangle(cornerRadius: 14)
-                .stroke(color.opacity(0.2), lineWidth: 1)
+                .stroke(color.opacity(0.25), lineWidth: 1)
         )
         .shadow(color: color.opacity(0.15), radius: 8, x: 0, y: 3)
     }
@@ -174,19 +265,32 @@ struct StreakCard: View {
         if !exercises.isEmpty && exercises.contains(where: { !$0.sets.isEmpty }) {
             VStack(alignment: .leading, spacing: 10) {
                 HStack {
-                    ColoredHeader("21 DAY CHALLENGE", color: DoodleTheme.purple)
+                    HStack(spacing: 6) {
+                        Image(systemName: "flame.fill")
+                            .foregroundStyle(DoodleTheme.orange)
+                            .shadow(color: DoodleTheme.orange.opacity(0.5), radius: 4)
+                        Text("21 DAY CHALLENGE")
+                            .font(DoodleTheme.mono(12))
+                            .foregroundStyle(DoodleTheme.purple)
+                    }
                     Spacer()
-                    Text("\(currentStreak) streak")
-                        .font(DoodleTheme.mono(12))
+                    Text("\(currentStreak)")
+                        .font(DoodleTheme.handwritten(18))
                         .foregroundStyle(DoodleTheme.green)
+                    +
+                    Text(" streak")
+                        .font(DoodleTheme.mono(11))
+                        .foregroundStyle(DoodleTheme.green.opacity(0.7))
                 }
 
                 HStack(spacing: 3) {
                     ForEach(0..<21, id: \.self) { index in
                         RoundedRectangle(cornerRadius: 3)
-                            .fill(last21Days[index] ? DoodleTheme.green : DoodleTheme.inkDim.opacity(0.4))
-                            .frame(height: 14)
-                            .shadow(color: last21Days[index] ? DoodleTheme.green.opacity(0.4) : .clear, radius: 4)
+                            .fill(last21Days[index]
+                                  ? DoodleTheme.green
+                                  : DoodleTheme.inkDim.opacity(0.3))
+                            .frame(height: 16)
+                            .shadow(color: last21Days[index] ? DoodleTheme.green.opacity(0.5) : .clear, radius: 4)
                     }
                 }
             }
@@ -232,9 +336,17 @@ struct ExerciseCard: View {
 
     var body: some View {
         HStack(spacing: 12) {
+            // Color bar
             RoundedRectangle(cornerRadius: 3)
-                .fill(accentColor)
-                .frame(width: 4, height: 36)
+                .fill(
+                    LinearGradient(
+                        colors: [accentColor, accentColor.opacity(0.4)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+                .frame(width: 4, height: 40)
+                .shadow(color: accentColor.opacity(0.5), radius: 4)
 
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 6) {
@@ -245,6 +357,7 @@ struct ExerciseCard: View {
                         Image(systemName: "trophy.fill")
                             .font(.caption2)
                             .foregroundStyle(DoodleTheme.yellow)
+                            .shadow(color: DoodleTheme.yellow.opacity(0.5), radius: 3)
                     }
                 }
 
@@ -252,7 +365,7 @@ struct ExerciseCard: View {
                     if let lastSet, let timeAgo = timeAgoText {
                         Text(timeAgo)
                             .font(DoodleTheme.mono(12))
-                            .foregroundStyle(DoodleTheme.inkLight)
+                            .foregroundStyle(accentColor.opacity(0.8))
                         Text("/")
                             .foregroundStyle(DoodleTheme.inkDim)
                         Text("\(String(format: "%.0f", lastSet.weight)) kg")
