@@ -10,5 +10,8 @@
 - [x] PR auto-detection (dev)
 - [x] atrophy dashboard with risk colors and notifications (dev)
 - [x] plan creation from user exercises with missing muscle warning (dev)
+- [ ] fix background white bleed on edges (dev)
+- [x] pixel art title with pixellab api (dev)
+- [ ] verify pixel art title renders correctly on simulator (dev)
 - [ ] ExerciseDB API search (dev)
 - [ ] progress charts per exercise (dev)
