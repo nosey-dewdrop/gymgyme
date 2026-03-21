@@ -33,8 +33,10 @@ struct HomeView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 2) {
+            ZStack {
+                DoodleTheme.bg.ignoresSafeArea(.all)
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 2) {
                     // header
                     HStack(spacing: 0) {
                         Text("g").foregroundStyle(DoodleTheme.pink)
@@ -80,9 +82,9 @@ struct HomeView: View {
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
             }
-            .background(DoodleTheme.bg.ignoresSafeArea())
+            }
             .navigationBarTitleDisplayMode(.inline)
-            .toolbarColorScheme(.dark, for: .navigationBar)
+            .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button { showSettings = true } label: {

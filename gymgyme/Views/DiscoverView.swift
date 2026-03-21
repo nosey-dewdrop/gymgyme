@@ -23,9 +23,11 @@ struct DiscoverView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("discover")
+            ZStack {
+                DoodleTheme.bg.ignoresSafeArea(.all)
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("discover")
                         .font(.system(size: 20, weight: .black, design: .monospaced))
                         .foregroundStyle(DoodleTheme.blue)
                         .padding(.bottom, 8)
@@ -105,9 +107,9 @@ struct DiscoverView: View {
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
             }
-            .background(DoodleTheme.bg.ignoresSafeArea())
+            }
             .navigationBarTitleDisplayMode(.inline)
-            .toolbarColorScheme(.dark, for: .navigationBar)
+            .toolbarBackground(.hidden, for: .navigationBar)
             .searchable(text: $searchText, prompt: "search exercises...")
             .onSubmit(of: .search) { searchByName() }
             .sheet(item: $selectedDetail) { item in
@@ -178,9 +180,11 @@ struct ExerciseDetailView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 8) {
-                    AsyncImage(url: URL(string: item.gifUrl)) { image in
+            ZStack {
+                DoodleTheme.bg.ignoresSafeArea(.all)
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 8) {
+                        AsyncImage(url: URL(string: item.gifUrl)) { image in
                         image.resizable().aspectRatio(contentMode: .fit)
                     } placeholder: {
                         Text("loading...")
@@ -239,10 +243,10 @@ struct ExerciseDetailView: View {
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
             }
-            .background(DoodleTheme.bg.ignoresSafeArea())
+            }
             .navigationTitle(item.name.capitalized)
             .navigationBarTitleDisplayMode(.inline)
-            .toolbarColorScheme(.dark, for: .navigationBar)
+            .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("close") { dismiss() }

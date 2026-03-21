@@ -13,9 +13,11 @@ struct CreatePlanView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("new plan")
+            ZStack {
+                DoodleTheme.bg.ignoresSafeArea(.all)
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("new plan")
                         .font(.system(size: 20, weight: .black, design: .monospaced))
                         .foregroundStyle(DoodleTheme.orange)
                         .padding(.bottom, 8)
@@ -82,9 +84,9 @@ struct CreatePlanView: View {
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
             }
-            .background(DoodleTheme.bg.ignoresSafeArea())
+            }
             .navigationBarTitleDisplayMode(.inline)
-            .toolbarColorScheme(.dark, for: .navigationBar)
+            .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("cancel") { dismiss() }

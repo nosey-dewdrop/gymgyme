@@ -18,9 +18,11 @@ struct LogWorkoutView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(exercise.name)
+            ZStack {
+                DoodleTheme.bg.ignoresSafeArea(.all)
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(exercise.name)
                         .font(.system(size: 20, weight: .black, design: .monospaced))
                         .foregroundStyle(DoodleTheme.pink)
 
@@ -107,9 +109,9 @@ struct LogWorkoutView: View {
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
             }
-            .background(DoodleTheme.bg.ignoresSafeArea())
+            }
             .navigationBarTitleDisplayMode(.inline)
-            .toolbarColorScheme(.dark, for: .navigationBar)
+            .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("cancel") { dismiss() }

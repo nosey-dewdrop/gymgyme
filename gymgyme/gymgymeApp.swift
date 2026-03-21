@@ -2,17 +2,60 @@ import SwiftUI
 import SwiftData
 import UIKit
 
+class AppDelegate: NSObject, UIApplicationDelegate {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        // Kill all default white backgrounds
+        let bgColor = UIColor(DoodleTheme.bg)
+        UIScrollView.appearance().backgroundColor = bgColor
+        UITableView.appearance().backgroundColor = bgColor
+        UICollectionView.appearance().backgroundColor = bgColor
+        return true
+    }
+
+    func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
+        let config = UISceneConfiguration(name: nil, sessionRole: connectingSceneSession.role)
+        config.delegateClass = SceneDelegate.self
+        return config
+    }
+}
+
+class SceneDelegate: NSObject, UIWindowSceneDelegate {
+    func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+        guard let windowScene = scene as? UIWindowScene else { return }
+        let bgColor = UIColor(DoodleTheme.bg)
+        for window in windowScene.windows {
+            window.backgroundColor = bgColor
+        }
+    }
+
+    func sceneDidBecomeActive(_ scene: UIScene) {
+        guard let windowScene = scene as? UIWindowScene else { return }
+        let bgColor = UIColor(DoodleTheme.bg)
+        for window in windowScene.windows {
+            window.backgroundColor = bgColor
+            window.rootViewController?.view.backgroundColor = bgColor
+        }
+    }
+}
+
 @main
 struct gymgymeApp: App {
-    init() {
-        // Force all windows to use the dark background
-        UIView.appearance(whenContainedInInstancesOf: [UIWindow.self]).backgroundColor = UIColor(DoodleTheme.bg)
-    }
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .background(DoodleTheme.bg.ignoresSafeArea())
+                .background(DoodleTheme.bg.ignoresSafeArea(.all))
+                .onAppear {
+                    for scene in UIApplication.shared.connectedScenes {
+                        guard let ws = scene as? UIWindowScene else { continue }
+                        let bgColor = UIColor(DoodleTheme.bg)
+                        for window in ws.windows {
+                            window.backgroundColor = bgColor
+                            window.rootViewController?.view.backgroundColor = bgColor
+                        }
+                    }
+                }
         }
         .modelContainer(for: [
             Exercise.self,

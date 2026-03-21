@@ -8,9 +8,11 @@ struct PlansView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("plans")
+            ZStack {
+                DoodleTheme.bg.ignoresSafeArea(.all)
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("plans")
                         .font(.system(size: 20, weight: .black, design: .monospaced))
                         .foregroundStyle(DoodleTheme.orange)
                         .padding(.bottom, 8)
@@ -55,9 +57,9 @@ struct PlansView: View {
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
             }
-            .background(DoodleTheme.bg.ignoresSafeArea())
+            }
             .navigationBarTitleDisplayMode(.inline)
-            .toolbarColorScheme(.dark, for: .navigationBar)
+            .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button { showCreatePlan = true } label: {
