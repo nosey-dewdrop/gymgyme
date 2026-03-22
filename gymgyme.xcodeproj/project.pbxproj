@@ -86,6 +86,7 @@
 		65B539E51A685763656CADC8 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		693535871F2E33A2D22D8759 /* ExerciseSet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseSet.swift; sourceTree = "<group>"; };
 		6F011D61A755BE8C20563179 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		77E0D703AE18241DB0A2F4FC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		7C50BE3C5E4422572C4ACAC4 /* WorkoutPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutPlan.swift; sourceTree = "<group>"; };
 		7C78CC0C6F8E65699FAA8C8A /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		8785B682867647467EA98E0A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -122,6 +123,7 @@
 				D139AB3E21FF0ECB1768B2EA /* gymgymeWidget.entitlements */,
 				DC4CE282C5C3B847D07F6D29 /* gymgymeWidget.swift */,
 				CA8C1D6091553737AE8DA4B4 /* gymgymeWidgetBundle.swift */,
+				77E0D703AE18241DB0A2F4FC /* Info.plist */,
 				2AE2B9B9BAD5FA37A2D5821A /* WidgetView.swift */,
 			);
 			path = gymgymeWidget;
@@ -544,9 +546,7 @@
 				CODE_SIGN_ENTITLEMENTS = gymgymeWidget/gymgymeWidget.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "gymgyme Widget";
-				INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier = "com.apple.widgetkit-extension";
+				INFOPLIST_FILE = gymgymeWidget/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -566,9 +566,7 @@
 				CODE_SIGN_ENTITLEMENTS = gymgymeWidget/gymgymeWidget.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "gymgyme Widget";
-				INFOPLIST_KEY_NSExtension_NSExtensionPointIdentifier = "com.apple.widgetkit-extension";
+				INFOPLIST_FILE = gymgymeWidget/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
