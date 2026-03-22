@@ -123,9 +123,10 @@ struct HomeView: View {
                     if let lastSet {
                         let days = Calendar.current.dateComponents([.day], from: lastSet.timestamp, to: Date()).day ?? 0
                         let timeText = days == 0 ? "today" : days == 1 ? "yesterday" : "\(days)d ago"
+                        let atrophyColor = atrophyColor(days: days)
                         Text("last: \(timeText)")
                             .font(DoodleTheme.monoSmall)
-                            .foregroundStyle(DoodleTheme.dim)
+                            .foregroundStyle(atrophyColor)
                     } else {
                         Text("no logs yet")
                             .font(DoodleTheme.monoSmall)
@@ -201,6 +202,13 @@ struct HomeView: View {
 
             Text("").frame(height: 6)
         }
+        .contextMenu {
+            Button(role: .destructive) {
+                deleteExercise(exercise)
+            } label: {
+                Label("delete", systemImage: "trash")
+            }
+        }
     }
 
     private struct DayGroup {
@@ -263,6 +271,17 @@ struct HomeView: View {
                     .foregroundStyle(DoodleTheme.green)
             }
         }
+    }
+
+    private func atrophyColor(days: Int) -> Color {
+        if days <= 3 { return DoodleTheme.green }
+        if days <= 7 { return DoodleTheme.yellow }
+        if days <= 30 { return DoodleTheme.red }
+        return DoodleTheme.dim
+    }
+
+    private func deleteExercise(_ exercise: Exercise) {
+        modelContext.delete(exercise)
     }
 
     private func termLine(bullet: String, color: Color, text: String) -> some View {

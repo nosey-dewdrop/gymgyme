@@ -151,6 +151,13 @@ struct MealLogView: View {
                             .foregroundStyle(DoodleTheme.dim)
                     }
                 }
+                .contextMenu {
+                    Button(role: .destructive) {
+                        modelContext.delete(meal)
+                    } label: {
+                        Label("delete", systemImage: "trash")
+                    }
+                }
             }
 
             Text("").frame(height: 4)
