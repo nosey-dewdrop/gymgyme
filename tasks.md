@@ -14,5 +14,5 @@
 - [x] replace pixel art title with terminal menlo font (dev)
 - [x] rename plans to programs across all views (dev)
 - [x] unify tab fonts and layout convention (dev)
-- [ ] ExerciseDB API search (dev)
+- [x] exercise discovery with wger API, no key needed (dev)
 - [ ] progress charts per exercise (dev)
