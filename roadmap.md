@@ -23,6 +23,6 @@
 - [x] English tag convention
 
 ## Phase 5: Polish
-- [ ] Progress charts per exercise
+- [x] Progress charts per exercise
 - [ ] Meal logging (text input per day)
 - [ ] UI refinements

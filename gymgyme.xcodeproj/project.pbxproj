@@ -28,6 +28,7 @@
 		E1C48D990699DD746BD43E2E /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 958EC8DC28E9ED0C00F7438E /* HomeView.swift */; };
 		EF172CEF1025D9C9EA002A60 /* ExerciseSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 693535871F2E33A2D22D8759 /* ExerciseSet.swift */; };
 		F94B6BDBC5E86B0871B7A614 /* PlansView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0EADF599C971FF57772DFF1 /* PlansView.swift */; };
+		B1A2C3D4E5F60718293A4B5C /* ProgressChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B5D /* ProgressChartView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -53,6 +54,7 @@
 		CBE919A7B20DD45AC5FBBB68 /* DiscoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiscoverView.swift; sourceTree = "<group>"; };
 		CD8B78620EE6BD3D02D45014 /* TypewriterTitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypewriterTitle.swift; sourceTree = "<group>"; };
 		D2DCD2C1D37901CB23DA03E1 /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60718293A4B5D /* ProgressChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressChartView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -126,6 +128,7 @@
 				958EC8DC28E9ED0C00F7438E /* HomeView.swift */,
 				6107D34F32AAC596C2153BA2 /* LogWorkoutView.swift */,
 				C0EADF599C971FF57772DFF1 /* PlansView.swift */,
+				A1B2C3D4E5F60718293A4B5D /* ProgressChartView.swift */,
 				6F011D61A755BE8C20563179 /* SettingsView.swift */,
 				CD8B78620EE6BD3D02D45014 /* TypewriterTitle.swift */,
 			);
@@ -215,6 +218,7 @@
 				6D09B11BCED145C09395D871 /* LogWorkoutView.swift in Sources */,
 				4D6FDC07855F71A317FA5B27 /* NotificationManager.swift in Sources */,
 				F94B6BDBC5E86B0871B7A614 /* PlansView.swift in Sources */,
+				B1A2C3D4E5F60718293A4B5C /* ProgressChartView.swift in Sources */,
 				5E3C1848AD79DFE85D02FEEA /* SettingsView.swift in Sources */,
 				5016C58374BDBEDA80AA81D8 /* TagSuggester.swift in Sources */,
 				94F5CC5F2C1C7A63306C7EF5 /* TypewriterTitle.swift in Sources */,

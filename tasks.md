@@ -21,4 +21,4 @@
 - [x] exercise log history expand on tap (dev)
 - [x] tr/en toggle for exercise descriptions (dev)
 - [x] category normalize from wger translations (dev)
-- [ ] progress charts per exercise (dev)
+- [x] progress charts per exercise (dev)

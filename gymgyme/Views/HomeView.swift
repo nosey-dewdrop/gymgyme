@@ -9,6 +9,7 @@ struct HomeView: View {
     @State private var showSettings = false
     @State private var expandedExerciseId: PersistentIdentifier?
     @State private var logExercise: Exercise?
+    @State private var chartExercise: Exercise?
 
     private var lastAnyWorkout: Date? {
         exercises.flatMap { $0.sets }.compactMap { $0.timestamp }.max()
@@ -86,6 +87,7 @@ struct HomeView: View {
             .sheet(isPresented: $showAddExercise) { AddExerciseView() }
             .sheet(item: $logExercise) { exercise in LogWorkoutView(exercise: exercise) }
             .sheet(isPresented: $showSettings) { SettingsView() }
+            .sheet(item: $chartExercise) { exercise in ProgressChartView(exercise: exercise) }
             .onAppear {
                 NotificationManager.shared.requestPermission()
                 NotificationManager.shared.scheduleInactivityReminder(lastWorkoutDate: lastAnyWorkout)
@@ -171,14 +173,24 @@ struct HomeView: View {
                         }
                     }
 
-                    Button {
-                        logExercise = exercise
-                    } label: {
-                        HStack(spacing: 0) {
-                            Text("  ")
-                            Text("+ log workout")
+                    HStack(spacing: 12) {
+                        Button {
+                            logExercise = exercise
+                        } label: {
+                            HStack(spacing: 0) {
+                                Text("  ")
+                                Text("+ log workout")
+                                    .font(DoodleTheme.monoSmall)
+                                    .foregroundStyle(DoodleTheme.green)
+                            }
+                        }
+
+                        Button {
+                            chartExercise = exercise
+                        } label: {
+                            Text("~ progress")
                                 .font(DoodleTheme.monoSmall)
-                                .foregroundStyle(DoodleTheme.green)
+                                .foregroundStyle(DoodleTheme.teal)
                         }
                     }
                     .padding(.top, 2)
