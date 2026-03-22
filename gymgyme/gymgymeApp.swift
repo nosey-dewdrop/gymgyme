@@ -57,7 +57,8 @@ struct gymgymeApp: App {
             WorkoutSession.self,
             ExerciseSet.self,
             WorkoutPlan.self,
-            UserProfile.self
+            UserProfile.self,
+            Meal.self
         ])
     }
 }

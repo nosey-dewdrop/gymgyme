@@ -28,6 +28,8 @@ struct ContentView: View {
                 .tabItem { Label("exercises", systemImage: "terminal") }
             PlansView()
                 .tabItem { Label("programs", systemImage: "list.bullet") }
+            MealLogView()
+                .tabItem { Label("meals", systemImage: "fork.knife") }
             DiscoverView()
                 .tabItem { Label("discover", systemImage: "magnifyingglass") }
         }
@@ -40,6 +42,6 @@ struct ContentView: View {
     ContentView()
         .modelContainer(for: [
             Exercise.self, WorkoutSession.self, ExerciseSet.self,
-            WorkoutPlan.self, UserProfile.self
+            WorkoutPlan.self, UserProfile.self, Meal.self
         ], inMemory: true)
 }

@@ -29,6 +29,8 @@
 		EF172CEF1025D9C9EA002A60 /* ExerciseSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 693535871F2E33A2D22D8759 /* ExerciseSet.swift */; };
 		F94B6BDBC5E86B0871B7A614 /* PlansView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0EADF599C971FF57772DFF1 /* PlansView.swift */; };
 		B1A2C3D4E5F60718293A4B5C /* ProgressChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B5D /* ProgressChartView.swift */; };
+		C2B3D4E5F6071829A3B4C5D6 /* Meal.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3C4E5F607182930B4C5D6E7 /* Meal.swift */; };
+		E4D5F6071829304AB5C6D7E8 /* MealLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5E6071829304A5BC6D7E8F9 /* MealLogView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -55,6 +57,8 @@
 		CD8B78620EE6BD3D02D45014 /* TypewriterTitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypewriterTitle.swift; sourceTree = "<group>"; };
 		D2DCD2C1D37901CB23DA03E1 /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F60718293A4B5D /* ProgressChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressChartView.swift; sourceTree = "<group>"; };
+		D3C4E5F607182930B4C5D6E7 /* Meal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Meal.swift; sourceTree = "<group>"; };
+		F5E6071829304A5BC6D7E8F9 /* MealLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealLogView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -109,6 +113,7 @@
 			children = (
 				08DCB1C6446B5F9B86E689BC /* Exercise.swift */,
 				693535871F2E33A2D22D8759 /* ExerciseSet.swift */,
+				D3C4E5F607182930B4C5D6E7 /* Meal.swift */,
 				9F0CBB47B1F00800EA6B8561 /* TagSuggester.swift */,
 				11490273B8136145BF785BA2 /* UserProfile.swift */,
 				7C50BE3C5E4422572C4ACAC4 /* WorkoutPlan.swift */,
@@ -127,6 +132,7 @@
 				CBE919A7B20DD45AC5FBBB68 /* DiscoverView.swift */,
 				958EC8DC28E9ED0C00F7438E /* HomeView.swift */,
 				6107D34F32AAC596C2153BA2 /* LogWorkoutView.swift */,
+				F5E6071829304A5BC6D7E8F9 /* MealLogView.swift */,
 				C0EADF599C971FF57772DFF1 /* PlansView.swift */,
 				A1B2C3D4E5F60718293A4B5D /* ProgressChartView.swift */,
 				6F011D61A755BE8C20563179 /* SettingsView.swift */,
@@ -216,6 +222,8 @@
 				EF172CEF1025D9C9EA002A60 /* ExerciseSet.swift in Sources */,
 				E1C48D990699DD746BD43E2E /* HomeView.swift in Sources */,
 				6D09B11BCED145C09395D871 /* LogWorkoutView.swift in Sources */,
+				C2B3D4E5F6071829A3B4C5D6 /* Meal.swift in Sources */,
+				E4D5F6071829304AB5C6D7E8 /* MealLogView.swift in Sources */,
 				4D6FDC07855F71A317FA5B27 /* NotificationManager.swift in Sources */,
 				F94B6BDBC5E86B0871B7A614 /* PlansView.swift in Sources */,
 				B1A2C3D4E5F60718293A4B5C /* ProgressChartView.swift in Sources */,

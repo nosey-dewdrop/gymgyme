@@ -24,5 +24,5 @@
 
 ## Phase 5: Polish
 - [x] Progress charts per exercise
-- [ ] Meal logging (text input per day)
+- [x] Meal logging (text input per day)
 - [ ] UI refinements
