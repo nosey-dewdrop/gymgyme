@@ -2,21 +2,28 @@ import Foundation
 import SwiftData
 
 struct TagSuggester {
-    // Common tags with aliases/typos that map to the correct tag
     static let knownTags: [String: String] = [
-        // Turkish
-        "bacak": "bacak", "bcak": "bacak", "bakac": "bacak", "backa": "bacak",
-        "gogus": "gogus", "göğüs": "gogus", "gögüs": "gogus", "gogüs": "gogus", "chest": "gogus",
-        "sirt": "sirt", "sırt": "sirt", "back": "sirt",
-        "omuz": "omuz", "omzu": "omuz", "shoulders": "omuz",
-        "biceps": "biceps", "biseps": "biceps", "bicep": "biceps",
-        "triceps": "triceps", "triseps": "triceps", "tricep": "triceps",
-        "karin": "karin", "karın": "karin", "core": "karin", "abs": "karin",
-        "kalca": "kalca", "kalça": "kalca", "glutes": "kalca", "popo": "kalca",
+        // English canonical
+        "legs": "legs", "leg": "legs", "quads": "legs", "quadriceps": "legs", "hamstrings": "legs", "calves": "legs",
+        "chest": "chest", "pectorals": "chest", "pecs": "chest",
+        "back": "back", "lats": "back", "upper back": "back", "lat": "back",
+        "shoulders": "shoulders", "shoulder": "shoulders", "delts": "shoulders",
+        "biceps": "biceps", "bicep": "biceps",
+        "triceps": "triceps", "tricep": "triceps",
+        "abs": "abs", "core": "abs", "abdominals": "abs",
+        "glutes": "glutes", "glute": "glutes",
+        // Turkish aliases
+        "bacak": "legs", "bcak": "legs", "bakac": "legs",
+        "gogus": "chest", "göğüs": "chest", "gögüs": "chest",
+        "sirt": "back", "sırt": "back",
+        "omuz": "shoulders", "omzu": "shoulders",
+        "biseps": "biceps",
+        "triseps": "triceps",
+        "karin": "abs", "karın": "abs",
+        "kalca": "glutes", "kalça": "glutes", "popo": "glutes",
         "on kol": "biceps", "arka kol": "triceps",
-        "ust govde": "ust govde", "üst gövde": "ust govde", "upper": "ust govde",
-        "alt govde": "alt govde", "alt gövde": "alt govde", "lower": "alt govde",
-        "legs": "bacak", "leg": "bacak",
+        "ust govde": "upper body", "üst gövde": "upper body", "upper": "upper body",
+        "alt govde": "lower body", "alt gövde": "lower body", "lower": "lower body",
     ]
 
     static func suggest(for input: String) -> String {
@@ -25,11 +32,10 @@ struct TagSuggester {
             return exact
         }
 
-        // Fuzzy: find closest known tag
         var bestMatch: (String, Int)?
         for (alias, canonical) in knownTags {
             let dist = levenshteinDistance(cleaned, alias)
-            if dist <= 2 { // allow up to 2 typos
+            if dist <= 2 {
                 if bestMatch == nil || dist < bestMatch!.1 {
                     bestMatch = (canonical, dist)
                 }
@@ -44,11 +50,8 @@ struct TagSuggester {
         guard !cleaned.isEmpty else { return existingTags.sorted() }
 
         var results: [String] = []
-
-        // Existing tags that match
         results += existingTags.filter { $0.contains(cleaned) || cleaned.contains($0) }
 
-        // Known tags that match
         let knownCanonical = Set(knownTags.values)
         for tag in knownCanonical {
             if tag.contains(cleaned) && !results.contains(tag) {
@@ -56,7 +59,6 @@ struct TagSuggester {
             }
         }
 
-        // Fuzzy matches
         for (alias, canonical) in knownTags {
             if levenshteinDistance(cleaned, alias) <= 2 && !results.contains(canonical) {
                 results.append(canonical)

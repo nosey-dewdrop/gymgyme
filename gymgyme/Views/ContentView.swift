@@ -22,8 +22,10 @@ struct ContentView: View {
 
     var body: some View {
         TabView {
+            CalendarView()
+                .tabItem { Label("calendar", systemImage: "calendar") }
             HomeView()
-                .tabItem { Label("home", systemImage: "terminal") }
+                .tabItem { Label("exercises", systemImage: "terminal") }
             PlansView()
                 .tabItem { Label("programs", systemImage: "list.bullet") }
             DiscoverView()

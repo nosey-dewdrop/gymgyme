@@ -50,7 +50,8 @@ struct DiscoverExercise: Identifiable {
     var muscles: [String] = []
     var secondaryMuscles: [String] = []
     var equipment: [String] = []
-    var description: String = ""
+    var descriptionEN: String = ""
+    var descriptionTR: String = ""
     var imageURLs: [String] = []
 }
 
@@ -71,7 +72,7 @@ struct DiscoverView: View {
         Array(Set(myExercises.map(\.tag))).sorted()
     }
 
-    private let commonTags = ["bacak", "biceps", "gogus", "kalca", "karin", "omuz", "sirt", "triceps"]
+    private let commonTags = ["legs", "chest", "back", "shoulders", "biceps", "triceps", "abs", "glutes"]
 
     private var displayTags: [String] {
         Array(Set(commonTags + existingTags)).sorted()
@@ -184,12 +185,7 @@ struct DiscoverView: View {
     // MARK: - Search by muscle tag
 
     private func searchByMuscle(_ tag: String) {
-        let map: [String: String] = [
-            "bacak": "legs", "gogus": "chest", "sirt": "back",
-            "omuz": "shoulders", "biceps": "biceps", "triceps": "triceps",
-            "karin": "abs", "kalca": "glutes",
-        ]
-        let term = map[tag] ?? tag
+        let term = tag
         searchWger(term: term)
     }
 
@@ -220,7 +216,7 @@ struct DiscoverView: View {
                         id: s.data.id,
                         baseId: s.data.base_id,
                         name: s.data.name,
-                        category: s.data.category,
+                        category: Self.normalizeCategory(s.data.category),
                         imageURL: s.data.image.map { "https://wger.de\($0)" }
                     )
                 }
@@ -246,10 +242,17 @@ struct DiscoverView: View {
                 let (data, _) = try await URLSession.shared.data(from: url)
                 let info = try JSONDecoder().decode(WgerExerciseInfo.self, from: data)
 
-                let englishTranslation = info.translations.first { $0.language == 2 }
-                let description = englishTranslation?.description
-                    .replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
-                    .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                let stripHTML: (String) -> String = { text in
+                    text.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
+                        .trimmingCharacters(in: .whitespacesAndNewlines)
+                }
+
+                let enTranslation = info.translations.first { $0.language == 2 }
+                let trTranslation = info.translations.first { $0.language == 14 } // wger TR = 14? Let's try common IDs
+                    ?? info.translations.first { $0.language == 6 } // try other possible TR IDs
+
+                let descEN = stripHTML(enTranslation?.description ?? "")
+                let descTR = stripHTML(trTranslation?.description ?? "")
 
                 let imageURLs = info.images.map { "https://wger.de\($0.image)" }
                 let muscles = info.muscles.map { $0.name_en.isEmpty ? $0.name : $0.name_en }
@@ -260,7 +263,8 @@ struct DiscoverView: View {
                 detail.muscles = muscles
                 detail.secondaryMuscles = secondaryMuscles
                 detail.equipment = equipment
-                detail.description = description
+                detail.descriptionEN = descEN
+                detail.descriptionTR = descTR
                 detail.imageURLs = imageURLs
 
                 await MainActor.run { selectedExercise = detail }
@@ -271,12 +275,28 @@ struct DiscoverView: View {
         }
     }
 
+    // MARK: - Normalize category from wger (can be Turkish/other languages)
+
+    private static func normalizeCategory(_ raw: String) -> String {
+        let map: [String: String] = [
+            "bacaklar": "Legs", "beine": "Legs", "piernas": "Legs",
+            "göğüs": "Chest", "brust": "Chest", "pecho": "Chest",
+            "sırt": "Back", "rücken": "Back", "espalda": "Back",
+            "omuzlar": "Shoulders", "schultern": "Shoulders", "hombros": "Shoulders",
+            "kollar": "Arms", "arme": "Arms", "brazos": "Arms",
+            "karın": "Abs", "bauch": "Abs", "abdominales": "Abs",
+            "kardio": "Cardio", "ausdauer": "Cardio",
+            "streching": "Stretching", "dehnen": "Stretching",
+        ]
+        return map[raw.lowercased()] ?? raw
+    }
+
     // MARK: - Add to my exercises
 
     private func addToMyExercises(_ item: DiscoverExercise) {
         let tagMap: [String: String] = [
-            "chest": "gogus", "back": "sirt", "shoulders": "omuz",
-            "arms": "biceps", "legs": "bacak", "abs": "karin",
+            "chest": "chest", "back": "back", "shoulders": "shoulders",
+            "arms": "biceps", "legs": "legs", "abs": "abs",
             "cardio": "cardio", "stretching": "stretching",
         ]
         let tag = tagMap[item.category.lowercased()] ?? selectedTag ?? item.category.lowercased()
@@ -292,6 +312,14 @@ struct ExerciseDetailView: View {
     let item: DiscoverExercise
     let onAdd: () -> Void
     @Environment(\.dismiss) private var dismiss
+    @State private var showTurkish = false
+
+    private var activeDescription: String {
+        if showTurkish && !item.descriptionTR.isEmpty {
+            return item.descriptionTR
+        }
+        return item.descriptionEN
+    }
 
     var body: some View {
         NavigationStack {
@@ -326,13 +354,33 @@ struct ExerciseDetailView: View {
                         infoLine("also", item.secondaryMuscles.joined(separator: ", "), DoodleTheme.green)
                     }
 
-                    if !item.description.isEmpty {
+                    if !activeDescription.isEmpty {
                         Text("").frame(height: 8)
-                        Text("how to do it")
-                            .font(DoodleTheme.monoBold)
-                            .foregroundStyle(DoodleTheme.green)
+
+                        HStack {
+                            Text("how to do it")
+                                .font(DoodleTheme.monoBold)
+                                .foregroundStyle(DoodleTheme.green)
+
+                            Spacer()
+
+                            if !item.descriptionTR.isEmpty {
+                                Button {
+                                    withAnimation { showTurkish.toggle() }
+                                } label: {
+                                    Text(showTurkish ? "EN" : "TR")
+                                        .font(DoodleTheme.monoSmall)
+                                        .foregroundStyle(showTurkish ? DoodleTheme.fg : DoodleTheme.blue)
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 3)
+                                        .background(DoodleTheme.surface)
+                                        .cornerRadius(4)
+                                }
+                            }
+                        }
+
                         Text("").frame(height: 4)
-                        Text(item.description)
+                        Text(activeDescription)
                             .font(DoodleTheme.monoSmall)
                             .foregroundStyle(DoodleTheme.fg)
                     }
