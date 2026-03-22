@@ -59,6 +59,17 @@ struct AddExerciseView: View {
                         }
                     }
 
+                    if isDuplicate(name.trimmingCharacters(in: .whitespaces)) {
+                        HStack(spacing: 0) {
+                            Text("! ")
+                                .font(DoodleTheme.monoSmall)
+                                .foregroundStyle(DoodleTheme.red)
+                            Text("exercise already exists")
+                                .font(DoodleTheme.monoSmall)
+                                .foregroundStyle(DoodleTheme.red)
+                        }
+                    }
+
                     if !suggestions.isEmpty && !tagInput.isEmpty {
                         HStack(spacing: 8) {
                             ForEach(suggestions.prefix(5), id: \.self) { s in
@@ -84,14 +95,22 @@ struct AddExerciseView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("save") {
-                        modelContext.insert(Exercise(name: name.trimmingCharacters(in: .whitespaces), tag: resolvedTag))
+                        let trimmed = name.trimmingCharacters(in: .whitespaces)
+                        guard !isDuplicate(trimmed) else { return }
+                        modelContext.insert(Exercise(name: trimmed, tag: resolvedTag))
                         dismiss()
                     }
-                    .font(DoodleTheme.monoBold).foregroundStyle(DoodleTheme.green)
+                    .font(DoodleTheme.monoBold)
+                    .foregroundStyle(isDuplicate(name.trimmingCharacters(in: .whitespaces)) ? DoodleTheme.dim : DoodleTheme.green)
                     .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty || tagInput.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
             }
         }
+    }
+
+    private func isDuplicate(_ name: String) -> Bool {
+        guard !name.isEmpty else { return false }
+        return exercises.contains { $0.name.lowercased() == name.lowercased() }
     }
 }
 

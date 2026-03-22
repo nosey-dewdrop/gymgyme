@@ -7,7 +7,10 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
 
     private var profile: UserProfile {
-        if let existing = profiles.first { return existing }
+        profiles.first ?? createProfile()
+    }
+
+    private func createProfile() -> UserProfile {
         let new = UserProfile()
         modelContext.insert(new)
         return new

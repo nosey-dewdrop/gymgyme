@@ -239,9 +239,12 @@ struct MealLogView: View {
     // MARK: - Helpers
 
     private func saveMeal() {
+        let trimmedName = newName.trimmingCharacters(in: .whitespaces)
+        guard !trimmedName.isEmpty else { return }
+        let cal = max(0, Int(newCalories) ?? 0)
         let meal = Meal(
-            name: newName.trimmingCharacters(in: .whitespaces),
-            calories: Int(newCalories) ?? 0,
+            name: trimmedName,
+            calories: cal,
             notes: newNotes.trimmingCharacters(in: .whitespaces)
         )
         modelContext.insert(meal)

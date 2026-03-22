@@ -19,8 +19,9 @@ struct CalendarView: View {
     }
 
     private var daysInMonth: [Date?] {
-        let range = calendar.range(of: .day, in: .month, for: displayedMonth)!
-        let firstDay = calendar.date(from: calendar.dateComponents([.year, .month], from: displayedMonth))!
+        guard let range = calendar.range(of: .day, in: .month, for: displayedMonth),
+              let firstDay = calendar.date(from: calendar.dateComponents([.year, .month], from: displayedMonth))
+        else { return [] }
         let weekdayOffset = (calendar.component(.weekday, from: firstDay) + 5) % 7 // monday = 0
 
         var days: [Date?] = Array(repeating: nil, count: weekdayOffset)
@@ -34,7 +35,7 @@ struct CalendarView: View {
 
     private func setsForDate(_ date: Date) -> [ExerciseSet] {
         let dayStart = calendar.startOfDay(for: date)
-        let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart)!
+        guard let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart) else { return [] }
         return allSets.filter { $0.timestamp >= dayStart && $0.timestamp < dayEnd }
             .sorted { $0.timestamp < $1.timestamp }
     }
@@ -51,7 +52,7 @@ struct CalendarView: View {
                     // month nav
                     HStack {
                         Button {
-                            displayedMonth = calendar.date(byAdding: .month, value: -1, to: displayedMonth)!
+                            displayedMonth = calendar.date(byAdding: .month, value: -1, to: displayedMonth) ?? displayedMonth
                         } label: {
                             Text("◀")
                                 .font(DoodleTheme.mono)
@@ -67,7 +68,7 @@ struct CalendarView: View {
                         Spacer()
 
                         Button {
-                            displayedMonth = calendar.date(byAdding: .month, value: 1, to: displayedMonth)!
+                            displayedMonth = calendar.date(byAdding: .month, value: 1, to: displayedMonth) ?? displayedMonth
                         } label: {
                             Text("▶")
                                 .font(DoodleTheme.mono)

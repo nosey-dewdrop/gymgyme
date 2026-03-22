@@ -49,6 +49,13 @@ struct PlansView: View {
                                 }
                                 Text("").frame(height: 6)
                             }
+                            .contextMenu {
+                                Button(role: .destructive) {
+                                    modelContext.delete(plan)
+                                } label: {
+                                    Label("delete", systemImage: "trash")
+                                }
+                            }
                         }
                     }
                 }

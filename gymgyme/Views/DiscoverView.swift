@@ -294,6 +294,12 @@ struct DiscoverView: View {
     // MARK: - Add to my exercises
 
     private func addToMyExercises(_ item: DiscoverExercise) {
+        let alreadyExists = myExercises.contains { $0.name.lowercased() == item.name.lowercased() }
+        guard !alreadyExists else {
+            withAnimation { addedMessage = "\(item.name) already in your exercises" }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) { withAnimation { addedMessage = nil } }
+            return
+        }
         let tagMap: [String: String] = [
             "chest": "chest", "back": "back", "shoulders": "shoulders",
             "arms": "biceps", "legs": "legs", "abs": "abs",

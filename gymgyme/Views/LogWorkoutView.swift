@@ -127,13 +127,21 @@ struct LogWorkoutView: View {
     }
 
     private func saveWorkout() {
+        // validate and collect valid sets first
+        var validSets: [(reps: Int, weight: Double, index: Int)] = []
+        for (i, entry) in sets.enumerated() {
+            guard let reps = Int(entry.reps), reps > 0,
+                  let weight = Double(entry.weight), weight >= 0 else { continue }
+            validSets.append((reps: reps, weight: weight, index: i))
+        }
+        guard !validSets.isEmpty else { dismiss(); return }
+
         let session = WorkoutSession()
         modelContext.insert(session)
         var hitPR = false
-        for (i, entry) in sets.enumerated() {
-            guard let reps = Int(entry.reps), let weight = Double(entry.weight) else { continue }
-            let set = ExerciseSet(reps: reps, weight: weight, setNumber: i + 1, exercise: exercise, session: session)
-            if weight > personalBest { set.isPersonalRecord = true; hitPR = true }
+        for valid in validSets {
+            let set = ExerciseSet(reps: valid.reps, weight: valid.weight, setNumber: valid.index + 1, exercise: exercise, session: session)
+            if valid.weight > personalBest && valid.weight > 0 { set.isPersonalRecord = true; hitPR = true }
             modelContext.insert(set)
         }
         if hitPR {
