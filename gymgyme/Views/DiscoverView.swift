@@ -26,7 +26,7 @@ struct DiscoverView: View {
             ScrollView {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("discover")
-                        .font(.system(size: 20, weight: .black, design: .monospaced))
+                        .font(.custom("Menlo-Bold", size: 28))
                         .foregroundStyle(DoodleTheme.blue)
                         .padding(.bottom, 8)
 

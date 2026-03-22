@@ -25,7 +25,7 @@ struct ContentView: View {
             HomeView()
                 .tabItem { Label("home", systemImage: "terminal") }
             PlansView()
-                .tabItem { Label("plans", systemImage: "list.bullet") }
+                .tabItem { Label("programs", systemImage: "list.bullet") }
             DiscoverView()
                 .tabItem { Label("discover", systemImage: "magnifyingglass") }
         }

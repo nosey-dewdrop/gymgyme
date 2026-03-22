@@ -10,8 +10,8 @@ struct PlansView: View {
         NavigationStack {
             ScrollView {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("plans")
-                        .font(.system(size: 20, weight: .black, design: .monospaced))
+                        Text("programs")
+                        .font(.custom("Menlo-Bold", size: 28))
                         .foregroundStyle(DoodleTheme.orange)
                         .padding(.bottom, 8)
 
@@ -20,13 +20,13 @@ struct PlansView: View {
                             Text("~ ")
                                 .font(DoodleTheme.mono)
                                 .foregroundStyle(DoodleTheme.dim)
-                            Text("no plans yet")
+                            Text("no programs yet")
                                 .font(DoodleTheme.mono)
                                 .foregroundStyle(DoodleTheme.dim)
                         }
                         HStack(spacing: 0) {
                             Text("  ")
-                            Text("tap + to create a plan")
+                            Text("tap + to create a program")
                                 .font(DoodleTheme.monoSmall)
                                 .foregroundStyle(DoodleTheme.dim)
                         }
