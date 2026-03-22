@@ -22,3 +22,5 @@
 - [x] tr/en toggle for exercise descriptions (dev)
 - [x] category normalize from wger translations (dev)
 - [x] progress charts per exercise (dev)
+- [x] home screen widget with streak and active program (dev)
+- [x] program activate/deactivate from context menu (dev)

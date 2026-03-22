@@ -26,3 +26,9 @@
 - [x] Progress charts per exercise
 - [x] Meal logging (text input per day)
 - [x] UI refinements (atrophy colors, context menu delete)
+
+## Phase 6: Widget & Notifications
+- [x] Home screen widget (streak bar + active program)
+- [x] Program activate/deactivate
+- [x] App Group data sharing (app ↔ widget)
+- [ ] Notification system (TBD)

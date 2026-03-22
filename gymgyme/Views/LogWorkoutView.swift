@@ -144,6 +144,7 @@ struct LogWorkoutView: View {
             if valid.weight > personalBest && valid.weight > 0 { set.isPersonalRecord = true; hitPR = true }
             modelContext.insert(set)
         }
+        WidgetSync.sync(context: modelContext)
         if hitPR {
             withAnimation { showPRBanner = true }
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { dismiss() }

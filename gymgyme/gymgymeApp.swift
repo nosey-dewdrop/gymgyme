@@ -36,6 +36,22 @@ class SceneDelegate: NSObject, UIWindowSceneDelegate {
 @main
 struct gymgymeApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    @Environment(\.scenePhase) private var scenePhase
+
+    let sharedModelContainer: ModelContainer = {
+        do {
+            return try ModelContainer(for:
+                Exercise.self,
+                WorkoutSession.self,
+                ExerciseSet.self,
+                WorkoutPlan.self,
+                UserProfile.self,
+                Meal.self
+            )
+        } catch {
+            fatalError("failed to create model container: \(error)")
+        }
+    }()
 
     var body: some Scene {
         WindowGroup {
@@ -52,13 +68,11 @@ struct gymgymeApp: App {
                     }
                 }
         }
-        .modelContainer(for: [
-            Exercise.self,
-            WorkoutSession.self,
-            ExerciseSet.self,
-            WorkoutPlan.self,
-            UserProfile.self,
-            Meal.self
-        ])
+        .modelContainer(sharedModelContainer)
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                WidgetSync.sync(context: sharedModelContainer.mainContext)
+            }
+        }
     }
 }

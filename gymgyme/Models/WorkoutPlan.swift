@@ -20,6 +20,7 @@ final class WorkoutPlan {
     var duration: PlanDuration
     var createdAt: Date
     var exerciseNames: [String]
+    var isActive: Bool
 
     init(name: String, goal: PlanGoal, duration: PlanDuration, exerciseNames: [String] = []) {
         self.name = name
@@ -27,5 +28,6 @@ final class WorkoutPlan {
         self.duration = duration
         self.createdAt = Date()
         self.exerciseNames = exerciseNames
+        self.isActive = false
     }
 }

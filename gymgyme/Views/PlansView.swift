@@ -36,10 +36,15 @@ struct PlansView: View {
                                 HStack(spacing: 0) {
                                     Text("● ")
                                         .font(DoodleTheme.mono)
-                                        .foregroundStyle(DoodleTheme.color(for: index))
+                                        .foregroundStyle(plan.isActive ? DoodleTheme.green : DoodleTheme.color(for: index))
                                     Text(plan.name)
                                         .font(DoodleTheme.monoBold)
                                         .foregroundStyle(DoodleTheme.fg)
+                                    if plan.isActive {
+                                        Text(" [active]")
+                                            .font(DoodleTheme.monoSmall)
+                                            .foregroundStyle(DoodleTheme.green)
+                                    }
                                 }
                                 HStack(spacing: 0) {
                                     Text("  ")
@@ -50,8 +55,14 @@ struct PlansView: View {
                                 Text("").frame(height: 6)
                             }
                             .contextMenu {
+                                Button {
+                                    activatePlan(plan)
+                                } label: {
+                                    Label(plan.isActive ? "deactivate" : "activate", systemImage: plan.isActive ? "star.slash" : "star")
+                                }
                                 Button(role: .destructive) {
                                     modelContext.delete(plan)
+                                    WidgetSync.sync(context: modelContext)
                                 } label: {
                                     Label("delete", systemImage: "trash")
                                 }
@@ -76,6 +87,16 @@ struct PlansView: View {
             }
             .sheet(isPresented: $showCreatePlan) { CreatePlanView() }
         }
+    }
+
+    private func activatePlan(_ plan: WorkoutPlan) {
+        if plan.isActive {
+            plan.isActive = false
+        } else {
+            for p in plans { p.isActive = false }
+            plan.isActive = true
+        }
+        WidgetSync.sync(context: modelContext)
     }
 }
 
