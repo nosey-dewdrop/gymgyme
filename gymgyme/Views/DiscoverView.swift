@@ -1,15 +1,71 @@
 import SwiftUI
 import SwiftData
 
+// MARK: - wger API Models
+
+struct WgerSearchResponse: Codable {
+    let suggestions: [WgerSuggestion]
+}
+
+struct WgerSuggestion: Codable {
+    let value: String
+    let data: WgerSuggestionData
+}
+
+struct WgerSuggestionData: Codable, Identifiable {
+    let id: Int
+    let base_id: Int
+    let name: String
+    let category: String
+    let image: String?
+    let image_thumbnail: String?
+}
+
+struct WgerExerciseInfo: Codable {
+    let id: Int
+    let category: WgerCategory
+    let muscles: [WgerMuscle]
+    let muscles_secondary: [WgerMuscle]
+    let equipment: [WgerEquipment]
+    let images: [WgerImage]
+    let translations: [WgerTranslation]
+}
+
+struct WgerCategory: Codable { let id: Int; let name: String }
+struct WgerMuscle: Codable { let id: Int; let name: String; let name_en: String }
+struct WgerEquipment: Codable { let id: Int; let name: String }
+struct WgerImage: Codable { let id: Int; let image: String; let is_main: Bool }
+struct WgerTranslation: Codable { let id: Int; let name: String; let description: String; let language: Int }
+
+// MARK: - Unified Exercise Item (used in list + detail)
+
+struct DiscoverExercise: Identifiable {
+    let id: Int
+    let baseId: Int
+    let name: String
+    let category: String
+    let imageURL: String?
+
+    // detail fields (loaded on tap)
+    var muscles: [String] = []
+    var secondaryMuscles: [String] = []
+    var equipment: [String] = []
+    var description: String = ""
+    var imageURLs: [String] = []
+}
+
+// MARK: - Discover View
+
 struct DiscoverView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var myExercises: [Exercise]
     @State private var searchText = ""
     @State private var selectedTag: String?
-    @State private var exercises: [ExerciseDBItem] = []
+    @State private var exercises: [DiscoverExercise] = []
     @State private var isLoading = false
-    @State private var selectedDetail: ExerciseDBItem?
+    @State private var selectedExercise: DiscoverExercise?
     @State private var addedMessage: String?
+    @State private var errorMessage: String?
 
     private var existingTags: [String] {
         Array(Set(myExercises.map(\.tag))).sorted()
@@ -24,8 +80,8 @@ struct DiscoverView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("discover")
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("discover")
                         .font(.custom("Menlo-Bold", size: 28))
                         .foregroundStyle(DoodleTheme.blue)
                         .padding(.bottom, 8)
@@ -35,7 +91,7 @@ struct DiscoverView: View {
                         HStack(spacing: 8) {
                             ForEach(displayTags, id: \.self) { tag in
                                 Button {
-                                    if selectedTag == tag { selectedTag = nil }
+                                    if selectedTag == tag { selectedTag = nil; exercises = [] }
                                     else { selectedTag = tag; searchByMuscle(tag) }
                                 } label: {
                                     TagChip(tag: tag, isSelected: selectedTag == tag)
@@ -53,6 +109,18 @@ struct DiscoverView: View {
                             Text(msg)
                                 .font(DoodleTheme.monoSmall)
                                 .foregroundStyle(DoodleTheme.fg)
+                        }
+                        .padding(.bottom, 4)
+                    }
+
+                    if let err = errorMessage {
+                        HStack(spacing: 0) {
+                            Text("! ")
+                                .font(DoodleTheme.mono)
+                                .foregroundStyle(DoodleTheme.red)
+                            Text(err)
+                                .font(DoodleTheme.monoSmall)
+                                .foregroundStyle(DoodleTheme.dim)
                         }
                         .padding(.bottom, 4)
                     }
@@ -77,24 +145,21 @@ struct DiscoverView: View {
                         }
                     } else {
                         ForEach(Array(exercises.enumerated()), id: \.element.id) { index, item in
-                            Button { selectedDetail = item } label: {
+                            Button { loadDetail(item) } label: {
                                 VStack(alignment: .leading, spacing: 1) {
                                     HStack(spacing: 0) {
                                         Text("● ")
                                             .font(DoodleTheme.mono)
                                             .foregroundStyle(DoodleTheme.color(for: index))
-                                        Text(item.name.capitalized)
+                                        Text(item.name)
                                             .font(DoodleTheme.monoBold)
                                             .foregroundStyle(DoodleTheme.fg)
                                             .lineLimit(1)
                                     }
                                     HStack(spacing: 0) {
-                                        Text("  #\(item.target)")
+                                        Text("  #\(item.category.lowercased())")
                                             .font(DoodleTheme.monoSmall)
-                                            .foregroundStyle(DoodleTheme.color(for: item.target))
-                                        Text(" · \(item.equipment)")
-                                            .font(DoodleTheme.monoSmall)
-                                            .foregroundStyle(DoodleTheme.dim)
+                                            .foregroundStyle(DoodleTheme.color(for: item.category))
                                     }
                                     Text("").frame(height: 4)
                                 }
@@ -110,113 +175,166 @@ struct DiscoverView: View {
             .toolbarBackground(.hidden, for: .navigationBar)
             .searchable(text: $searchText, prompt: "search exercises...")
             .onSubmit(of: .search) { searchByName() }
-            .sheet(item: $selectedDetail) { item in
+            .sheet(item: $selectedExercise) { item in
                 ExerciseDetailView(item: item) { addToMyExercises(item) }
             }
         }
     }
 
+    // MARK: - Search by muscle tag
+
     private func searchByMuscle(_ tag: String) {
-        isLoading = true; exercises = []
         let map: [String: String] = [
-            "bacak": "quadriceps", "gogus": "chest", "sirt": "back",
+            "bacak": "legs", "gogus": "chest", "sirt": "back",
             "omuz": "shoulders", "biceps": "biceps", "triceps": "triceps",
-            "karin": "abdominals", "kalca": "glutes",
+            "karin": "abs", "kalca": "glutes",
         ]
-        let muscle = map[tag] ?? tag
-        fetchExercises(urlString: "https://exercisedb.p.rapidapi.com/exercises/target/\(muscle)?limit=20&offset=0")
+        let term = map[tag] ?? tag
+        searchWger(term: term)
     }
+
+    // MARK: - Search by name
 
     private func searchByName() {
         guard !searchText.isEmpty else { return }
-        isLoading = true; exercises = []
-        let encoded = searchText.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? searchText
-        fetchExercises(urlString: "https://exercisedb.p.rapidapi.com/exercises/name/\(encoded)?limit=20&offset=0")
+        searchWger(term: searchText)
     }
 
-    private func fetchExercises(urlString: String) {
+    // MARK: - wger search API
+
+    private func searchWger(term: String) {
+        isLoading = true
+        exercises = []
+        errorMessage = nil
+        let encoded = term.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? term
+        let urlString = "https://wger.de/api/v2/exercise/search/?term=\(encoded)&language=en&format=json"
+
         guard let url = URL(string: urlString) else { isLoading = false; return }
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.setValue("exercisedb.p.rapidapi.com", forHTTPHeaderField: "x-rapidapi-host")
-        request.setValue("DEMO_KEY", forHTTPHeaderField: "x-rapidapi-key")
+
         Task {
             do {
-                let (data, _) = try await URLSession.shared.data(for: request)
-                let decoded = try JSONDecoder().decode([ExerciseDBItem].self, from: data)
-                await MainActor.run { exercises = decoded; isLoading = false }
+                let (data, _) = try await URLSession.shared.data(from: url)
+                let response = try JSONDecoder().decode(WgerSearchResponse.self, from: data)
+                let items = response.suggestions.map { s in
+                    DiscoverExercise(
+                        id: s.data.id,
+                        baseId: s.data.base_id,
+                        name: s.data.name,
+                        category: s.data.category,
+                        imageURL: s.data.image.map { "https://wger.de\($0)" }
+                    )
+                }
+                await MainActor.run {
+                    exercises = items
+                    isLoading = false
+                    if items.isEmpty { errorMessage = "no exercises found for \"\(term)\"" }
+                }
             } catch {
-                await MainActor.run { isLoading = false }
+                await MainActor.run { isLoading = false; errorMessage = "search failed" }
             }
         }
     }
 
-    private func addToMyExercises(_ item: ExerciseDBItem) {
+    // MARK: - Load exercise detail
+
+    private func loadDetail(_ item: DiscoverExercise) {
+        let urlString = "https://wger.de/api/v2/exerciseinfo/\(item.baseId)/?format=json"
+        guard let url = URL(string: urlString) else { return }
+
+        Task {
+            do {
+                let (data, _) = try await URLSession.shared.data(from: url)
+                let info = try JSONDecoder().decode(WgerExerciseInfo.self, from: data)
+
+                let englishTranslation = info.translations.first { $0.language == 2 }
+                let description = englishTranslation?.description
+                    .replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
+                    .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+
+                let imageURLs = info.images.map { "https://wger.de\($0.image)" }
+                let muscles = info.muscles.map { $0.name_en.isEmpty ? $0.name : $0.name_en }
+                let secondaryMuscles = info.muscles_secondary.map { $0.name_en.isEmpty ? $0.name : $0.name_en }
+                let equipment = info.equipment.map { $0.name }
+
+                var detail = item
+                detail.muscles = muscles
+                detail.secondaryMuscles = secondaryMuscles
+                detail.equipment = equipment
+                detail.description = description
+                detail.imageURLs = imageURLs
+
+                await MainActor.run { selectedExercise = detail }
+            } catch {
+                // fallback: show without detail
+                await MainActor.run { selectedExercise = item }
+            }
+        }
+    }
+
+    // MARK: - Add to my exercises
+
+    private func addToMyExercises(_ item: DiscoverExercise) {
         let tagMap: [String: String] = [
-            "chest": "gogus", "pectorals": "gogus", "back": "sirt", "lats": "sirt",
-            "upper back": "sirt", "shoulders": "omuz", "delts": "omuz",
-            "biceps": "biceps", "triceps": "triceps",
-            "quadriceps": "bacak", "hamstrings": "bacak", "calves": "bacak",
-            "abdominals": "karin", "glutes": "kalca",
+            "chest": "gogus", "back": "sirt", "shoulders": "omuz",
+            "arms": "biceps", "legs": "bacak", "abs": "karin",
+            "cardio": "cardio", "stretching": "stretching",
         ]
-        let tag = tagMap[item.target.lowercased()] ?? selectedTag ?? item.target.lowercased()
-        modelContext.insert(Exercise(name: item.name.capitalized, tag: tag))
-        withAnimation { addedMessage = "\(item.name.capitalized) added!" }
+        let tag = tagMap[item.category.lowercased()] ?? selectedTag ?? item.category.lowercased()
+        modelContext.insert(Exercise(name: item.name, tag: tag))
+        withAnimation { addedMessage = "\(item.name) added!" }
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) { withAnimation { addedMessage = nil } }
     }
 }
 
-struct ExerciseDBItem: Codable, Identifiable {
-    let id: String; let name: String; let target: String; let bodyPart: String
-    let equipment: String; let gifUrl: String; let secondaryMuscles: [String]; let instructions: [String]
-}
+// MARK: - Exercise Detail View
 
 struct ExerciseDetailView: View {
-    let item: ExerciseDBItem
+    let item: DiscoverExercise
     let onAdd: () -> Void
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         NavigationStack {
             ScrollView {
-                    VStack(alignment: .leading, spacing: 8) {
-                        AsyncImage(url: URL(string: item.gifUrl)) { image in
-                        image.resizable().aspectRatio(contentMode: .fit)
-                    } placeholder: {
-                        Text("loading...")
-                            .font(DoodleTheme.mono)
-                            .foregroundStyle(DoodleTheme.dim)
-                            .frame(height: 200)
+                VStack(alignment: .leading, spacing: 8) {
+                    // image
+                    if let firstImage = item.imageURLs.first, let url = URL(string: firstImage) {
+                        AsyncImage(url: url) { image in
+                            image.resizable().aspectRatio(contentMode: .fit)
+                        } placeholder: {
+                            Text("loading image...")
+                                .font(DoodleTheme.mono)
+                                .foregroundStyle(DoodleTheme.dim)
+                                .frame(height: 200)
+                        }
+                        .cornerRadius(8)
                     }
-                    .cornerRadius(8)
 
                     Text("").frame(height: 4)
 
-                    infoLine("target", item.target.capitalized, DoodleTheme.pink)
-                    infoLine("body", item.bodyPart.capitalized, DoodleTheme.orange)
-                    infoLine("equip", item.equipment.capitalized, DoodleTheme.blue)
+                    infoLine("category", item.category, DoodleTheme.pink)
 
-                    if !item.secondaryMuscles.isEmpty {
-                        infoLine("also", item.secondaryMuscles.map(\.capitalized).joined(separator: ", "), DoodleTheme.green)
+                    if !item.muscles.isEmpty {
+                        infoLine("muscles", item.muscles.joined(separator: ", "), DoodleTheme.orange)
                     }
 
-                    if !item.instructions.isEmpty {
+                    if !item.equipment.isEmpty {
+                        infoLine("equip", item.equipment.joined(separator: ", "), DoodleTheme.blue)
+                    }
+
+                    if !item.secondaryMuscles.isEmpty {
+                        infoLine("also", item.secondaryMuscles.joined(separator: ", "), DoodleTheme.green)
+                    }
+
+                    if !item.description.isEmpty {
                         Text("").frame(height: 8)
                         Text("how to do it")
                             .font(DoodleTheme.monoBold)
                             .foregroundStyle(DoodleTheme.green)
                         Text("").frame(height: 4)
-                        ForEach(Array(item.instructions.enumerated()), id: \.offset) { i, step in
-                            HStack(alignment: .top, spacing: 0) {
-                                Text("\(i + 1). ")
-                                    .font(DoodleTheme.monoSmall)
-                                    .foregroundStyle(DoodleTheme.color(for: i))
-                                Text(step)
-                                    .font(DoodleTheme.monoSmall)
-                                    .foregroundStyle(DoodleTheme.fg)
-                            }
-                            .padding(.bottom, 2)
-                        }
+                        Text(item.description)
+                            .font(DoodleTheme.monoSmall)
+                            .foregroundStyle(DoodleTheme.fg)
                     }
 
                     Text("").frame(height: 12)
@@ -240,7 +358,7 @@ struct ExerciseDetailView: View {
                 .padding(.top, 8)
             }
             .background(DoodleTheme.bg.ignoresSafeArea(.all))
-            .navigationTitle(item.name.capitalized)
+            .navigationTitle(item.name)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
@@ -261,16 +379,6 @@ struct ExerciseDetailView: View {
             Text(value)
                 .font(DoodleTheme.monoSmall)
                 .foregroundStyle(color)
-        }
-    }
-}
-
-struct InfoRow: View {
-    let label: String; let value: String; var color: Color = DoodleTheme.fg
-    var body: some View {
-        HStack(spacing: 0) {
-            Text("\(label): ").font(DoodleTheme.monoSmall).foregroundStyle(DoodleTheme.dim)
-            Text(value).font(DoodleTheme.monoSmall).foregroundStyle(color)
         }
     }
 }
