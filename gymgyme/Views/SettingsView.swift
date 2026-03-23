@@ -9,10 +9,12 @@ struct SettingsView: View {
     @Query private var meals: [Meal]
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @AppStorage("isPremium") private var isPremium = false
     @State private var showResetAlert = false
     @State private var showPrivacyPolicy = false
     @State private var csvFileURL: URL?
     @State private var showShareSheet = false
+    @State private var adminTapCount = 0
 
     private var profile: UserProfile {
         profiles.first ?? createProfile()
@@ -79,8 +81,28 @@ struct SettingsView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("settings")
                         .font(.system(size: 20, weight: .black, design: .monospaced))
-                        .foregroundStyle(DoodleTheme.purple)
+                        .foregroundStyle(isPremium ? DoodleTheme.yellow : DoodleTheme.purple)
                         .padding(.bottom, 8)
+                        .onTapGesture {
+                            adminTapCount += 1
+                            if adminTapCount >= 5 {
+                                isPremium.toggle()
+                                adminTapCount = 0
+                                UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
+                            }
+                        }
+
+                    if isPremium {
+                        HStack(spacing: 0) {
+                            Text("★ ")
+                                .font(DoodleTheme.monoSmall)
+                                .foregroundStyle(DoodleTheme.yellow)
+                            Text("premium active")
+                                .font(DoodleTheme.monoSmall)
+                                .foregroundStyle(DoodleTheme.yellow)
+                        }
+                        .padding(.bottom, 4)
+                    }
 
                     Text("profile")
                         .font(DoodleTheme.monoBold)
