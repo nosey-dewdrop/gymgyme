@@ -74,7 +74,35 @@ struct HomeView: View {
                             if exercises.isEmpty {
                                 Text("").frame(height: 20)
                                 termLine(bullet: "~", color: DoodleTheme.dim, text: "no exercises yet")
-                                termLine(bullet: " ", color: DoodleTheme.dim, text: "tap + to add your first exercise")
+                                Text("").frame(height: 8)
+
+                                Button { showAddExercise = true } label: {
+                                    HStack(spacing: 8) {
+                                        Image(systemName: "plus.circle.fill")
+                                        Text("add your first exercise")
+                                    }
+                                    .font(DoodleTheme.monoBold)
+                                    .foregroundStyle(DoodleTheme.bg)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 12)
+                                    .background(DoodleTheme.green)
+                                    .cornerRadius(8)
+                                }
+
+                                Text("").frame(height: 8)
+
+                                Button { showDiscoverSheet = true } label: {
+                                    HStack(spacing: 8) {
+                                        Image(systemName: "magnifyingglass")
+                                        Text("browse exercise database")
+                                    }
+                                    .font(DoodleTheme.mono)
+                                    .foregroundStyle(DoodleTheme.blue)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 12)
+                                    .background(DoodleTheme.surface)
+                                    .cornerRadius(8)
+                                }
                             } else {
                                 Text("").frame(height: 8)
                                 termLine(bullet: "─", color: DoodleTheme.dim, text: "exercises (\(exercises.count))")
