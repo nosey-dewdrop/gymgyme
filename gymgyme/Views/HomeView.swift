@@ -189,6 +189,7 @@ struct HomeView: View {
             }
             .contentShape(Rectangle())
             .onTapGesture {
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 withAnimation(.easeInOut(duration: 0.2)) {
                     if isExpanded {
                         expandedExerciseId = nil

@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import Combine
 
 struct LogWorkoutView: View {
     let exercise: Exercise
@@ -8,6 +9,10 @@ struct LogWorkoutView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var sets: [SetEntry] = [SetEntry()]
     @State private var showPRBanner = false
+    @State private var restSeconds: Int = 0
+    @State private var restDuration: Int = 90
+    @State private var timerActive = false
+    @State private var timerCancellable: AnyCancellable?
 
     private var previousRecord: ExerciseSet? {
         exercise.sets.sorted { $0.timestamp > $1.timestamp }.first
@@ -112,6 +117,41 @@ struct LogWorkoutView: View {
                         .padding(.top, 8)
                         .transition(.opacity)
                     }
+
+                    // rest timer
+                    if timerActive {
+                        VStack(spacing: 4) {
+                            Text("rest")
+                                .font(DoodleTheme.monoSmall)
+                                .foregroundStyle(DoodleTheme.dim)
+                            Text("\(restSeconds)s")
+                                .font(.system(size: 40, weight: .bold, design: .monospaced))
+                                .foregroundStyle(DoodleTheme.green)
+                            Text("tap to skip")
+                                .font(DoodleTheme.monoSmall)
+                                .foregroundStyle(DoodleTheme.dim)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .contentShape(Rectangle())
+                        .onTapGesture { stopTimer() }
+                        .transition(.opacity)
+                    }
+
+                    // rest duration picker
+                    HStack(spacing: 0) {
+                        Text("rest timer: ")
+                            .font(DoodleTheme.monoSmall)
+                            .foregroundStyle(DoodleTheme.dim)
+                        Text("\(restDuration)s")
+                            .font(DoodleTheme.monoSmall)
+                            .foregroundStyle(DoodleTheme.green)
+                        Spacer()
+                        Stepper("", value: $restDuration, in: 15...300, step: 15)
+                            .labelsHidden()
+                            .tint(DoodleTheme.green)
+                    }
+                    .padding(.top, 8)
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
@@ -154,10 +194,37 @@ struct LogWorkoutView: View {
             modelContext.insert(set)
         }
         WidgetSync.sync(context: modelContext)
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
         if hitPR {
+            UINotificationFeedbackGenerator().notificationOccurred(.success)
             withAnimation { showPRBanner = true }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { dismiss() }
-        } else { dismiss() }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                startTimer()
+            }
+        } else {
+            startTimer()
+        }
+    }
+
+    private func startTimer() {
+        restSeconds = restDuration
+        withAnimation { timerActive = true }
+        timerCancellable = Timer.publish(every: 1, on: .main, in: .common)
+            .autoconnect()
+            .sink { _ in
+                if restSeconds > 0 {
+                    restSeconds -= 1
+                } else {
+                    stopTimer()
+                }
+            }
+    }
+
+    private func stopTimer() {
+        timerCancellable?.cancel()
+        timerCancellable = nil
+        withAnimation { timerActive = false }
+        dismiss()
     }
 }
 

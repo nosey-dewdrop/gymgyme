@@ -3,9 +3,16 @@ import SwiftData
 
 struct SettingsView: View {
     @Query private var profiles: [UserProfile]
+    @Query private var exercises: [Exercise]
+    @Query private var exerciseSets: [ExerciseSet]
+    @Query private var sessions: [WorkoutSession]
+    @Query private var meals: [Meal]
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @State private var showResetAlert = false
+    @State private var showPrivacyPolicy = false
+    @State private var csvFileURL: URL?
+    @State private var showShareSheet = false
 
     private var profile: UserProfile {
         profiles.first ?? createProfile()
@@ -28,6 +35,42 @@ struct SettingsView: View {
         let new = UserProfile()
         modelContext.insert(new)
         return new
+    }
+
+    private func generateCSV() -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+
+        var csv = "date,exercise_name,tag,set_number,reps,weight\n"
+
+        for set in exerciseSets.sorted(by: { $0.timestamp > $1.timestamp }) {
+            let date = dateFormatter.string(from: set.timestamp)
+            let name = set.exercise?.name ?? "unknown"
+            let tag = set.exercise?.tag ?? ""
+            let escapedName = name.contains(",") ? "\"\(name)\"" : name
+            let escapedTag = tag.contains(",") ? "\"\(tag)\"" : tag
+            csv += "\(date),\(escapedName),\(escapedTag),\(set.setNumber),\(set.reps),\(set.weight)\n"
+        }
+
+        if !meals.isEmpty {
+            csv += "\ndate,meal_name,calories,protein,carbs,fat,notes\n"
+            for meal in meals.sorted(by: { $0.timestamp > $1.timestamp }) {
+                let date = dateFormatter.string(from: meal.timestamp)
+                let name = meal.name.contains(",") ? "\"\(meal.name)\"" : meal.name
+                let notes = meal.notes.contains(",") ? "\"\(meal.notes)\"" : meal.notes
+                csv += "\(date),\(name),\(meal.calories),\(meal.protein),\(meal.carbs),\(meal.fat),\(notes)\n"
+            }
+        }
+
+        return csv
+    }
+
+    private func exportCSV() {
+        let csv = generateCSV()
+        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("gymgyme_export.csv")
+        try? csv.write(to: tempURL, atomically: true, encoding: .utf8)
+        csvFileURL = tempURL
+        showShareSheet = true
     }
 
     var body: some View {
@@ -122,6 +165,44 @@ struct SettingsView: View {
                             .padding(.top, 2)
                     }
 
+                    Text("").frame(height: 16)
+                    Text("data & privacy")
+                        .font(DoodleTheme.monoBold)
+                        .foregroundStyle(DoodleTheme.blue)
+                        .padding(.bottom, 4)
+
+                    Button {
+                        exportCSV()
+                    } label: {
+                        HStack {
+                            Text("export data (csv)")
+                                .font(DoodleTheme.mono)
+                                .foregroundStyle(DoodleTheme.green)
+                            Spacer()
+                            Image(systemName: "square.and.arrow.up")
+                                .foregroundStyle(DoodleTheme.green)
+                        }
+                        .padding(10)
+                        .background(DoodleTheme.surface)
+                        .cornerRadius(6)
+                    }
+
+                    Button {
+                        showPrivacyPolicy = true
+                    } label: {
+                        HStack {
+                            Text("privacy policy")
+                                .font(DoodleTheme.mono)
+                                .foregroundStyle(DoodleTheme.fg)
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .foregroundStyle(DoodleTheme.dim)
+                        }
+                        .padding(10)
+                        .background(DoodleTheme.surface)
+                        .cornerRadius(6)
+                    }
+
                     Text("").frame(height: 24)
                     Text("danger zone")
                         .font(DoodleTheme.monoBold)
@@ -150,6 +231,14 @@ struct SettingsView: View {
             } message: {
                 Text("this will delete all exercises, workouts, meals, and programs. this cannot be undone.")
             }
+            .sheet(isPresented: $showPrivacyPolicy) {
+                PrivacyPolicyView()
+            }
+            .sheet(isPresented: $showShareSheet) {
+                if let url = csvFileURL {
+                    ShareSheet(activityItems: [url])
+                }
+            }
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
@@ -161,6 +250,16 @@ struct SettingsView: View {
             }
         }
     }
+}
+
+struct ShareSheet: UIViewControllerRepresentable {
+    let activityItems: [Any]
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
 #Preview {

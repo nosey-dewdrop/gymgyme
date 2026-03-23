@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		096FE8C22DC8119103D0AF80 /* WidgetData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 190F9EF70F78D1D24FCA1367 /* WidgetData.swift */; };
 		0CB3A0AC7B35171F2C2620A7 /* Meal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2637E3BEAA97821468748F1C /* Meal.swift */; };
+		10DC2FE6396A5E3227C7CD45 /* PrivacyPolicyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFC07687E2C45AC38DC52F7D /* PrivacyPolicyView.swift */; };
 		12C082BEEC820D0756F6682A /* WidgetColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA3C59B518E36DEA1AAB885A /* WidgetColors.swift */; };
 		2386A26AE6F3F59C5788F03F /* gymgymeWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 20D52BD17A5AA4A703F0B988 /* gymgymeWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		2A3886404D49A531637B3DEE /* gymgymeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C110CEBF2F990D28045C7E0 /* gymgymeApp.swift */; };
@@ -114,6 +115,7 @@
 		D50BD7E3C78430F621405ECB /* DailyMealSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyMealSection.swift; sourceTree = "<group>"; };
 		DC4CE282C5C3B847D07F6D29 /* gymgymeWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = gymgymeWidget.swift; sourceTree = "<group>"; };
 		FA3C59B518E36DEA1AAB885A /* WidgetColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetColors.swift; sourceTree = "<group>"; };
+		FFC07687E2C45AC38DC52F7D /* PrivacyPolicyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyPolicyView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -221,6 +223,7 @@
 				6107D34F32AAC596C2153BA2 /* LogWorkoutView.swift */,
 				3CCDE1FBA8AC216352686D0F /* OnboardingView.swift */,
 				C0EADF599C971FF57772DFF1 /* PlansView.swift */,
+				FFC07687E2C45AC38DC52F7D /* PrivacyPolicyView.swift */,
 				038756D5576D6691E42B1BC3 /* ProgressChartView.swift */,
 				6F011D61A755BE8C20563179 /* SettingsView.swift */,
 				CD8B78620EE6BD3D02D45014 /* TypewriterTitle.swift */,
@@ -350,6 +353,7 @@
 				4D6FDC07855F71A317FA5B27 /* NotificationManager.swift in Sources */,
 				443E9606DC4662CC5528B013 /* OnboardingView.swift in Sources */,
 				F94B6BDBC5E86B0871B7A614 /* PlansView.swift in Sources */,
+				10DC2FE6396A5E3227C7CD45 /* PrivacyPolicyView.swift in Sources */,
 				FCE1BC5B71B7EA691CC7801D /* ProgressChartView.swift in Sources */,
 				5E3C1848AD79DFE85D02FEEA /* SettingsView.swift in Sources */,
 				5016C58374BDBEDA80AA81D8 /* TagSuggester.swift in Sources */,

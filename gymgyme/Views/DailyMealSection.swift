@@ -45,6 +45,7 @@ struct DailyMealSection: View {
     @State private var isSearching = false
     @State private var selectedFood: USDAFood?
     @State private var errorMessage: String?
+    @State private var servingGrams: String = "100"
 
     private var todaysMeals: [Meal] {
         let calendar = Calendar.current
@@ -168,10 +169,37 @@ struct DailyMealSection: View {
                         .foregroundStyle(DoodleTheme.red)
                 }
 
+                // serving size
+                if !searchResults.isEmpty {
+                    HStack(spacing: 0) {
+                        Text("serving: ")
+                            .font(DoodleTheme.monoSmall)
+                            .foregroundStyle(DoodleTheme.dim)
+                        TextField("100", text: $servingGrams)
+                            .keyboardType(.numberPad)
+                            .font(DoodleTheme.monoSmall)
+                            .foregroundStyle(DoodleTheme.fg)
+                            .frame(width: 50)
+                            .padding(4)
+                            .background(DoodleTheme.surface)
+                            .cornerRadius(4)
+                        Text("g")
+                            .font(DoodleTheme.monoSmall)
+                            .foregroundStyle(DoodleTheme.dim)
+                            .padding(.leading, 2)
+                        Spacer()
+                        Text("values per 100g")
+                            .font(.system(size: 10, design: .monospaced))
+                            .foregroundStyle(DoodleTheme.dim)
+                    }
+                    .padding(.vertical, 4)
+                }
+
                 // results
                 ScrollView {
                     VStack(alignment: .leading, spacing: 4) {
                         ForEach(searchResults) { food in
+                            let scale = servingScale
                             Button {
                                 addFood(food)
                             } label: {
@@ -181,18 +209,23 @@ struct DailyMealSection: View {
                                         .foregroundStyle(DoodleTheme.fg)
                                         .lineLimit(1)
                                     HStack(spacing: 8) {
-                                        Text("\(Int(food.calories)) cal")
+                                        Text("\(Int(food.calories * scale)) cal")
                                             .font(DoodleTheme.monoSmall)
                                             .foregroundStyle(DoodleTheme.orange)
-                                        Text("p:\(String(format: "%.0f", food.protein))g")
+                                        Text("p:\(String(format: "%.0f", food.protein * scale))g")
                                             .font(DoodleTheme.monoSmall)
                                             .foregroundStyle(DoodleTheme.blue)
-                                        Text("c:\(String(format: "%.0f", food.carbs))g")
+                                        Text("c:\(String(format: "%.0f", food.carbs * scale))g")
                                             .font(DoodleTheme.monoSmall)
                                             .foregroundStyle(DoodleTheme.green)
-                                        Text("f:\(String(format: "%.0f", food.fat))g")
+                                        Text("f:\(String(format: "%.0f", food.fat * scale))g")
                                             .font(DoodleTheme.monoSmall)
                                             .foregroundStyle(DoodleTheme.yellow)
+                                    }
+                                    if scale != 1.0 {
+                                        Text("for \(servingGrams)g serving")
+                                            .font(.system(size: 10, design: .monospaced))
+                                            .foregroundStyle(DoodleTheme.dim)
                                     }
                                     Text("").frame(height: 4)
                                 }
@@ -242,18 +275,25 @@ struct DailyMealSection: View {
         }
     }
 
+    private var servingScale: Double {
+        guard let grams = Double(servingGrams), grams > 0 else { return 1.0 }
+        return grams / 100.0
+    }
+
     private func addFood(_ food: USDAFood) {
+        let scale = servingScale
         let meal = Meal(
             name: food.description.lowercased(),
-            calories: Int(food.calories.rounded())
+            calories: Int((food.calories * scale).rounded())
         )
-        meal.protein = food.protein
-        meal.carbs = food.carbs
-        meal.fat = food.fat
+        meal.protein = food.protein * scale
+        meal.carbs = food.carbs * scale
+        meal.fat = food.fat * scale
         modelContext.insert(meal)
         showAddMeal = false
         searchText = ""
         searchResults = []
+        servingGrams = "100"
     }
 
     // MARK: - Helpers

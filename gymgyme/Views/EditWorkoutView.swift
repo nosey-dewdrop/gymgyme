@@ -107,6 +107,7 @@ struct EditWorkoutView: View {
                 edited.original.weight = weight
             }
         }
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
         WidgetSync.sync(context: modelContext)
         dismiss()
     }

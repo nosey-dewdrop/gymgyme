@@ -122,6 +122,7 @@ struct AddExerciseView: View {
                     Button("save") {
                         let trimmed = name.trimmingCharacters(in: .whitespaces)
                         guard !isDuplicate(trimmed) else { return }
+                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                         modelContext.insert(Exercise(name: trimmed, tag: resolvedTag))
                         dismiss()
                     }
