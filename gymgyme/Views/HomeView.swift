@@ -64,6 +64,28 @@ struct HomeView: View {
                             }
                             .padding(.bottom, 8)
 
+                            // search bar
+                            HStack(spacing: 8) {
+                                Image(systemName: "magnifyingglass")
+                                    .foregroundStyle(DoodleTheme.dim)
+                                TextField("search exercises...", text: $exerciseSearchText)
+                                    .font(DoodleTheme.mono)
+                                    .foregroundStyle(DoodleTheme.fg)
+                                    .autocorrectionDisabled()
+                                    .textInputAutocapitalization(.never)
+                                    .onSubmit { showDiscoverSheet = true }
+                                if !exerciseSearchText.isEmpty {
+                                    Button { exerciseSearchText = "" } label: {
+                                        Image(systemName: "xmark.circle.fill")
+                                            .foregroundStyle(DoodleTheme.dim)
+                                    }
+                                }
+                            }
+                            .padding(10)
+                            .background(DoodleTheme.surface)
+                            .cornerRadius(8)
+                            .padding(.bottom, 8)
+
                             if let days = daysSinceAnyWorkout, days >= 1 {
                                 termLine(bullet: "!", color: days >= 5 ? DoodleTheme.red : DoodleTheme.yellow,
                                          text: "\(days) day\(days == 1 ? "" : "s") since last workout")
@@ -108,7 +130,8 @@ struct HomeView: View {
                                 termLine(bullet: "─", color: DoodleTheme.dim, text: "exercises (\(exercises.count))")
                                 Text("").frame(height: 4)
 
-                                ForEach(Array(sortedExercises.enumerated()), id: \.element.id) { index, exercise in
+                                let filtered = exerciseSearchText.isEmpty ? sortedExercises : sortedExercises.filter { $0.name.localizedCaseInsensitiveContains(exerciseSearchText) || $0.tag.localizedCaseInsensitiveContains(exerciseSearchText) }
+                                ForEach(Array(filtered.enumerated()), id: \.element.id) { index, exercise in
                                     exerciseRow(exercise, index: index)
                                 }
                             }
