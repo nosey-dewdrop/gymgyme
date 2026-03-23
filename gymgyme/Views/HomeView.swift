@@ -39,47 +39,45 @@ struct HomeView: View {
         }
     }
 
+    @State private var showMealsPage = false
+
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 2) {
-                    TypewriterTitle()
-                        .padding(.bottom, 8)
+        ZStack {
+            // exercises page
+            if !showMealsPage {
+                NavigationStack {
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 2) {
+                            TypewriterTitle()
+                                .padding(.bottom, 8)
 
-                    if let days = daysSinceAnyWorkout, days >= 1 {
-                        termLine(bullet: "!", color: days >= 5 ? DoodleTheme.red : DoodleTheme.yellow,
-                                 text: "\(days) day\(days == 1 ? "" : "s") since last workout")
-                    }
+                            if let days = daysSinceAnyWorkout, days >= 1 {
+                                termLine(bullet: "!", color: days >= 5 ? DoodleTheme.red : DoodleTheme.yellow,
+                                         text: "\(days) day\(days == 1 ? "" : "s") since last workout")
+                            }
 
-                    activeProgramsSection
+                            activeProgramsSection
 
-                    if exercises.isEmpty {
-                        Text("").frame(height: 20)
-                        termLine(bullet: "~", color: DoodleTheme.dim, text: "no exercises yet")
-                        termLine(bullet: " ", color: DoodleTheme.dim, text: "tap + to add your first exercise")
-                    } else {
-                        Text("").frame(height: 8)
-                        termLine(bullet: "─", color: DoodleTheme.dim, text: "exercises (\(exercises.count))")
-                        Text("").frame(height: 4)
+                            if exercises.isEmpty {
+                                Text("").frame(height: 20)
+                                termLine(bullet: "~", color: DoodleTheme.dim, text: "no exercises yet")
+                                termLine(bullet: " ", color: DoodleTheme.dim, text: "tap + to add your first exercise")
+                            } else {
+                                Text("").frame(height: 8)
+                                termLine(bullet: "─", color: DoodleTheme.dim, text: "exercises (\(exercises.count))")
+                                Text("").frame(height: 4)
 
-                        ForEach(Array(sortedExercises.enumerated()), id: \.element.id) { index, exercise in
-                            exerciseRow(exercise, index: index)
+                                ForEach(Array(sortedExercises.enumerated()), id: \.element.id) { index, exercise in
+                                    exerciseRow(exercise, index: index)
+                                }
+                            }
+
+                            Spacer().frame(height: 40)
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 16)
+                        .padding(.top, 8)
                     }
-
-                    Spacer().frame(height: 40)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .frame(minHeight: UIScreen.main.bounds.height)
-                .padding(.horizontal, 16)
-                .padding(.top, 8)
-
-                // meals - always below the fold, separate section
-                DailyMealSection()
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 16)
-                    .padding(.top, 16)
-            }
             .background(DoodleTheme.bg.ignoresSafeArea(.all))
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
@@ -129,6 +127,41 @@ struct HomeView: View {
             .onAppear {
                 NotificationManager.shared.requestPermission()
                 NotificationManager.shared.scheduleInactivityReminder(lastWorkoutDate: lastAnyWorkout)
+            }
+                }
+                .transition(.move(edge: .bottom))
+                .gesture(
+                    DragGesture(minimumDistance: 80)
+                        .onEnded { value in
+                            if value.translation.height < -120 && value.predictedEndTranslation.height < -200 {
+                                withAnimation(.spring(duration: 0.4, bounce: 0.2)) { showMealsPage = true }
+                            }
+                        }
+                )
+            }
+
+            // meals page
+            if showMealsPage {
+                NavigationStack {
+                    ScrollView {
+                        DailyMealSection()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 16)
+                            .padding(.top, 8)
+                    }
+                    .background(DoodleTheme.bg.ignoresSafeArea(.all))
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbarBackground(.hidden, for: .navigationBar)
+                }
+                .transition(.move(edge: .bottom))
+                .gesture(
+                    DragGesture(minimumDistance: 80)
+                        .onEnded { value in
+                            if value.translation.height > 120 && value.predictedEndTranslation.height > 200 {
+                                withAnimation(.spring(duration: 0.4, bounce: 0.2)) { showMealsPage = false }
+                            }
+                        }
+                )
             }
         }
     }
