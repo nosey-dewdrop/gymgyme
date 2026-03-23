@@ -9,6 +9,7 @@ struct MealLogView: View {
     @State private var newName = ""
     @State private var newCalories = ""
     @State private var newNotes = ""
+    @State private var newTime = Date()
 
     private var todaysMeals: [Meal] {
         let calendar = Calendar.current
@@ -49,14 +50,9 @@ struct MealLogView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 2) {
-                    HStack(spacing: 0) {
-                        Text("● ")
-                            .font(DoodleTheme.mono)
-                            .foregroundStyle(DoodleTheme.orange)
-                        Text("meals")
-                            .font(.custom("Menlo-Bold", size: 28))
-                            .foregroundStyle(DoodleTheme.orange)
-                    }
+                    Text("meals")
+                        .font(.custom("Menlo-Bold", size: 28))
+                        .foregroundStyle(DoodleTheme.orange)
                     .padding(.bottom, 8)
 
                     // today summary
@@ -185,6 +181,15 @@ struct MealLogView: View {
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
+                    Text("when?")
+                        .font(DoodleTheme.monoSmall)
+                        .foregroundStyle(DoodleTheme.dim)
+                    DatePicker("", selection: $newTime, displayedComponents: [.hourAndMinute])
+                        .labelsHidden()
+                        .colorScheme(.dark)
+                }
+
+                VStack(alignment: .leading, spacing: 4) {
                     Text("calories (optional)")
                         .font(DoodleTheme.monoSmall)
                         .foregroundStyle(DoodleTheme.dim)
@@ -247,6 +252,7 @@ struct MealLogView: View {
             calories: cal,
             notes: newNotes.trimmingCharacters(in: .whitespaces)
         )
+        meal.timestamp = newTime
         modelContext.insert(meal)
         resetForm()
         showAddMeal = false
@@ -256,6 +262,7 @@ struct MealLogView: View {
         newName = ""
         newCalories = ""
         newNotes = ""
+        newTime = Date()
     }
 
     private func statBox(_ label: String, value: String, color: Color) -> some View {
