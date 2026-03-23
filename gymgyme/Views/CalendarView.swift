@@ -138,10 +138,6 @@ struct CalendarView: View {
                                                 Circle()
                                                     .fill(DoodleTheme.red)
                                                     .frame(width: 5, height: 5)
-                                            } else if hasProgram {
-                                                Circle()
-                                                    .fill(DoodleTheme.orange)
-                                                    .frame(width: 5, height: 5)
                                             } else if hasWorkout {
                                                 Circle()
                                                     .fill(DoodleTheme.green)
