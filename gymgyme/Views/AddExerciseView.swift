@@ -8,6 +8,7 @@ struct AddExerciseView: View {
 
     @State private var name = ""
     @State private var tagInput = ""
+    @State private var showDiscover = false
 
     private var existingTags: [String] {
         Array(Set(exercises.map(\.tag))).sorted()
@@ -106,11 +107,26 @@ struct AddExerciseView: View {
                             }
                         }
                     }
+                    Text("").frame(height: 16)
+
+                    Button { showDiscover = true } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: "magnifyingglass")
+                            Text("browse exercise database")
+                        }
+                        .font(DoodleTheme.mono)
+                        .foregroundStyle(DoodleTheme.blue)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(DoodleTheme.surface)
+                        .cornerRadius(8)
+                    }
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
             }
             .background(DoodleTheme.bg.ignoresSafeArea(.all))
+            .sheet(isPresented: $showDiscover) { DiscoverView() }
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {

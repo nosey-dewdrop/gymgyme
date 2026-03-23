@@ -114,8 +114,7 @@ struct HomeView: View {
                                 termLine(bullet: "─", color: DoodleTheme.dim, text: "exercises (\(exercises.count))")
                                 Text("").frame(height: 4)
 
-                                let filtered = exerciseSearchText.isEmpty ? sortedExercises : sortedExercises.filter { $0.name.localizedCaseInsensitiveContains(exerciseSearchText) || $0.tag.localizedCaseInsensitiveContains(exerciseSearchText) }
-                                ForEach(Array(filtered.enumerated()), id: \.element.id) { index, exercise in
+                                ForEach(Array(sortedExercises.enumerated()), id: \.element.id) { index, exercise in
                                     exerciseRow(exercise, index: index)
                                 }
                             }
