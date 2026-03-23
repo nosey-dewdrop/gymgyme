@@ -201,7 +201,7 @@ struct CalendarView: View {
                             Text("").frame(height: 4)
                             let grouped = Dictionary(grouping: sets) { $0.exercise?.name ?? "unknown" }
                             ForEach(grouped.keys.sorted(), id: \.self) { name in
-                                let exerciseSets = grouped[name]!
+                                let exerciseSets = grouped[name] ?? []
                                 let tag = exerciseSets.first?.exercise?.tag ?? ""
                                 HStack(spacing: 0) {
                                     Text("  ● ")

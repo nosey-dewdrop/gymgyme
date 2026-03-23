@@ -24,7 +24,7 @@ struct ProgressChartView: View {
             grouped[day, default: []].append(set)
         }
         return grouped.keys.sorted().map { day in
-            let sets = grouped[day]!
+            let sets = grouped[day] ?? []
             let maxW = sets.map(\.weight).max() ?? 0
             let vol = sets.reduce(0.0) { $0 + Double($1.reps) * $1.weight }
             let hasPR = sets.contains { $0.isPersonalRecord }

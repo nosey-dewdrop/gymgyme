@@ -278,7 +278,7 @@ struct HomeView: View {
             let day = calendar.startOfDay(for: set.timestamp)
             groups[day, default: []].append(set)
         }
-        return groups.keys.sorted(by: >).prefix(10).map { DayGroup(date: $0, sets: groups[$0]!) }
+        return groups.keys.sorted(by: >).prefix(10).map { DayGroup(date: $0, sets: groups[$0] ?? []) }
     }
 
     private func formatDate(_ date: Date) -> String {

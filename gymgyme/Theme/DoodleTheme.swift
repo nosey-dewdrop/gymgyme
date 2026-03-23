@@ -42,24 +42,6 @@ extension Color {
     }
 }
 
-// keep these for backward compat but simplified
-struct DoodleCard: ViewModifier {
-    func body(content: Content) -> some View {
-        content
-    }
-}
-
-struct GlowCard: ViewModifier {
-    let color: Color
-    func body(content: Content) -> some View {
-        content
-    }
-}
-
-extension View {
-    func doodleCard() -> some View { modifier(DoodleCard()) }
-    func glowCard(color: Color) -> some View { modifier(GlowCard(color: color)) }
-}
 
 struct TagChip: View {
     let tag: String

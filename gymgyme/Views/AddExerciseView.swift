@@ -65,7 +65,7 @@ struct AddExerciseView: View {
                         Text("tag:  ")
                             .font(DoodleTheme.mono)
                             .foregroundStyle(DoodleTheme.dim)
-                        TextField("bacak", text: $tagInput)
+                        TextField("legs", text: $tagInput)
                             .font(.system(size: 14, design: .monospaced))
                             .foregroundStyle(DoodleTheme.fg)
                     }

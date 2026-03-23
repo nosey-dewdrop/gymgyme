@@ -18,7 +18,19 @@ struct gymgymeApp: App {
                 DayProgram.self
             )
         } catch {
-            fatalError("failed to create model container: \(error)")
+            // if schema migration fails, try deleting and recreating
+            let urls = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)
+            if let appSupport = urls.first {
+                try? FileManager.default.removeItem(at: appSupport.appendingPathComponent("default.store"))
+            }
+            do {
+                return try ModelContainer(for:
+                    Exercise.self, WorkoutSession.self, ExerciseSet.self,
+                    WorkoutPlan.self, UserProfile.self, Meal.self, DayProgram.self
+                )
+            } catch {
+                fatalError("failed to create model container after reset: \(error)")
+            }
         }
     }()
 

@@ -43,7 +43,7 @@ struct LogWorkoutView: View {
                             Text("last: ")
                                 .font(DoodleTheme.monoSmall)
                                 .foregroundStyle(DoodleTheme.dim)
-                            Text("\(prev.reps) reps × \(String(format: "%.0f", prev.weight)) kg")
+                            Text("\(prev.reps) reps × \(String(format: "%.0f", prev.weight)) \(weightUnit)")
                                 .font(DoodleTheme.monoSmall)
                                 .foregroundStyle(DoodleTheme.fg)
                             Text(" · \(timeText)")

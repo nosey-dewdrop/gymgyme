@@ -269,14 +269,4 @@ struct DailyMealSection: View {
         }
     }
 
-    private func termLine(bullet: String, color: Color, text: String) -> some View {
-        HStack(spacing: 0) {
-            Text("\(bullet) ")
-                .font(DoodleTheme.mono)
-                .foregroundStyle(color)
-            Text(text)
-                .font(DoodleTheme.mono)
-                .foregroundStyle(DoodleTheme.fg)
-        }
-    }
 }
