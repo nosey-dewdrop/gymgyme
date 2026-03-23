@@ -49,10 +49,10 @@ struct HomeView: View {
                         VStack(alignment: .leading, spacing: 2) {
                             HStack {
                                 HStack(spacing: 0) {
-                                    ForEach(Array(zip("exercises".enumerated(), DoodleTheme.titleColors)), id: \.0.offset) { item, color in
-                                        Text(String(item.element))
+                                    ForEach(Array("exercises".enumerated()), id: \.offset) { i, char in
+                                        Text(String(char))
                                             .font(.custom("Menlo-Bold", size: 28))
-                                            .foregroundStyle(color)
+                                            .foregroundStyle(DoodleTheme.color(for: i))
                                     }
                                 }
                                 Spacer()
