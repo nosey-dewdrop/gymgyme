@@ -8,7 +8,6 @@ struct HomeView: View {
 
     @State private var showAddExercise = false
     @State private var showSettings = false
-    @State private var searchText = ""
     @State private var showDiscoverSheet = false
     @State private var expandedExerciseId: PersistentIdentifier?
     @State private var logExercise: Exercise?
@@ -39,13 +38,11 @@ struct HomeView: View {
         }
     }
 
-    @State private var showMealsPage = false
-
     var body: some View {
-        ZStack {
-            // exercises page
-            if !showMealsPage {
-                NavigationStack {
+        NavigationStack {
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(spacing: 0) {
+                    // page 1: exercises
                     ScrollView {
                         VStack(alignment: .leading, spacing: 2) {
                             TypewriterTitle()
@@ -78,6 +75,19 @@ struct HomeView: View {
                         .padding(.horizontal, 16)
                         .padding(.top, 8)
                     }
+                    .containerRelativeFrame(.vertical)
+
+                    // page 2: meals
+                    ScrollView {
+                        DailyMealSection()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 16)
+                            .padding(.top, 8)
+                    }
+                    .containerRelativeFrame(.vertical)
+                }
+            }
+            .scrollTargetBehavior(.paging)
             .background(DoodleTheme.bg.ignoresSafeArea(.all))
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
@@ -94,10 +104,6 @@ struct HomeView: View {
                             .foregroundStyle(DoodleTheme.green)
                     }
                 }
-            }
-            .searchable(text: $searchText, prompt: "search exercises...")
-            .onSubmit(of: .search) {
-                showDiscoverSheet = true
             }
             .sheet(isPresented: $showDiscoverSheet) { DiscoverView() }
             .sheet(isPresented: $showAddExercise) { AddExerciseView() }
@@ -127,41 +133,6 @@ struct HomeView: View {
             .onAppear {
                 NotificationManager.shared.requestPermission()
                 NotificationManager.shared.scheduleInactivityReminder(lastWorkoutDate: lastAnyWorkout)
-            }
-                }
-                .transition(.move(edge: .bottom))
-                .gesture(
-                    DragGesture(minimumDistance: 80)
-                        .onEnded { value in
-                            if value.translation.height < -120 && value.predictedEndTranslation.height < -200 {
-                                withAnimation(.spring(duration: 0.4, bounce: 0.2)) { showMealsPage = true }
-                            }
-                        }
-                )
-            }
-
-            // meals page
-            if showMealsPage {
-                NavigationStack {
-                    ScrollView {
-                        DailyMealSection()
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal, 16)
-                            .padding(.top, 8)
-                    }
-                    .background(DoodleTheme.bg.ignoresSafeArea(.all))
-                    .navigationBarTitleDisplayMode(.inline)
-                    .toolbarBackground(.hidden, for: .navigationBar)
-                }
-                .transition(.move(edge: .bottom))
-                .gesture(
-                    DragGesture(minimumDistance: 80)
-                        .onEnded { value in
-                            if value.translation.height > 120 && value.predictedEndTranslation.height > 200 {
-                                withAnimation(.spring(duration: 0.4, bounce: 0.2)) { showMealsPage = false }
-                            }
-                        }
-                )
             }
         }
     }

@@ -8,84 +8,97 @@ struct PlansView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("programs")
-                        .font(.custom("Menlo-Bold", size: 28))
-                        .foregroundStyle(DoodleTheme.orange)
-                        .padding(.bottom, 8)
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(spacing: 0) {
+                    // page 1: programs
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("programs")
+                                .font(.custom("Menlo-Bold", size: 28))
+                                .foregroundStyle(DoodleTheme.orange)
+                                .padding(.bottom, 8)
 
-                    if plans.isEmpty {
-                        HStack(spacing: 0) {
-                            Text("~ ")
-                                .font(DoodleTheme.mono)
-                                .foregroundStyle(DoodleTheme.dim)
-                            Text("no programs yet")
-                                .font(DoodleTheme.mono)
-                                .foregroundStyle(DoodleTheme.dim)
-                        }
-                        HStack(spacing: 0) {
-                            Text("  ")
-                            Text("tap + to create a program")
-                                .font(DoodleTheme.monoSmall)
-                                .foregroundStyle(DoodleTheme.dim)
-                        }
-                    } else {
-                        ForEach(Array(plans.enumerated()), id: \.element.id) { index, plan in
-                            VStack(alignment: .leading, spacing: 1) {
+                            if plans.isEmpty {
                                 HStack(spacing: 0) {
-                                    Text("● ")
+                                    Text("~ ")
                                         .font(DoodleTheme.mono)
-                                        .foregroundStyle(plan.isActive ? DoodleTheme.green : DoodleTheme.color(for: index))
-                                    Text(plan.name)
-                                        .font(DoodleTheme.monoBold)
-                                        .foregroundStyle(DoodleTheme.fg)
-                                    if plan.isActive {
-                                        Text(" [active]")
-                                            .font(DoodleTheme.monoSmall)
-                                            .foregroundStyle(DoodleTheme.green)
-                                    }
+                                        .foregroundStyle(DoodleTheme.dim)
+                                    Text("no programs yet")
+                                        .font(DoodleTheme.mono)
+                                        .foregroundStyle(DoodleTheme.dim)
                                 }
                                 HStack(spacing: 0) {
                                     Text("  ")
-                                    Text("\(plan.goal.rawValue) · \(plan.duration.rawValue) · \(plan.exerciseNames.count) exercises")
+                                    Text("tap + to create a program")
                                         .font(DoodleTheme.monoSmall)
                                         .foregroundStyle(DoodleTheme.dim)
                                 }
-                                Text("").frame(height: 6)
-                            }
-                            .contextMenu {
-                                Button {
-                                    activatePlan(plan)
-                                } label: {
-                                    Label(plan.isActive ? "deactivate" : "activate", systemImage: plan.isActive ? "star.slash" : "star")
-                                }
-                                Button(role: .destructive) {
-                                    modelContext.delete(plan)
-                                    WidgetSync.sync(context: modelContext)
-                                } label: {
-                                    Label("delete", systemImage: "trash")
+                            } else {
+                                ForEach(Array(plans.enumerated()), id: \.element.id) { index, plan in
+                                    VStack(alignment: .leading, spacing: 1) {
+                                        HStack(spacing: 0) {
+                                            Text("● ")
+                                                .font(DoodleTheme.mono)
+                                                .foregroundStyle(plan.isActive ? DoodleTheme.green : DoodleTheme.color(for: index))
+                                            Text(plan.name)
+                                                .font(DoodleTheme.monoBold)
+                                                .foregroundStyle(DoodleTheme.fg)
+                                            if plan.isActive {
+                                                Text(" [active]")
+                                                    .font(DoodleTheme.monoSmall)
+                                                    .foregroundStyle(DoodleTheme.green)
+                                            }
+                                        }
+                                        HStack(spacing: 0) {
+                                            Text("  ")
+                                            Text("\(plan.goal.rawValue) · \(plan.duration.rawValue) · \(plan.exerciseNames.count) exercises")
+                                                .font(DoodleTheme.monoSmall)
+                                                .foregroundStyle(DoodleTheme.dim)
+                                        }
+                                        Text("").frame(height: 6)
+                                    }
+                                    .contextMenu {
+                                        Button {
+                                            activatePlan(plan)
+                                        } label: {
+                                            Label(plan.isActive ? "deactivate" : "activate", systemImage: plan.isActive ? "star.slash" : "star")
+                                        }
+                                        Button(role: .destructive) {
+                                            modelContext.delete(plan)
+                                            WidgetSync.sync(context: modelContext)
+                                        } label: {
+                                            Label("delete", systemImage: "trash")
+                                        }
+                                    }
                                 }
                             }
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 16)
+                        .padding(.top, 8)
                     }
-                    // premium section - hidden below fold
-                    Spacer().frame(height: UIScreen.main.bounds.height * 0.4)
-                    termLine(bullet: "─", color: DoodleTheme.dim, text: "premium programs")
-                    Text("").frame(height: 8)
+                    .containerRelativeFrame(.vertical)
 
-                    VStack(alignment: .leading, spacing: 8) {
-                        premiumCard("ai program builder", desc: "balanced programs generated for your goals", icon: "sparkles")
-                        premiumCard("expert templates", desc: "programs designed by certified trainers", icon: "star")
-                        premiumCard("periodization", desc: "auto-adjusting progressive overload plans", icon: "chart.line.uptrend.xyaxis")
+                    // page 2: premium
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("premium programs")
+                                .font(.custom("Menlo-Bold", size: 28))
+                                .foregroundStyle(DoodleTheme.purple)
+                                .padding(.bottom, 8)
+
+                            premiumCard("ai program builder", desc: "balanced programs generated for your goals", icon: "sparkles")
+                            premiumCard("expert templates", desc: "programs designed by certified trainers", icon: "star")
+                            premiumCard("periodization", desc: "auto-adjusting progressive overload plans", icon: "chart.line.uptrend.xyaxis")
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 16)
+                        .padding(.top, 8)
                     }
-
-                    Spacer().frame(height: 40)
+                    .containerRelativeFrame(.vertical)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 16)
-                .padding(.top, 8)
             }
+            .scrollTargetBehavior(.paging)
             .background(DoodleTheme.bg.ignoresSafeArea(.all))
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
@@ -127,17 +140,6 @@ struct PlansView: View {
         .padding(12)
         .background(DoodleTheme.surface)
         .cornerRadius(8)
-    }
-
-    private func termLine(bullet: String, color: Color, text: String) -> some View {
-        HStack(spacing: 0) {
-            Text("\(bullet) ")
-                .font(DoodleTheme.mono)
-                .foregroundStyle(color)
-            Text(text)
-                .font(DoodleTheme.mono)
-                .foregroundStyle(DoodleTheme.fg)
-        }
     }
 
     private func activatePlan(_ plan: WorkoutPlan) {
