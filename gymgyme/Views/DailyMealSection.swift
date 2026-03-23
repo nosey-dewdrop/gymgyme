@@ -70,7 +70,9 @@ struct DailyMealSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            termLine(bullet: "─", color: DoodleTheme.dim, text: "today's meals")
+            Text("meals")
+                .font(.custom("Menlo-Bold", size: 28))
+                .foregroundStyle(DoodleTheme.orange)
             Text("").frame(height: 4)
 
             // daily summary
