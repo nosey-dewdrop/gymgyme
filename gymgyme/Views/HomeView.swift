@@ -81,10 +81,10 @@ struct HomeView: View {
                                     }
                                 }
                             }
-                            .padding(10)
+                            .padding(8)
                             .background(DoodleTheme.surface)
-                            .cornerRadius(8)
-                            .padding(.bottom, 8)
+                            .cornerRadius(6)
+                            .padding(.bottom, 6)
 
                             if let days = daysSinceAnyWorkout, days >= 1 {
                                 termLine(bullet: "!", color: days >= 5 ? DoodleTheme.red : DoodleTheme.yellow,
