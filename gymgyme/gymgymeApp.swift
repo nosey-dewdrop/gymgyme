@@ -14,7 +14,8 @@ struct gymgymeApp: App {
                 ExerciseSet.self,
                 WorkoutPlan.self,
                 UserProfile.self,
-                Meal.self
+                Meal.self,
+                DayProgram.self
             )
         } catch {
             fatalError("failed to create model container: \(error)")

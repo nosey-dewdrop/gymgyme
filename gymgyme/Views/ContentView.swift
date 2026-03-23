@@ -20,18 +20,25 @@ struct ContentView: View {
         UITabBar.appearance().scrollEdgeAppearance = appearance
     }
 
+    @State private var selectedTab = 1
+
     var body: some View {
-        TabView {
-            HomeView()
-                .tabItem { Label("exercises", systemImage: "terminal") }
+        TabView(selection: $selectedTab) {
             CalendarView()
                 .tabItem { Label("calendar", systemImage: "calendar") }
+                .tag(0)
+            HomeView()
+                .tabItem { Label("exercises", systemImage: "terminal") }
+                .tag(1)
             PlansView()
                 .tabItem { Label("programs", systemImage: "list.bullet") }
+                .tag(2)
             MealLogView()
                 .tabItem { Label("meals", systemImage: "fork.knife") }
+                .tag(3)
             DiscoverView()
                 .tabItem { Label("discover", systemImage: "magnifyingglass") }
+                .tag(4)
         }
         .tint(DoodleTheme.green)
         .background(DoodleTheme.bg.ignoresSafeArea())
