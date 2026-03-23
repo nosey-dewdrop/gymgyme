@@ -9,6 +9,8 @@ struct HomeView: View {
     @State private var showAddExercise = false
     @State private var showSettings = false
     @State private var showDiscoverSheet = false
+    @State private var exerciseSearchText = ""
+    @State private var foodSearchText = ""
     @State private var expandedExerciseId: PersistentIdentifier?
     @State private var logExercise: Exercise?
     @State private var chartExercise: Exercise?
@@ -39,14 +41,10 @@ struct HomeView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            ScrollView(.vertical, showsIndicators: false) {
-                VStack(spacing: 0) {
-                    // page 0: discover / search
-                    DiscoverView()
-                        .containerRelativeFrame(.vertical)
-
-                    // page 1: exercises
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(spacing: 0) {
+                // page 1: exercises
+                NavigationStack {
                     ScrollView {
                         VStack(alignment: .leading, spacing: 2) {
                             TypewriterTitle()
@@ -79,67 +77,74 @@ struct HomeView: View {
                         .padding(.horizontal, 16)
                         .padding(.top, 8)
                     }
-                    .containerRelativeFrame(.vertical)
+                    .background(DoodleTheme.bg.ignoresSafeArea(.all))
+                    .searchable(text: $exerciseSearchText, prompt: "search exercises...")
+                    .onSubmit(of: .search) { showDiscoverSheet = true }
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbarBackground(.hidden, for: .navigationBar)
+                    .toolbar {
+                        ToolbarItem(placement: .topBarLeading) {
+                            Button { showSettings = true } label: {
+                                Image(systemName: "gearshape")
+                                    .foregroundStyle(DoodleTheme.green)
+                            }
+                        }
+                        ToolbarItem(placement: .primaryAction) {
+                            Button { showAddExercise = true } label: {
+                                Image(systemName: "plus")
+                                    .foregroundStyle(DoodleTheme.green)
+                            }
+                        }
+                    }
+                    .sheet(isPresented: $showDiscoverSheet) { DiscoverView() }
+                    .sheet(isPresented: $showAddExercise) { AddExerciseView() }
+                    .sheet(item: $logExercise) { exercise in LogWorkoutView(exercise: exercise) }
+                    .sheet(isPresented: $showSettings) { SettingsView() }
+                    .sheet(item: $chartExercise) { exercise in ProgressChartView(exercise: exercise) }
+                    .sheet(isPresented: Binding(
+                        get: { editSets != nil },
+                        set: { if !$0 { editSets = nil; editDate = nil } }
+                    )) {
+                        if let sets = editSets, let date = editDate {
+                            EditWorkoutView(sets: sets, date: date)
+                        }
+                    }
+                    .alert("delete exercise?", isPresented: Binding(
+                        get: { exerciseToDelete != nil },
+                        set: { if !$0 { exerciseToDelete = nil } }
+                    )) {
+                        Button("cancel", role: .cancel) { exerciseToDelete = nil }
+                        Button("delete", role: .destructive) {
+                            if let e = exerciseToDelete { deleteExercise(e) }
+                            exerciseToDelete = nil
+                        }
+                    } message: {
+                        Text("all workout logs for this exercise will be deleted")
+                    }
+                    .onAppear {
+                        NotificationManager.shared.requestPermission()
+                        NotificationManager.shared.scheduleInactivityReminder(lastWorkoutDate: lastAnyWorkout)
+                    }
+                }
+                .containerRelativeFrame(.vertical)
 
-                    // page 2: meals
+                // page 2: meals
+                NavigationStack {
                     ScrollView {
                         DailyMealSection()
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, 16)
                             .padding(.top, 8)
                     }
-                    .containerRelativeFrame(.vertical)
+                    .background(DoodleTheme.bg.ignoresSafeArea(.all))
+                    .searchable(text: $foodSearchText, prompt: "search food...")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbarBackground(.hidden, for: .navigationBar)
                 }
-            }
-            .scrollTargetBehavior(.paging)
-            .defaultScrollAnchor(.center)
-            .background(DoodleTheme.bg.ignoresSafeArea(.all))
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(.hidden, for: .navigationBar)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button { showSettings = true } label: {
-                        Image(systemName: "gearshape")
-                            .foregroundStyle(DoodleTheme.green)
-                    }
-                }
-                ToolbarItem(placement: .primaryAction) {
-                    Button { showAddExercise = true } label: {
-                        Image(systemName: "plus")
-                            .foregroundStyle(DoodleTheme.green)
-                    }
-                }
-            }
-            .sheet(isPresented: $showDiscoverSheet) { DiscoverView() }
-            .sheet(isPresented: $showAddExercise) { AddExerciseView() }
-            .sheet(item: $logExercise) { exercise in LogWorkoutView(exercise: exercise) }
-            .sheet(isPresented: $showSettings) { SettingsView() }
-            .sheet(item: $chartExercise) { exercise in ProgressChartView(exercise: exercise) }
-            .sheet(isPresented: Binding(
-                get: { editSets != nil },
-                set: { if !$0 { editSets = nil; editDate = nil } }
-            )) {
-                if let sets = editSets, let date = editDate {
-                    EditWorkoutView(sets: sets, date: date)
-                }
-            }
-            .alert("delete exercise?", isPresented: Binding(
-                get: { exerciseToDelete != nil },
-                set: { if !$0 { exerciseToDelete = nil } }
-            )) {
-                Button("cancel", role: .cancel) { exerciseToDelete = nil }
-                Button("delete", role: .destructive) {
-                    if let e = exerciseToDelete { deleteExercise(e) }
-                    exerciseToDelete = nil
-                }
-            } message: {
-                Text("all workout logs for this exercise will be deleted")
-            }
-            .onAppear {
-                NotificationManager.shared.requestPermission()
-                NotificationManager.shared.scheduleInactivityReminder(lastWorkoutDate: lastAnyWorkout)
+                .containerRelativeFrame(.vertical)
             }
         }
+        .scrollTargetBehavior(.paging)
     }
 
     private func exerciseRow(_ exercise: Exercise, index: Int) -> some View {
