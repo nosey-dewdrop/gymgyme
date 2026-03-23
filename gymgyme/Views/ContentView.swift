@@ -1,48 +1,50 @@
 import SwiftUI
 
 struct ContentView: View {
-    init() {
-        let appearance = UITabBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = UIColor(DoodleTheme.bg)
-
-        let normal = UITabBarItemAppearance()
-        normal.normal.iconColor = UIColor(DoodleTheme.dim)
-        normal.normal.titleTextAttributes = [.foregroundColor: UIColor(DoodleTheme.dim)]
-        normal.selected.iconColor = UIColor(DoodleTheme.green)
-        normal.selected.titleTextAttributes = [.foregroundColor: UIColor(DoodleTheme.green)]
-
-        appearance.stackedLayoutAppearance = normal
-        appearance.inlineLayoutAppearance = normal
-        appearance.compactInlineLayoutAppearance = normal
-
-        UITabBar.appearance().standardAppearance = appearance
-        UITabBar.appearance().scrollEdgeAppearance = appearance
-    }
-
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
-    @State private var selectedTab = 1
+    @State private var currentPage = 1
+
+    private let pageNames = ["meals", "exercises", "calendar", "programs", "discover"]
+    private let pageColors: [Color] = [DoodleTheme.orange, DoodleTheme.green, DoodleTheme.teal, DoodleTheme.pink, DoodleTheme.blue]
 
     var body: some View {
         if !hasSeenOnboarding {
             OnboardingView()
         } else {
-            TabView(selection: $selectedTab) {
-                CalendarView()
-                    .tabItem { Label("calendar", systemImage: "calendar") }
-                    .tag(0)
-                HomeView()
-                    .tabItem { Label("exercises", systemImage: "terminal") }
-                    .tag(1)
-                PlansView()
-                    .tabItem { Label("programs", systemImage: "list.bullet") }
-                    .tag(2)
-                DiscoverView()
-                    .tabItem { Label("search", systemImage: "magnifyingglass") }
-                    .tag(3)
+            ZStack(alignment: .bottom) {
+                TabView(selection: $currentPage) {
+                    MealLogView()
+                        .tag(0)
+                    HomeView()
+                        .tag(1)
+                    CalendarView()
+                        .tag(2)
+                    PlansView()
+                        .tag(3)
+                    DiscoverView()
+                        .tag(4)
+                }
+                .tabViewStyle(.page(indexDisplayMode: .never))
+                .background(DoodleTheme.bg.ignoresSafeArea())
+
+                // custom page indicator
+                HStack(spacing: 14) {
+                    ForEach(0..<pageNames.count, id: \.self) { i in
+                        Button {
+                            withAnimation(.spring(duration: 0.3, bounce: 0.2)) {
+                                currentPage = i
+                            }
+                        } label: {
+                            Text(pageNames[i])
+                                .font(.system(size: currentPage == i ? 13 : 11, weight: currentPage == i ? .bold : .regular, design: .monospaced))
+                                .foregroundStyle(currentPage == i ? pageColors[i] : DoodleTheme.dim)
+                        }
+                    }
+                }
+                .padding(.vertical, 10)
+                .padding(.horizontal, 12)
+                .background(DoodleTheme.bg.opacity(0.95))
             }
-            .tint(DoodleTheme.green)
-            .background(DoodleTheme.bg.ignoresSafeArea())
         }
     }
 }
@@ -51,6 +53,6 @@ struct ContentView: View {
     ContentView()
         .modelContainer(for: [
             Exercise.self, WorkoutSession.self, ExerciseSet.self,
-            WorkoutPlan.self, UserProfile.self
+            WorkoutPlan.self, UserProfile.self, Meal.self
         ], inMemory: true)
 }
