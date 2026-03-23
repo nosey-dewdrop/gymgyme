@@ -6,6 +6,7 @@ struct PlansView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var showCreatePlan = false
     @State private var showSettings = false
+    @State private var planToDelete: WorkoutPlan?
 
     var body: some View {
         NavigationStack {
@@ -77,8 +78,7 @@ struct PlansView: View {
                                             Label(plan.isActive ? "deactivate" : "activate", systemImage: plan.isActive ? "star.slash" : "star")
                                         }
                                         Button(role: .destructive) {
-                                            modelContext.delete(plan)
-                                            WidgetSync.sync(context: modelContext)
+                                            planToDelete = plan
                                         } label: {
                                             Label("delete", systemImage: "trash")
                                         }
@@ -116,6 +116,21 @@ struct PlansView: View {
             .navigationBarHidden(true)
             .sheet(isPresented: $showCreatePlan) { CreatePlanView() }
             .sheet(isPresented: $showSettings) { SettingsView() }
+            .alert("delete program?", isPresented: Binding(
+                get: { planToDelete != nil },
+                set: { if !$0 { planToDelete = nil } }
+            )) {
+                Button("cancel", role: .cancel) { planToDelete = nil }
+                Button("delete", role: .destructive) {
+                    if let p = planToDelete {
+                        modelContext.delete(p)
+                        WidgetSync.sync(context: modelContext)
+                    }
+                    planToDelete = nil
+                }
+            } message: {
+                Text("this program will be permanently deleted")
+            }
         }
     }
 

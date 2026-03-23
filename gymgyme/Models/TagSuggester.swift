@@ -36,7 +36,7 @@ struct TagSuggester {
         for (alias, canonical) in knownTags {
             let dist = levenshteinDistance(cleaned, alias)
             if dist <= 2 {
-                if bestMatch == nil || dist < bestMatch!.1 {
+                if bestMatch == nil || dist < (bestMatch?.1 ?? Int.max) {
                     bestMatch = (canonical, dist)
                 }
             }

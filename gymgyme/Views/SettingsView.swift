@@ -237,6 +237,10 @@ struct SettingsView: View {
             .sheet(isPresented: $showShareSheet) {
                 if let url = csvFileURL {
                     ShareSheet(activityItems: [url])
+                } else {
+                    Text("preparing export...")
+                        .font(DoodleTheme.mono)
+                        .foregroundStyle(DoodleTheme.dim)
                 }
             }
             .navigationBarTitleDisplayMode(.inline)

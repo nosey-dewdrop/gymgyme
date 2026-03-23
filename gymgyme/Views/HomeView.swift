@@ -133,7 +133,7 @@ struct HomeView: View {
                     .sheet(isPresented: $showSettings) { SettingsView() }
                     .sheet(item: $chartExercise) { exercise in ProgressChartView(exercise: exercise) }
                     .sheet(isPresented: Binding(
-                        get: { editSets != nil },
+                        get: { editSets != nil && editDate != nil },
                         set: { if !$0 { editSets = nil; editDate = nil } }
                     )) {
                         if let sets = editSets, let date = editDate {
