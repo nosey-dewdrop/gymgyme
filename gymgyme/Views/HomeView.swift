@@ -67,15 +67,18 @@ struct HomeView: View {
                         }
                     }
 
-                    // meals below fold
-                    Spacer().frame(height: UIScreen.main.bounds.height * 0.5)
-                    DailyMealSection()
-
                     Spacer().frame(height: 40)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .frame(minHeight: UIScreen.main.bounds.height)
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
+
+                // meals - always below the fold, separate section
+                DailyMealSection()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 16)
             }
             .background(DoodleTheme.bg.ignoresSafeArea(.all))
             .navigationBarTitleDisplayMode(.inline)
