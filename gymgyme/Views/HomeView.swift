@@ -41,42 +41,50 @@ struct HomeView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 2) {
-                    TypewriterTitle()
-                        .padding(.bottom, 8)
+            ScrollView(.vertical) {
+                LazyVStack(spacing: 0) {
+                    // page 0: exercises (main)
+                    VStack(alignment: .leading, spacing: 2) {
+                        TypewriterTitle()
+                            .padding(.bottom, 8)
 
-                    if let days = daysSinceAnyWorkout, days >= 1 {
-                        termLine(bullet: "!", color: days >= 5 ? DoodleTheme.red : DoodleTheme.yellow,
-                                 text: "\(days) day\(days == 1 ? "" : "s") since last workout")
-                    }
+                        if let days = daysSinceAnyWorkout, days >= 1 {
+                            termLine(bullet: "!", color: days >= 5 ? DoodleTheme.red : DoodleTheme.yellow,
+                                     text: "\(days) day\(days == 1 ? "" : "s") since last workout")
+                        }
 
-                    activeProgramsSection
+                        activeProgramsSection
 
-                    if exercises.isEmpty {
-                        Text("").frame(height: 20)
-                        termLine(bullet: "~", color: DoodleTheme.dim, text: "no exercises yet")
-                        termLine(bullet: " ", color: DoodleTheme.dim, text: "tap + to add your first exercise")
-                    } else {
-                        Text("").frame(height: 8)
-                        termLine(bullet: "─", color: DoodleTheme.dim, text: "exercises (\(exercises.count))")
-                        Text("").frame(height: 4)
+                        if exercises.isEmpty {
+                            Text("").frame(height: 20)
+                            termLine(bullet: "~", color: DoodleTheme.dim, text: "no exercises yet")
+                            termLine(bullet: " ", color: DoodleTheme.dim, text: "tap + to add your first exercise")
+                        } else {
+                            Text("").frame(height: 8)
+                            termLine(bullet: "─", color: DoodleTheme.dim, text: "exercises (\(exercises.count))")
+                            Text("").frame(height: 4)
 
-                        ForEach(Array(sortedExercises.enumerated()), id: \.element.id) { index, exercise in
-                            exerciseRow(exercise, index: index)
+                            ForEach(Array(sortedExercises.enumerated()), id: \.element.id) { index, exercise in
+                                exerciseRow(exercise, index: index)
+                            }
                         }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .frame(minHeight: UIScreen.main.bounds.height - 100)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 8)
+                    .id("exercises")
 
-                    // daily meal log section (below fold)
-                    Spacer().frame(height: UIScreen.main.bounds.height * 0.3)
+                    // page 1: meals (hard scroll down to reach)
                     DailyMealSection()
-
-                    Spacer().frame(height: 40)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .frame(minHeight: UIScreen.main.bounds.height - 100)
+                        .padding(.horizontal, 16)
+                        .id("meals")
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 16)
-                .padding(.top, 8)
+                .scrollTargetLayout()
             }
+            .scrollTargetBehavior(.viewAligned)
             .background(DoodleTheme.bg.ignoresSafeArea(.all))
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
@@ -95,7 +103,9 @@ struct HomeView: View {
                 }
             }
             .searchable(text: $searchText, prompt: "search exercises...")
-            .onSubmit(of: .search) { showDiscoverSheet = true }
+            .onSubmit(of: .search) {
+                showDiscoverSheet = true
+            }
             .sheet(isPresented: $showDiscoverSheet) { DiscoverView() }
             .sheet(isPresented: $showAddExercise) { AddExerciseView() }
             .sheet(item: $logExercise) { exercise in LogWorkoutView(exercise: exercise) }
