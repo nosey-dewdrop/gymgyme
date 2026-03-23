@@ -33,6 +33,7 @@
 		94F5CC5F2C1C7A63306C7EF5 /* TypewriterTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD8B78620EE6BD3D02D45014 /* TypewriterTitle.swift */; };
 		953E221C920F1E471270152A /* MealLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6339666626C83D4CCE3951C3 /* MealLogView.swift */; };
 		96435EC84FE831F0720A04CF /* WidgetColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA3C59B518E36DEA1AAB885A /* WidgetColors.swift */; };
+		A40F643BC971931C6B65F223 /* EditWorkoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74196EAB2DAEE0EF2048E199 /* EditWorkoutView.swift */; };
 		A488E45F785AAAB091BA3886 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8785B682867647467EA98E0A /* Assets.xcassets */; };
 		A51B3C7FC044E147512482B6 /* WorkoutSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 234941989A9EFAA563CE96DE /* WorkoutSession.swift */; };
 		A7FDF2B8268D8AFFC164BB98 /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2DCD2C1D37901CB23DA03E1 /* CalendarView.swift */; };
@@ -89,6 +90,7 @@
 		65B539E51A685763656CADC8 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		693535871F2E33A2D22D8759 /* ExerciseSet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseSet.swift; sourceTree = "<group>"; };
 		6F011D61A755BE8C20563179 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		74196EAB2DAEE0EF2048E199 /* EditWorkoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditWorkoutView.swift; sourceTree = "<group>"; };
 		77E0D703AE18241DB0A2F4FC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		7C50BE3C5E4422572C4ACAC4 /* WorkoutPlan.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutPlan.swift; sourceTree = "<group>"; };
 		7C78CC0C6F8E65699FAA8C8A /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
@@ -207,6 +209,7 @@
 				65B539E51A685763656CADC8 /* ContentView.swift */,
 				0CA0910AB99C7527603FFEDC /* CreatePlanView.swift */,
 				CBE919A7B20DD45AC5FBBB68 /* DiscoverView.swift */,
+				74196EAB2DAEE0EF2048E199 /* EditWorkoutView.swift */,
 				958EC8DC28E9ED0C00F7438E /* HomeView.swift */,
 				6107D34F32AAC596C2153BA2 /* LogWorkoutView.swift */,
 				6339666626C83D4CCE3951C3 /* MealLogView.swift */,
@@ -329,6 +332,7 @@
 				57CD54E658965ACF9A718359 /* DayProgram.swift in Sources */,
 				868139719277CF92BE91D0F7 /* DiscoverView.swift in Sources */,
 				C6DB0D4E80B2472BACDF3A17 /* DoodleTheme.swift in Sources */,
+				A40F643BC971931C6B65F223 /* EditWorkoutView.swift in Sources */,
 				DAE8253672A0E106416E2B03 /* Exercise.swift in Sources */,
 				EF172CEF1025D9C9EA002A60 /* ExerciseSet.swift in Sources */,
 				E1C48D990699DD746BD43E2E /* HomeView.swift in Sources */,

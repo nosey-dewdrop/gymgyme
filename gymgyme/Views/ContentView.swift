@@ -4,8 +4,8 @@ struct ContentView: View {
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
     @State private var currentPage = 1
 
-    private let pageNames = ["meals", "exercises", "calendar", "programs", "discover"]
-    private let pageColors: [Color] = [DoodleTheme.orange, DoodleTheme.green, DoodleTheme.teal, DoodleTheme.pink, DoodleTheme.blue]
+    private let pageNames = ["calendar", "exercises", "programs", "search"]
+    private let pageColors: [Color] = [DoodleTheme.teal, DoodleTheme.green, DoodleTheme.orange, DoodleTheme.blue]
 
     var body: some View {
         if !hasSeenOnboarding {
@@ -13,22 +13,20 @@ struct ContentView: View {
         } else {
             ZStack(alignment: .bottom) {
                 TabView(selection: $currentPage) {
-                    MealLogView()
+                    CalendarView()
                         .tag(0)
                     HomeView()
                         .tag(1)
-                    CalendarView()
-                        .tag(2)
                     PlansView()
-                        .tag(3)
+                        .tag(2)
                     DiscoverView()
-                        .tag(4)
+                        .tag(3)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
                 .ignoresSafeArea(.container, edges: .bottom)
                 .background(DoodleTheme.bg.ignoresSafeArea())
 
-                // custom page indicator
+                // page indicator
                 HStack(spacing: 14) {
                     ForEach(0..<pageNames.count, id: \.self) { i in
                         Button {
@@ -54,6 +52,6 @@ struct ContentView: View {
     ContentView()
         .modelContainer(for: [
             Exercise.self, WorkoutSession.self, ExerciseSet.self,
-            WorkoutPlan.self, UserProfile.self, Meal.self
+            WorkoutPlan.self, UserProfile.self
         ], inMemory: true)
 }

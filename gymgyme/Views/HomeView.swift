@@ -12,6 +12,8 @@ struct HomeView: View {
     @State private var logExercise: Exercise?
     @State private var chartExercise: Exercise?
     @State private var exerciseToDelete: Exercise?
+    @State private var editSets: [ExerciseSet]?
+    @State private var editDate: Date?
 
     private var lastAnyWorkout: Date? {
         exercises.flatMap { $0.sets }.compactMap { $0.timestamp }.max()
@@ -90,6 +92,14 @@ struct HomeView: View {
             .sheet(item: $logExercise) { exercise in LogWorkoutView(exercise: exercise) }
             .sheet(isPresented: $showSettings) { SettingsView() }
             .sheet(item: $chartExercise) { exercise in ProgressChartView(exercise: exercise) }
+            .sheet(isPresented: Binding(
+                get: { editSets != nil },
+                set: { if !$0 { editSets = nil; editDate = nil } }
+            )) {
+                if let sets = editSets, let date = editDate {
+                    EditWorkoutView(sets: sets, date: date)
+                }
+            }
             .alert("delete exercise?", isPresented: Binding(
                 get: { exerciseToDelete != nil },
                 set: { if !$0 { exerciseToDelete = nil } }
@@ -173,19 +183,28 @@ struct HomeView: View {
 
                 VStack(alignment: .leading, spacing: 2) {
                     ForEach(grouped, id: \.date) { group in
-                        HStack(spacing: 0) {
-                            Text("  ")
-                            let dateStr = formatDate(group.date)
-                            let setsStr = group.sets.map { "\($0.reps)×\(String(format: "%.0f", $0.weight))" }.joined(separator: ", ")
-                            Text(dateStr)
-                                .font(DoodleTheme.monoSmall)
-                                .foregroundStyle(DoodleTheme.dim)
-                            Text(" / ")
-                                .font(DoodleTheme.monoSmall)
-                                .foregroundStyle(DoodleTheme.dim)
-                            Text(setsStr)
-                                .font(DoodleTheme.monoSmall)
-                                .foregroundStyle(DoodleTheme.fg)
+                        Button {
+                            editSets = group.sets
+                            editDate = group.date
+                        } label: {
+                            HStack(spacing: 0) {
+                                Text("  ")
+                                let dateStr = formatDate(group.date)
+                                let setsStr = group.sets.map { "\($0.reps)×\(String(format: "%.0f", $0.weight))" }.joined(separator: ", ")
+                                Text(dateStr)
+                                    .font(DoodleTheme.monoSmall)
+                                    .foregroundStyle(DoodleTheme.dim)
+                                Text(" / ")
+                                    .font(DoodleTheme.monoSmall)
+                                    .foregroundStyle(DoodleTheme.dim)
+                                Text(setsStr)
+                                    .font(DoodleTheme.monoSmall)
+                                    .foregroundStyle(DoodleTheme.fg)
+                                Spacer()
+                                Image(systemName: "pencil")
+                                    .font(.system(size: 11))
+                                    .foregroundStyle(DoodleTheme.dim)
+                            }
                         }
                     }
 

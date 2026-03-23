@@ -64,6 +64,20 @@ struct CreatePlanView: View {
                         .font(DoodleTheme.monoBold)
                         .foregroundStyle(DoodleTheme.green)
 
+                    // gap detection
+                    if !missingGroups.isEmpty {
+                        Text("").frame(height: 4)
+                        HStack(spacing: 0) {
+                            Text("! ")
+                                .font(DoodleTheme.mono)
+                                .foregroundStyle(DoodleTheme.yellow)
+                            Text("missing: \(missingGroups.joined(separator: ", "))")
+                                .font(DoodleTheme.monoSmall)
+                                .foregroundStyle(DoodleTheme.yellow)
+                        }
+                        Text("").frame(height: 4)
+                    }
+
                     if exercises.isEmpty {
                         Text("  add exercises from home tab first")
                             .font(DoodleTheme.monoSmall)
@@ -106,6 +120,26 @@ struct CreatePlanView: View {
                 }
             }
         }
+    }
+
+    private var selectedTags: Set<String> {
+        Set(exercises.filter { selectedExercises.contains($0.persistentModelID) }.map(\.tag))
+    }
+
+    private var requiredGroups: [String] {
+        switch selectedGoal {
+        case .fullBody:
+            return ["chest", "back", "shoulders", "legs", "biceps", "triceps", "abs"]
+        case .upper:
+            return ["chest", "back", "shoulders", "biceps", "triceps"]
+        case .lower:
+            return ["legs", "glutes", "calves"]
+        }
+    }
+
+    private var missingGroups: [String] {
+        guard !selectedExercises.isEmpty else { return [] }
+        return requiredGroups.filter { !selectedTags.contains($0) }
     }
 
     private func toggleExercise(_ e: Exercise) {
