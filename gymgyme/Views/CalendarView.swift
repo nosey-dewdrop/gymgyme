@@ -59,11 +59,11 @@ struct CalendarView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text("calendar")
                         .font(.custom("Menlo-Bold", size: 28))
                         .foregroundStyle(DoodleTheme.teal)
-                        .padding(.bottom, 4)
+                        .padding(.bottom, 8)
 
                     // month nav
                     HStack {

@@ -69,11 +69,11 @@ struct DailyMealSection: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 2) {
             Text("meals")
                 .font(.custom("Menlo-Bold", size: 28))
                 .foregroundStyle(DoodleTheme.orange)
-            Text("").frame(height: 4)
+                .padding(.bottom, 8)
 
             // daily summary
             if !todaysMeals.isEmpty {
