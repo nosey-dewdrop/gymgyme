@@ -1,0 +1,12 @@
+# secrets
+gymgyme/Config.plist
+
+# xcode
+*.xcuserstate
+xcuserdata/
+DerivedData/
+.DS_Store
+
+# claude
+.claude/
+CLAUDE.md
