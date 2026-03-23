@@ -215,7 +215,7 @@ struct DiscoverView: View {
                     DiscoverExercise(
                         id: s.data.id,
                         baseId: s.data.base_id,
-                        name: s.data.name,
+                        name: s.data.name.lowercased(),
                         category: Self.normalizeCategory(s.data.category),
                         imageURL: s.data.image.map { "https://wger.de\($0)" }
                     )

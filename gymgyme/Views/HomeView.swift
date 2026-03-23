@@ -3,6 +3,7 @@ import SwiftData
 
 struct HomeView: View {
     @Query private var exercises: [Exercise]
+    @Query(filter: #Predicate<WorkoutPlan> { $0.isActive }) private var activePlans: [WorkoutPlan]
     @Environment(\.modelContext) private var modelContext
 
     @State private var showAddExercise = false
@@ -45,7 +46,7 @@ struct HomeView: View {
                                  text: "\(days) day\(days == 1 ? "" : "s") since last workout")
                     }
 
-                    streakSection
+                    activeProgramsSection
 
                     if exercises.isEmpty {
                         Text("").frame(height: 20)
@@ -233,42 +234,24 @@ struct HomeView: View {
     }
 
     @ViewBuilder
-    private var streakSection: some View {
-        let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
-        let allTimestamps = exercises.flatMap { $0.sets }.map { calendar.startOfDay(for: $0.timestamp) }
-        let uniqueDays = Set(allTimestamps)
-
-        if !uniqueDays.isEmpty {
-            let days: [Bool] = (0..<21).reversed().map { offset in
-                guard let date = calendar.date(byAdding: .day, value: -offset, to: today) else { return false }
-                return uniqueDays.contains(date)
-            }
-            let streak = {
-                var s = 0
-                for d in days.reversed() { if d { s += 1 } else { break } }
-                return s
-            }()
-
+    private var activeProgramsSection: some View {
+        if !activePlans.isEmpty {
             Text("").frame(height: 4)
+            termLine(bullet: "─", color: DoodleTheme.dim, text: "active programs")
+            Text("").frame(height: 2)
 
-            HStack(spacing: 0) {
-                Text("● ")
-                    .font(DoodleTheme.mono)
-                    .foregroundStyle(DoodleTheme.purple)
-                Text("21d challenge: ")
-                    .font(DoodleTheme.monoSmall)
-                    .foregroundStyle(DoodleTheme.dim)
-
-                ForEach(0..<21, id: \.self) { i in
-                    Text(days[i] ? "█" : "░")
-                        .font(.system(size: 10, design: .monospaced))
-                        .foregroundStyle(days[i] ? DoodleTheme.green : DoodleTheme.dim.opacity(0.4))
+            ForEach(activePlans) { plan in
+                HStack(spacing: 0) {
+                    Text("  ● ")
+                        .font(DoodleTheme.mono)
+                        .foregroundStyle(DoodleTheme.green)
+                    Text(plan.name)
+                        .font(DoodleTheme.monoBold)
+                        .foregroundStyle(DoodleTheme.fg)
+                    Text(" · \(plan.exerciseNames.count) exercises")
+                        .font(DoodleTheme.monoSmall)
+                        .foregroundStyle(DoodleTheme.dim)
                 }
-
-                Text(" \(streak)")
-                    .font(DoodleTheme.monoSmall)
-                    .foregroundStyle(DoodleTheme.green)
             }
         }
     }

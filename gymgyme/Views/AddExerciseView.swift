@@ -37,6 +37,28 @@ struct AddExerciseView: View {
                         TextField("leg press", text: $name)
                             .font(DoodleTheme.mono)
                             .foregroundStyle(DoodleTheme.fg)
+                            .autocorrectionDisabled()
+                            .textInputAutocapitalization(.never)
+                    }
+
+                    if !name.isEmpty && !nameSuggestions.isEmpty {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(nameSuggestions, id: \.self) { s in
+                                    Button {
+                                        name = s
+                                    } label: {
+                                        Text(s)
+                                            .font(DoodleTheme.monoSmall)
+                                            .foregroundStyle(DoodleTheme.fg)
+                                            .padding(.horizontal, 6)
+                                            .padding(.vertical, 2)
+                                            .background(DoodleTheme.surface)
+                                            .cornerRadius(4)
+                                    }
+                                }
+                            }
+                        }
                     }
 
                     HStack(spacing: 0) {
@@ -106,6 +128,13 @@ struct AddExerciseView: View {
                 }
             }
         }
+    }
+
+    private var nameSuggestions: [String] {
+        let input = name.lowercased().trimmingCharacters(in: .whitespaces)
+        guard input.count >= 2 else { return [] }
+        let existing = exercises.map(\.name)
+        return existing.filter { $0.lowercased().contains(input) }.prefix(5).map { $0 }
     }
 
     private func isDuplicate(_ name: String) -> Bool {
