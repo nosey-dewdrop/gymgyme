@@ -45,6 +45,7 @@ struct DailyMealSection: View {
     @State private var isSearching = false
     @State private var selectedFood: USDAFood?
     @State private var errorMessage: String?
+    @State private var showSettings = false
     @State private var servingGrams: String = "100"
 
     private var todaysMeals: [Meal] {
@@ -71,10 +72,23 @@ struct DailyMealSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text("meals")
-                .font(.custom("Menlo-Bold", size: 28))
-                .foregroundStyle(DoodleTheme.orange)
-                .padding(.bottom, 8)
+            HStack {
+                Text("meals")
+                    .font(.custom("Menlo-Bold", size: 28))
+                    .foregroundStyle(DoodleTheme.orange)
+                Spacer()
+                Button { showSettings = true } label: {
+                    Image(systemName: "gearshape")
+                        .foregroundStyle(DoodleTheme.dim)
+                }
+                Button { showAddMeal = true } label: {
+                    Image(systemName: "plus")
+                        .foregroundStyle(DoodleTheme.orange)
+                        .padding(.leading, 12)
+                }
+                .accessibilityLabel("add meal")
+            }
+            .padding(.bottom, 8)
 
             // daily summary
             if !todaysMeals.isEmpty {
@@ -117,20 +131,9 @@ struct DailyMealSection: View {
                 }
             }
 
-            // add meal button
-            Button { showAddMeal = true } label: {
-                HStack(spacing: 0) {
-                    Text("  ")
-                    Text("+ add meal")
-                        .font(DoodleTheme.monoSmall)
-                        .foregroundStyle(DoodleTheme.orange)
-                }
-            }
-            .padding(.top, 4)
         }
-        .sheet(isPresented: $showAddMeal) {
-            addMealSheet
-        }
+        .sheet(isPresented: $showAddMeal) { addMealSheet }
+        .sheet(isPresented: $showSettings) { SettingsView() }
     }
 
     // MARK: - Add Meal Sheet

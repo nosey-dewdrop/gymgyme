@@ -5,6 +5,7 @@ struct PlansView: View {
     @Query(sort: \WorkoutPlan.createdAt, order: .reverse) private var plans: [WorkoutPlan]
     @Environment(\.modelContext) private var modelContext
     @State private var showCreatePlan = false
+    @State private var showSettings = false
 
     var body: some View {
         NavigationStack {
@@ -16,11 +17,16 @@ struct PlansView: View {
                             HStack {
                                 Text("programs")
                                     .font(.custom("Menlo-Bold", size: 28))
-                                    .foregroundStyle(DoodleTheme.orange)
+                                    .foregroundStyle(DoodleTheme.purple)
                                 Spacer()
+                                Button { showSettings = true } label: {
+                                    Image(systemName: "gearshape")
+                                        .foregroundStyle(DoodleTheme.dim)
+                                }
                                 Button { showCreatePlan = true } label: {
                                     Image(systemName: "plus")
-                                        .foregroundStyle(DoodleTheme.green)
+                                        .foregroundStyle(DoodleTheme.purple)
+                                        .padding(.leading, 12)
                                 }
                             }
                             .padding(.bottom, 8)
@@ -82,7 +88,7 @@ struct PlansView: View {
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, 16)
-                        .padding(.top, 8)
+                        .padding(.top, 20)
                     }
                     .containerRelativeFrame(.vertical)
 
@@ -100,7 +106,7 @@ struct PlansView: View {
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, 16)
-                        .padding(.top, 8)
+                        .padding(.top, 20)
                     }
                     .containerRelativeFrame(.vertical)
                 }
@@ -109,6 +115,7 @@ struct PlansView: View {
             .background(DoodleTheme.bg.ignoresSafeArea(.all))
             .navigationBarHidden(true)
             .sheet(isPresented: $showCreatePlan) { CreatePlanView() }
+            .sheet(isPresented: $showSettings) { SettingsView() }
         }
     }
 

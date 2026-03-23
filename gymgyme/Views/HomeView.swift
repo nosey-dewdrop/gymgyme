@@ -48,7 +48,13 @@ struct HomeView: View {
                     ScrollView {
                         VStack(alignment: .leading, spacing: 2) {
                             HStack {
-                                TypewriterTitle()
+                                HStack(spacing: 0) {
+                                    ForEach(Array(zip("exercises".enumerated(), DoodleTheme.titleColors)), id: \.0.offset) { item, color in
+                                        Text(String(item.element))
+                                            .font(.custom("Menlo-Bold", size: 28))
+                                            .foregroundStyle(color)
+                                    }
+                                }
                                 Spacer()
                                 Button { showSettings = true } label: {
                                     Image(systemName: "gearshape")
@@ -63,28 +69,6 @@ struct HomeView: View {
                                 .accessibilityLabel("add exercise")
                             }
                             .padding(.bottom, 8)
-
-                            // search bar
-                            HStack(spacing: 8) {
-                                Image(systemName: "magnifyingglass")
-                                    .foregroundStyle(DoodleTheme.dim)
-                                TextField("search exercises...", text: $exerciseSearchText)
-                                    .font(DoodleTheme.mono)
-                                    .foregroundStyle(DoodleTheme.fg)
-                                    .autocorrectionDisabled()
-                                    .textInputAutocapitalization(.never)
-                                    .onSubmit { showDiscoverSheet = true }
-                                if !exerciseSearchText.isEmpty {
-                                    Button { exerciseSearchText = "" } label: {
-                                        Image(systemName: "xmark.circle.fill")
-                                            .foregroundStyle(DoodleTheme.dim)
-                                    }
-                                }
-                            }
-                            .padding(8)
-                            .background(DoodleTheme.surface)
-                            .cornerRadius(6)
-                            .padding(.bottom, 6)
 
                             if let days = daysSinceAnyWorkout, days >= 1 {
                                 termLine(bullet: "!", color: days >= 5 ? DoodleTheme.red : DoodleTheme.yellow,
@@ -140,7 +124,7 @@ struct HomeView: View {
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, 16)
-                        .padding(.top, 8)
+                        .padding(.top, 20)
                     }
                     .background(DoodleTheme.bg.ignoresSafeArea(.all))
                     .navigationBarHidden(true)
@@ -182,7 +166,7 @@ struct HomeView: View {
                         DailyMealSection()
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, 16)
-                            .padding(.top, 8)
+                            .padding(.top, 20)
                     }
                     .background(DoodleTheme.bg.ignoresSafeArea(.all))
                     .navigationBarHidden(true)

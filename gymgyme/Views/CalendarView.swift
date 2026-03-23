@@ -9,6 +9,7 @@ struct CalendarView: View {
     @State private var selectedDate: Date? = nil
     @State private var displayedMonth: Date = Date()
     @State private var showPlanPicker = false
+    @State private var showSettings = false
 
     private var calendar: Calendar { Calendar.current }
 
@@ -60,10 +61,17 @@ struct CalendarView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("calendar")
-                        .font(.custom("Menlo-Bold", size: 28))
-                        .foregroundStyle(DoodleTheme.teal)
-                        .padding(.bottom, 8)
+                    HStack {
+                        Text("calendar")
+                            .font(.custom("Menlo-Bold", size: 28))
+                            .foregroundStyle(DoodleTheme.teal)
+                        Spacer()
+                        Button { showSettings = true } label: {
+                            Image(systemName: "gearshape")
+                                .foregroundStyle(DoodleTheme.dim)
+                        }
+                    }
+                    .padding(.bottom, 8)
 
                     // month nav
                     HStack {
@@ -265,10 +273,11 @@ struct CalendarView: View {
                     }
                 }
                 .padding(.horizontal, 16)
-                .padding(.top, 8)
+                .padding(.top, 20)
             }
             .background(DoodleTheme.bg.ignoresSafeArea(.all))
             .navigationBarHidden(true)
+            .sheet(isPresented: $showSettings) { SettingsView() }
             .sheet(isPresented: $showPlanPicker) {
                 planPickerSheet
             }
@@ -282,13 +291,13 @@ struct CalendarView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 8) {
                     ColoredHeader("assign program", color: DoodleTheme.orange)
-                        .padding(.top, 8)
+                        .padding(.top, 20)
 
                     if plans.isEmpty {
                         Text("no programs yet")
                             .font(DoodleTheme.mono)
                             .foregroundStyle(DoodleTheme.dim)
-                            .padding(.top, 8)
+                            .padding(.top, 20)
                     } else {
                         ForEach(plans) { plan in
                             Button {
