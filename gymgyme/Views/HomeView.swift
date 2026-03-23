@@ -78,7 +78,7 @@ struct HomeView: View {
                         .padding(.top, 8)
                     }
                     .background(DoodleTheme.bg.ignoresSafeArea(.all))
-                    .searchable(text: $exerciseSearchText, prompt: "search exercises...")
+                    .searchable(text: $exerciseSearchText, placement: .navigationBarDrawer(displayMode: .automatic), prompt: "search exercises...")
                     .onSubmit(of: .search) { showDiscoverSheet = true }
                     .navigationBarTitleDisplayMode(.inline)
                     .toolbarBackground(.hidden, for: .navigationBar)
@@ -137,7 +137,7 @@ struct HomeView: View {
                             .padding(.top, 8)
                     }
                     .background(DoodleTheme.bg.ignoresSafeArea(.all))
-                    .searchable(text: $foodSearchText, prompt: "search food...")
+                    .searchable(text: $foodSearchText, placement: .navigationBarDrawer(displayMode: .automatic), prompt: "search food...")
                     .navigationBarTitleDisplayMode(.inline)
                     .toolbarBackground(.hidden, for: .navigationBar)
                 }
