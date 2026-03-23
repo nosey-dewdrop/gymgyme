@@ -47,8 +47,20 @@ struct HomeView: View {
                 NavigationStack {
                     ScrollView {
                         VStack(alignment: .leading, spacing: 2) {
-                            TypewriterTitle()
-                                .padding(.bottom, 8)
+                            HStack {
+                                TypewriterTitle()
+                                Spacer()
+                                Button { showSettings = true } label: {
+                                    Image(systemName: "gearshape")
+                                        .foregroundStyle(DoodleTheme.green)
+                                }
+                                Button { showAddExercise = true } label: {
+                                    Image(systemName: "plus")
+                                        .foregroundStyle(DoodleTheme.green)
+                                        .padding(.leading, 12)
+                                }
+                            }
+                            .padding(.bottom, 8)
 
                             if let days = daysSinceAnyWorkout, days >= 1 {
                                 termLine(bullet: "!", color: days >= 5 ? DoodleTheme.red : DoodleTheme.yellow,
@@ -78,23 +90,7 @@ struct HomeView: View {
                         .padding(.top, 8)
                     }
                     .background(DoodleTheme.bg.ignoresSafeArea(.all))
-                    .onSubmit(of: .search) { showDiscoverSheet = true }
-                    .navigationBarTitleDisplayMode(.inline)
-                    .toolbarBackground(.hidden, for: .navigationBar)
-                    .toolbar {
-                        ToolbarItem(placement: .topBarLeading) {
-                            Button { showSettings = true } label: {
-                                Image(systemName: "gearshape")
-                                    .foregroundStyle(DoodleTheme.green)
-                            }
-                        }
-                        ToolbarItem(placement: .primaryAction) {
-                            Button { showAddExercise = true } label: {
-                                Image(systemName: "plus")
-                                    .foregroundStyle(DoodleTheme.green)
-                            }
-                        }
-                    }
+                    .navigationBarHidden(true)
                     .sheet(isPresented: $showDiscoverSheet) { DiscoverView() }
                     .sheet(isPresented: $showAddExercise) { AddExerciseView() }
                     .sheet(item: $logExercise) { exercise in LogWorkoutView(exercise: exercise) }
@@ -136,8 +132,7 @@ struct HomeView: View {
                             .padding(.top, 8)
                     }
                     .background(DoodleTheme.bg.ignoresSafeArea(.all))
-                    .navigationBarTitleDisplayMode(.inline)
-                    .toolbarBackground(.hidden, for: .navigationBar)
+                    .navigationBarHidden(true)
                 }
                 .containerRelativeFrame(.vertical)
             }

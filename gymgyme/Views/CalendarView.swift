@@ -268,8 +268,7 @@ struct CalendarView: View {
                 .padding(.top, 8)
             }
             .background(DoodleTheme.bg.ignoresSafeArea(.all))
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(.hidden, for: .navigationBar)
+            .navigationBarHidden(true)
             .sheet(isPresented: $showPlanPicker) {
                 planPickerSheet
             }

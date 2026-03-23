@@ -13,10 +13,17 @@ struct PlansView: View {
                     // page 1: programs
                     ScrollView {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("programs")
-                                .font(.custom("Menlo-Bold", size: 28))
-                                .foregroundStyle(DoodleTheme.orange)
-                                .padding(.bottom, 8)
+                            HStack {
+                                Text("programs")
+                                    .font(.custom("Menlo-Bold", size: 28))
+                                    .foregroundStyle(DoodleTheme.orange)
+                                Spacer()
+                                Button { showCreatePlan = true } label: {
+                                    Image(systemName: "plus")
+                                        .foregroundStyle(DoodleTheme.green)
+                                }
+                            }
+                            .padding(.bottom, 8)
 
                             if plans.isEmpty {
                                 HStack(spacing: 0) {
@@ -100,16 +107,7 @@ struct PlansView: View {
             }
             .scrollTargetBehavior(.paging)
             .background(DoodleTheme.bg.ignoresSafeArea(.all))
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(.hidden, for: .navigationBar)
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button { showCreatePlan = true } label: {
-                        Image(systemName: "plus")
-                            .foregroundStyle(DoodleTheme.green)
-                    }
-                }
-            }
+            .navigationBarHidden(true)
             .sheet(isPresented: $showCreatePlan) { CreatePlanView() }
         }
     }
