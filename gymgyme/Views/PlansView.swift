@@ -69,8 +69,8 @@ struct PlansView: View {
                             }
                         }
                     }
-                    // premium section
-                    Text("").frame(height: 20)
+                    // premium section - hidden below fold
+                    Spacer().frame(height: UIScreen.main.bounds.height * 0.4)
                     termLine(bullet: "─", color: DoodleTheme.dim, text: "premium programs")
                     Text("").frame(height: 8)
 
