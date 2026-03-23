@@ -37,7 +37,7 @@ struct SettingsView: View {
                         Spacer()
                         TextField("170", value: Binding(
                             get: { profile.heightCm },
-                            set: { profile.heightCm = $0 }
+                            set: { profile.heightCm = min(300, max(0, $0)) }
                         ), format: .number)
                         .keyboardType(.decimalPad)
                         .multilineTextAlignment(.trailing)
@@ -56,7 +56,7 @@ struct SettingsView: View {
                         Spacer()
                         TextField("65", value: Binding(
                             get: { profile.weightKg },
-                            set: { profile.weightKg = $0 }
+                            set: { profile.weightKg = min(500, max(0, $0)) }
                         ), format: .number)
                         .keyboardType(.decimalPad)
                         .multilineTextAlignment(.trailing)
@@ -102,7 +102,7 @@ struct SettingsView: View {
                                 .foregroundStyle(DoodleTheme.orange)
                         }
 
-                        Text("1 kg yag sise, 1 kg kas yumruk.")
+                        Text("1 kg fat = size of a bottle. 1 kg muscle = size of a fist.")
                             .font(DoodleTheme.monoSmall)
                             .foregroundStyle(DoodleTheme.dim)
                             .padding(.top, 2)

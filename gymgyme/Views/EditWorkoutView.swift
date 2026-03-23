@@ -24,8 +24,11 @@ struct EditWorkoutView: View {
                         .font(.system(size: 20, weight: .black, design: .monospaced))
                         .foregroundStyle(DoodleTheme.orange)
 
-                    let formatter = DateFormatter()
-                    let _ = formatter.dateFormat = "d MMM yyyy"
+                    let formatter: DateFormatter = {
+                        let f = DateFormatter()
+                        f.dateFormat = "d MMM yyyy"
+                        return f
+                    }()
                     Text(formatter.string(from: date))
                         .font(DoodleTheme.monoSmall)
                         .foregroundStyle(DoodleTheme.dim)
@@ -104,6 +107,7 @@ struct EditWorkoutView: View {
                 edited.original.weight = weight
             }
         }
+        WidgetSync.sync(context: modelContext)
         dismiss()
     }
 

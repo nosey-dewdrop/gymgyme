@@ -15,7 +15,7 @@ final class NotificationManager {
 
         let content = UNMutableNotificationContent()
         content.title = "gymgyme"
-        content.body = "5 gun oldu! Spora gitmek istemez misin?"
+        content.body = "5 days without a workout! time to hit the gym?"
         content.sound = .default
 
         let triggerDate: Date

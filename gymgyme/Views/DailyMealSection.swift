@@ -44,6 +44,7 @@ struct DailyMealSection: View {
     @State private var searchResults: [USDAFood] = []
     @State private var isSearching = false
     @State private var selectedFood: USDAFood?
+    @State private var errorMessage: String?
 
     private var todaysMeals: [Meal] {
         let calendar = Calendar.current
@@ -159,6 +160,12 @@ struct DailyMealSection: View {
                         .foregroundStyle(DoodleTheme.dim)
                 }
 
+                if let err = errorMessage {
+                    Text(err)
+                        .font(DoodleTheme.monoSmall)
+                        .foregroundStyle(DoodleTheme.red)
+                }
+
                 // results
                 ScrollView {
                     VStack(alignment: .leading, spacing: 4) {
@@ -225,7 +232,10 @@ struct DailyMealSection: View {
                     isSearching = false
                 }
             } catch {
-                await MainActor.run { isSearching = false }
+                await MainActor.run {
+                    isSearching = false
+                    errorMessage = "search failed, check connection"
+                }
             }
         }
     }
