@@ -69,6 +69,18 @@ struct PlansView: View {
                             }
                         }
                     }
+                    // premium section
+                    Text("").frame(height: 20)
+                    termLine(bullet: "─", color: DoodleTheme.dim, text: "premium programs")
+                    Text("").frame(height: 8)
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        premiumCard("ai program builder", desc: "balanced programs generated for your goals", icon: "sparkles")
+                        premiumCard("expert templates", desc: "programs designed by certified trainers", icon: "star")
+                        premiumCard("periodization", desc: "auto-adjusting progressive overload plans", icon: "chart.line.uptrend.xyaxis")
+                    }
+
+                    Spacer().frame(height: 40)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 16)
@@ -86,6 +98,45 @@ struct PlansView: View {
                 }
             }
             .sheet(isPresented: $showCreatePlan) { CreatePlanView() }
+        }
+    }
+
+    private func premiumCard(_ title: String, desc: String, icon: String) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.system(size: 20))
+                .foregroundStyle(DoodleTheme.purple)
+                .frame(width: 32)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(DoodleTheme.monoBold)
+                    .foregroundStyle(DoodleTheme.fg)
+                Text(desc)
+                    .font(DoodleTheme.monoSmall)
+                    .foregroundStyle(DoodleTheme.dim)
+            }
+            Spacer()
+            Text("soon")
+                .font(DoodleTheme.monoSmall)
+                .foregroundStyle(DoodleTheme.purple)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(DoodleTheme.purple.opacity(0.15))
+                .cornerRadius(6)
+        }
+        .padding(12)
+        .background(DoodleTheme.surface)
+        .cornerRadius(8)
+    }
+
+    private func termLine(bullet: String, color: Color, text: String) -> some View {
+        HStack(spacing: 0) {
+            Text("\(bullet) ")
+                .font(DoodleTheme.mono)
+                .foregroundStyle(color)
+            Text(text)
+                .font(DoodleTheme.mono)
+                .foregroundStyle(DoodleTheme.fg)
         }
     }
 
