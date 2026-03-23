@@ -55,6 +55,12 @@ struct HomeView: View {
                                         .foregroundStyle(DoodleTheme.green)
                                 }
                                 .accessibilityLabel("settings")
+                                Button { showDiscoverSheet = true } label: {
+                                    Image(systemName: "magnifyingglass")
+                                        .foregroundStyle(DoodleTheme.blue)
+                                        .padding(.leading, 12)
+                                }
+                                .accessibilityLabel("search exercises")
                                 Button { showAddExercise = true } label: {
                                     Image(systemName: "plus")
                                         .foregroundStyle(DoodleTheme.green)
