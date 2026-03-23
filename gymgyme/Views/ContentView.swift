@@ -25,6 +25,7 @@ struct ContentView: View {
                         .tag(4)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
+                .ignoresSafeArea(.container, edges: .bottom)
                 .background(DoodleTheme.bg.ignoresSafeArea())
 
                 // custom page indicator
