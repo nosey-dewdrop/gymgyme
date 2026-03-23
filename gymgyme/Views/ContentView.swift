@@ -20,9 +20,13 @@ struct ContentView: View {
         UITabBar.appearance().scrollEdgeAppearance = appearance
     }
 
+    @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
     @State private var selectedTab = 1
 
     var body: some View {
+        if !hasSeenOnboarding {
+            OnboardingView()
+        } else {
         TabView(selection: $selectedTab) {
             CalendarView()
                 .tabItem { Label("calendar", systemImage: "calendar") }
@@ -42,6 +46,7 @@ struct ContentView: View {
         }
         .tint(DoodleTheme.green)
         .background(DoodleTheme.bg.ignoresSafeArea())
+        }
     }
 }
 

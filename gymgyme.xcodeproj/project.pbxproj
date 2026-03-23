@@ -12,6 +12,7 @@
 		12C082BEEC820D0756F6682A /* WidgetColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA3C59B518E36DEA1AAB885A /* WidgetColors.swift */; };
 		2386A26AE6F3F59C5788F03F /* gymgymeWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 20D52BD17A5AA4A703F0B988 /* gymgymeWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		2A3886404D49A531637B3DEE /* gymgymeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C110CEBF2F990D28045C7E0 /* gymgymeApp.swift */; };
+		443E9606DC4662CC5528B013 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CCDE1FBA8AC216352686D0F /* OnboardingView.swift */; };
 		44E2B6DAEB26A8427B110A0E /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11490273B8136145BF785BA2 /* UserProfile.swift */; };
 		4D6FDC07855F71A317FA5B27 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C78CC0C6F8E65699FAA8C8A /* NotificationManager.swift */; };
 		4EE69D73FCDCE2AB06D6D14E /* WidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AE2B9B9BAD5FA37A2D5821A /* WidgetView.swift */; };
@@ -81,6 +82,7 @@
 		24E09DF1E6D64A9CA51D3F59 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		2637E3BEAA97821468748F1C /* Meal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Meal.swift; sourceTree = "<group>"; };
 		2AE2B9B9BAD5FA37A2D5821A /* WidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetView.swift; sourceTree = "<group>"; };
+		3CCDE1FBA8AC216352686D0F /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		6107D34F32AAC596C2153BA2 /* LogWorkoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogWorkoutView.swift; sourceTree = "<group>"; };
 		6339666626C83D4CCE3951C3 /* MealLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealLogView.swift; sourceTree = "<group>"; };
 		647E36A9B14E331B10B8B1DA /* gymgyme.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = gymgyme.entitlements; sourceTree = "<group>"; };
@@ -208,6 +210,7 @@
 				958EC8DC28E9ED0C00F7438E /* HomeView.swift */,
 				6107D34F32AAC596C2153BA2 /* LogWorkoutView.swift */,
 				6339666626C83D4CCE3951C3 /* MealLogView.swift */,
+				3CCDE1FBA8AC216352686D0F /* OnboardingView.swift */,
 				C0EADF599C971FF57772DFF1 /* PlansView.swift */,
 				038756D5576D6691E42B1BC3 /* ProgressChartView.swift */,
 				6F011D61A755BE8C20563179 /* SettingsView.swift */,
@@ -333,6 +336,7 @@
 				0CB3A0AC7B35171F2C2620A7 /* Meal.swift in Sources */,
 				953E221C920F1E471270152A /* MealLogView.swift in Sources */,
 				4D6FDC07855F71A317FA5B27 /* NotificationManager.swift in Sources */,
+				443E9606DC4662CC5528B013 /* OnboardingView.swift in Sources */,
 				F94B6BDBC5E86B0871B7A614 /* PlansView.swift in Sources */,
 				FCE1BC5B71B7EA691CC7801D /* ProgressChartView.swift in Sources */,
 				5E3C1848AD79DFE85D02FEEA /* SettingsView.swift in Sources */,
