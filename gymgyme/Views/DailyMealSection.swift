@@ -245,7 +245,7 @@ struct DailyMealSection: View {
     private func addFood(_ food: USDAFood) {
         let meal = Meal(
             name: food.description.lowercased(),
-            calories: Int(food.calories)
+            calories: Int(food.calories.rounded())
         )
         meal.protein = food.protein
         meal.carbs = food.carbs

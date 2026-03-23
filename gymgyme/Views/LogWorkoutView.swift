@@ -140,7 +140,7 @@ struct LogWorkoutView: View {
         var validSets: [(reps: Int, weight: Double, index: Int)] = []
         for (i, entry) in sets.enumerated() {
             guard let reps = Int(entry.reps), reps > 0,
-                  let weight = Double(entry.weight), weight >= 0 else { continue }
+                  let weight = Double(entry.weight), weight > 0 else { continue }
             validSets.append((reps: reps, weight: weight, index: i))
         }
         guard !validSets.isEmpty else { dismiss(); return }

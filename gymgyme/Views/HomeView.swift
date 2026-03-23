@@ -54,11 +54,13 @@ struct HomeView: View {
                                     Image(systemName: "gearshape")
                                         .foregroundStyle(DoodleTheme.green)
                                 }
+                                .accessibilityLabel("settings")
                                 Button { showAddExercise = true } label: {
                                     Image(systemName: "plus")
                                         .foregroundStyle(DoodleTheme.green)
                                         .padding(.leading, 12)
                                 }
+                                .accessibilityLabel("add exercise")
                             }
                             .padding(.bottom, 8)
 
@@ -142,7 +144,7 @@ struct HomeView: View {
 
     private func exerciseRow(_ exercise: Exercise, index: Int) -> some View {
         let color = DoodleTheme.color(for: index)
-        let lastSet = exercise.sets.sorted { $0.timestamp > $1.timestamp }.first
+        let lastSet = exercise.sets.max(by: { $0.timestamp < $1.timestamp })
         let hasPR = exercise.sets.contains { $0.isPersonalRecord }
         let isExpanded = expandedExerciseId == exercise.persistentModelID
 

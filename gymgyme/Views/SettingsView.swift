@@ -5,9 +5,23 @@ struct SettingsView: View {
     @Query private var profiles: [UserProfile]
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @State private var showResetAlert = false
 
     private var profile: UserProfile {
         profiles.first ?? createProfile()
+    }
+
+    private func resetAllData() {
+        try? modelContext.delete(model: Exercise.self)
+        try? modelContext.delete(model: ExerciseSet.self)
+        try? modelContext.delete(model: WorkoutSession.self)
+        try? modelContext.delete(model: WorkoutPlan.self)
+        try? modelContext.delete(model: Meal.self)
+        try? modelContext.delete(model: DayProgram.self)
+        try? modelContext.delete(model: UserProfile.self)
+        UserDefaults.standard.set(false, forKey: "hasSeenOnboarding")
+        UserDefaults.standard.set(false, forKey: "dataMigrated")
+        dismiss()
     }
 
     private func createProfile() -> UserProfile {
@@ -107,11 +121,35 @@ struct SettingsView: View {
                             .foregroundStyle(DoodleTheme.dim)
                             .padding(.top, 2)
                     }
+
+                    Text("").frame(height: 24)
+                    Text("danger zone")
+                        .font(DoodleTheme.monoBold)
+                        .foregroundStyle(DoodleTheme.red)
+                        .padding(.bottom, 4)
+
+                    Button {
+                        showResetAlert = true
+                    } label: {
+                        Text("reset all data")
+                            .font(DoodleTheme.mono)
+                            .foregroundStyle(DoodleTheme.red)
+                            .frame(maxWidth: .infinity)
+                            .padding(10)
+                            .background(DoodleTheme.surface)
+                            .cornerRadius(6)
+                    }
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
             }
             .background(DoodleTheme.bg.ignoresSafeArea(.all))
+            .alert("reset all data?", isPresented: $showResetAlert) {
+                Button("cancel", role: .cancel) {}
+                Button("reset", role: .destructive) { resetAllData() }
+            } message: {
+                Text("this will delete all exercises, workouts, meals, and programs. this cannot be undone.")
+            }
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {

@@ -39,6 +39,9 @@ struct AddExerciseView: View {
                             .foregroundStyle(DoodleTheme.fg)
                             .autocorrectionDisabled()
                             .textInputAutocapitalization(.never)
+                            .onChange(of: name) { _, new in
+                                if new.count > 50 { name = String(new.prefix(50)) }
+                            }
                     }
 
                     if !name.isEmpty && !nameSuggestions.isEmpty {

@@ -8,9 +8,11 @@ final class UserProfile {
     var useLbs: Bool
 
     var bmi: Double {
-        guard heightCm > 0 else { return 0 }
+        guard heightCm >= 50, weightKg >= 10 else { return 0 }
         let heightM = heightCm / 100.0
-        return weightKg / (heightM * heightM)
+        let result = weightKg / (heightM * heightM)
+        guard result.isFinite else { return 0 }
+        return result
     }
 
     init(heightCm: Double = 0, weightKg: Double = 0) {

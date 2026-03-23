@@ -269,8 +269,10 @@ struct DiscoverView: View {
 
                 await MainActor.run { selectedExercise = detail }
             } catch {
-                // fallback: show without detail
-                await MainActor.run { selectedExercise = item }
+                await MainActor.run {
+                    selectedExercise = item
+                    errorMessage = "could not load exercise details"
+                }
             }
         }
     }
