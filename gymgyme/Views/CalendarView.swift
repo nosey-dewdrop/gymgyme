@@ -129,17 +129,24 @@ struct CalendarView: View {
                                             )
 
                                         HStack(spacing: 2) {
-                                            if hasWorkout {
+                                            let isPast = date < calendar.startOfDay(for: Date())
+                                            if hasProgram && hasWorkout {
                                                 Circle()
                                                     .fill(DoodleTheme.green)
                                                     .frame(width: 5, height: 5)
-                                            }
-                                            if hasProgram {
+                                            } else if hasProgram && !hasWorkout && isPast {
+                                                Circle()
+                                                    .fill(DoodleTheme.red)
+                                                    .frame(width: 5, height: 5)
+                                            } else if hasProgram {
                                                 Circle()
                                                     .fill(DoodleTheme.orange)
                                                     .frame(width: 5, height: 5)
-                                            }
-                                            if !hasWorkout && !hasProgram {
+                                            } else if hasWorkout {
+                                                Circle()
+                                                    .fill(DoodleTheme.green)
+                                                    .frame(width: 5, height: 5)
+                                            } else {
                                                 Circle()
                                                     .fill(.clear)
                                                     .frame(width: 5, height: 5)
