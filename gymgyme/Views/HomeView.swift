@@ -52,15 +52,9 @@ struct HomeView: View {
                                 Spacer()
                                 Button { showSettings = true } label: {
                                     Image(systemName: "gearshape")
-                                        .foregroundStyle(DoodleTheme.green)
+                                        .foregroundStyle(DoodleTheme.dim)
                                 }
                                 .accessibilityLabel("settings")
-                                Button { showDiscoverSheet = true } label: {
-                                    Image(systemName: "magnifyingglass")
-                                        .foregroundStyle(DoodleTheme.blue)
-                                        .padding(.leading, 12)
-                                }
-                                .accessibilityLabel("search exercises")
                                 Button { showAddExercise = true } label: {
                                     Image(systemName: "plus")
                                         .foregroundStyle(DoodleTheme.green)
