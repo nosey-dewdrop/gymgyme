@@ -253,8 +253,7 @@ struct DailyMealSection: View {
         isSearching = true
         searchResults = []
 
-        let query = searchText.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? searchText
-        let urlString = "https://api.nal.usda.gov/fdc/v1/foods/search?query=\(query)&pageSize=15&api_key=\(Config.usdaAPIKey)"
+        let urlString = Config.usdaSearchURL(query: searchText)
 
         guard let url = URL(string: urlString) else { isSearching = false; return }
 

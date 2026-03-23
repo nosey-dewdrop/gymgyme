@@ -1,0 +1,6 @@
+name = "gymgyme-usda-proxy"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+
+[vars]
+# USDA_API_KEY is set via: wrangler secret put USDA_API_KEY
