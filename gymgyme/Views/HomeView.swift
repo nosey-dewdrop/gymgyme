@@ -65,6 +65,10 @@ struct HomeView: View {
                         }
                     }
 
+                    // daily meal log section (below fold)
+                    Spacer().frame(height: UIScreen.main.bounds.height * 0.3)
+                    DailyMealSection()
+
                     Spacer().frame(height: 40)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)

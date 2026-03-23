@@ -12,6 +12,7 @@
 		12C082BEEC820D0756F6682A /* WidgetColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA3C59B518E36DEA1AAB885A /* WidgetColors.swift */; };
 		2386A26AE6F3F59C5788F03F /* gymgymeWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 20D52BD17A5AA4A703F0B988 /* gymgymeWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		2A3886404D49A531637B3DEE /* gymgymeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C110CEBF2F990D28045C7E0 /* gymgymeApp.swift */; };
+		3994872A65E00C8C40010FE3 /* DailyMealSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = D50BD7E3C78430F621405ECB /* DailyMealSection.swift */; };
 		443E9606DC4662CC5528B013 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CCDE1FBA8AC216352686D0F /* OnboardingView.swift */; };
 		44E2B6DAEB26A8427B110A0E /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11490273B8136145BF785BA2 /* UserProfile.swift */; };
 		4D6FDC07855F71A317FA5B27 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C78CC0C6F8E65699FAA8C8A /* NotificationManager.swift */; };
@@ -108,6 +109,7 @@
 		CD8B78620EE6BD3D02D45014 /* TypewriterTitle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypewriterTitle.swift; sourceTree = "<group>"; };
 		D139AB3E21FF0ECB1768B2EA /* gymgymeWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = gymgymeWidget.entitlements; sourceTree = "<group>"; };
 		D2DCD2C1D37901CB23DA03E1 /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; sourceTree = "<group>"; };
+		D50BD7E3C78430F621405ECB /* DailyMealSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyMealSection.swift; sourceTree = "<group>"; };
 		DC4CE282C5C3B847D07F6D29 /* gymgymeWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = gymgymeWidget.swift; sourceTree = "<group>"; };
 		FA3C59B518E36DEA1AAB885A /* WidgetColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetColors.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -208,6 +210,7 @@
 				D2DCD2C1D37901CB23DA03E1 /* CalendarView.swift */,
 				65B539E51A685763656CADC8 /* ContentView.swift */,
 				0CA0910AB99C7527603FFEDC /* CreatePlanView.swift */,
+				D50BD7E3C78430F621405ECB /* DailyMealSection.swift */,
 				CBE919A7B20DD45AC5FBBB68 /* DiscoverView.swift */,
 				74196EAB2DAEE0EF2048E199 /* EditWorkoutView.swift */,
 				958EC8DC28E9ED0C00F7438E /* HomeView.swift */,
@@ -329,6 +332,7 @@
 				A7FDF2B8268D8AFFC164BB98 /* CalendarView.swift in Sources */,
 				6EC4D0D75CEF7FD725005114 /* ContentView.swift in Sources */,
 				535C2770DDAB80507D0E3247 /* CreatePlanView.swift in Sources */,
+				3994872A65E00C8C40010FE3 /* DailyMealSection.swift in Sources */,
 				57CD54E658965ACF9A718359 /* DayProgram.swift in Sources */,
 				868139719277CF92BE91D0F7 /* DiscoverView.swift in Sources */,
 				C6DB0D4E80B2472BACDF3A17 /* DoodleTheme.swift in Sources */,
