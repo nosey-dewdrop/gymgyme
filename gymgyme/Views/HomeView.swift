@@ -8,6 +8,8 @@ struct HomeView: View {
 
     @State private var showAddExercise = false
     @State private var showSettings = false
+    @State private var searchText = ""
+    @State private var showDiscoverSheet = false
     @State private var expandedExerciseId: PersistentIdentifier?
     @State private var logExercise: Exercise?
     @State private var chartExercise: Exercise?
@@ -92,6 +94,9 @@ struct HomeView: View {
                     }
                 }
             }
+            .searchable(text: $searchText, prompt: "search exercises...")
+            .onSubmit(of: .search) { showDiscoverSheet = true }
+            .sheet(isPresented: $showDiscoverSheet) { DiscoverView() }
             .sheet(isPresented: $showAddExercise) { AddExerciseView() }
             .sheet(item: $logExercise) { exercise in LogWorkoutView(exercise: exercise) }
             .sheet(isPresented: $showSettings) { SettingsView() }
