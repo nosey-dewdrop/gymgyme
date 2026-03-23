@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>gymgyme — the gym tracker that knows you're skipping arm day</title>
+<meta name="description" content="gymgyme tracks your workouts, detects PRs, warns you about muscle atrophy, and builds programs from exercises you actually do. Built for everyone who goes to the gym.">
+<meta property="og:title" content="gymgyme — gym tracker with atrophy detection">
+<meta property="og:description" content="Track workouts, detect PRs, get atrophy warnings, build programs, log nutrition. A terminal-aesthetic iOS app for everyone who lifts.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://gymgyme.app">
+<meta property="og:image" content="https://gymgyme.app/gymrat_icon.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="gymgyme — gym tracker with atrophy detection">
+<meta name="twitter:description" content="Track workouts, detect PRs, get atrophy warnings, build programs, log nutrition.">
+<link rel="icon" type="image/png" href="gymrat_icon.png">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #1E1E2E;
+    --bg-surface: #181825;
+    --bg-overlay: #11111b;
+    --border: #313244;
+    --text: #CDD6F4;
+    --subtext: #A6ADC8;
+    --pink: #F5C2E7;
+    --orange: #FAB387;
+    --blue: #89B4FA;
+    --green: #A6E3A1;
+    --purple: #CBA6F7;
+    --yellow: #F9E2AF;
+    --teal: #94E2D5;
+    --red: #F38BA8;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', 'SF Mono', 'Menlo', 'Consolas', monospace;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background: var(--purple);
+    color: var(--bg);
+  }
+
+  /* --- Scanlines overlay --- */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.03) 2px,
+      rgba(0,0,0,0.03) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* --- Cursor blink --- */
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+
+  .cursor {
+    display: inline-block;
+    width: 0.6em;
+    height: 1.1em;
+    background: var(--green);
+    vertical-align: text-bottom;
+    animation: blink 1s step-end infinite;
+    margin-left: 2px;
+  }
+
+  /* --- Glow pulse --- */
+  @keyframes glow-pulse {
+    0%, 100% { filter: drop-shadow(0 0 4px currentColor); }
+    50% { filter: drop-shadow(0 0 12px currentColor); }
+  }
+
+  /* --- Fade in up --- */
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .fade-in {
+    opacity: 0;
+    animation: fade-in-up 0.6s ease-out forwards;
+  }
+
+  .fade-in:nth-child(2) { animation-delay: 0.1s; }
+  .fade-in:nth-child(3) { animation-delay: 0.2s; }
+  .fade-in:nth-child(4) { animation-delay: 0.3s; }
+
+  /* --- Type animation --- */
+  @keyframes type-reveal {
+    from { max-width: 0; }
+    to { max-width: 100%; }
+  }
+
+  /* --- Container --- */
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* --- NAV --- */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    background: rgba(30, 30, 46, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    z-index: 100;
+    padding: 16px 0;
+  }
+
+  nav .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .nav-logo {
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+
+  .nav-cta {
+    padding: 8px 20px;
+    background: transparent;
+    border: 1px solid var(--green);
+    color: var(--green);
+    font-family: inherit;
+    font-size: 0.8rem;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .nav-cta:hover {
+    background: var(--green);
+    color: var(--bg);
+  }
+
+  /* --- HERO --- */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 120px 24px 80px;
+    position: relative;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+  }
+
+  .hero-prompt {
+    font-size: 0.85rem;
+    color: var(--subtext);
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fade-in-up 0.5s ease-out 0.2s forwards;
+  }
+
+  .hero-prompt span { color: var(--green); }
+
+  .hero-title {
+    font-size: clamp(3.5rem, 12vw, 7rem);
+    font-weight: 700;
+    letter-spacing: -3px;
+    line-height: 1;
+    margin-bottom: 32px;
+    opacity: 0;
+    animation: fade-in-up 0.6s ease-out 0.4s forwards;
+  }
+
+  .letter-pink { color: var(--pink); }
+  .letter-orange { color: var(--orange); }
+  .letter-blue { color: var(--blue); }
+  .letter-green { color: var(--green); }
+  .letter-purple { color: var(--purple); }
+  .letter-yellow { color: var(--yellow); }
+  .letter-teal { color: var(--teal); }
+
+  .hero-sub {
+    font-size: clamp(0.9rem, 2.5vw, 1.15rem);
+    color: var(--subtext);
+    max-width: 560px;
+    line-height: 1.7;
+    margin-bottom: 48px;
+    opacity: 0;
+    animation: fade-in-up 0.6s ease-out 0.6s forwards;
+  }
+
+  .hero-sub strong { color: var(--red); }
+
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 32px;
+    background: var(--green);
+    color: var(--bg);
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+    opacity: 0;
+    animation: fade-in-up 0.6s ease-out 0.8s forwards;
+  }
+
+  .hero-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(166, 227, 161, 0.3);
+  }
+
+  .hero-cta svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .hero-badge {
+    margin-top: 20px;
+    font-size: 0.75rem;
+    color: var(--subtext);
+    opacity: 0;
+    animation: fade-in-up 0.6s ease-out 1s forwards;
+  }
+
+  .hero-badge span { color: var(--yellow); }
+
+  /* --- SECTION COMMON --- */
+  section {
+    padding: 100px 0;
+    position: relative;
+  }
+
+  .section-label {
+    font-size: 0.75rem;
+    color: var(--green);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 12px;
+  }
+
+  .section-title {
+    font-size: clamp(1.6rem, 4vw, 2.2rem);
+    font-weight: 700;
+    margin-bottom: 20px;
+    letter-spacing: -1px;
+  }
+
+  .section-desc {
+    color: var(--subtext);
+    font-size: 0.9rem;
+    max-width: 600px;
+    line-height: 1.7;
+    margin-bottom: 48px;
+  }
+
+  /* --- PROBLEM SECTION --- */
+  .problem {
+    background: var(--bg-surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .problem-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+
+  .problem-card {
+    background: var(--bg);
+    padding: 28px 24px;
+    border-left: 3px solid var(--border);
+    transition: border-color 0.3s;
+  }
+
+  .problem-card:hover { border-left-color: var(--red); }
+
+  .problem-card .num {
+    font-size: 0.7rem;
+    color: var(--subtext);
+    margin-bottom: 8px;
+  }
+
+  .problem-card h3 {
+    font-size: 1rem;
+    color: var(--pink);
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+  .problem-card p {
+    font-size: 0.85rem;
+    color: var(--subtext);
+    line-height: 1.6;
+  }
+
+  /* --- FEATURES --- */
+  .features-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .feature-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 28px 24px;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--card-accent, var(--green)), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .feature-card:hover::before { opacity: 1; }
+  .feature-card:hover {
+    border-color: var(--card-accent, var(--green));
+    transform: translateY(-2px);
+  }
+
+  .feature-icon {
+    font-size: 1.4rem;
+    margin-bottom: 14px;
+    display: block;
+  }
+
+  .feature-card h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .feature-card p {
+    font-size: 0.8rem;
+    color: var(--subtext);
+    line-height: 1.6;
+  }
+
+  .feature-tag {
+    display: inline-block;
+    margin-top: 12px;
+    font-size: 0.65rem;
+    padding: 3px 10px;
+    border-radius: 3px;
+    background: rgba(166, 227, 161, 0.1);
+    color: var(--green);
+    border: 1px solid rgba(166, 227, 161, 0.2);
+  }
+
+  /* --- TERMINAL DEMO --- */
+  .terminal {
+    background: var(--bg-overlay);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 48px;
+    max-width: 650px;
+  }
+
+  .terminal-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .terminal-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+
+  .terminal-dot:nth-child(1) { background: var(--red); }
+  .terminal-dot:nth-child(2) { background: var(--yellow); }
+  .terminal-dot:nth-child(3) { background: var(--green); }
+
+  .terminal-title {
+    font-size: 0.7rem;
+    color: var(--subtext);
+    margin-left: 8px;
+  }
+
+  .terminal-body {
+    padding: 20px;
+    font-size: 0.8rem;
+    line-height: 1.8;
+  }
+
+  .terminal-body .line {
+    opacity: 0;
+    animation: fade-in-up 0.4s ease-out forwards;
+  }
+
+  .t-green { color: var(--green); }
+  .t-yellow { color: var(--yellow); }
+  .t-red { color: var(--red); }
+  .t-pink { color: var(--pink); }
+  .t-blue { color: var(--blue); }
+  .t-orange { color: var(--orange); }
+  .t-purple { color: var(--purple); }
+  .t-teal { color: var(--teal); }
+  .t-dim { color: var(--subtext); }
+
+  /* --- HOW IT WORKS --- */
+  .how {
+    background: var(--bg-surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .steps {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 32px;
+    counter-reset: step;
+  }
+
+  .step {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    counter-increment: step;
+  }
+
+  .step-num {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--green);
+    background: var(--bg);
+  }
+
+  .step h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .step p {
+    font-size: 0.8rem;
+    color: var(--subtext);
+    line-height: 1.6;
+  }
+
+  /* --- ATROPHY DEMO --- */
+  .atrophy-demo {
+    margin-top: 48px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 8px;
+  }
+
+  .muscle-tag {
+    padding: 12px 16px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-align: center;
+    border: 1px solid;
+    transition: all 0.3s;
+  }
+
+  .muscle-tag:hover {
+    transform: scale(1.05);
+  }
+
+  .atrophy-green {
+    color: var(--green);
+    border-color: rgba(166, 227, 161, 0.3);
+    background: rgba(166, 227, 161, 0.05);
+  }
+
+  .atrophy-yellow {
+    color: var(--yellow);
+    border-color: rgba(249, 226, 175, 0.3);
+    background: rgba(249, 226, 175, 0.05);
+  }
+
+  .atrophy-red {
+    color: var(--red);
+    border-color: rgba(243, 139, 168, 0.3);
+    background: rgba(243, 139, 168, 0.05);
+    animation: glow-pulse 2s ease-in-out infinite;
+  }
+
+  .atrophy-dead {
+    color: var(--subtext);
+    border-color: rgba(166, 173, 200, 0.15);
+    background: rgba(0, 0, 0, 0.2);
+    opacity: 0.5;
+  }
+
+  .muscle-tag .status {
+    display: block;
+    font-size: 0.6rem;
+    margin-top: 4px;
+    opacity: 0.7;
+  }
+
+  /* --- CTA SECTION --- */
+  .cta-section {
+    text-align: center;
+    padding: 120px 24px;
+  }
+
+  .cta-section .section-title {
+    max-width: 500px;
+    margin: 0 auto 16px;
+  }
+
+  .cta-section .section-desc {
+    margin: 0 auto 40px;
+    text-align: center;
+  }
+
+  .cta-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .cta-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 36px;
+    background: var(--green);
+    color: var(--bg);
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .cta-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(166, 227, 161, 0.3);
+  }
+
+  .cta-primary svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .cta-secondary {
+    font-size: 0.8rem;
+    color: var(--subtext);
+  }
+
+  .cta-secondary a {
+    color: var(--blue);
+    text-decoration: none;
+  }
+
+  .cta-secondary a:hover { text-decoration: underline; }
+
+  /* --- FOOTER --- */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 40px 0;
+    text-align: center;
+  }
+
+  .footer-text {
+    font-size: 0.75rem;
+    color: var(--subtext);
+    line-height: 1.8;
+  }
+
+  .footer-text a {
+    color: var(--pink);
+    text-decoration: none;
+  }
+
+  .footer-text a:hover { text-decoration: underline; }
+
+  .footer-stack {
+    font-size: 0.65rem;
+    color: var(--border);
+    margin-top: 12px;
+  }
+
+  /* --- RESPONSIVE --- */
+  @media (min-width: 640px) {
+    .problem-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .features-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .steps {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .cta-buttons {
+      flex-direction: row;
+      justify-content: center;
+    }
+  }
+
+  @media (min-width: 900px) {
+    .features-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  /* --- SCROLL ANIMATIONS --- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="container">
+    <div class="nav-logo">
+      <span class="letter-pink">g</span><span class="letter-orange">y</span><span class="letter-blue">m</span><span class="letter-green">g</span><span class="letter-purple">y</span><span class="letter-yellow">m</span><span class="letter-teal">e</span>
+    </div>
+    <a href="#download" class="nav-cta">download</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <p class="hero-prompt"><span>$</span> gymgyme --track --honest</p>
+  <h1 class="hero-title">
+    <span class="letter-pink">g</span><span class="letter-orange">y</span><span class="letter-blue">m</span><span class="letter-green">g</span><span class="letter-purple">y</span><span class="letter-yellow">m</span><span class="letter-teal">e</span>
+  </h1>
+  <p class="hero-sub">
+    the gym tracker that knows you've been skipping arm day.<br>
+    logs workouts. detects PRs. <strong>warns you about atrophy.</strong>
+  </p>
+  <a href="#download" class="hero-cta">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+    app store
+  </a>
+  <p class="hero-badge">iOS 17+ &middot; SwiftUI &middot; <span>free</span></p>
+</section>
+
+<!-- PROBLEM -->
+<section class="problem">
+  <div class="container">
+    <p class="section-label reveal">// the problem</p>
+    <h2 class="section-title reveal">every gym app tracks sets.<br>none track <span style="color:var(--red)">neglect</span>.</h2>
+    <p class="section-desc reveal">you log your workouts. you feel productive. meanwhile, half your body hasn't been touched in weeks and you don't even notice.</p>
+
+    <div class="problem-grid">
+      <div class="problem-card reveal">
+        <div class="num">01</div>
+        <h3>the leg day loop</h3>
+        <p>you train legs every session and forget everything else exists. your shoulders haven't been touched in 3 months. no app tells you.</p>
+      </div>
+      <div class="problem-card reveal">
+        <div class="num">02</div>
+        <h3>memory is garbage</h3>
+        <p>what was your leg press PR? how many reps? at what weight? gone. every session starts from zero because you forgot where you left off.</p>
+      </div>
+      <div class="problem-card reveal">
+        <div class="num">03</div>
+        <h3>atrophy is brutal</h3>
+        <p>5 days off can undo 5 months of work. if you haven't trained a muscle group in X days, something should scream at you. nothing does.</p>
+      </div>
+      <div class="problem-card reveal">
+        <div class="num">04</div>
+        <h3>motivation drain</h3>
+        <p>seeing stagnation without context kills motivation. seeing actual progress — weight going up, PRs being hit — makes you want to go back.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features">
+  <div class="container">
+    <p class="section-label reveal">// features</p>
+    <h2 class="section-title reveal">what <span class="letter-pink">g</span><span class="letter-orange">y</span><span class="letter-blue">m</span><span class="letter-green">g</span><span class="letter-purple">y</span><span class="letter-yellow">m</span><span class="letter-teal">e</span> actually does</h2>
+    <p class="section-desc reveal">not another generic workout logger. this one watches what you skip.</p>
+
+    <div class="features-grid">
+      <div class="feature-card reveal" style="--card-accent: var(--red);">
+        <span class="feature-icon" style="color:var(--red);">&#9632;&#9632;&#9632;</span>
+        <h3 style="color:var(--red);">atrophy tracking</h3>
+        <p>color-coded warnings per muscle group. green = fresh. yellow = caution. red = atrophying. black = dead. neglected muscles sink to the bottom of your list.</p>
+        <span class="feature-tag" style="background:rgba(243,139,168,0.1);color:var(--red);border-color:rgba(243,139,168,0.2);">core feature</span>
+      </div>
+
+      <div class="feature-card reveal" style="--card-accent: var(--yellow);">
+        <span class="feature-icon" style="color:var(--yellow);">&#9650;</span>
+        <h3 style="color:var(--yellow);">PR detection</h3>
+        <p>log your sets and gymgyme automatically detects when you hit a personal record. your heaviest lift, best reps, all tracked over time.</p>
+        <span class="feature-tag" style="background:rgba(249,226,175,0.1);color:var(--yellow);border-color:rgba(249,226,175,0.2);">auto</span>
+      </div>
+
+      <div class="feature-card reveal" style="--card-accent: var(--blue);">
+        <span class="feature-icon" style="color:var(--blue);">&#9608;&#9604;&#9600;&#9608;</span>
+        <h3 style="color:var(--blue);">progress charts</h3>
+        <p>visual timeline of weight and reps per exercise. see your trajectory. spot plateaus. watch the line go up.</p>
+        <span class="feature-tag" style="background:rgba(137,180,250,0.1);color:var(--blue);border-color:rgba(137,180,250,0.2);">per exercise</span>
+      </div>
+
+      <div class="feature-card reveal" style="--card-accent: var(--purple);">
+        <span class="feature-icon" style="color:var(--purple);">{ }</span>
+        <h3 style="color:var(--purple);">program builder</h3>
+        <p>build workout programs from exercises you actually do. gap detection warns you if your program is missing muscle groups.</p>
+        <span class="feature-tag" style="background:rgba(203,166,247,0.1);color:var(--purple);border-color:rgba(203,166,247,0.2);">smart</span>
+      </div>
+
+      <div class="feature-card reveal" style="--card-accent: var(--orange);">
+        <span class="feature-icon" style="color:var(--orange);">&#9737;</span>
+        <h3 style="color:var(--orange);">meal logging</h3>
+        <p>log what you eat with USDA food database search. no calorie obsession — just honest tracking of what goes in.</p>
+        <span class="feature-tag" style="background:rgba(250,179,135,0.1);color:var(--orange);border-color:rgba(250,179,135,0.2);">USDA data</span>
+      </div>
+
+      <div class="feature-card reveal" style="--card-accent: var(--teal);">
+        <span class="feature-icon" style="color:var(--teal);">&#9638;</span>
+        <h3 style="color:var(--teal);">widget + streaks</h3>
+        <p>home screen widget shows your gym streak and active program. guilt on your lock screen. calendar view with program assignments.</p>
+        <span class="feature-tag" style="background:rgba(148,226,213,0.1);color:var(--teal);border-color:rgba(148,226,213,0.2);">iOS widget</span>
+      </div>
+    </div>
+
+    <!-- Terminal demo -->
+    <div class="terminal reveal">
+      <div class="terminal-bar">
+        <div class="terminal-dot"></div>
+        <div class="terminal-dot"></div>
+        <div class="terminal-dot"></div>
+        <span class="terminal-title">gymgyme --status</span>
+      </div>
+      <div class="terminal-body">
+        <div class="line" style="animation-delay:0.1s"><span class="t-green">&gt;</span> loading exercise library...</div>
+        <div class="line" style="animation-delay:0.3s"><span class="t-dim">---</span></div>
+        <div class="line" style="animation-delay:0.5s"><span class="t-green">&#9632;</span> leg press <span class="t-dim">/ 2 days ago / 75 kg</span> <span class="t-green">#legs</span></div>
+        <div class="line" style="animation-delay:0.7s"><span class="t-green">&#9632;</span> hip thrust <span class="t-dim">/ 2 days ago / 60 kg</span> <span class="t-green">#glutes</span></div>
+        <div class="line" style="animation-delay:0.9s"><span class="t-yellow">&#9632;</span> lat pulldown <span class="t-dim">/ 6 days ago / 35 kg</span> <span class="t-yellow">#back</span></div>
+        <div class="line" style="animation-delay:1.1s"><span class="t-red">&#9632;</span> shoulder press <span class="t-dim">/ 21 days ago / 12 kg</span> <span class="t-red">#shoulders</span></div>
+        <div class="line" style="animation-delay:1.3s"><span class="t-dim">&#9632;</span> bicep curl <span class="t-dim">/ 45 days ago / 8 kg</span> <span class="t-dim">#arms !! ATROPHY</span></div>
+        <div class="line" style="animation-delay:1.5s"><span class="t-dim">---</span></div>
+        <div class="line" style="animation-delay:1.7s"><span class="t-pink">!</span> <span class="t-pink">warning:</span> shoulders untrained for 21 days</div>
+        <div class="line" style="animation-delay:1.9s"><span class="t-red">!</span> <span class="t-red">critical:</span> arms untrained for 45 days</div>
+        <div class="line" style="animation-delay:2.1s"><span class="t-green">&gt;</span> streak: 14 days <span class="t-green">&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;&#9608;</span><span class="t-dim">&#9617;&#9617;&#9617;&#9617;&#9617;&#9617;&#9617;</span></div>
+        <div class="line" style="animation-delay:2.3s"><span class="t-green">&gt;</span> <span class="cursor"></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how">
+  <div class="container">
+    <p class="section-label reveal">// how it works</p>
+    <h2 class="section-title reveal">start in 60 seconds</h2>
+    <p class="section-desc reveal">no account needed. no onboarding quiz. no paywall.</p>
+
+    <div class="steps">
+      <div class="step reveal">
+        <div class="step-num">1</div>
+        <div>
+          <h3>add your exercises</h3>
+          <p>type them in or search the wger exercise database. assign muscle groups. that's your library.</p>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">2</div>
+        <div>
+          <h3>log your workouts</h3>
+          <p>tap an exercise, enter weight and reps. gymgyme shows your last session so you know where you left off.</p>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">3</div>
+        <div>
+          <h3>watch the colors</h3>
+          <p>muscle groups turn yellow, then red, then go dark as you neglect them. atrophy becomes visible.</p>
+        </div>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">4</div>
+        <div>
+          <h3>build programs</h3>
+          <p>create workout programs from your exercise library. gymgyme tells you what muscle groups you're missing.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Atrophy demo -->
+    <div class="atrophy-demo reveal">
+      <div class="muscle-tag atrophy-green">#quads<span class="status">2 days ago</span></div>
+      <div class="muscle-tag atrophy-green">#glutes<span class="status">2 days ago</span></div>
+      <div class="muscle-tag atrophy-green">#chest<span class="status">4 days ago</span></div>
+      <div class="muscle-tag atrophy-yellow">#back<span class="status">6 days ago</span></div>
+      <div class="muscle-tag atrophy-yellow">#abs<span class="status">8 days ago</span></div>
+      <div class="muscle-tag atrophy-red">#shoulders<span class="status">21 days ago</span></div>
+      <div class="muscle-tag atrophy-red">#triceps<span class="status">28 days ago</span></div>
+      <div class="muscle-tag atrophy-dead">#biceps<span class="status">45 days ago</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="download">
+  <div class="container">
+    <p class="section-label reveal">// download</p>
+    <h2 class="section-title reveal">stop forgetting.<br>start tracking.</h2>
+    <p class="section-desc reveal">free on the App Store. no account required. your data stays on your device.</p>
+    <div class="cta-buttons reveal">
+      <a href="https://apps.apple.com/app/gymgyme" class="cta-primary">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+        download on the App Store
+      </a>
+    </div>
+    <p class="cta-secondary reveal" style="margin-top:16px;">iOS 17+ required &middot; <a href="https://github.com/damummyphus/gymgyme">view source</a></p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <p class="footer-text">
+      built by <a href="https://github.com/damummyphus">Damla</a><br>
+      SwiftUI + SwiftData &middot; offline-first &middot; no tracking &middot; no ads
+    </p>
+    <p class="footer-stack">catppuccin mocha &middot; JetBrains Mono &middot; 2024-2026</p>
+  </div>
+</footer>
+
+<!-- Scroll reveal -->
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
