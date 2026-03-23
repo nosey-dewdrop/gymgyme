@@ -3,6 +3,7 @@ import SwiftData
 
 struct LogWorkoutView: View {
     let exercise: Exercise
+    @Query private var profiles: [UserProfile]
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @State private var sets: [SetEntry] = [SetEntry()]
@@ -10,6 +11,14 @@ struct LogWorkoutView: View {
 
     private var previousRecord: ExerciseSet? {
         exercise.sets.sorted { $0.timestamp > $1.timestamp }.first
+    }
+
+    private var useLbs: Bool {
+        profiles.first?.useLbs ?? false
+    }
+
+    private var weightUnit: String {
+        useLbs ? "lbs" : "kg"
     }
 
     private var personalBest: Double {
@@ -68,7 +77,7 @@ struct LogWorkoutView: View {
                                 .font(DoodleTheme.mono)
                                 .foregroundStyle(DoodleTheme.dim)
 
-                            TextField("kg", text: $sets[index].weight)
+                            TextField(weightUnit, text: $sets[index].weight)
                                 .keyboardType(.decimalPad)
                                 .font(DoodleTheme.mono)
                                 .foregroundStyle(DoodleTheme.fg)

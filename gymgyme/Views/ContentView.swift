@@ -27,25 +27,22 @@ struct ContentView: View {
         if !hasSeenOnboarding {
             OnboardingView()
         } else {
-        TabView(selection: $selectedTab) {
-            CalendarView()
-                .tabItem { Label("calendar", systemImage: "calendar") }
-                .tag(0)
-            HomeView()
-                .tabItem { Label("exercises", systemImage: "terminal") }
-                .tag(1)
-            PlansView()
-                .tabItem { Label("programs", systemImage: "list.bullet") }
-                .tag(2)
-            MealLogView()
-                .tabItem { Label("meals", systemImage: "fork.knife") }
-                .tag(3)
-            DiscoverView()
-                .tabItem { Label("discover", systemImage: "magnifyingglass") }
-                .tag(4)
-        }
-        .tint(DoodleTheme.green)
-        .background(DoodleTheme.bg.ignoresSafeArea())
+            TabView(selection: $selectedTab) {
+                CalendarView()
+                    .tabItem { Label("calendar", systemImage: "calendar") }
+                    .tag(0)
+                HomeView()
+                    .tabItem { Label("exercises", systemImage: "terminal") }
+                    .tag(1)
+                PlansView()
+                    .tabItem { Label("programs", systemImage: "list.bullet") }
+                    .tag(2)
+                DiscoverView()
+                    .tabItem { Label("search", systemImage: "magnifyingglass") }
+                    .tag(3)
+            }
+            .tint(DoodleTheme.green)
+            .background(DoodleTheme.bg.ignoresSafeArea())
         }
     }
 }
@@ -54,6 +51,6 @@ struct ContentView: View {
     ContentView()
         .modelContainer(for: [
             Exercise.self, WorkoutSession.self, ExerciseSet.self,
-            WorkoutPlan.self, UserProfile.self, Meal.self
+            WorkoutPlan.self, UserProfile.self
         ], inMemory: true)
 }

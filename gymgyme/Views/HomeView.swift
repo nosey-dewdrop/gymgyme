@@ -11,6 +11,7 @@ struct HomeView: View {
     @State private var expandedExerciseId: PersistentIdentifier?
     @State private var logExercise: Exercise?
     @State private var chartExercise: Exercise?
+    @State private var exerciseToDelete: Exercise?
 
     private var lastAnyWorkout: Date? {
         exercises.flatMap { $0.sets }.compactMap { $0.timestamp }.max()
@@ -89,6 +90,18 @@ struct HomeView: View {
             .sheet(item: $logExercise) { exercise in LogWorkoutView(exercise: exercise) }
             .sheet(isPresented: $showSettings) { SettingsView() }
             .sheet(item: $chartExercise) { exercise in ProgressChartView(exercise: exercise) }
+            .alert("delete exercise?", isPresented: Binding(
+                get: { exerciseToDelete != nil },
+                set: { if !$0 { exerciseToDelete = nil } }
+            )) {
+                Button("cancel", role: .cancel) { exerciseToDelete = nil }
+                Button("delete", role: .destructive) {
+                    if let e = exerciseToDelete { deleteExercise(e) }
+                    exerciseToDelete = nil
+                }
+            } message: {
+                Text("all workout logs for this exercise will be deleted")
+            }
             .onAppear {
                 NotificationManager.shared.requestPermission()
                 NotificationManager.shared.scheduleInactivityReminder(lastWorkoutDate: lastAnyWorkout)
@@ -117,6 +130,10 @@ struct HomeView: View {
                             .font(DoodleTheme.monoSmall)
                             .foregroundStyle(DoodleTheme.yellow)
                     }
+                    Spacer()
+                    Image(systemName: isExpanded ? "chevron.down" : "chevron.right")
+                        .font(.system(size: 12))
+                        .foregroundStyle(DoodleTheme.dim)
                 }
 
                 HStack(spacing: 0) {
@@ -169,9 +186,6 @@ struct HomeView: View {
                             Text(setsStr)
                                 .font(DoodleTheme.monoSmall)
                                 .foregroundStyle(DoodleTheme.fg)
-                            Text(" kg")
-                                .font(DoodleTheme.monoSmall)
-                                .foregroundStyle(DoodleTheme.dim)
                         }
                     }
 
@@ -190,7 +204,7 @@ struct HomeView: View {
                         Button {
                             chartExercise = exercise
                         } label: {
-                            Text("~ progress")
+                            Text("chart")
                                 .font(DoodleTheme.monoSmall)
                                 .foregroundStyle(DoodleTheme.teal)
                         }
@@ -205,7 +219,7 @@ struct HomeView: View {
         }
         .contextMenu {
             Button(role: .destructive) {
-                deleteExercise(exercise)
+                exerciseToDelete = exercise
             } label: {
                 Label("delete", systemImage: "trash")
             }

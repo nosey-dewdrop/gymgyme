@@ -68,6 +68,29 @@ struct SettingsView: View {
                     .background(DoodleTheme.surface)
                     .cornerRadius(6)
 
+                    Text("").frame(height: 8)
+                    Text("units")
+                        .font(DoodleTheme.monoBold)
+                        .foregroundStyle(DoodleTheme.blue)
+                        .padding(.bottom, 4)
+
+                    HStack {
+                        Text("weight unit")
+                            .font(DoodleTheme.mono)
+                            .foregroundStyle(DoodleTheme.dim)
+                        Spacer()
+                        Button {
+                            profile.useLbs.toggle()
+                        } label: {
+                            Text(profile.useLbs ? "lbs" : "kg")
+                                .font(DoodleTheme.monoBold)
+                                .foregroundStyle(DoodleTheme.green)
+                        }
+                    }
+                    .padding(10)
+                    .background(DoodleTheme.surface)
+                    .cornerRadius(6)
+
                     if profile.heightCm > 0 && profile.weightKg > 0 {
                         Text("").frame(height: 8)
                         HStack(spacing: 0) {
