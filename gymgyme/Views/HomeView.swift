@@ -42,6 +42,10 @@ struct HomeView: View {
         NavigationStack {
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(spacing: 0) {
+                    // page 0: discover / search
+                    DiscoverView()
+                        .containerRelativeFrame(.vertical)
+
                     // page 1: exercises
                     ScrollView {
                         VStack(alignment: .leading, spacing: 2) {
@@ -88,6 +92,7 @@ struct HomeView: View {
                 }
             }
             .scrollTargetBehavior(.paging)
+            .defaultScrollAnchor(.center)
             .background(DoodleTheme.bg.ignoresSafeArea(.all))
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)

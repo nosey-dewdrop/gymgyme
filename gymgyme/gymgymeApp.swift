@@ -22,6 +22,20 @@ struct gymgymeApp: App {
         }
     }()
 
+    @AppStorage("dataMigrated") private var dataMigrated = false
+
+    private func migrateExistingData() {
+        guard !dataMigrated else { return }
+        let context = sharedModelContainer.mainContext
+        let descriptor = FetchDescriptor<Exercise>()
+        guard let exercises = try? context.fetch(descriptor) else { return }
+        for exercise in exercises {
+            exercise.name = exercise.name.lowercased()
+            exercise.tag = TagSuggester.suggest(for: exercise.tag)
+        }
+        dataMigrated = true
+    }
+
     init() {
         // set window background once at launch to prevent white flash
         DispatchQueue.main.async {
@@ -42,13 +56,13 @@ struct gymgymeApp: App {
         .modelContainer(sharedModelContainer)
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .active {
-                // fix black screen: reset window bg when coming back
                 for scene in UIApplication.shared.connectedScenes {
                     guard let ws = scene as? UIWindowScene else { continue }
                     for window in ws.windows {
                         window.backgroundColor = UIColor(DoodleTheme.bg)
                     }
                 }
+                migrateExistingData()
                 WidgetSync.sync(context: sharedModelContainer.mainContext)
             }
         }
