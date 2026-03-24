@@ -51,6 +51,9 @@ struct AddExerciseView: View {
                                 ForEach(nameSuggestions, id: \.self) { s in
                                     Button {
                                         name = s
+                                        if let autoTag = ExerciseNameSuggester.autoTag(for: s) {
+                                            tagInput = autoTag
+                                        }
                                     } label: {
                                         Text(s)
                                             .font(DoodleTheme.monoSmall)
@@ -151,10 +154,7 @@ struct AddExerciseView: View {
     }
 
     private var nameSuggestions: [String] {
-        let input = name.lowercased().trimmingCharacters(in: .whitespaces)
-        guard input.count >= 2 else { return [] }
-        let existing = exercises.map(\.name)
-        return existing.filter { $0.lowercased().contains(input) }.prefix(5).map { $0 }
+        ExerciseNameSuggester.suggestions(for: name, existingExercises: exercises.map(\.name))
     }
 
     private func isDuplicate(_ name: String) -> Bool {

@@ -19,6 +19,8 @@
 		4D6FDC07855F71A317FA5B27 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C78CC0C6F8E65699FAA8C8A /* NotificationManager.swift */; };
 		4EE69D73FCDCE2AB06D6D14E /* WidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AE2B9B9BAD5FA37A2D5821A /* WidgetView.swift */; };
 		5016C58374BDBEDA80AA81D8 /* TagSuggester.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F0CBB47B1F00800EA6B8561 /* TagSuggester.swift */; };
+		A0C1F0EAAF2B460BBF32A548 /* ExerciseNameSuggester.swift in Sources */ = {isa = PBXBuildFile; fileRef = 452B973A4C1C4DAABCF70DA5 /* ExerciseNameSuggester.swift */; };
+		FF091234088E4303ABEDC473 /* FoodNameSuggester.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46E0DD1BDCB64BEAA407424D /* FoodNameSuggester.swift */; };
 		535C2770DDAB80507D0E3247 /* CreatePlanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CA0910AB99C7527603FFEDC /* CreatePlanView.swift */; };
 		550760EC09CBB2D34A9FD22B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B11E758489A3ACC365C692F1 /* Assets.xcassets */; };
 		57CD54E658965ACF9A718359 /* DayProgram.swift in Sources */ = {isa = PBXBuildFile; fileRef = A38D2F029C53F125212608EB /* DayProgram.swift */; };
@@ -80,8 +82,8 @@
 		11490273B8136145BF785BA2 /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
 		190F9EF70F78D1D24FCA1367 /* WidgetData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetData.swift; sourceTree = "<group>"; };
 		19D927D16F810B9954240E89 /* WidgetSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetSync.swift; sourceTree = "<group>"; };
-		1AEDA5A205B10916C41C99B8 /* gymgyme.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = gymgyme.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		20D52BD17A5AA4A703F0B988 /* gymgymeWidgetExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = gymgymeWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		1AEDA5A205B10916C41C99B8 /* gymgyme.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = gymgyme.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		20D52BD17A5AA4A703F0B988 /* gymgymeWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = gymgymeWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		234941989A9EFAA563CE96DE /* WorkoutSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutSession.swift; sourceTree = "<group>"; };
 		24E09DF1E6D64A9CA51D3F59 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		2637E3BEAA97821468748F1C /* Meal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Meal.swift; sourceTree = "<group>"; };
@@ -103,6 +105,8 @@
 		97BAD8EEFAD58074E18420E7 /* DoodleTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoodleTheme.swift; sourceTree = "<group>"; };
 		9C110CEBF2F990D28045C7E0 /* gymgymeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = gymgymeApp.swift; sourceTree = "<group>"; };
 		9F0CBB47B1F00800EA6B8561 /* TagSuggester.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TagSuggester.swift; sourceTree = "<group>"; };
+		452B973A4C1C4DAABCF70DA5 /* ExerciseNameSuggester.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseNameSuggester.swift; sourceTree = "<group>"; };
+		46E0DD1BDCB64BEAA407424D /* FoodNameSuggester.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodNameSuggester.swift; sourceTree = "<group>"; };
 		A38D2F029C53F125212608EB /* DayProgram.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayProgram.swift; sourceTree = "<group>"; };
 		A45476A2711708F8656BFE3E /* AddExerciseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddExerciseView.swift; sourceTree = "<group>"; };
 		B11E758489A3ACC365C692F1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -202,6 +206,8 @@
 				693535871F2E33A2D22D8759 /* ExerciseSet.swift */,
 				2637E3BEAA97821468748F1C /* Meal.swift */,
 				9F0CBB47B1F00800EA6B8561 /* TagSuggester.swift */,
+				452B973A4C1C4DAABCF70DA5 /* ExerciseNameSuggester.swift */,
+				46E0DD1BDCB64BEAA407424D /* FoodNameSuggester.swift */,
 				11490273B8136145BF785BA2 /* UserProfile.swift */,
 				7C50BE3C5E4422572C4ACAC4 /* WorkoutPlan.swift */,
 				234941989A9EFAA563CE96DE /* WorkoutSession.swift */,
@@ -280,14 +286,6 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 1600;
-				TargetAttributes = {
-					36FE23D3DA23DF57D742C448 = {
-						DevelopmentTeam = "";
-					};
-					5CABD4AF6687957D7B511C26 = {
-						DevelopmentTeam = "";
-					};
-				};
 			};
 			buildConfigurationList = 42FC06ACB4C57259A711D102 /* Build configuration list for PBXProject "gymgyme" */;
 			developmentRegion = en;
@@ -357,6 +355,8 @@
 				FCE1BC5B71B7EA691CC7801D /* ProgressChartView.swift in Sources */,
 				5E3C1848AD79DFE85D02FEEA /* SettingsView.swift in Sources */,
 				5016C58374BDBEDA80AA81D8 /* TagSuggester.swift in Sources */,
+				A0C1F0EAAF2B460BBF32A548 /* ExerciseNameSuggester.swift in Sources */,
+				FF091234088E4303ABEDC473 /* FoodNameSuggester.swift in Sources */,
 				94F5CC5F2C1C7A63306C7EF5 /* TypewriterTitle.swift in Sources */,
 				44E2B6DAEB26A8427B110A0E /* UserProfile.swift in Sources */,
 				12C082BEEC820D0756F6682A /* WidgetColors.swift in Sources */,
@@ -399,6 +399,7 @@
 				CODE_SIGN_ENTITLEMENTS = gymgyme/gymgyme.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 687K7458JY;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = gymgyme;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -425,6 +426,7 @@
 				CODE_SIGN_ENTITLEMENTS = gymgyme/gymgyme.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 687K7458JY;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = gymgyme;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -570,6 +572,7 @@
 				CODE_SIGN_ENTITLEMENTS = gymgymeWidget/gymgymeWidget.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 687K7458JY;
 				INFOPLIST_FILE = gymgymeWidget/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -590,6 +593,7 @@
 				CODE_SIGN_ENTITLEMENTS = gymgymeWidget/gymgymeWidget.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 687K7458JY;
 				INFOPLIST_FILE = gymgymeWidget/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

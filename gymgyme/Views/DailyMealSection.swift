@@ -154,11 +154,36 @@ struct DailyMealSection: View {
                         .font(DoodleTheme.mono)
                         .foregroundStyle(DoodleTheme.fg)
                         .autocorrectionDisabled()
+                        .textInputAutocapitalization(.never)
                         .onSubmit { searchFood() }
                 }
                 .padding(10)
                 .background(DoodleTheme.surface)
                 .cornerRadius(6)
+
+                if !searchText.isEmpty && searchResults.isEmpty && !isSearching {
+                    let foodSuggestions = FoodNameSuggester.suggestions(for: searchText)
+                    if !foodSuggestions.isEmpty {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(foodSuggestions, id: \.self) { s in
+                                    Button {
+                                        searchText = s
+                                        searchFood()
+                                    } label: {
+                                        Text(s)
+                                            .font(DoodleTheme.monoSmall)
+                                            .foregroundStyle(DoodleTheme.fg)
+                                            .padding(.horizontal, 6)
+                                            .padding(.vertical, 2)
+                                            .background(DoodleTheme.surface)
+                                            .cornerRadius(4)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
 
                 if isSearching {
                     Text("searching...")
