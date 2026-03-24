@@ -19,7 +19,7 @@ struct PrivacyPolicyView: View {
 
                     policySection(
                         title: "network requests",
-                        body: "the only network requests this app makes are food search queries to the USDA FoodData Central API. these queries contain only the food name you search for — no personal or device information is sent."
+                        body: "this app makes two types of network requests: food search queries to the USDA FoodData Central API, and exercise search queries to the wger Workout Manager API (wger.de). these queries contain only the search term you enter — no personal or device information is sent."
                     )
 
                     policySection(

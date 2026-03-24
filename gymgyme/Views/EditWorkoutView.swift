@@ -4,8 +4,13 @@ import SwiftData
 struct EditWorkoutView: View {
     let sets: [ExerciseSet]
     let date: Date
+    @Query private var profiles: [UserProfile]
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+
+    private var weightUnit: String {
+        (profiles.first?.useLbs ?? false) ? "lbs" : "kg"
+    }
 
     @State private var editedSets: [EditableSet] = []
 
@@ -53,7 +58,7 @@ struct EditWorkoutView: View {
                                 .font(DoodleTheme.mono)
                                 .foregroundStyle(DoodleTheme.dim)
 
-                            TextField("kg", text: $editedSets[i].weight)
+                            TextField(weightUnit, text: $editedSets[i].weight)
                                 .keyboardType(.decimalPad)
                                 .font(DoodleTheme.mono)
                                 .foregroundStyle(DoodleTheme.fg)

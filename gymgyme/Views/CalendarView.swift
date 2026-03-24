@@ -5,11 +5,16 @@ struct CalendarView: View {
     @Query private var allSets: [ExerciseSet]
     @Query private var plans: [WorkoutPlan]
     @Query private var dayPrograms: [DayProgram]
+    @Query private var profiles: [UserProfile]
     @Environment(\.modelContext) private var modelContext
     @State private var selectedDate: Date? = nil
     @State private var displayedMonth: Date = Date()
     @State private var showPlanPicker = false
     @State private var showSettings = false
+
+    private var weightUnit: String {
+        (profiles.first?.useLbs ?? false) ? "lbs" : "kg"
+    }
 
     private var calendar: Calendar { Calendar.current }
 
@@ -227,7 +232,7 @@ struct CalendarView: View {
                                     Text(detail)
                                         .font(DoodleTheme.monoSmall)
                                         .foregroundStyle(DoodleTheme.dim)
-                                    Text(" kg")
+                                    Text(" \(weightUnit)")
                                         .font(DoodleTheme.monoSmall)
                                         .foregroundStyle(DoodleTheme.dim)
                                 }

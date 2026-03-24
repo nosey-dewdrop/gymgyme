@@ -5,7 +5,12 @@ import SwiftData
 struct ProgressChartView: View {
     let exercise: Exercise
 
+    @Query private var profiles: [UserProfile]
     @Environment(\.dismiss) private var dismiss
+
+    private var weightUnit: String {
+        (profiles.first?.useLbs ?? false) ? "lbs" : "kg"
+    }
 
     private struct DayPoint: Identifiable {
         let id = UUID()
@@ -58,10 +63,10 @@ struct ProgressChartView: View {
 
                     // stats row
                     HStack(spacing: 16) {
-                        statBox("pb", value: String(format: "%.0f", personalBest), unit: "kg", color: DoodleTheme.yellow)
+                        statBox("pb", value: String(format: "%.0f", personalBest), unit: weightUnit, color: DoodleTheme.yellow)
                         statBox("sessions", value: "\(totalSessions)", unit: "", color: DoodleTheme.blue)
                         if let last = dataPoints.last {
-                            statBox("last", value: String(format: "%.0f", last.maxWeight), unit: "kg", color: DoodleTheme.green)
+                            statBox("last", value: String(format: "%.0f", last.maxWeight), unit: weightUnit, color: DoodleTheme.green)
                         }
                     }
 
@@ -73,7 +78,7 @@ struct ProgressChartView: View {
                         }
                     } else {
                         // weight chart
-                        chartSection(title: "weight progression (kg)", color: DoodleTheme.green) {
+                        chartSection(title: "weight progression (\(weightUnit))", color: DoodleTheme.green) {
                             weightChart
                         }
 

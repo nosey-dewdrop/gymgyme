@@ -47,6 +47,7 @@ struct DailyMealSection: View {
     @State private var errorMessage: String?
     @State private var showSettings = false
     @State private var servingGrams: String = "100"
+    @State private var mealToDelete: Meal?
 
     private var todaysMeals: [Meal] {
         let calendar = Calendar.current
@@ -115,7 +116,7 @@ struct DailyMealSection: View {
                 }
                 .contextMenu {
                     Button(role: .destructive) {
-                        modelContext.delete(meal)
+                        mealToDelete = meal
                     } label: {
                         Label("delete", systemImage: "trash")
                     }
@@ -134,6 +135,18 @@ struct DailyMealSection: View {
         }
         .sheet(isPresented: $showAddMeal) { addMealSheet }
         .sheet(isPresented: $showSettings) { SettingsView() }
+        .alert("delete meal?", isPresented: Binding(
+            get: { mealToDelete != nil },
+            set: { if !$0 { mealToDelete = nil } }
+        )) {
+            Button("cancel", role: .cancel) { mealToDelete = nil }
+            Button("delete", role: .destructive) {
+                if let m = mealToDelete { modelContext.delete(m) }
+                mealToDelete = nil
+            }
+        } message: {
+            Text("this meal will be deleted")
+        }
     }
 
     // MARK: - Add Meal Sheet
