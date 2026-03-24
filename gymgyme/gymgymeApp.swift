@@ -36,6 +36,12 @@ struct gymgymeApp: App {
 
     @AppStorage("dataMigrated") private var dataMigrated = false
 
+    private func setWindowBackground() {
+        guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = scene.windows.first else { return }
+        window.backgroundColor = UIColor(DoodleTheme.bg)
+    }
+
     private func migrateExistingData() {
         guard !dataMigrated else { return }
         let context = sharedModelContainer.mainContext
@@ -48,32 +54,17 @@ struct gymgymeApp: App {
         dataMigrated = true
     }
 
-    init() {
-        // set window background once at launch to prevent white flash
-        DispatchQueue.main.async {
-            for scene in UIApplication.shared.connectedScenes {
-                guard let ws = scene as? UIWindowScene else { continue }
-                for window in ws.windows {
-                    window.backgroundColor = UIColor(DoodleTheme.bg)
-                }
-            }
-        }
-    }
-
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .background(DoodleTheme.bg.ignoresSafeArea(.all))
+                .onAppear {
+                    setWindowBackground()
+                }
         }
         .modelContainer(sharedModelContainer)
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .active {
-                for scene in UIApplication.shared.connectedScenes {
-                    guard let ws = scene as? UIWindowScene else { continue }
-                    for window in ws.windows {
-                        window.backgroundColor = UIColor(DoodleTheme.bg)
-                    }
-                }
                 migrateExistingData()
                 WidgetSync.sync(context: sharedModelContainer.mainContext)
             }
