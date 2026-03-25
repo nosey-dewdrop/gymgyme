@@ -67,6 +67,7 @@ struct DiscoverView: View {
     @State private var selectedExercise: DiscoverExercise?
     @State private var addedMessage: String?
     @State private var errorMessage: String?
+    @State private var isLoadingDetail = false
 
     private var existingTags: [String] {
         Array(Set(myExercises.map(\.tag))).sorted()
@@ -174,6 +175,20 @@ struct DiscoverView: View {
             .background(DoodleTheme.bg.ignoresSafeArea(.all))
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
+            .overlay {
+                if isLoadingDetail {
+                    VStack {
+                        ProgressView()
+                            .tint(DoodleTheme.blue)
+                        Text("loading details...")
+                            .font(DoodleTheme.monoSmall)
+                            .foregroundStyle(DoodleTheme.dim)
+                            .padding(.top, 4)
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(DoodleTheme.bg.opacity(0.8))
+                }
+            }
             .searchable(text: $searchText, prompt: "search exercises...")
             .onSubmit(of: .search) { searchByName() }
             .sheet(item: $selectedExercise) { item in
@@ -236,6 +251,7 @@ struct DiscoverView: View {
     private func loadDetail(_ item: DiscoverExercise) {
         let urlString = "https://wger.de/api/v2/exerciseinfo/\(item.baseId)/?format=json"
         guard let url = URL(string: urlString) else { return }
+        isLoadingDetail = true
 
         Task {
             do {
@@ -267,9 +283,10 @@ struct DiscoverView: View {
                 detail.descriptionTR = descTR
                 detail.imageURLs = imageURLs
 
-                await MainActor.run { selectedExercise = detail }
+                await MainActor.run { selectedExercise = detail; isLoadingDetail = false }
             } catch {
                 await MainActor.run {
+                    isLoadingDetail = false
                     selectedExercise = item
                     errorMessage = "could not load exercise details"
                 }
