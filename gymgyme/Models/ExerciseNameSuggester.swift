@@ -193,28 +193,20 @@ struct ExerciseNameSuggester {
 
         let existingSet = Set(existingExercises.map { $0.lowercased() })
 
-        var results: [String] = []
+        var prefixMatches: [String] = []
+        var containsMatches: [String] = []
 
-        // Prefix matches first (higher priority)
+        // single pass over keys
         for name in knownExercises.keys {
-            if name.hasPrefix(cleaned) && !existingSet.contains(name) {
-                results.append(name)
+            guard !existingSet.contains(name) else { continue }
+            if name.hasPrefix(cleaned) {
+                prefixMatches.append(name)
+            } else if name.contains(cleaned) {
+                containsMatches.append(name)
             }
         }
 
-        // Then contains matches
-        for name in knownExercises.keys {
-            if !name.hasPrefix(cleaned) && name.contains(cleaned) && !existingSet.contains(name) {
-                results.append(name)
-            }
-        }
-
-        // Sort each group alphabetically but keep prefix matches first
-        let prefixCount = results.prefix(while: { $0.hasPrefix(cleaned) }).count
-        let prefixPart = Array(results.prefix(prefixCount)).sorted()
-        let containsPart = Array(results.dropFirst(prefixCount)).sorted()
-
-        return Array((prefixPart + containsPart).prefix(5))
+        return Array((prefixMatches.sorted() + containsMatches.sorted()).prefix(5))
     }
 
     static func autoTag(for exerciseName: String) -> String? {

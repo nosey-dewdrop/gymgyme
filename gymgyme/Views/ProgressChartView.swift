@@ -7,42 +7,39 @@ struct ProgressChartView: View {
 
     @Query private var profiles: [UserProfile]
     @Environment(\.dismiss) private var dismiss
+    @State private var cachedDataPoints: [DayPoint] = []
+    @State private var cachedPersonalBest: Double = 0
 
     private var weightUnit: String {
         (profiles.first?.useLbs ?? false) ? "lbs" : "kg"
     }
 
-    private struct DayPoint: Identifiable {
-        let id = UUID()
+    struct DayPoint: Identifiable {
+        let id: Date // stable identity based on date
         let date: Date
         let maxWeight: Double
-        let totalVolume: Double // sum of (reps × weight) for the day
+        let totalVolume: Double
         let totalSets: Int
         let hasPR: Bool
     }
 
-    private var dataPoints: [DayPoint] {
+    private func recomputeData() {
         let calendar = Calendar.current
         var grouped: [Date: [ExerciseSet]] = [:]
+        var best: Double = 0
         for set in exercise.sets {
             let day = calendar.startOfDay(for: set.timestamp)
             grouped[day, default: []].append(set)
+            if set.weight > best { best = set.weight }
         }
-        return grouped.keys.sorted().map { day in
+        cachedPersonalBest = best
+        cachedDataPoints = grouped.keys.sorted().map { day in
             let sets = grouped[day] ?? []
             let maxW = sets.map(\.weight).max() ?? 0
             let vol = sets.reduce(0.0) { $0 + Double($1.reps) * $1.weight }
             let hasPR = sets.contains { $0.isPersonalRecord }
-            return DayPoint(date: day, maxWeight: maxW, totalVolume: vol, totalSets: sets.count, hasPR: hasPR)
+            return DayPoint(id: day, date: day, maxWeight: maxW, totalVolume: vol, totalSets: sets.count, hasPR: hasPR)
         }
-    }
-
-    private var personalBest: Double {
-        exercise.sets.map(\.weight).max() ?? 0
-    }
-
-    private var totalSessions: Int {
-        dataPoints.count
     }
 
     var body: some View {
@@ -63,14 +60,14 @@ struct ProgressChartView: View {
 
                     // stats row
                     HStack(spacing: 16) {
-                        statBox("pb", value: String(format: "%.0f", personalBest), unit: weightUnit, color: DoodleTheme.yellow)
-                        statBox("sessions", value: "\(totalSessions)", unit: "", color: DoodleTheme.blue)
-                        if let last = dataPoints.last {
+                        statBox("pb", value: String(format: "%.0f", cachedPersonalBest), unit: weightUnit, color: DoodleTheme.yellow)
+                        statBox("sessions", value: "\(cachedDataPoints.count)", unit: "", color: DoodleTheme.blue)
+                        if let last = cachedDataPoints.last {
                             statBox("last", value: String(format: "%.0f", last.maxWeight), unit: weightUnit, color: DoodleTheme.green)
                         }
                     }
 
-                    if dataPoints.count < 2 {
+                    if cachedDataPoints.count < 2 {
                         VStack(spacing: 4) {
                             Text("").frame(height: 20)
                             termLine(bullet: "~", color: DoodleTheme.dim, text: "log 2 workouts to see")
@@ -95,6 +92,7 @@ struct ProgressChartView: View {
                 .padding(.top, 8)
             }
             .background(DoodleTheme.bg.ignoresSafeArea(.all))
+            .onAppear { recomputeData() }
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
@@ -116,7 +114,7 @@ struct ProgressChartView: View {
 
     private var weightChart: some View {
         Chart {
-            ForEach(dataPoints) { point in
+            ForEach(cachedDataPoints) { point in
                 LineMark(
                     x: .value("Date", point.date),
                     y: .value("Weight", point.maxWeight)
@@ -155,7 +153,7 @@ struct ProgressChartView: View {
 
     private var volumeChart: some View {
         Chart {
-            ForEach(dataPoints) { point in
+            ForEach(cachedDataPoints) { point in
                 BarMark(
                     x: .value("Date", point.date),
                     y: .value("Volume", point.totalVolume)

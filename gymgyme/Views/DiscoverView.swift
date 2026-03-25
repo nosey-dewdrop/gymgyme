@@ -91,13 +91,18 @@ struct DiscoverView: View {
     @State private var displayCount = 30
     @State private var selectedDetail: DiscoverExercise?
     @State private var isLoadingDetail = false
+    @State private var cachedFiltered: [DiscoverExercise] = []
+    @State private var cachedMyExerciseNames: Set<String> = []
 
     private let muscleGroups = ["chest", "back", "shoulders", "biceps", "triceps", "legs", "hamstrings", "glutes", "abs", "calves", "cardio"]
 
+    // pre-built once, not per render
+    private static let allDiscoverExercises: [DiscoverExercise] = ExerciseDB.all.map { DiscoverExercise(builtIn: $0) }
+
     // MARK: - Filtered exercises
 
-    private var filteredExercises: [DiscoverExercise] {
-        var results = ExerciseDB.all.map { DiscoverExercise(builtIn: $0) }
+    private func refilter() {
+        var results = Self.allDiscoverExercises
 
         if let muscle = selectedMuscle {
             results = results.filter { $0.tag == muscle }
@@ -115,15 +120,15 @@ struct DiscoverView: View {
             let query = searchText.lowercased()
             results = results.filter {
                 $0.name.contains(query) || $0.tag.contains(query) ||
-                $0.secondaryMuscles.contains { $0.lowercased().contains(query) }
+                $0.secondaryMuscles.contains { $0.contains(query) }
             }
         }
 
-        return results
+        cachedFiltered = results
     }
 
     private var visibleExercises: [DiscoverExercise] {
-        Array(filteredExercises.prefix(displayCount))
+        Array(cachedFiltered.prefix(displayCount))
     }
 
     private var activeFilterCount: Int {
@@ -227,7 +232,7 @@ struct DiscoverView: View {
                     // active filters summary
                     if activeFilterCount > 0 {
                         HStack(spacing: 4) {
-                            Text("\(filteredExercises.count) exercises")
+                            Text("\(cachedFiltered.count) exercises")
                                 .font(DoodleTheme.monoSmall)
                                 .foregroundStyle(DoodleTheme.dim)
                         }
@@ -261,7 +266,7 @@ struct DiscoverView: View {
                         }
 
                         // load more trigger
-                        if displayCount < filteredExercises.count {
+                        if displayCount < cachedFiltered.count {
                             ProgressView()
                                 .tint(DoodleTheme.blue)
                                 .frame(maxWidth: .infinity)
@@ -270,7 +275,7 @@ struct DiscoverView: View {
                         }
                     }
 
-                    if filteredExercises.isEmpty {
+                    if cachedFiltered.isEmpty {
                         VStack(spacing: 4) {
                             Text("no exercises match these filters")
                                 .font(DoodleTheme.mono)
@@ -304,6 +309,18 @@ struct DiscoverView: View {
                     .background(DoodleTheme.bg.opacity(0.8))
                 }
             }
+            .onAppear {
+                cachedMyExerciseNames = Set(myExercises.map { $0.name.lowercased() })
+                refilter()
+            }
+            .task(id: searchText) {
+                try? await Task.sleep(nanoseconds: 300_000_000)
+                guard !Task.isCancelled else { return }
+                refilter()
+            }
+            .onChange(of: selectedMuscle) { _, _ in refilter() }
+            .onChange(of: selectedEquipment) { _, _ in refilter() }
+            .onChange(of: selectedType) { _, _ in refilter() }
             .sheet(item: $selectedDetail) { item in
                 BuiltInDetailView(item: item) { addToMyExercises(item) }
             }
@@ -376,7 +393,7 @@ struct DiscoverView: View {
     // MARK: - Add to My Exercises
 
     private func addToMyExercises(_ item: DiscoverExercise) {
-        let alreadyExists = myExercises.contains { $0.name.lowercased() == item.name.lowercased() }
+        let alreadyExists = cachedMyExerciseNames.contains(item.name.lowercased())
         guard !alreadyExists else {
             withAnimation { addedMessage = "\(item.name) already in your exercises" }
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) { withAnimation { addedMessage = nil } }
@@ -386,6 +403,7 @@ struct DiscoverView: View {
             name: item.name, tag: item.tag, type: item.type,
             secondaryMuscles: item.secondaryMuscles, equipment: item.equipmentList
         ))
+        cachedMyExerciseNames.insert(item.name.lowercased())
         withAnimation { addedMessage = "\(item.name) added!" }
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) { withAnimation { addedMessage = nil } }
     }

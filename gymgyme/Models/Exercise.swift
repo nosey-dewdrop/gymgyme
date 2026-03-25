@@ -341,11 +341,15 @@ enum ExerciseDB {
         BuiltInExercise(name: "foam rolling", tag: "recovery", secondaryMuscles: [], type: .duration, equipment: [.none]),
     ]
 
-    // MARK: - All exercises
+    // MARK: - All exercises (static let = computed once, cached forever)
 
-    static var all: [BuiltInExercise] {
+    static let all: [BuiltInExercise] =
         chest + back + shoulders + biceps + triceps + legs + hamstrings + glutes + abs + calves + cardio + flexibility
-    }
+
+    // pre-built dictionary by tag for O(1) lookup
+    static let byTag: [String: [BuiltInExercise]] = {
+        Dictionary(grouping: all, by: \.tag)
+    }()
 
     /// Filter exercises by available equipment
     static func exercises(for equipmentSet: Set<Equipment>) -> [BuiltInExercise] {
@@ -356,8 +360,8 @@ enum ExerciseDB {
 
     /// Filter exercises by muscle group and available equipment
     static func exercises(tag: String, equipment equipmentSet: Set<Equipment>) -> [BuiltInExercise] {
-        all.filter { exercise in
-            exercise.tag == tag && exercise.equipment.contains { equipmentSet.contains($0) }
+        (byTag[tag] ?? []).filter { exercise in
+            exercise.equipment.contains { equipmentSet.contains($0) }
         }
     }
 }

@@ -246,12 +246,14 @@ enum PTEngine {
     private static func applyFocus(_ muscles: [String], bias: PTFocusArea) -> [String] {
         switch bias {
         case .upper:
+            let muscleSet = Set(muscles)
             let upperMuscles = ["chest", "back", "shoulders", "biceps", "triceps"]
-            let extra = upperMuscles.filter { !muscles.contains($0) }.prefix(1)
+            let extra = upperMuscles.filter { !muscleSet.contains($0) }.prefix(1)
             return muscles + Array(extra)
         case .lower:
+            let muscleSet = Set(muscles)
             let lowerMuscles = ["legs", "hamstrings", "glutes", "calves"]
-            let extra = lowerMuscles.filter { !muscles.contains($0) }.prefix(1)
+            let extra = lowerMuscles.filter { !muscleSet.contains($0) }.prefix(1)
             return muscles + Array(extra)
         case .balanced, .doesntMatter:
             return muscles

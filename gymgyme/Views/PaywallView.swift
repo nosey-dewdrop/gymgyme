@@ -2,7 +2,7 @@ import SwiftUI
 import StoreKit
 
 struct PaywallView: View {
-    @StateObject private var store = StoreManager.shared
+    @ObservedObject private var store = StoreManager.shared
     @Environment(\.dismiss) private var dismiss
     @State private var isPurchasing = false
     @State private var errorMessage: String?

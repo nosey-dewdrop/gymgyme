@@ -28,6 +28,8 @@ struct LogWorkoutView: View {
     @State private var cachedPersonalBest: Double = 0
     @State private var cachedPersonalBestDuration: Int = 0
     @State private var cachedBestReps: Int = 0
+    @State private var cachedPrevDaysAgo: Int = 0
+    @State private var cachedPrevTimeText: String = ""
 
     private static let hapticMedium: UIImpactFeedbackGenerator = {
         let g = UIImpactFeedbackGenerator(style: .medium)
@@ -69,6 +71,11 @@ struct LogWorkoutView: View {
         cachedPersonalBest = bestWeight
         cachedPersonalBestDuration = bestDuration
         cachedBestReps = bestReps
+        if let ts = maxDate {
+            let days = Calendar.current.dateComponents([.day], from: ts, to: Date()).day ?? 0
+            cachedPrevDaysAgo = days
+            cachedPrevTimeText = days == 0 ? "today" : days == 1 ? "yesterday" : "\(days)d ago"
+        }
     }
 
     var body: some View {
@@ -149,8 +156,7 @@ struct LogWorkoutView: View {
     @ViewBuilder
     private var previousRecordSection: some View {
         if let prev = cachedPreviousRecord {
-            let days = Calendar.current.dateComponents([.day], from: prev.timestamp, to: Date()).day ?? 0
-            let timeText = days == 0 ? "today" : days == 1 ? "yesterday" : "\(days)d ago"
+            let timeText = cachedPrevTimeText
 
             HStack(spacing: 0) {
                 Text("last: ")

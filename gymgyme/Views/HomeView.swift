@@ -20,37 +20,65 @@ struct HomeView: View {
     @State private var cachedLastWorkout: Date?
     @State private var cachedMaxDates: [PersistentIdentifier: Date] = [:]
     @State private var cachedHasPR: Set<PersistentIdentifier> = []
-
-    private var daysSinceAnyWorkout: Int? {
-        guard let last = cachedLastWorkout else { return nil }
-        return Calendar.current.dateComponents([.day], from: last, to: Date()).day
-    }
+    @State private var cachedDaysSince: Int?
+    @State private var cachedLastSetSummary: [PersistentIdentifier: (detail: String, timeText: String, days: Int)] = [:]
 
     private func recomputeCache() {
         // precompute max date per exercise into dictionary: O(n*s) total, one pass
         var maxDates: [PersistentIdentifier: Date] = [:]
         var latestDate: Date?
+        var prSet = Set<PersistentIdentifier>()
+        var lastSets: [PersistentIdentifier: ExerciseSet] = [:]
+        let now = Date()
         for exercise in exercises {
-            if let setDate = exercise.sets.max(by: { $0.timestamp < $1.timestamp })?.timestamp {
-                maxDates[exercise.persistentModelID] = setDate
-                if let latest = latestDate {
-                    if setDate > latest { latestDate = setDate }
-                } else {
-                    latestDate = setDate
+            let eid = exercise.persistentModelID
+            var maxSet: ExerciseSet?
+            var maxTs: Date?
+            var hasPR = false
+            for s in exercise.sets {
+                if maxTs == nil || s.timestamp > maxTs! {
+                    maxTs = s.timestamp
+                    maxSet = s
                 }
+                if s.isPersonalRecord { hasPR = true }
             }
+            if let ts = maxTs {
+                maxDates[eid] = ts
+                lastSets[eid] = maxSet
+                if latestDate == nil || ts > latestDate! { latestDate = ts }
+            }
+            if hasPR { prSet.insert(eid) }
         }
         cachedLastWorkout = latestDate
         cachedMaxDates = maxDates
-
-        // cache PR status
-        var prSet = Set<PersistentIdentifier>()
-        for exercise in exercises {
-            if exercise.sets.contains(where: { $0.isPersonalRecord }) {
-                prSet.insert(exercise.persistentModelID)
-            }
-        }
         cachedHasPR = prSet
+        if let last = latestDate {
+            cachedDaysSince = Calendar.current.dateComponents([.day], from: last, to: now).day
+        } else {
+            cachedDaysSince = nil
+        }
+
+        // precompute display strings per exercise
+        var summaryMap: [PersistentIdentifier: (detail: String, timeText: String, days: Int)] = [:]
+        for exercise in exercises {
+            let eid = exercise.persistentModelID
+            guard let lastSet = lastSets[eid], let ts = maxDates[eid] else { continue }
+            let days = Calendar.current.dateComponents([.day], from: ts, to: now).day ?? 0
+            let timeText = days == 0 ? "today" : days == 1 ? "yesterday" : "\(days)d ago"
+            let detail: String
+            switch exercise.exerciseType {
+            case .weightReps:
+                detail = "\(lastSet.reps)×\(Int(lastSet.weight))"
+            case .bodyweight:
+                detail = "\(lastSet.reps) reps"
+            case .duration:
+                detail = lastSet.formattedDuration
+            case .cardio:
+                detail = "\(lastSet.formattedDuration) · \(lastSet.formattedDistance)"
+            }
+            summaryMap[eid] = (detail: detail, timeText: timeText, days: days)
+        }
+        cachedLastSetSummary = summaryMap
 
         // sort by dictionary lookup: O(n log n) comparisons at O(1) each
         cachedSortedExercises = exercises.sorted { a, b in
@@ -92,7 +120,7 @@ struct HomeView: View {
                     }
                     .padding(.bottom, 8)
 
-                    if let days = daysSinceAnyWorkout, days >= 1 {
+                    if let days = cachedDaysSince, days >= 1 {
                         termLine(bullet: "!", color: days >= 5 ? DoodleTheme.red : DoodleTheme.yellow,
                                  text: "\(days) day\(days == 1 ? "" : "s") since last workout")
                     }
@@ -185,18 +213,12 @@ struct HomeView: View {
                 NotificationManager.shared.scheduleInactivityReminder(lastWorkoutDate: cachedLastWorkout)
             }
             .onChange(of: exercises.count) { _, _ in recomputeCache() }
-            .onReceive(NotificationCenter.default.publisher(for: .NSManagedObjectContextDidSave)) { _ in
-                recomputeCache()
-            }
         }
     }
 
     private func exerciseRow(_ exercise: Exercise, index: Int) -> some View {
         let color = DoodleTheme.color(for: index)
-        let lastSet: ExerciseSet? = {
-            guard let maxDate = cachedMaxDates[exercise.persistentModelID] else { return nil }
-            return exercise.sets.first { $0.timestamp == maxDate }
-        }()
+        let summary = cachedLastSetSummary[exercise.persistentModelID]
         let hasPR = cachedHasPR.contains(exercise.persistentModelID)
         let isExpanded = expandedExerciseId == exercise.persistentModelID
 
@@ -223,25 +245,10 @@ struct HomeView: View {
 
                 HStack(spacing: 0) {
                     Text("  ")
-                    if let lastSet {
-                        let days = Calendar.current.dateComponents([.day], from: lastSet.timestamp, to: Date()).day ?? 0
-                        let timeText = days == 0 ? "today" : days == 1 ? "yesterday" : "\(days)d ago"
-                        let atrophyColor = atrophyColor(days: days)
-                        let detail: String = {
-                            switch exercise.exerciseType {
-                            case .weightReps:
-                                return "\(lastSet.reps)×\(String(format: "%.0f", lastSet.weight))"
-                            case .bodyweight:
-                                return "\(lastSet.reps) reps"
-                            case .duration:
-                                return lastSet.formattedDuration
-                            case .cardio:
-                                return "\(lastSet.formattedDuration) · \(lastSet.formattedDistance)"
-                            }
-                        }()
-                        Text("\(detail) · \(timeText)")
+                    if let summary {
+                        Text("\(summary.detail) · \(summary.timeText)")
                             .font(DoodleTheme.monoSmall)
-                            .foregroundStyle(atrophyColor)
+                            .foregroundStyle(atrophyColor(days: summary.days))
                     } else {
                         Text("not logged yet")
                             .font(DoodleTheme.monoSmall)
@@ -278,29 +285,13 @@ struct HomeView: View {
                         } label: {
                             HStack(spacing: 0) {
                                 Text("  ")
-                                let dateStr = formatDate(group.date)
-                                let setsStr: String = {
-                                    guard let type = group.sets.first?.exercise?.exerciseType else {
-                                        return group.sets.map { "\($0.reps)×\(String(format: "%.0f", $0.weight))" }.joined(separator: ", ")
-                                    }
-                                    switch type {
-                                    case .weightReps:
-                                        return group.sets.map { "\($0.reps)×\(String(format: "%.0f", $0.weight))" }.joined(separator: ", ")
-                                    case .bodyweight:
-                                        return group.sets.map { "\($0.reps) reps" }.joined(separator: ", ")
-                                    case .duration:
-                                        return group.sets.map { $0.formattedDuration }.joined(separator: ", ")
-                                    case .cardio:
-                                        return group.sets.map { "\($0.formattedDuration) · \($0.formattedDistance)" }.joined(separator: ", ")
-                                    }
-                                }()
-                                Text(dateStr)
+                                Text(formatDate(group.date))
                                     .font(DoodleTheme.monoSmall)
                                     .foregroundStyle(DoodleTheme.dim)
                                 Text(" / ")
                                     .font(DoodleTheme.monoSmall)
                                     .foregroundStyle(DoodleTheme.dim)
-                                Text(setsStr)
+                                Text(group.formattedSets)
                                     .font(DoodleTheme.monoSmall)
                                     .foregroundStyle(DoodleTheme.fg)
                                 Spacer()
@@ -351,6 +342,26 @@ struct HomeView: View {
     private struct DayGroup {
         let date: Date
         let sets: [ExerciseSet]
+        let formattedSets: String
+
+        init(date: Date, sets: [ExerciseSet]) {
+            self.date = date
+            self.sets = sets
+            guard let type = sets.first?.exercise?.exerciseType else {
+                self.formattedSets = sets.map { "\($0.reps)×\(Int($0.weight))" }.joined(separator: ", ")
+                return
+            }
+            switch type {
+            case .weightReps:
+                self.formattedSets = sets.map { "\($0.reps)×\(Int($0.weight))" }.joined(separator: ", ")
+            case .bodyweight:
+                self.formattedSets = sets.map { "\($0.reps) reps" }.joined(separator: ", ")
+            case .duration:
+                self.formattedSets = sets.map { $0.formattedDuration }.joined(separator: ", ")
+            case .cardio:
+                self.formattedSets = sets.map { "\($0.formattedDuration) · \($0.formattedDistance)" }.joined(separator: ", ")
+            }
+        }
     }
 
     private func groupSetsByDay(_ sets: [ExerciseSet]) -> [DayGroup] {

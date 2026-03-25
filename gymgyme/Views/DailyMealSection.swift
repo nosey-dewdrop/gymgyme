@@ -45,6 +45,7 @@ struct AddMealSheet: View {
     @State private var isSearching = false
     @State private var errorMessage: String?
     @State private var servingGrams: String = "100"
+    @State private var foodSuggestions: [String] = []
 
     var body: some View {
         NavigationStack {
@@ -70,7 +71,6 @@ struct AddMealSheet: View {
                 .cornerRadius(6)
 
                 if !searchText.isEmpty && searchResults.isEmpty && !isSearching {
-                    let foodSuggestions = FoodNameSuggester.suggestions(for: searchText)
                     if !foodSuggestions.isEmpty {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 8) {
@@ -133,9 +133,11 @@ struct AddMealSheet: View {
 
                 // results
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 4) {
+                    let scale = servingScale
+                    let showServing = scale != 1.0
+                    let servingLabel = "\(servingGrams)g serving"
+                    LazyVStack(alignment: .leading, spacing: 4) {
                         ForEach(searchResults) { food in
-                            let scale = servingScale
                             Button {
                                 addFood(food)
                             } label: {
@@ -148,18 +150,18 @@ struct AddMealSheet: View {
                                         Text("\(Int(food.calories * scale)) cal")
                                             .font(DoodleTheme.monoSmall)
                                             .foregroundStyle(DoodleTheme.orange)
-                                        Text("p:\(String(format: "%.0f", food.protein * scale))g")
+                                        Text("p:\(Int(food.protein * scale))g")
                                             .font(DoodleTheme.monoSmall)
                                             .foregroundStyle(DoodleTheme.blue)
-                                        Text("c:\(String(format: "%.0f", food.carbs * scale))g")
+                                        Text("c:\(Int(food.carbs * scale))g")
                                             .font(DoodleTheme.monoSmall)
                                             .foregroundStyle(DoodleTheme.green)
-                                        Text("f:\(String(format: "%.0f", food.fat * scale))g")
+                                        Text("f:\(Int(food.fat * scale))g")
                                             .font(DoodleTheme.monoSmall)
                                             .foregroundStyle(DoodleTheme.yellow)
                                     }
-                                    if scale != 1.0 {
-                                        Text("for \(servingGrams)g serving")
+                                    if showServing {
+                                        Text("for \(servingLabel)")
                                             .font(.system(size: 10, design: .monospaced))
                                             .foregroundStyle(DoodleTheme.dim)
                                     }
@@ -172,6 +174,11 @@ struct AddMealSheet: View {
             }
             .padding(.horizontal, 16)
             .background(DoodleTheme.bg.ignoresSafeArea(.all))
+            .task(id: searchText) {
+                try? await Task.sleep(for: .milliseconds(200))
+                guard !Task.isCancelled else { return }
+                foodSuggestions = FoodNameSuggester.suggestions(for: searchText)
+            }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("close") { dismiss() }

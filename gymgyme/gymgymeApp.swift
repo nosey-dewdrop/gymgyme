@@ -58,11 +58,10 @@ struct gymgymeApp: App {
         .modelContainer(sharedModelContainer)
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .active {
-                // sync widget in background to avoid blocking UI
-                DispatchQueue.global(qos: .utility).async {
-                    DispatchQueue.main.async {
-                        WidgetSync.sync(context: sharedModelContainer.mainContext)
-                    }
+                // sync widget — runs on main since SwiftData context is main-actor bound
+                // but deferred to next run loop to avoid blocking the initial render
+                DispatchQueue.main.async {
+                    WidgetSync.sync(context: sharedModelContainer.mainContext)
                 }
             }
         }

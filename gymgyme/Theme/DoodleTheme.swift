@@ -22,7 +22,12 @@ enum DoodleTheme {
     }
 
     static func color(for text: String) -> Color {
-        titleColors[abs(text.hashValue) % titleColors.count]
+        // deterministic hash (djb2) — stable across app launches unlike String.hashValue
+        var hash: UInt64 = 5381
+        for byte in text.utf8 {
+            hash = hash &* 33 &+ UInt64(byte)
+        }
+        return titleColors[Int(hash % UInt64(titleColors.count))]
     }
 
     static let mono: Font = .system(size: 15, weight: .regular, design: .monospaced)

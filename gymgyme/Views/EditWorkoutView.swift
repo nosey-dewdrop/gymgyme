@@ -15,6 +15,16 @@ struct EditWorkoutView: View {
     @State private var editedSets: [EditableSet] = []
     @State private var setToDelete: Int?
 
+    private static let haptic: UIImpactFeedbackGenerator = {
+        let g = UIImpactFeedbackGenerator(style: .medium); g.prepare(); return g
+    }()
+
+    private static let dateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "d MMM yyyy"
+        return f
+    }()
+
     struct EditableSet: Identifiable {
         let id: UUID
         let original: ExerciseSet
@@ -30,12 +40,7 @@ struct EditWorkoutView: View {
                         .font(.system(size: 20, weight: .black, design: .monospaced))
                         .foregroundStyle(DoodleTheme.orange)
 
-                    let formatter: DateFormatter = {
-                        let f = DateFormatter()
-                        f.dateFormat = "d MMM yyyy"
-                        return f
-                    }()
-                    Text(formatter.string(from: date))
+                    Text(Self.dateFormatter.string(from: date))
                         .font(DoodleTheme.monoSmall)
                         .foregroundStyle(DoodleTheme.dim)
                         .padding(.bottom, 8)
@@ -127,7 +132,7 @@ struct EditWorkoutView: View {
                 edited.original.weight = weight
             }
         }
-        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        Self.haptic.impactOccurred()
         WidgetSync.sync(context: modelContext)
         dismiss()
     }

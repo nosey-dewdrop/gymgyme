@@ -49,23 +49,32 @@ struct TagSuggester {
         let cleaned = input.lowercased().trimmingCharacters(in: .whitespaces)
         guard !cleaned.isEmpty else { return existingTags.sorted() }
 
+        var resultSet = Set<String>()
         var results: [String] = []
-        results += existingTags.filter { $0.contains(cleaned) || cleaned.contains($0) }
+
+        for tag in existingTags {
+            if (tag.contains(cleaned) || cleaned.contains(tag)) && !resultSet.contains(tag) {
+                resultSet.insert(tag)
+                results.append(tag)
+            }
+        }
 
         let knownCanonical = Set(knownTags.values)
         for tag in knownCanonical {
-            if tag.contains(cleaned) && !results.contains(tag) {
+            if tag.contains(cleaned) && !resultSet.contains(tag) {
+                resultSet.insert(tag)
                 results.append(tag)
             }
         }
 
         for (alias, canonical) in knownTags {
-            if levenshteinDistance(cleaned, alias) <= 2 && !results.contains(canonical) {
+            if levenshteinDistance(cleaned, alias) <= 2 && !resultSet.contains(canonical) {
+                resultSet.insert(canonical)
                 results.append(canonical)
             }
         }
 
-        return Array(Set(results)).sorted()
+        return results.sorted()
     }
 
     private static func levenshteinDistance(_ s1: String, _ s2: String) -> Int {

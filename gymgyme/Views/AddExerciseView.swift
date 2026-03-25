@@ -10,17 +10,22 @@ struct AddExerciseView: View {
     @State private var tagInput = ""
     @State private var selectedType: ExerciseType = .weightReps
     @State private var showDiscover = false
+    @State private var computedNameSuggestions: [String] = []
+    @State private var computedTagSuggestions: [String] = []
+    @State private var cachedExistingTags: [String] = []
+    @State private var cachedLowercasedNames: Set<String> = []
 
-    private var existingTags: [String] {
-        Array(Set(exercises.map(\.tag))).sorted()
-    }
-
-    private var suggestions: [String] {
-        TagSuggester.suggestions(for: tagInput, existingTags: existingTags)
-    }
+    private static let haptic: UIImpactFeedbackGenerator = {
+        let g = UIImpactFeedbackGenerator(style: .medium); g.prepare(); return g
+    }()
 
     private var resolvedTag: String {
         TagSuggester.suggest(for: tagInput)
+    }
+
+    private func isDuplicate(_ n: String) -> Bool {
+        guard !n.isEmpty else { return false }
+        return cachedLowercasedNames.contains(n.lowercased())
     }
 
     var body: some View {
@@ -46,10 +51,10 @@ struct AddExerciseView: View {
                             }
                     }
 
-                    if !name.isEmpty && !nameSuggestions.isEmpty {
+                    if !name.isEmpty && !computedNameSuggestions.isEmpty {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 8) {
-                                ForEach(nameSuggestions, id: \.self) { s in
+                                ForEach(computedNameSuggestions, id: \.self) { s in
                                     Button {
                                         name = s
                                         if let autoTag = ExerciseNameSuggester.autoTag(for: s) {
@@ -100,9 +105,9 @@ struct AddExerciseView: View {
                         }
                     }
 
-                    if !suggestions.isEmpty && !tagInput.isEmpty {
+                    if !computedTagSuggestions.isEmpty && !tagInput.isEmpty {
                         HStack(spacing: 8) {
-                            ForEach(suggestions.prefix(5), id: \.self) { s in
+                            ForEach(computedTagSuggestions.prefix(5), id: \.self) { s in
                                 Button { tagInput = s } label: {
                                     Text("#\(s)")
                                         .font(DoodleTheme.monoSmall)
@@ -157,6 +162,20 @@ struct AddExerciseView: View {
                 .padding(.top, 8)
             }
             .background(DoodleTheme.bg.ignoresSafeArea(.all))
+            .onAppear {
+                cachedExistingTags = Array(Set(exercises.map(\.tag))).sorted()
+                cachedLowercasedNames = Set(exercises.map { $0.name.lowercased() })
+            }
+            .task(id: name) {
+                try? await Task.sleep(for: .milliseconds(200))
+                guard !Task.isCancelled else { return }
+                computedNameSuggestions = ExerciseNameSuggester.suggestions(for: name, existingExercises: exercises.map(\.name))
+            }
+            .task(id: tagInput) {
+                try? await Task.sleep(for: .milliseconds(200))
+                guard !Task.isCancelled else { return }
+                computedTagSuggestions = TagSuggester.suggestions(for: tagInput, existingTags: cachedExistingTags)
+            }
             .sheet(isPresented: $showDiscover) { DiscoverView() }
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
@@ -169,7 +188,7 @@ struct AddExerciseView: View {
                     Button("save") {
                         let trimmed = name.trimmingCharacters(in: .whitespaces)
                         guard !isDuplicate(trimmed) else { return }
-                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                        Self.haptic.impactOccurred()
                         modelContext.insert(Exercise(name: trimmed, tag: resolvedTag, type: selectedType))
                         dismiss()
                     }
@@ -181,14 +200,6 @@ struct AddExerciseView: View {
         }
     }
 
-    private var nameSuggestions: [String] {
-        ExerciseNameSuggester.suggestions(for: name, existingExercises: exercises.map(\.name))
-    }
-
-    private func isDuplicate(_ name: String) -> Bool {
-        guard !name.isEmpty else { return false }
-        return exercises.contains { $0.name.lowercased() == name.lowercased() }
-    }
 }
 
 #Preview {

@@ -192,108 +192,124 @@ struct PTIntakeView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                // progress bar
-                GeometryReader { geo in
-                    ZStack(alignment: .leading) {
-                        Rectangle()
-                            .fill(DoodleTheme.surface)
-                            .frame(height: 4)
-                        Rectangle()
-                            .fill(DoodleTheme.green)
-                            .frame(width: geo.size.width * CGFloat(currentVisualStep + 1) / CGFloat(totalVisualSteps), height: 4)
-                            .animation(.easeInOut(duration: 0.3), value: step)
-                    }
-                }
-                .frame(height: 4)
-                .padding(.horizontal, 16)
-                .padding(.top, 8)
-
-                // step counter
-                Text("\(currentVisualStep + 1) / \(totalVisualSteps)")
-                    .font(DoodleTheme.monoSmall)
-                    .foregroundStyle(DoodleTheme.dim)
-                    .padding(.top, 8)
-
-                Spacer()
-
-                // content
-                Group {
-                    switch step {
-                    case 0: goalStep
-                    case 1: daysStep
-                    case 2: durationStep
-                    case 3: experienceStep
-                    case 4: locationStep
-                    case 5: showStep5 ? equipmentStep : splitStep
-                    case 6: showStep5 ? splitStep : focusStep
-                    case 7: showStep5 ? focusStep : ageStep
-                    case 8: showStep5 ? ageStep : genderStep
-                    case 9: showStep5 ? genderStep : injuryStep
-                    default: injuryStep
-                    }
-                }
-                .padding(.horizontal, 24)
-
-                Spacer()
-
-                // navigation buttons
-                HStack(spacing: 12) {
-                    if step > 0 {
-                        Button {
-                            withAnimation(.easeInOut(duration: 0.2)) { step -= 1 }
-                        } label: {
-                            HStack(spacing: 4) {
-                                Image(systemName: "chevron.left")
-                                Text("back")
-                            }
-                            .font(DoodleTheme.mono)
-                            .foregroundStyle(DoodleTheme.dim)
-                            .padding(.vertical, 14)
-                            .padding(.horizontal, 20)
-                        }
-                    }
-
-                    Spacer()
-
-                    let isLast = (showStep5 && step == totalSteps - 1) || (!showStep5 && step == totalSteps - 2)
-
-                    Button {
-                        if isLast {
-                            onComplete(data)
-                        } else {
-                            withAnimation(.easeInOut(duration: 0.2)) {
-                                // skip equipment step if gym only
-                                if step == 4 && !showStep5 {
-                                    step = 6
-                                } else {
-                                    step += 1
-                                }
-                            }
-                        }
-                    } label: {
-                        Text(isLast ? "create my program" : "next")
-                            .font(DoodleTheme.monoBold)
-                            .foregroundStyle(canProceed ? DoodleTheme.bg : DoodleTheme.dim)
-                            .padding(.vertical, 14)
-                            .padding(.horizontal, 24)
-                            .background(canProceed ? DoodleTheme.green : DoodleTheme.surface)
-                            .cornerRadius(10)
-                    }
-                    .disabled(!canProceed)
-                }
-                .padding(.horizontal, 16)
-                .padding(.bottom, 16)
+                progressBar
+                stepContent
+                navigationButtons
             }
             .background(DoodleTheme.bg.ignoresSafeArea(.all))
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
-            .toolbar(content: {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("cancel") { dismiss() }
-                        .font(DoodleTheme.mono)
-                        .foregroundStyle(DoodleTheme.dim)
+            .toolbar { cancelToolbarItem }
+        }
+    }
+
+    private var progressBar: some View {
+        VStack(spacing: 0) {
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    Rectangle()
+                        .fill(DoodleTheme.surface)
+                        .frame(height: 4)
+                    Rectangle()
+                        .fill(DoodleTheme.green)
+                        .frame(width: geo.size.width * CGFloat(currentVisualStep + 1) / CGFloat(totalVisualSteps), height: 4)
+                        .animation(.easeInOut(duration: 0.3), value: step)
                 }
-            })
+            }
+            .frame(height: 4)
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+
+            Text("\(currentVisualStep + 1) / \(totalVisualSteps)")
+                .font(DoodleTheme.monoSmall)
+                .foregroundStyle(DoodleTheme.dim)
+                .padding(.top, 8)
+        }
+    }
+
+    @ViewBuilder
+    private var stepContent: some View {
+        Spacer()
+        currentStepView
+            .padding(.horizontal, 24)
+        Spacer()
+    }
+
+    @ViewBuilder
+    private var currentStepView: some View {
+        switch step {
+        case 0: goalStep
+        case 1: daysStep
+        case 2: durationStep
+        case 3: experienceStep
+        case 4: locationStep
+        case 5:
+            if showStep5 { equipmentStep } else { splitStep }
+        case 6:
+            if showStep5 { splitStep } else { focusStep }
+        case 7:
+            if showStep5 { focusStep } else { ageStep }
+        case 8:
+            if showStep5 { ageStep } else { genderStep }
+        case 9:
+            if showStep5 { genderStep } else { injuryStep }
+        default: injuryStep
+        }
+    }
+
+    private var navigationButtons: some View {
+        HStack(spacing: 12) {
+            if step > 0 {
+                Button {
+                    withAnimation(.easeInOut(duration: 0.2)) { step -= 1 }
+                } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                        Text("back")
+                    }
+                    .font(DoodleTheme.mono)
+                    .foregroundStyle(DoodleTheme.dim)
+                    .padding(.vertical, 14)
+                    .padding(.horizontal, 20)
+                }
+            }
+
+            Spacer()
+
+            let isLast = (showStep5 && step == totalSteps - 1) || (!showStep5 && step == totalSteps - 2)
+
+            Button {
+                if isLast {
+                    onComplete(data)
+                } else {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        if step == 4 && !showStep5 {
+                            step = 6
+                        } else {
+                            step += 1
+                        }
+                    }
+                }
+            } label: {
+                Text(isLast ? "create my program" : "next")
+                    .font(DoodleTheme.monoBold)
+                    .foregroundStyle(canProceed ? DoodleTheme.bg : DoodleTheme.dim)
+                    .padding(.vertical, 14)
+                    .padding(.horizontal, 24)
+                    .background(canProceed ? DoodleTheme.green : DoodleTheme.surface)
+                    .cornerRadius(10)
+            }
+            .disabled(!canProceed)
+        }
+        .padding(.horizontal, 16)
+        .padding(.bottom, 16)
+    }
+
+    private var cancelToolbarItem: some ToolbarContent {
+        ToolbarItem(placement: .cancellationAction) {
+            Button("cancel") { dismiss() }
+                .font(DoodleTheme.mono)
+                .foregroundStyle(DoodleTheme.dim)
         }
     }
 

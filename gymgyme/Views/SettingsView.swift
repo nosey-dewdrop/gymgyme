@@ -13,6 +13,12 @@ struct SettingsView: View {
     @State private var showShareSheet = false
     @State private var isExporting = false
 
+    private static let csvDateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd HH:mm"
+        return f
+    }()
+
     private var profile: UserProfile? {
         profiles.first
     }
@@ -41,9 +47,7 @@ struct SettingsView: View {
         guard !isExporting else { return }
         isExporting = true
 
-        // fetch all data on main actor first, extract plain values to avoid capturing modelContext in detached task
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+        let dateFormatter = Self.csvDateFormatter
 
         let setsDescriptor = FetchDescriptor<ExerciseSet>(sortBy: [SortDescriptor(\.timestamp, order: .reverse)])
         let sets = (try? modelContext.fetch(setsDescriptor)) ?? []

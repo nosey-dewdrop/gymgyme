@@ -5,17 +5,39 @@ struct WidgetView: View {
     let entry: WidgetEntry
     @Environment(\.widgetFamily) var family
 
+    // precompute streak data once per entry, not per render
+    private static let isoFormatter = ISO8601DateFormatter()
+    private static let calendar = Calendar.current
+
+    private var streakData: (days: [Bool], streak: Int) {
+        let calendar = Self.calendar
+        let today = calendar.startOfDay(for: Date())
+        let workoutDates = Set((entry.streak?.workoutDays ?? []).compactMap { Self.isoFormatter.date(from: $0) }.map { calendar.startOfDay(for: $0) })
+
+        let days = (0..<21).reversed().map { offset -> Bool in
+            guard let date = calendar.date(byAdding: .day, value: -offset, to: today) else { return false }
+            return workoutDates.contains(date)
+        }
+
+        var s = 0
+        for d in days.reversed() {
+            if d { s += 1 } else { break }
+        }
+        return (days, s)
+    }
+
     var body: some View {
+        let computed = streakData
         switch family {
-        case .systemSmall: smallView
-        case .systemMedium: mediumView
-        default: smallView
+        case .systemSmall: smallView(days: computed.days, streak: computed.streak)
+        case .systemMedium: mediumView(days: computed.days, streak: computed.streak)
+        default: smallView(days: computed.days, streak: computed.streak)
         }
     }
 
     // MARK: - Small Widget
 
-    private var smallView: some View {
+    private func smallView(days: [Bool], streak: Int) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             Text("gymgyme")
                 .font(WidgetColors.monoBold)
@@ -24,8 +46,8 @@ struct WidgetView: View {
             Spacer()
 
             // streak
-            streakBar
-            streakCount
+            streakBar(days: days)
+            streakCount(streak: streak)
 
             Spacer()
 
@@ -49,7 +71,7 @@ struct WidgetView: View {
 
     // MARK: - Medium Widget
 
-    private var mediumView: some View {
+    private func mediumView(days: [Bool], streak: Int) -> some View {
         HStack(alignment: .top, spacing: 12) {
             // left: streak
             VStack(alignment: .leading, spacing: 4) {
@@ -59,8 +81,8 @@ struct WidgetView: View {
 
                 Spacer()
 
-                streakBar
-                streakCount
+                streakBar(days: days)
+                streakCount(streak: streak)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
@@ -100,39 +122,19 @@ struct WidgetView: View {
 
     // MARK: - Streak Components
 
-    private var streakDays: [Bool] {
-        let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
-        let formatter = ISO8601DateFormatter()
-        let workoutDates = Set((entry.streak?.workoutDays ?? []).compactMap { formatter.date(from: $0) }.map { calendar.startOfDay(for: $0) })
-
-        return (0..<21).reversed().map { offset in
-            guard let date = calendar.date(byAdding: .day, value: -offset, to: today) else { return false }
-            return workoutDates.contains(date)
-        }
-    }
-
-    private var currentStreak: Int {
-        var s = 0
-        for d in streakDays.reversed() {
-            if d { s += 1 } else { break }
-        }
-        return s
-    }
-
-    private var streakBar: some View {
+    private func streakBar(days: [Bool]) -> some View {
         HStack(spacing: 1) {
             ForEach(0..<21, id: \.self) { i in
-                Text(streakDays[i] ? "█" : "░")
+                Text(days[i] ? "█" : "░")
                     .font(.system(size: 7, design: .monospaced))
-                    .foregroundStyle(streakDays[i] ? WidgetColors.green : WidgetColors.dim.opacity(0.4))
+                    .foregroundStyle(days[i] ? WidgetColors.green : WidgetColors.dim.opacity(0.4))
             }
         }
     }
 
-    private var streakCount: some View {
+    private func streakCount(streak: Int) -> some View {
         HStack(spacing: 2) {
-            Text("\(currentStreak)")
+            Text("\(streak)")
                 .font(WidgetColors.monoBold)
                 .foregroundStyle(WidgetColors.green)
             Text("streak")

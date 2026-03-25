@@ -10,6 +10,7 @@ struct CreatePlanView: View {
     @State private var selectedGoal: PlanGoal = .fullBody
     @State private var selectedDuration: PlanDuration = .oneWeek
     @State private var selectedExercises: Set<PersistentIdentifier> = []
+    @State private var cachedMissingGroups: [String] = []
 
     var body: some View {
         NavigationStack {
@@ -58,13 +59,13 @@ struct CreatePlanView: View {
                         .foregroundStyle(DoodleTheme.green)
 
                     // gap detection
-                    if !missingGroups.isEmpty {
+                    if !cachedMissingGroups.isEmpty {
                         Text("").frame(height: 4)
                         HStack(spacing: 0) {
                             Text("! ")
                                 .font(DoodleTheme.mono)
                                 .foregroundStyle(DoodleTheme.yellow)
-                            Text("missing: \(missingGroups.joined(separator: ", "))")
+                            Text("missing: \(cachedMissingGroups.joined(separator: ", "))")
                                 .font(DoodleTheme.monoSmall)
                                 .foregroundStyle(DoodleTheme.yellow)
                         }
@@ -76,6 +77,7 @@ struct CreatePlanView: View {
                             .font(DoodleTheme.monoSmall)
                             .foregroundStyle(DoodleTheme.dim)
                     } else {
+                        LazyVStack(alignment: .leading, spacing: 0) {
                         ForEach(exercises) { exercise in
                             Button { toggleExercise(exercise) } label: {
                                 HStack(spacing: 0) {
@@ -91,12 +93,14 @@ struct CreatePlanView: View {
                             }
                             .padding(.vertical, 2)
                         }
+                        }
                     }
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 8)
             }
             .background(DoodleTheme.bg.ignoresSafeArea(.all))
+            .onChange(of: selectedGoal) { _, _ in recomputeMissing() }
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
@@ -141,6 +145,13 @@ struct CreatePlanView: View {
         } else {
             selectedExercises.insert(e.persistentModelID)
         }
+        recomputeMissing()
+    }
+
+    private func recomputeMissing() {
+        guard !selectedExercises.isEmpty else { cachedMissingGroups = []; return }
+        let tags = Set(exercises.filter { selectedExercises.contains($0.persistentModelID) }.map(\.tag))
+        cachedMissingGroups = requiredGroups.filter { !tags.contains($0) }
     }
 
     private func savePlan() {

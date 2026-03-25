@@ -3,15 +3,19 @@ import SwiftData
 import WidgetKit
 
 enum WidgetSync {
-    static func sync(context: ModelContext) {
-        let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
-        let formatter = ISO8601DateFormatter()
+    private static let formatter = ISO8601DateFormatter()
+    private static let calendar = Calendar.current
 
-        // fetch all exercise sets for streak
-        let descriptor = FetchDescriptor<ExerciseSet>()
-        let allSets = (try? context.fetch(descriptor)) ?? []
-        let uniqueDays = Set(allSets.map { calendar.startOfDay(for: $0.timestamp) })
+    static func sync(context: ModelContext) {
+        let today = calendar.startOfDay(for: Date())
+
+        // fetch only last 21 days of exercise sets for streak
+        let cutoff = calendar.date(byAdding: .day, value: -21, to: today) ?? today
+        let descriptor = FetchDescriptor<ExerciseSet>(
+            predicate: #Predicate { $0.timestamp >= cutoff }
+        )
+        let recentSets = (try? context.fetch(descriptor)) ?? []
+        let uniqueDays = Set(recentSets.map { calendar.startOfDay(for: $0.timestamp) })
 
         var workoutDayStrings: [String] = []
         for offset in 0..<21 {

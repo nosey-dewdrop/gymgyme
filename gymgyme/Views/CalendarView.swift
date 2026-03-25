@@ -14,61 +14,119 @@ struct CalendarView: View {
     @State private var showSettings = false
     @State private var showAddMeal = false
     @State private var mealToDelete: Meal?
+    @State private var cachedWorkoutDays: Set<Date> = []
+    @State private var cachedProgramDays: [Date: DayProgram] = [:]
+    @State private var cachedCalendarCells: [CalendarCell] = []
+    @State private var cachedSetsByDay: [Date: [ExerciseSet]] = [:]
+    @State private var cachedMealsByDay: [Date: [Meal]] = [:]
+    @State private var cachedTodayStart: Date = Calendar.current.startOfDay(for: Date())
+
+    private struct CalendarCell: Identifiable {
+        let id: Int // index
+        let date: Date?
+        let dayNumber: Int
+        let isToday: Bool
+        let hasWorkout: Bool
+        let hasProgram: Bool
+        let isPast: Bool
+    }
+
+    private static let monthFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "MMMM yyyy"
+        return f
+    }()
+
+    private static let dayDetailFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "d MMMM yyyy"
+        return f
+    }()
 
     private var weightUnit: String {
         (profiles.first?.useLbs ?? false) ? "lbs" : "kg"
     }
 
-    private var calendar: Calendar { Calendar.current }
+    private static let calendar = Calendar.current
+    private var calendar: Calendar { Self.calendar }
+    private static let gridColumns = Array(repeating: GridItem(.flexible()), count: 7)
 
-    private var workoutDays: Set<Date> {
-        Set(allSets.map { calendar.startOfDay(for: $0.timestamp) })
-    }
-
-    private var programDays: [Date: DayProgram] {
+    private func rebuildCache() {
+        cachedWorkoutDays = Set(allSets.map { calendar.startOfDay(for: $0.timestamp) })
         var map: [Date: DayProgram] = [:]
         for dp in dayPrograms {
             map[calendar.startOfDay(for: dp.date)] = dp
         }
-        return map
+        cachedProgramDays = map
+        rebuildDaysInMonth()
+        rebuildDayDetails()
+    }
+
+    private func rebuildDaysInMonth() {
+        let todayStart = calendar.startOfDay(for: Date())
+        cachedTodayStart = todayStart
+        guard let range = calendar.range(of: .day, in: .month, for: displayedMonth),
+              let firstDay = calendar.date(from: calendar.dateComponents([.year, .month], from: displayedMonth))
+        else { cachedCalendarCells = []; return }
+        let weekdayOffset = (calendar.component(.weekday, from: firstDay) + 5) % 7
+        var cells: [CalendarCell] = []
+        cells.reserveCapacity(weekdayOffset + range.count)
+        for i in 0..<weekdayOffset {
+            cells.append(CalendarCell(id: i, date: nil, dayNumber: 0, isToday: false, hasWorkout: false, hasProgram: false, isPast: false))
+        }
+        for day in range {
+            if let date = calendar.date(byAdding: .day, value: day - 1, to: firstDay) {
+                let start = calendar.startOfDay(for: date)
+                cells.append(CalendarCell(
+                    id: weekdayOffset + day - 1,
+                    date: date,
+                    dayNumber: day,
+                    isToday: start == todayStart,
+                    hasWorkout: cachedWorkoutDays.contains(start),
+                    hasProgram: cachedProgramDays[start] != nil,
+                    isPast: start < todayStart
+                ))
+            }
+        }
+        cachedCalendarCells = cells
+    }
+
+    private func rebuildDayDetails() {
+        // pre-group sets by day
+        var setsByDay: [Date: [ExerciseSet]] = [:]
+        for set in allSets {
+            let day = calendar.startOfDay(for: set.timestamp)
+            setsByDay[day, default: []].append(set)
+        }
+        // sort each day's sets
+        for (day, sets) in setsByDay {
+            setsByDay[day] = sets.sorted { $0.timestamp < $1.timestamp }
+        }
+        cachedSetsByDay = setsByDay
+
+        // pre-group meals by day
+        var mealsByDay: [Date: [Meal]] = [:]
+        for meal in allMeals {
+            let day = calendar.startOfDay(for: meal.timestamp)
+            mealsByDay[day, default: []].append(meal)
+        }
+        cachedMealsByDay = mealsByDay
     }
 
     private var monthTitle: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "MMMM yyyy"
-        return formatter.string(from: displayedMonth)
-    }
-
-    private var daysInMonth: [Date?] {
-        guard let range = calendar.range(of: .day, in: .month, for: displayedMonth),
-              let firstDay = calendar.date(from: calendar.dateComponents([.year, .month], from: displayedMonth))
-        else { return [] }
-        let weekdayOffset = (calendar.component(.weekday, from: firstDay) + 5) % 7
-
-        var days: [Date?] = Array(repeating: nil, count: weekdayOffset)
-        for day in range {
-            if let date = calendar.date(byAdding: .day, value: day - 1, to: firstDay) {
-                days.append(date)
-            }
-        }
-        return days
+        Self.monthFormatter.string(from: displayedMonth)
     }
 
     private func setsForDate(_ date: Date) -> [ExerciseSet] {
-        let dayStart = calendar.startOfDay(for: date)
-        guard let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart) else { return [] }
-        return allSets.filter { $0.timestamp >= dayStart && $0.timestamp < dayEnd }
-            .sorted { $0.timestamp < $1.timestamp }
+        cachedSetsByDay[calendar.startOfDay(for: date)] ?? []
     }
 
     private func programForDate(_ date: Date) -> DayProgram? {
-        programDays[calendar.startOfDay(for: date)]
+        cachedProgramDays[calendar.startOfDay(for: date)]
     }
 
     private func mealsForDate(_ date: Date) -> [Meal] {
-        let dayStart = calendar.startOfDay(for: date)
-        guard let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart) else { return [] }
-        return allMeals.filter { $0.timestamp >= dayStart && $0.timestamp < dayEnd }
+        cachedMealsByDay[calendar.startOfDay(for: date)] ?? []
     }
 
     var body: some View {
@@ -127,7 +185,7 @@ struct CalendarView: View {
 
                     // weekday headers
                     let weekdays = ["mo", "tu", "we", "th", "fr", "sa", "su"]
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 4) {
+                    LazyVGrid(columns: Self.gridColumns, spacing: 4) {
                         ForEach(weekdays, id: \.self) { day in
                             Text(day)
                                 .font(DoodleTheme.monoSmall)
@@ -137,14 +195,11 @@ struct CalendarView: View {
                     }
 
                     // calendar grid
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7), spacing: 4) {
-                        ForEach(Array(daysInMonth.enumerated()), id: \.offset) { _, date in
-                            if let date {
-                                let isToday = calendar.isDateInToday(date)
-                                let hasWorkout = workoutDays.contains(calendar.startOfDay(for: date))
-                                let hasProgram = programForDate(date) != nil
-                                let isSelected = selectedDate.map { calendar.isDate($0, inSameDayAs: date) } ?? false
-
+                    let selectedStart = selectedDate.map { calendar.startOfDay(for: $0) }
+                    LazyVGrid(columns: Self.gridColumns, spacing: 4) {
+                        ForEach(cachedCalendarCells) { cell in
+                            if let date = cell.date {
+                                let isSelected = selectedStart.map { $0 == calendar.startOfDay(for: date) } ?? false
                                 Button {
                                     withAnimation(.easeInOut(duration: 0.15)) {
                                         if isSelected { selectedDate = nil }
@@ -152,34 +207,16 @@ struct CalendarView: View {
                                     }
                                 } label: {
                                     VStack(spacing: 2) {
-                                        Text("\(calendar.component(.day, from: date))")
+                                        Text("\(cell.dayNumber)")
                                             .font(DoodleTheme.monoSmall)
                                             .foregroundStyle(
                                                 isSelected ? DoodleTheme.bg :
-                                                isToday ? DoodleTheme.green :
+                                                cell.isToday ? DoodleTheme.green :
                                                 DoodleTheme.fg
                                             )
-
-                                        HStack(spacing: 2) {
-                                            let isPast = date < calendar.startOfDay(for: Date())
-                                            if hasProgram && hasWorkout {
-                                                Circle()
-                                                    .fill(DoodleTheme.green)
-                                                    .frame(width: 5, height: 5)
-                                            } else if hasProgram && !hasWorkout && isPast {
-                                                Circle()
-                                                    .fill(DoodleTheme.red)
-                                                    .frame(width: 5, height: 5)
-                                            } else if hasWorkout {
-                                                Circle()
-                                                    .fill(DoodleTheme.green)
-                                                    .frame(width: 5, height: 5)
-                                            } else {
-                                                Circle()
-                                                    .fill(.clear)
-                                                    .frame(width: 5, height: 5)
-                                            }
-                                        }
+                                        Circle()
+                                            .fill(dotColor(cell: cell, isSelected: isSelected))
+                                            .frame(width: 5, height: 5)
                                     }
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 6)
@@ -198,14 +235,8 @@ struct CalendarView: View {
                     if let date = selectedDate {
                         let sets = setsForDate(date)
                         let dayProg = programForDate(date)
-                        let formatter = { () -> DateFormatter in
-                            let f = DateFormatter()
-                            f.dateFormat = "d MMMM yyyy"
-                            return f
-                        }()
-
                         Text("").frame(height: 8)
-                        termLine(bullet: "─", color: DoodleTheme.dim, text: formatter.string(from: date))
+                        termLine(bullet: "─", color: DoodleTheme.dim, text: Self.dayDetailFormatter.string(from: date))
 
                         // assigned program
                         if let dp = dayProg {
@@ -232,9 +263,12 @@ struct CalendarView: View {
                         if !sets.isEmpty {
                             Text("").frame(height: 4)
                             let grouped = Dictionary(grouping: sets) { $0.exercise?.name ?? "unknown" }
-                            ForEach(grouped.keys.sorted(), id: \.self) { name in
+                            let sortedNames = grouped.keys.sorted()
+                            let unit = weightUnit
+                            ForEach(sortedNames, id: \.self) { name in
                                 let exerciseSets = grouped[name] ?? []
                                 let tag = exerciseSets.first?.exercise?.tag ?? ""
+                                let detail = Self.formatSetDetail(exerciseSets)
                                 HStack(spacing: 0) {
                                     Text("  ● ")
                                         .font(DoodleTheme.monoSmall)
@@ -247,11 +281,10 @@ struct CalendarView: View {
                                 }
                                 HStack(spacing: 0) {
                                     Text("    ")
-                                    let detail = exerciseSets.map { "\($0.reps)×\(String(format: "%.0f", $0.weight))" }.joined(separator: ", ")
                                     Text(detail)
                                         .font(DoodleTheme.monoSmall)
                                         .foregroundStyle(DoodleTheme.dim)
-                                    Text(" \(weightUnit)")
+                                    Text(" \(unit)")
                                         .font(DoodleTheme.monoSmall)
                                         .foregroundStyle(DoodleTheme.dim)
                                 }
@@ -354,6 +387,11 @@ struct CalendarView: View {
             }
             .background(DoodleTheme.bg.ignoresSafeArea(.all))
             .navigationBarHidden(true)
+            .onAppear { rebuildCache() }
+            .onChange(of: allSets.count) { _, _ in rebuildCache() }
+            .onChange(of: allMeals.count) { _, _ in rebuildDayDetails() }
+            .onChange(of: dayPrograms.count) { _, _ in rebuildCache() }
+            .onChange(of: displayedMonth) { _, _ in rebuildDaysInMonth() }
             .sheet(isPresented: $showSettings) { SettingsView() }
             .sheet(isPresented: $showPlanPicker) {
                 planPickerSheet
@@ -440,6 +478,17 @@ struct CalendarView: View {
         }
         modelContext.insert(DayProgram(date: dayStart, plan: plan))
         showPlanPicker = false
+    }
+
+    private func dotColor(cell: CalendarCell, isSelected: Bool) -> Color {
+        if cell.hasProgram && cell.hasWorkout { return DoodleTheme.green }
+        if cell.hasProgram && !cell.hasWorkout && cell.isPast { return DoodleTheme.red }
+        if cell.hasWorkout { return DoodleTheme.green }
+        return .clear
+    }
+
+    private static func formatSetDetail(_ sets: [ExerciseSet]) -> String {
+        sets.map { "\($0.reps)×\(Int($0.weight))" }.joined(separator: ", ")
     }
 
     private func termLine(bullet: String, color: Color, text: String) -> some View {

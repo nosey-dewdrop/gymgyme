@@ -132,11 +132,7 @@ final class StoreManager: ObservableObject {
             for await result in Transaction.updates {
                 guard case .verified(let transaction) = result else { continue }
                 await transaction.finish()
-                await MainActor.run {
-                    Task { @MainActor in
-                        await StoreManager.shared.updatePurchaseStatus()
-                    }
-                }
+                await StoreManager.shared.updatePurchaseStatus()
             }
         }
     }
