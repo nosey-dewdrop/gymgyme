@@ -9,8 +9,9 @@ struct SettingsView: View {
     @Query private var meals: [Meal]
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-    @AppStorage("isPremium") private var isPremium = false
+    @StateObject private var store = StoreManager.shared
     @State private var showResetAlert = false
+    @State private var showPaywall = false
     @State private var showPrivacyPolicy = false
     @State private var csvFileURL: URL?
     @State private var showShareSheet = false
@@ -81,17 +82,28 @@ struct SettingsView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("settings")
                         .font(.system(size: 20, weight: .black, design: .monospaced))
-                        .foregroundStyle(isPremium ? DoodleTheme.yellow : DoodleTheme.purple)
+                        .foregroundStyle(store.isPocketPTActive ? DoodleTheme.yellow : DoodleTheme.purple)
                         .padding(.bottom, 8)
 
-                    if isPremium {
+                    if store.isPocketPTActive {
                         HStack(spacing: 0) {
                             Text("★ ")
                                 .font(DoodleTheme.monoSmall)
                                 .foregroundStyle(DoodleTheme.yellow)
-                            Text("premium active")
+                            Text("pocket pt active")
                                 .font(DoodleTheme.monoSmall)
                                 .foregroundStyle(DoodleTheme.yellow)
+                        }
+                        .padding(.bottom, 4)
+                    } else {
+                        Button { showPaywall = true } label: {
+                            HStack(spacing: 4) {
+                                Image(systemName: "sparkles")
+                                    .font(.system(size: 12))
+                                Text("upgrade to pocket pt")
+                                    .font(DoodleTheme.monoSmall)
+                            }
+                            .foregroundStyle(DoodleTheme.yellow)
                         }
                         .padding(.bottom, 4)
                     }
@@ -249,6 +261,9 @@ struct SettingsView: View {
             }
             .sheet(isPresented: $showPrivacyPolicy) {
                 PrivacyPolicyView()
+            }
+            .sheet(isPresented: $showPaywall) {
+                PaywallView()
             }
             .sheet(isPresented: $showShareSheet) {
                 if let url = csvFileURL {
