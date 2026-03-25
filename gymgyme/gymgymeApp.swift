@@ -1,6 +1,5 @@
 import SwiftUI
 import SwiftData
-import UIKit
 
 @main
 struct gymgymeApp: App {
@@ -36,12 +35,6 @@ struct gymgymeApp: App {
 
     @AppStorage("dataMigrated") private var dataMigrated = false
 
-    private func setWindowBackground() {
-        guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let window = scene.windows.first else { return }
-        window.backgroundColor = UIColor(DoodleTheme.bg)
-    }
-
     private func migrateExistingData() {
         guard !dataMigrated else { return }
         let context = sharedModelContainer.mainContext
@@ -59,14 +52,18 @@ struct gymgymeApp: App {
             ContentView()
                 .background(DoodleTheme.bg.ignoresSafeArea(.all))
                 .onAppear {
-                    setWindowBackground()
+                    migrateExistingData()
                 }
         }
         .modelContainer(sharedModelContainer)
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .active {
-                migrateExistingData()
-                WidgetSync.sync(context: sharedModelContainer.mainContext)
+                // sync widget in background to avoid blocking UI
+                DispatchQueue.global(qos: .utility).async {
+                    DispatchQueue.main.async {
+                        WidgetSync.sync(context: sharedModelContainer.mainContext)
+                    }
+                }
             }
         }
     }
