@@ -23,9 +23,23 @@ struct LogWorkoutView: View {
     @State private var timerActive = false
     @State private var timerCancellable: AnyCancellable?
 
-    private var previousRecord: ExerciseSet? {
-        exercise.sets.sorted { $0.timestamp > $1.timestamp }.first
-    }
+    // cached on appear — avoid scanning all sets during render
+    @State private var cachedPreviousRecord: ExerciseSet?
+    @State private var cachedPersonalBest: Double = 0
+    @State private var cachedPersonalBestDuration: Int = 0
+    @State private var cachedBestReps: Int = 0
+
+    private static let hapticMedium: UIImpactFeedbackGenerator = {
+        let g = UIImpactFeedbackGenerator(style: .medium)
+        g.prepare()
+        return g
+    }()
+
+    private static let hapticSuccess: UINotificationFeedbackGenerator = {
+        let g = UINotificationFeedbackGenerator()
+        g.prepare()
+        return g
+    }()
 
     private var useLbs: Bool {
         profiles.first?.useLbs ?? false
@@ -35,12 +49,26 @@ struct LogWorkoutView: View {
         useLbs ? "lbs" : "kg"
     }
 
-    private var personalBest: Double {
-        exercise.sets.map(\.weight).max() ?? 0
-    }
-
-    private var personalBestDuration: Int {
-        exercise.sets.map(\.durationSeconds).max() ?? 0
+    private func cacheExerciseStats() {
+        var maxDate: Date?
+        var maxDateSet: ExerciseSet?
+        var bestWeight: Double = 0
+        var bestDuration: Int = 0
+        var bestReps: Int = 0
+        for s in exercise.sets {
+            if let max = maxDate {
+                if s.timestamp > max { maxDate = s.timestamp; maxDateSet = s }
+            } else {
+                maxDate = s.timestamp; maxDateSet = s
+            }
+            if s.weight > bestWeight { bestWeight = s.weight }
+            if s.durationSeconds > bestDuration { bestDuration = s.durationSeconds }
+            if s.reps > bestReps { bestReps = s.reps }
+        }
+        cachedPreviousRecord = maxDateSet
+        cachedPersonalBest = bestWeight
+        cachedPersonalBestDuration = bestDuration
+        cachedBestReps = bestReps
     }
 
     var body: some View {
@@ -111,6 +139,7 @@ struct LogWorkoutView: View {
                         .disabled(!canSave)
                 }
             }
+            .onAppear { cacheExerciseStats() }
             .onDisappear { timerCancellable?.cancel() }
         }
     }
@@ -119,7 +148,7 @@ struct LogWorkoutView: View {
 
     @ViewBuilder
     private var previousRecordSection: some View {
-        if let prev = previousRecord {
+        if let prev = cachedPreviousRecord {
             let days = Calendar.current.dateComponents([.day], from: prev.timestamp, to: Date()).day ?? 0
             let timeText = days == 0 ? "today" : days == 1 ? "yesterday" : "\(days)d ago"
 
@@ -430,7 +459,7 @@ struct LogWorkoutView: View {
         }
 
         WidgetSync.sync(context: modelContext)
-        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        Self.hapticMedium.impactOccurred()
     }
 
     private func saveWeightReps(session: WorkoutSession) {
@@ -445,12 +474,12 @@ struct LogWorkoutView: View {
         var hitPR = false
         for valid in validSets {
             let set = ExerciseSet(reps: valid.reps, weight: valid.weight, setNumber: valid.index + 1, exercise: exercise, session: session)
-            if valid.weight > personalBest && valid.weight > 0 { set.isPersonalRecord = true; hitPR = true }
+            if valid.weight > cachedPersonalBest && valid.weight > 0 { set.isPersonalRecord = true; hitPR = true }
             modelContext.insert(set)
         }
 
         if hitPR {
-            UINotificationFeedbackGenerator().notificationOccurred(.success)
+            Self.hapticSuccess.notificationOccurred(.success)
             withAnimation { showPRBanner = true }
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { startTimer() }
         } else {
@@ -466,7 +495,7 @@ struct LogWorkoutView: View {
         }
         guard !validSets.isEmpty else { dismiss(); return }
 
-        let bestReps = exercise.sets.map(\.reps).max() ?? 0
+        let bestReps = cachedBestReps
         var hitPR = false
         for valid in validSets {
             let set = ExerciseSet(reps: valid.reps, setNumber: valid.index + 1, exercise: exercise, session: session)
@@ -475,7 +504,7 @@ struct LogWorkoutView: View {
         }
 
         if hitPR {
-            UINotificationFeedbackGenerator().notificationOccurred(.success)
+            Self.hapticSuccess.notificationOccurred(.success)
             withAnimation { showPRBanner = true }
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { startTimer() }
         } else {
@@ -490,9 +519,9 @@ struct LogWorkoutView: View {
         guard totalSeconds > 0 else { dismiss(); return }
 
         let set = ExerciseSet(durationSeconds: totalSeconds, exercise: exercise, session: session)
-        if totalSeconds > personalBestDuration && personalBestDuration > 0 {
+        if totalSeconds > cachedPersonalBestDuration && cachedPersonalBestDuration > 0 {
             set.isPersonalRecord = true
-            UINotificationFeedbackGenerator().notificationOccurred(.success)
+            Self.hapticSuccess.notificationOccurred(.success)
             withAnimation { showPRBanner = true }
         }
         modelContext.insert(set)

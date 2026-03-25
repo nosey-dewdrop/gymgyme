@@ -4,7 +4,7 @@ import SwiftData
 struct PlansView: View {
     @Query(sort: \WorkoutPlan.createdAt, order: .reverse) private var plans: [WorkoutPlan]
     @Environment(\.modelContext) private var modelContext
-    @StateObject private var store = StoreManager.shared
+    @ObservedObject private var store = StoreManager.shared
     @State private var showCreatePlan = false
     @State private var showSettings = false
     @State private var showPaywall = false
@@ -113,15 +113,14 @@ struct PlansView: View {
                         }
                         .padding(.bottom, 8)
 
-                        premiumFeatureButton("ai program builder", icon: "sparkles", color: DoodleTheme.purple) {
-                            // TODO: open PT program builder
-                        }
-                        premiumFeatureButton("expert templates", icon: "star", color: DoodleTheme.orange) {
-                            // TODO: open templates
-                        }
-                        premiumFeatureButton("progressive overload", icon: "chart.line.uptrend.xyaxis", color: DoodleTheme.green) {
-                            // TODO: open overload settings
-                        }
+                        // premium feature buttons hidden until implemented
+                        // premiumFeatureButton("ai program builder", icon: "sparkles", color: DoodleTheme.purple) {}
+                        // premiumFeatureButton("expert templates", icon: "star", color: DoodleTheme.orange) {}
+                        // premiumFeatureButton("progressive overload", icon: "chart.line.uptrend.xyaxis", color: DoodleTheme.green) {}
+                        Text("more features coming soon")
+                            .font(DoodleTheme.monoSmall)
+                            .foregroundStyle(DoodleTheme.dim)
+                            .padding(.top, 4)
                     } else {
                         // not subscribed — show upsell
                         Text("pocket pt")
@@ -249,7 +248,7 @@ struct PlansView: View {
         if plan.isActive {
             plan.isActive = false
         } else {
-            for p in plans { p.isActive = false }
+            for p in plans where p.isActive { p.isActive = false }
             plan.isActive = true
         }
         WidgetSync.sync(context: modelContext)

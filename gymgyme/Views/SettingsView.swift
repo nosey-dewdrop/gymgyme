@@ -3,18 +3,15 @@ import SwiftData
 
 struct SettingsView: View {
     @Query private var profiles: [UserProfile]
-    @Query private var exercises: [Exercise]
-    @Query private var exerciseSets: [ExerciseSet]
-    @Query private var sessions: [WorkoutSession]
-    @Query private var meals: [Meal]
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-    @StateObject private var store = StoreManager.shared
+    @ObservedObject private var store = StoreManager.shared
     @State private var showResetAlert = false
     @State private var showPaywall = false
     @State private var showPrivacyPolicy = false
     @State private var csvFileURL: URL?
     @State private var showShareSheet = false
+    @State private var isExporting = false
 
     private var profile: UserProfile? {
         profiles.first
@@ -40,40 +37,56 @@ struct SettingsView: View {
         dismiss()
     }
 
-    private func generateCSV() -> String {
+    private func exportCSV() {
+        guard !isExporting else { return }
+        isExporting = true
+
+        // fetch all data on main actor first, extract plain values to avoid capturing modelContext in detached task
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
 
-        var csv = "date,exercise_name,tag,set_number,reps,weight\n"
-
-        for set in exerciseSets.sorted(by: { $0.timestamp > $1.timestamp }) {
+        let setsDescriptor = FetchDescriptor<ExerciseSet>(sortBy: [SortDescriptor(\.timestamp, order: .reverse)])
+        let sets = (try? modelContext.fetch(setsDescriptor)) ?? []
+        var setLines = [String]()
+        setLines.reserveCapacity(sets.count + 1)
+        setLines.append("date,exercise_name,tag,set_number,reps,weight")
+        for set in sets {
             let date = dateFormatter.string(from: set.timestamp)
             let name = set.exercise?.name ?? "unknown"
             let tag = set.exercise?.tag ?? ""
             let escapedName = "\"\(name.replacingOccurrences(of: "\"", with: "\"\""))\""
             let escapedTag = "\"\(tag.replacingOccurrences(of: "\"", with: "\"\""))\""
-            csv += "\(date),\(escapedName),\(escapedTag),\(set.setNumber),\(set.reps),\(set.weight)\n"
+            setLines.append("\(date),\(escapedName),\(escapedTag),\(set.setNumber),\(set.reps),\(set.weight)")
         }
 
+        let mealsDescriptor = FetchDescriptor<Meal>(sortBy: [SortDescriptor(\.timestamp, order: .reverse)])
+        let meals = (try? modelContext.fetch(mealsDescriptor)) ?? []
+        var mealLines = [String]()
         if !meals.isEmpty {
-            csv += "\ndate,meal_name,calories,protein,carbs,fat,notes\n"
-            for meal in meals.sorted(by: { $0.timestamp > $1.timestamp }) {
+            mealLines.reserveCapacity(meals.count + 2)
+            mealLines.append("")
+            mealLines.append("date,meal_name,calories,protein,carbs,fat,notes")
+            for meal in meals {
                 let date = dateFormatter.string(from: meal.timestamp)
                 let name = "\"\(meal.name.replacingOccurrences(of: "\"", with: "\"\""))\""
                 let notes = "\"\(meal.notes.replacingOccurrences(of: "\"", with: "\"\""))\""
-                csv += "\(date),\(name),\(meal.calories),\(meal.protein),\(meal.carbs),\(meal.fat),\(notes)\n"
+                mealLines.append("\(date),\(name),\(meal.calories),\(meal.protein),\(meal.carbs),\(meal.fat),\(notes)")
             }
         }
 
-        return csv
-    }
+        // write file off main thread — no modelContext captured
+        let allLines = setLines + mealLines
+        Task.detached {
+            let csv = allLines.joined(separator: "\n")
+            let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("gymgyme_export.csv")
+            try? csv.write(to: tempURL, atomically: true, encoding: .utf8)
 
-    private func exportCSV() {
-        let csv = generateCSV()
-        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("gymgyme_export.csv")
-        try? csv.write(to: tempURL, atomically: true, encoding: .utf8)
-        csvFileURL = tempURL
-        showShareSheet = true
+            await MainActor.run {
+                csvFileURL = tempURL
+                showShareSheet = true
+                isExporting = false
+            }
+        }
     }
 
     var body: some View {

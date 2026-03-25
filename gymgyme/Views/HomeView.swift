@@ -9,28 +9,53 @@ struct HomeView: View {
     @State private var showAddExercise = false
     @State private var showSettings = false
     @State private var showDiscoverSheet = false
-    @State private var exerciseSearchText = ""
-    @State private var foodSearchText = ""
     @State private var expandedExerciseId: PersistentIdentifier?
+    @State private var cachedExpandedGroups: [DayGroup] = []
     @State private var logExercise: Exercise?
     @State private var chartExercise: Exercise?
     @State private var exerciseToDelete: Exercise?
     @State private var editSets: [ExerciseSet]?
     @State private var editDate: Date?
-
-    private var lastAnyWorkout: Date? {
-        exercises.flatMap { $0.sets }.compactMap { $0.timestamp }.max()
-    }
+    @State private var cachedSortedExercises: [Exercise] = []
+    @State private var cachedLastWorkout: Date?
+    @State private var cachedMaxDates: [PersistentIdentifier: Date] = [:]
+    @State private var cachedHasPR: Set<PersistentIdentifier> = []
 
     private var daysSinceAnyWorkout: Int? {
-        guard let last = lastAnyWorkout else { return nil }
+        guard let last = cachedLastWorkout else { return nil }
         return Calendar.current.dateComponents([.day], from: last, to: Date()).day
     }
 
-    private var sortedExercises: [Exercise] {
-        exercises.sorted { a, b in
-            let aDate = a.sets.compactMap(\.timestamp).max()
-            let bDate = b.sets.compactMap(\.timestamp).max()
+    private func recomputeCache() {
+        // precompute max date per exercise into dictionary: O(n*s) total, one pass
+        var maxDates: [PersistentIdentifier: Date] = [:]
+        var latestDate: Date?
+        for exercise in exercises {
+            if let setDate = exercise.sets.max(by: { $0.timestamp < $1.timestamp })?.timestamp {
+                maxDates[exercise.persistentModelID] = setDate
+                if let latest = latestDate {
+                    if setDate > latest { latestDate = setDate }
+                } else {
+                    latestDate = setDate
+                }
+            }
+        }
+        cachedLastWorkout = latestDate
+        cachedMaxDates = maxDates
+
+        // cache PR status
+        var prSet = Set<PersistentIdentifier>()
+        for exercise in exercises {
+            if exercise.sets.contains(where: { $0.isPersonalRecord }) {
+                prSet.insert(exercise.persistentModelID)
+            }
+        }
+        cachedHasPR = prSet
+
+        // sort by dictionary lookup: O(n log n) comparisons at O(1) each
+        cachedSortedExercises = exercises.sorted { a, b in
+            let aDate = maxDates[a.persistentModelID]
+            let bDate = maxDates[b.persistentModelID]
             switch (aDate, bDate) {
             case (nil, nil): return a.name < b.name
             case (nil, _): return false
@@ -46,8 +71,8 @@ struct HomeView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     HStack {
                         HStack(spacing: 0) {
-                            ForEach(Array("exercises".enumerated()), id: \.offset) { i, char in
-                                Text(String(char))
+                            ForEach(Self.titleChars, id: \.offset) { i, char in
+                                Text(char)
                                     .font(.custom("Menlo-Bold", size: 28))
                                     .foregroundStyle(DoodleTheme.color(for: i))
                             }
@@ -114,8 +139,10 @@ struct HomeView: View {
                         termLine(bullet: "─", color: DoodleTheme.dim, text: "exercises (\(exercises.count))")
                         Text("").frame(height: 4)
 
-                        ForEach(Array(sortedExercises.enumerated()), id: \.element.id) { index, exercise in
-                            exerciseRow(exercise, index: index)
+                        LazyVStack(alignment: .leading, spacing: 0) {
+                            ForEach(Array(cachedSortedExercises.enumerated()), id: \.element.id) { index, exercise in
+                                exerciseRow(exercise, index: index)
+                            }
                         }
                     }
 
@@ -153,16 +180,24 @@ struct HomeView: View {
                 Text("all workout logs for this exercise will be deleted")
             }
             .onAppear {
+                recomputeCache()
                 NotificationManager.shared.requestPermission()
-                NotificationManager.shared.scheduleInactivityReminder(lastWorkoutDate: lastAnyWorkout)
+                NotificationManager.shared.scheduleInactivityReminder(lastWorkoutDate: cachedLastWorkout)
+            }
+            .onChange(of: exercises.count) { _, _ in recomputeCache() }
+            .onReceive(NotificationCenter.default.publisher(for: .NSManagedObjectContextDidSave)) { _ in
+                recomputeCache()
             }
         }
     }
 
     private func exerciseRow(_ exercise: Exercise, index: Int) -> some View {
         let color = DoodleTheme.color(for: index)
-        let lastSet = exercise.sets.max(by: { $0.timestamp < $1.timestamp })
-        let hasPR = exercise.sets.contains { $0.isPersonalRecord }
+        let lastSet: ExerciseSet? = {
+            guard let maxDate = cachedMaxDates[exercise.persistentModelID] else { return nil }
+            return exercise.sets.first { $0.timestamp == maxDate }
+        }()
+        let hasPR = cachedHasPR.contains(exercise.persistentModelID)
         let isExpanded = expandedExerciseId == exercise.persistentModelID
 
         return VStack(alignment: .leading, spacing: 1) {
@@ -218,21 +253,22 @@ struct HomeView: View {
             }
             .contentShape(Rectangle())
             .onTapGesture {
-                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                Self.hapticLight.impactOccurred()
                 withAnimation(.easeInOut(duration: 0.2)) {
                     if isExpanded {
                         expandedExerciseId = nil
+                        cachedExpandedGroups = []
                     } else {
                         expandedExerciseId = exercise.persistentModelID
+                        let sortedSets = exercise.sets.sorted { $0.timestamp > $1.timestamp }
+                        cachedExpandedGroups = groupSetsByDay(sortedSets)
                     }
                 }
             }
 
             // expanded log history
             if isExpanded {
-                let sortedSets = exercise.sets.sorted { $0.timestamp > $1.timestamp }
-                // group sets by session (same day)
-                let grouped = groupSetsByDay(sortedSets)
+                let grouped = cachedExpandedGroups
 
                 VStack(alignment: .leading, spacing: 2) {
                     ForEach(grouped, id: \.date) { group in
@@ -327,10 +363,22 @@ struct HomeView: View {
         return groups.keys.sorted(by: >).prefix(10).map { DayGroup(date: $0, sets: groups[$0] ?? []) }
     }
 
+    private static let titleChars: [(offset: Int, element: String)] = "exercises".enumerated().map { ($0.offset, String($0.element)) }
+
+    private static let hapticLight: UIImpactFeedbackGenerator = {
+        let g = UIImpactFeedbackGenerator(style: .light)
+        g.prepare()
+        return g
+    }()
+
+    private static let dayFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "d MMM"
+        return f
+    }()
+
     private func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "d MMM"
-        return formatter.string(from: date)
+        Self.dayFormatter.string(from: date)
     }
 
     @ViewBuilder
