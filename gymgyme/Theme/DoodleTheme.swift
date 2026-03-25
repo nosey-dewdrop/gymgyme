@@ -25,10 +25,10 @@ enum DoodleTheme {
         titleColors[abs(text.hashValue) % titleColors.count]
     }
 
-    static let mono: Font = .system(size: 18, weight: .regular, design: .monospaced)
-    static let monoSmall: Font = .system(size: 15, weight: .regular, design: .monospaced)
-    static let monoBold: Font = .system(size: 18, weight: .bold, design: .monospaced)
-    static let monoTitle: Font = .system(size: 26, weight: .bold, design: .monospaced)
+    static let mono: Font = .system(size: 15, weight: .regular, design: .monospaced)
+    static let monoSmall: Font = .system(size: 12, weight: .regular, design: .monospaced)
+    static let monoBold: Font = .system(size: 15, weight: .bold, design: .monospaced)
+    static let monoTitle: Font = .system(size: 22, weight: .bold, design: .monospaced)
 }
 
 extension Color {
