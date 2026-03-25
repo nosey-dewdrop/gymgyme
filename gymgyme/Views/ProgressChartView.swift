@@ -73,8 +73,8 @@ struct ProgressChartView: View {
                     if dataPoints.count < 2 {
                         VStack(spacing: 4) {
                             Text("").frame(height: 20)
-                            termLine(bullet: "~", color: DoodleTheme.dim, text: "need at least 2 sessions")
-                            termLine(bullet: " ", color: DoodleTheme.dim, text: "to draw progress charts")
+                            termLine(bullet: "~", color: DoodleTheme.dim, text: "log 2 workouts to see")
+                            termLine(bullet: " ", color: DoodleTheme.dim, text: "your progress charts")
                         }
                     } else {
                         // weight chart

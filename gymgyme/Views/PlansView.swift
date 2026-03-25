@@ -38,11 +38,24 @@ struct PlansView: View {
                                 .font(DoodleTheme.mono)
                                 .foregroundStyle(DoodleTheme.dim)
                         }
-                        HStack(spacing: 0) {
-                            Text("  ")
-                            Text("tap + to create a program")
-                                .font(DoodleTheme.monoSmall)
-                                .foregroundStyle(DoodleTheme.dim)
+                        Text("  create a program from your exercises")
+                            .font(DoodleTheme.monoSmall)
+                            .foregroundStyle(DoodleTheme.dim)
+                        Text("  and plan your workout routine")
+                            .font(DoodleTheme.monoSmall)
+                            .foregroundStyle(DoodleTheme.dim)
+                        Text("").frame(height: 8)
+                        Button { showCreatePlan = true } label: {
+                            HStack(spacing: 8) {
+                                Image(systemName: "plus.circle.fill")
+                                Text("create your first program")
+                            }
+                            .font(DoodleTheme.monoBold)
+                            .foregroundStyle(DoodleTheme.bg)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(DoodleTheme.purple)
+                            .cornerRadius(8)
                         }
                     } else {
                         ForEach(Array(plans.enumerated()), id: \.element.id) { index, plan in

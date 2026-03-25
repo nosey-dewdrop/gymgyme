@@ -76,7 +76,10 @@ struct HomeView: View {
 
                     if exercises.isEmpty {
                         Text("").frame(height: 20)
-                        termLine(bullet: "~", color: DoodleTheme.dim, text: "no exercises yet")
+                        termLine(bullet: "~", color: DoodleTheme.dim, text: "start by adding an exercise")
+                        Text("  track your sets, reps, and progress")
+                            .font(DoodleTheme.monoSmall)
+                            .foregroundStyle(DoodleTheme.dim)
                         Text("").frame(height: 8)
 
                         Button { showAddExercise = true } label: {
@@ -97,7 +100,7 @@ struct HomeView: View {
                         Button { showDiscoverSheet = true } label: {
                             HStack(spacing: 8) {
                                 Image(systemName: "magnifyingglass")
-                                Text("browse exercise database")
+                                Text("browse exercises")
                             }
                             .font(DoodleTheme.mono)
                             .foregroundStyle(DoodleTheme.blue)
@@ -193,7 +196,7 @@ struct HomeView: View {
                             .font(DoodleTheme.monoSmall)
                             .foregroundStyle(atrophyColor)
                     } else {
-                        Text("no logs yet")
+                        Text("not logged yet")
                             .font(DoodleTheme.monoSmall)
                             .foregroundStyle(DoodleTheme.dim)
                     }
