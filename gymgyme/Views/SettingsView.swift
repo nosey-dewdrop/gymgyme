@@ -14,7 +14,6 @@ struct SettingsView: View {
     @State private var showPrivacyPolicy = false
     @State private var csvFileURL: URL?
     @State private var showShareSheet = false
-    @State private var adminTapCount = 0
 
     private var profile: UserProfile? {
         profiles.first
@@ -84,14 +83,6 @@ struct SettingsView: View {
                         .font(.system(size: 20, weight: .black, design: .monospaced))
                         .foregroundStyle(isPremium ? DoodleTheme.yellow : DoodleTheme.purple)
                         .padding(.bottom, 8)
-                        .onTapGesture {
-                            adminTapCount += 1
-                            if adminTapCount >= 5 {
-                                isPremium.toggle()
-                                adminTapCount = 0
-                                UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
-                            }
-                        }
 
                     if isPremium {
                         HStack(spacing: 0) {
