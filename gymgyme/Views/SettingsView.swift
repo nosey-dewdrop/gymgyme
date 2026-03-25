@@ -16,8 +16,15 @@ struct SettingsView: View {
     @State private var showShareSheet = false
     @State private var adminTapCount = 0
 
-    private var profile: UserProfile {
-        profiles.first ?? createProfile()
+    private var profile: UserProfile? {
+        profiles.first
+    }
+
+    private func ensureProfile() {
+        if profiles.isEmpty {
+            let new = UserProfile()
+            modelContext.insert(new)
+        }
     }
 
     private func resetAllData() {
@@ -33,12 +40,6 @@ struct SettingsView: View {
         dismiss()
     }
 
-    private func createProfile() -> UserProfile {
-        let new = UserProfile()
-        modelContext.insert(new)
-        return new
-    }
-
     private func generateCSV() -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
@@ -49,8 +50,8 @@ struct SettingsView: View {
             let date = dateFormatter.string(from: set.timestamp)
             let name = set.exercise?.name ?? "unknown"
             let tag = set.exercise?.tag ?? ""
-            let escapedName = name.contains(",") ? "\"\(name)\"" : name
-            let escapedTag = tag.contains(",") ? "\"\(tag)\"" : tag
+            let escapedName = "\"\(name.replacingOccurrences(of: "\"", with: "\"\""))\""
+            let escapedTag = "\"\(tag.replacingOccurrences(of: "\"", with: "\"\""))\""
             csv += "\(date),\(escapedName),\(escapedTag),\(set.setNumber),\(set.reps),\(set.weight)\n"
         }
 
@@ -58,8 +59,8 @@ struct SettingsView: View {
             csv += "\ndate,meal_name,calories,protein,carbs,fat,notes\n"
             for meal in meals.sorted(by: { $0.timestamp > $1.timestamp }) {
                 let date = dateFormatter.string(from: meal.timestamp)
-                let name = meal.name.contains(",") ? "\"\(meal.name)\"" : meal.name
-                let notes = meal.notes.contains(",") ? "\"\(meal.notes)\"" : meal.notes
+                let name = "\"\(meal.name.replacingOccurrences(of: "\"", with: "\"\""))\""
+                let notes = "\"\(meal.notes.replacingOccurrences(of: "\"", with: "\"\""))\""
                 csv += "\(date),\(name),\(meal.calories),\(meal.protein),\(meal.carbs),\(meal.fat),\(notes)\n"
             }
         }
@@ -109,82 +110,84 @@ struct SettingsView: View {
                         .foregroundStyle(DoodleTheme.blue)
                         .padding(.bottom, 4)
 
-                    HStack {
-                        Text("height (cm)")
-                            .font(DoodleTheme.mono)
-                            .foregroundStyle(DoodleTheme.dim)
-                        Spacer()
-                        TextField("170", value: Binding(
-                            get: { profile.heightCm },
-                            set: { profile.heightCm = min(300, max(0, $0)) }
-                        ), format: .number)
-                        .keyboardType(.decimalPad)
-                        .multilineTextAlignment(.trailing)
-                        .font(DoodleTheme.mono)
-                        .foregroundStyle(DoodleTheme.fg)
-                        .frame(width: 80)
-                    }
-                    .padding(10)
-                    .background(DoodleTheme.surface)
-                    .cornerRadius(6)
-
-                    HStack {
-                        Text("weight (kg)")
-                            .font(DoodleTheme.mono)
-                            .foregroundStyle(DoodleTheme.dim)
-                        Spacer()
-                        TextField("65", value: Binding(
-                            get: { profile.weightKg },
-                            set: { profile.weightKg = min(500, max(0, $0)) }
-                        ), format: .number)
-                        .keyboardType(.decimalPad)
-                        .multilineTextAlignment(.trailing)
-                        .font(DoodleTheme.mono)
-                        .foregroundStyle(DoodleTheme.fg)
-                        .frame(width: 80)
-                    }
-                    .padding(10)
-                    .background(DoodleTheme.surface)
-                    .cornerRadius(6)
-
-                    Text("").frame(height: 8)
-                    Text("units")
-                        .font(DoodleTheme.monoBold)
-                        .foregroundStyle(DoodleTheme.blue)
-                        .padding(.bottom, 4)
-
-                    HStack {
-                        Text("weight unit")
-                            .font(DoodleTheme.mono)
-                            .foregroundStyle(DoodleTheme.dim)
-                        Spacer()
-                        Button {
-                            profile.useLbs.toggle()
-                        } label: {
-                            Text(profile.useLbs ? "lbs" : "kg")
-                                .font(DoodleTheme.monoBold)
-                                .foregroundStyle(DoodleTheme.green)
-                        }
-                    }
-                    .padding(10)
-                    .background(DoodleTheme.surface)
-                    .cornerRadius(6)
-
-                    if profile.heightCm > 0 && profile.weightKg > 0 {
-                        Text("").frame(height: 8)
-                        HStack(spacing: 0) {
-                            Text("bmi: ")
+                    if let profile {
+                        HStack {
+                            Text("height (cm)")
                                 .font(DoodleTheme.mono)
                                 .foregroundStyle(DoodleTheme.dim)
-                            Text(String(format: "%.1f", profile.bmi))
-                                .font(DoodleTheme.monoBold)
-                                .foregroundStyle(DoodleTheme.orange)
+                            Spacer()
+                            TextField("170", value: Binding(
+                                get: { profile.heightCm },
+                                set: { profile.heightCm = min(300, max(0, $0)) }
+                            ), format: .number)
+                            .keyboardType(.decimalPad)
+                            .multilineTextAlignment(.trailing)
+                            .font(DoodleTheme.mono)
+                            .foregroundStyle(DoodleTheme.fg)
+                            .frame(width: 80)
                         }
+                        .padding(10)
+                        .background(DoodleTheme.surface)
+                        .cornerRadius(6)
 
-                        Text("1 kg fat = size of a bottle. 1 kg muscle = size of a fist.")
-                            .font(DoodleTheme.monoSmall)
-                            .foregroundStyle(DoodleTheme.dim)
-                            .padding(.top, 2)
+                        HStack {
+                            Text("weight (kg)")
+                                .font(DoodleTheme.mono)
+                                .foregroundStyle(DoodleTheme.dim)
+                            Spacer()
+                            TextField("65", value: Binding(
+                                get: { profile.weightKg },
+                                set: { profile.weightKg = min(500, max(0, $0)) }
+                            ), format: .number)
+                            .keyboardType(.decimalPad)
+                            .multilineTextAlignment(.trailing)
+                            .font(DoodleTheme.mono)
+                            .foregroundStyle(DoodleTheme.fg)
+                            .frame(width: 80)
+                        }
+                        .padding(10)
+                        .background(DoodleTheme.surface)
+                        .cornerRadius(6)
+
+                        Text("").frame(height: 8)
+                        Text("units")
+                            .font(DoodleTheme.monoBold)
+                            .foregroundStyle(DoodleTheme.blue)
+                            .padding(.bottom, 4)
+
+                        HStack {
+                            Text("weight unit")
+                                .font(DoodleTheme.mono)
+                                .foregroundStyle(DoodleTheme.dim)
+                            Spacer()
+                            Button {
+                                profile.useLbs.toggle()
+                            } label: {
+                                Text(profile.useLbs ? "lbs" : "kg")
+                                    .font(DoodleTheme.monoBold)
+                                    .foregroundStyle(DoodleTheme.green)
+                            }
+                        }
+                        .padding(10)
+                        .background(DoodleTheme.surface)
+                        .cornerRadius(6)
+
+                        if profile.heightCm > 0 && profile.weightKg > 0 {
+                            Text("").frame(height: 8)
+                            HStack(spacing: 0) {
+                                Text("bmi: ")
+                                    .font(DoodleTheme.mono)
+                                    .foregroundStyle(DoodleTheme.dim)
+                                Text(String(format: "%.1f", profile.bmi))
+                                    .font(DoodleTheme.monoBold)
+                                    .foregroundStyle(DoodleTheme.orange)
+                            }
+
+                            Text("1 kg fat = size of a bottle. 1 kg muscle = size of a fist.")
+                                .font(DoodleTheme.monoSmall)
+                                .foregroundStyle(DoodleTheme.dim)
+                                .padding(.top, 2)
+                        }
                     }
 
                     Text("").frame(height: 16)
@@ -265,6 +268,7 @@ struct SettingsView: View {
                         .foregroundStyle(DoodleTheme.dim)
                 }
             }
+            .onAppear { ensureProfile() }
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
