@@ -13,6 +13,7 @@ struct EditWorkoutView: View {
     }
 
     @State private var editedSets: [EditableSet] = []
+    @State private var setToDelete: Int?
 
     struct EditableSet: Identifiable {
         let id: UUID
@@ -67,7 +68,7 @@ struct EditWorkoutView: View {
                                 .cornerRadius(4)
 
                             Button {
-                                deleteSet(at: i)
+                                setToDelete = i
                             } label: {
                                 Image(systemName: "trash")
                                     .font(.system(size: 14))
@@ -95,6 +96,20 @@ struct EditWorkoutView: View {
                 }
             }
             .onAppear { loadSets() }
+            .alert("delete set?", isPresented: Binding(
+                get: { setToDelete != nil },
+                set: { if !$0 { setToDelete = nil } }
+            )) {
+                Button("cancel", role: .cancel) { setToDelete = nil }
+                Button("delete", role: .destructive) {
+                    if let index = setToDelete {
+                        deleteSet(at: index)
+                    }
+                    setToDelete = nil
+                }
+            } message: {
+                Text("this set will be permanently deleted")
+            }
         }
     }
 
