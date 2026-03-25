@@ -8,3 +8,5 @@
 - more visuals everywhere - people are visual, show dont tell
 - the app feels too complex for casual users, needs to be more approachable
 - timer/stopwatch for duration-based exercises
+- social discover: trending programs — most used and currently active programs by other users. like spotify's popular playlists but for workouts. shows what real people are actually doing, not just expert templates
+- programs as playlists concept — users create "exercise playlists", share them, follow others' playlists
