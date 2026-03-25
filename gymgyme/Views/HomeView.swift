@@ -41,139 +41,119 @@ struct HomeView: View {
     }
 
     var body: some View {
-        ScrollView(.vertical, showsIndicators: false) {
-            VStack(spacing: 0) {
-                // page 1: exercises
-                NavigationStack {
-                    ScrollView {
-                        VStack(alignment: .leading, spacing: 2) {
-                            HStack {
-                                HStack(spacing: 0) {
-                                    ForEach(Array("exercises".enumerated()), id: \.offset) { i, char in
-                                        Text(String(char))
-                                            .font(.custom("Menlo-Bold", size: 28))
-                                            .foregroundStyle(DoodleTheme.color(for: i))
-                                    }
-                                }
-                                Spacer()
-                                Button { showSettings = true } label: {
-                                    Image(systemName: "gearshape")
-                                        .foregroundStyle(DoodleTheme.dim)
-                                }
-                                .accessibilityLabel("settings")
-                                Button { showAddExercise = true } label: {
-                                    Image(systemName: "plus")
-                                        .foregroundStyle(DoodleTheme.green)
-                                        .padding(.leading, 12)
-                                }
-                                .accessibilityLabel("add exercise")
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack {
+                        HStack(spacing: 0) {
+                            ForEach(Array("exercises".enumerated()), id: \.offset) { i, char in
+                                Text(String(char))
+                                    .font(.custom("Menlo-Bold", size: 28))
+                                    .foregroundStyle(DoodleTheme.color(for: i))
                             }
-                            .padding(.bottom, 8)
-
-                            if let days = daysSinceAnyWorkout, days >= 1 {
-                                termLine(bullet: "!", color: days >= 5 ? DoodleTheme.red : DoodleTheme.yellow,
-                                         text: "\(days) day\(days == 1 ? "" : "s") since last workout")
-                            }
-
-                            activeProgramsSection
-
-                            if exercises.isEmpty {
-                                Text("").frame(height: 20)
-                                termLine(bullet: "~", color: DoodleTheme.dim, text: "no exercises yet")
-                                Text("").frame(height: 8)
-
-                                Button { showAddExercise = true } label: {
-                                    HStack(spacing: 8) {
-                                        Image(systemName: "plus.circle.fill")
-                                        Text("add your first exercise")
-                                    }
-                                    .font(DoodleTheme.monoBold)
-                                    .foregroundStyle(DoodleTheme.bg)
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 12)
-                                    .background(DoodleTheme.green)
-                                    .cornerRadius(8)
-                                }
-
-                                Text("").frame(height: 8)
-
-                                Button { showDiscoverSheet = true } label: {
-                                    HStack(spacing: 8) {
-                                        Image(systemName: "magnifyingglass")
-                                        Text("browse exercise database")
-                                    }
-                                    .font(DoodleTheme.mono)
-                                    .foregroundStyle(DoodleTheme.blue)
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 12)
-                                    .background(DoodleTheme.surface)
-                                    .cornerRadius(8)
-                                }
-                            } else {
-                                Text("").frame(height: 8)
-                                termLine(bullet: "─", color: DoodleTheme.dim, text: "exercises (\(exercises.count))")
-                                Text("").frame(height: 4)
-
-                                ForEach(Array(sortedExercises.enumerated()), id: \.element.id) { index, exercise in
-                                    exerciseRow(exercise, index: index)
-                                }
-                            }
-
-                            Spacer().frame(height: 40)
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 16)
-                        .padding(.top, 20)
+                        Spacer()
+                        Button { showSettings = true } label: {
+                            Image(systemName: "gearshape")
+                                .foregroundStyle(DoodleTheme.dim)
+                        }
+                        .accessibilityLabel("settings")
+                        Button { showAddExercise = true } label: {
+                            Image(systemName: "plus")
+                                .foregroundStyle(DoodleTheme.green)
+                                .padding(.leading, 12)
+                        }
+                        .accessibilityLabel("add exercise")
                     }
-                    .background(DoodleTheme.bg.ignoresSafeArea(.all))
-                    .navigationBarHidden(true)
-                    .sheet(isPresented: $showDiscoverSheet) { DiscoverView() }
-                    .sheet(isPresented: $showAddExercise) { AddExerciseView() }
-                    .sheet(item: $logExercise) { exercise in LogWorkoutView(exercise: exercise) }
-                    .sheet(isPresented: $showSettings) { SettingsView() }
-                    .sheet(item: $chartExercise) { exercise in ProgressChartView(exercise: exercise) }
-                    .sheet(isPresented: Binding(
-                        get: { editSets != nil && editDate != nil },
-                        set: { if !$0 { editSets = nil; editDate = nil } }
-                    )) {
-                        if let sets = editSets, let date = editDate {
-                            EditWorkoutView(sets: sets, date: date)
+                    .padding(.bottom, 8)
+
+                    if let days = daysSinceAnyWorkout, days >= 1 {
+                        termLine(bullet: "!", color: days >= 5 ? DoodleTheme.red : DoodleTheme.yellow,
+                                 text: "\(days) day\(days == 1 ? "" : "s") since last workout")
+                    }
+
+                    activeProgramsSection
+
+                    if exercises.isEmpty {
+                        Text("").frame(height: 20)
+                        termLine(bullet: "~", color: DoodleTheme.dim, text: "no exercises yet")
+                        Text("").frame(height: 8)
+
+                        Button { showAddExercise = true } label: {
+                            HStack(spacing: 8) {
+                                Image(systemName: "plus.circle.fill")
+                                Text("add your first exercise")
+                            }
+                            .font(DoodleTheme.monoBold)
+                            .foregroundStyle(DoodleTheme.bg)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(DoodleTheme.green)
+                            .cornerRadius(8)
+                        }
+
+                        Text("").frame(height: 8)
+
+                        Button { showDiscoverSheet = true } label: {
+                            HStack(spacing: 8) {
+                                Image(systemName: "magnifyingglass")
+                                Text("browse exercise database")
+                            }
+                            .font(DoodleTheme.mono)
+                            .foregroundStyle(DoodleTheme.blue)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(DoodleTheme.surface)
+                            .cornerRadius(8)
+                        }
+                    } else {
+                        Text("").frame(height: 8)
+                        termLine(bullet: "─", color: DoodleTheme.dim, text: "exercises (\(exercises.count))")
+                        Text("").frame(height: 4)
+
+                        ForEach(Array(sortedExercises.enumerated()), id: \.element.id) { index, exercise in
+                            exerciseRow(exercise, index: index)
                         }
                     }
-                    .alert("delete exercise?", isPresented: Binding(
-                        get: { exerciseToDelete != nil },
-                        set: { if !$0 { exerciseToDelete = nil } }
-                    )) {
-                        Button("cancel", role: .cancel) { exerciseToDelete = nil }
-                        Button("delete", role: .destructive) {
-                            if let e = exerciseToDelete { deleteExercise(e) }
-                            exerciseToDelete = nil
-                        }
-                    } message: {
-                        Text("all workout logs for this exercise will be deleted")
-                    }
-                    .onAppear {
-                        NotificationManager.shared.requestPermission()
-                        NotificationManager.shared.scheduleInactivityReminder(lastWorkoutDate: lastAnyWorkout)
-                    }
+
+                    Spacer().frame(height: 40)
                 }
-                .containerRelativeFrame(.vertical)
-
-                // page 2: meals
-                NavigationStack {
-                    ScrollView {
-                        DailyMealSection()
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal, 16)
-                            .padding(.top, 20)
-                    }
-                    .background(DoodleTheme.bg.ignoresSafeArea(.all))
-                    .navigationBarHidden(true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 16)
+                .padding(.top, 20)
+            }
+            .background(DoodleTheme.bg.ignoresSafeArea(.all))
+            .navigationBarHidden(true)
+            .sheet(isPresented: $showDiscoverSheet) { DiscoverView() }
+            .sheet(isPresented: $showAddExercise) { AddExerciseView() }
+            .sheet(item: $logExercise) { exercise in LogWorkoutView(exercise: exercise) }
+            .sheet(isPresented: $showSettings) { SettingsView() }
+            .sheet(item: $chartExercise) { exercise in ProgressChartView(exercise: exercise) }
+            .sheet(isPresented: Binding(
+                get: { editSets != nil && editDate != nil },
+                set: { if !$0 { editSets = nil; editDate = nil } }
+            )) {
+                if let sets = editSets, let date = editDate {
+                    EditWorkoutView(sets: sets, date: date)
                 }
-                .containerRelativeFrame(.vertical)
+            }
+            .alert("delete exercise?", isPresented: Binding(
+                get: { exerciseToDelete != nil },
+                set: { if !$0 { exerciseToDelete = nil } }
+            )) {
+                Button("cancel", role: .cancel) { exerciseToDelete = nil }
+                Button("delete", role: .destructive) {
+                    if let e = exerciseToDelete { deleteExercise(e) }
+                    exerciseToDelete = nil
+                }
+            } message: {
+                Text("all workout logs for this exercise will be deleted")
+            }
+            .onAppear {
+                NotificationManager.shared.requestPermission()
+                NotificationManager.shared.scheduleInactivityReminder(lastWorkoutDate: lastAnyWorkout)
             }
         }
-        .scrollTargetBehavior(.paging)
     }
 
     private func exerciseRow(_ exercise: Exercise, index: Int) -> some View {
