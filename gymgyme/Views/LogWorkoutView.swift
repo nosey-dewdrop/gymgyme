@@ -89,6 +89,16 @@ struct LogWorkoutView: View {
                                 .padding(8)
                                 .background(DoodleTheme.surface)
                                 .cornerRadius(4)
+
+                            if sets.count > 1 {
+                                Button {
+                                    sets.remove(at: index)
+                                } label: {
+                                    Image(systemName: "minus.circle")
+                                        .font(.system(size: 14))
+                                        .foregroundStyle(DoodleTheme.red)
+                                }
+                            }
                         }
                         .padding(.vertical, 2)
                     }
@@ -172,6 +182,7 @@ struct LogWorkoutView: View {
                         .disabled(sets.allSatisfy { $0.reps.isEmpty && $0.weight.isEmpty })
                 }
             }
+            .onDisappear { timerCancellable?.cancel() }
         }
     }
 
