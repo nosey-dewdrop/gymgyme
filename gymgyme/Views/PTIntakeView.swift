@@ -287,13 +287,13 @@ struct PTIntakeView: View {
             .background(DoodleTheme.bg.ignoresSafeArea(.all))
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
-            .toolbar {
+            .toolbar(content: {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("cancel") { dismiss() }
                         .font(DoodleTheme.mono)
                         .foregroundStyle(DoodleTheme.dim)
                 }
-            }
+            })
         }
     }
 
