@@ -325,7 +325,8 @@ struct DiscoverView: View {
             "cardio": "cardio", "stretching": "stretching",
         ]
         let tag = tagMap[item.category.lowercased()] ?? selectedTag ?? item.category.lowercased()
-        modelContext.insert(Exercise(name: item.name, tag: tag))
+        let secondaryMuscles = item.muscles + item.secondaryMuscles
+        modelContext.insert(Exercise(name: item.name, tag: tag, type: .weightReps, secondaryMuscles: secondaryMuscles))
         withAnimation { addedMessage = "\(item.name) added!" }
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) { withAnimation { addedMessage = nil } }
     }
