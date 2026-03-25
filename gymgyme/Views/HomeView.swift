@@ -192,7 +192,19 @@ struct HomeView: View {
                         let days = Calendar.current.dateComponents([.day], from: lastSet.timestamp, to: Date()).day ?? 0
                         let timeText = days == 0 ? "today" : days == 1 ? "yesterday" : "\(days)d ago"
                         let atrophyColor = atrophyColor(days: days)
-                        Text("last: \(timeText)")
+                        let detail: String = {
+                            switch exercise.exerciseType {
+                            case .weightReps:
+                                return "\(lastSet.reps)×\(String(format: "%.0f", lastSet.weight))"
+                            case .bodyweight:
+                                return "\(lastSet.reps) reps"
+                            case .duration:
+                                return lastSet.formattedDuration
+                            case .cardio:
+                                return "\(lastSet.formattedDuration) · \(lastSet.formattedDistance)"
+                            }
+                        }()
+                        Text("\(detail) · \(timeText)")
                             .font(DoodleTheme.monoSmall)
                             .foregroundStyle(atrophyColor)
                     } else {
@@ -231,7 +243,21 @@ struct HomeView: View {
                             HStack(spacing: 0) {
                                 Text("  ")
                                 let dateStr = formatDate(group.date)
-                                let setsStr = group.sets.map { "\($0.reps)×\(String(format: "%.0f", $0.weight))" }.joined(separator: ", ")
+                                let setsStr: String = {
+                                    guard let type = group.sets.first?.exercise?.exerciseType else {
+                                        return group.sets.map { "\($0.reps)×\(String(format: "%.0f", $0.weight))" }.joined(separator: ", ")
+                                    }
+                                    switch type {
+                                    case .weightReps:
+                                        return group.sets.map { "\($0.reps)×\(String(format: "%.0f", $0.weight))" }.joined(separator: ", ")
+                                    case .bodyweight:
+                                        return group.sets.map { "\($0.reps) reps" }.joined(separator: ", ")
+                                    case .duration:
+                                        return group.sets.map { $0.formattedDuration }.joined(separator: ", ")
+                                    case .cardio:
+                                        return group.sets.map { "\($0.formattedDuration) · \($0.formattedDistance)" }.joined(separator: ", ")
+                                    }
+                                }()
                                 Text(dateStr)
                                     .font(DoodleTheme.monoSmall)
                                     .foregroundStyle(DoodleTheme.dim)
