@@ -6,11 +6,14 @@ struct CalendarView: View {
     @Query private var plans: [WorkoutPlan]
     @Query private var dayPrograms: [DayProgram]
     @Query private var profiles: [UserProfile]
+    @Query(sort: \Meal.timestamp, order: .reverse) private var allMeals: [Meal]
     @Environment(\.modelContext) private var modelContext
     @State private var selectedDate: Date? = nil
     @State private var displayedMonth: Date = Date()
     @State private var showPlanPicker = false
     @State private var showSettings = false
+    @State private var showAddMeal = false
+    @State private var mealToDelete: Meal?
 
     private var weightUnit: String {
         (profiles.first?.useLbs ?? false) ? "lbs" : "kg"
@@ -62,6 +65,12 @@ struct CalendarView: View {
         programDays[calendar.startOfDay(for: date)]
     }
 
+    private func mealsForDate(_ date: Date) -> [Meal] {
+        let dayStart = calendar.startOfDay(for: date)
+        guard let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart) else { return [] }
+        return allMeals.filter { $0.timestamp >= dayStart && $0.timestamp < dayEnd }
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -95,6 +104,16 @@ struct CalendarView: View {
                             .foregroundStyle(DoodleTheme.fg)
 
                         Spacer()
+
+                        Button {
+                            displayedMonth = Date()
+                            selectedDate = Date()
+                        } label: {
+                            Text("today")
+                                .font(DoodleTheme.monoSmall)
+                                .foregroundStyle(DoodleTheme.green)
+                        }
+                        .padding(.trailing, 8)
 
                         Button {
                             displayedMonth = calendar.date(byAdding: .month, value: 1, to: displayedMonth) ?? displayedMonth
@@ -239,16 +258,58 @@ struct CalendarView: View {
                             }
                         }
 
-                        if sets.isEmpty && dayProg == nil {
+                        // meals for this day
+                        let dayMeals = mealsForDate(date)
+                        if !dayMeals.isEmpty {
+                            Text("").frame(height: 8)
+                            termLine(bullet: "─", color: DoodleTheme.dim, text: "meals")
+                            Text("").frame(height: 2)
+                            let totalCal = dayMeals.reduce(0) { $0 + $1.calories }
+                            let totalProtein = dayMeals.reduce(0.0) { $0 + $1.protein }
                             HStack(spacing: 0) {
                                 Text("  ")
-                                Text("rest day")
+                                Text("\(totalCal) cal")
+                                    .font(DoodleTheme.monoSmall)
+                                    .foregroundStyle(DoodleTheme.orange)
+                                Text(" · ")
+                                    .font(DoodleTheme.monoSmall)
+                                    .foregroundStyle(DoodleTheme.dim)
+                                Text("\(String(format: "%.0f", totalProtein))g protein")
+                                    .font(DoodleTheme.monoSmall)
+                                    .foregroundStyle(DoodleTheme.blue)
+                            }
+                            ForEach(dayMeals, id: \.id) { meal in
+                                HStack(spacing: 0) {
+                                    Text("  ")
+                                    Text(meal.name)
+                                        .font(DoodleTheme.monoSmall)
+                                        .foregroundStyle(DoodleTheme.fg)
+                                    Spacer()
+                                    Text("\(meal.calories) cal")
+                                        .font(DoodleTheme.monoSmall)
+                                        .foregroundStyle(DoodleTheme.dim)
+                                }
+                                .contextMenu {
+                                    Button(role: .destructive) {
+                                        mealToDelete = meal
+                                    } label: {
+                                        Label("delete", systemImage: "trash")
+                                    }
+                                }
+                            }
+                        }
+
+                        if sets.isEmpty && dayProg == nil && dayMeals.isEmpty {
+                            let isFuture = date > calendar.startOfDay(for: Date())
+                            HStack(spacing: 0) {
+                                Text("  ")
+                                Text(isFuture ? "upcoming" : "rest day")
                                     .font(DoodleTheme.monoSmall)
                                     .foregroundStyle(DoodleTheme.dim)
                             }
                         }
 
-                        // assign program button
+                        // action buttons
                         Text("").frame(height: 4)
                         Button {
                             showPlanPicker = true
@@ -275,6 +336,17 @@ struct CalendarView: View {
                                 }
                             }
                         }
+
+                        Button {
+                            showAddMeal = true
+                        } label: {
+                            HStack(spacing: 0) {
+                                Text("  ")
+                                Text("+ add meal")
+                                    .font(DoodleTheme.monoSmall)
+                                    .foregroundStyle(DoodleTheme.orange)
+                            }
+                        }
                     }
                 }
                 .padding(.horizontal, 16)
@@ -285,6 +357,24 @@ struct CalendarView: View {
             .sheet(isPresented: $showSettings) { SettingsView() }
             .sheet(isPresented: $showPlanPicker) {
                 planPickerSheet
+            }
+            .sheet(isPresented: $showAddMeal) {
+                AddMealSheet(date: selectedDate ?? Date()) { meal in
+                    modelContext.insert(meal)
+                    showAddMeal = false
+                }
+            }
+            .alert("delete meal?", isPresented: Binding(
+                get: { mealToDelete != nil },
+                set: { if !$0 { mealToDelete = nil } }
+            )) {
+                Button("cancel", role: .cancel) { mealToDelete = nil }
+                Button("delete", role: .destructive) {
+                    if let m = mealToDelete { modelContext.delete(m) }
+                    mealToDelete = nil
+                }
+            } message: {
+                Text("this meal will be deleted")
             }
         }
     }

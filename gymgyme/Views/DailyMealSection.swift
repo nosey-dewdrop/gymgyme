@@ -33,125 +33,20 @@ struct USDANutrient: Codable {
     let value: Double?
 }
 
-// MARK: - Daily Meal Section
+// MARK: - Add Meal Sheet (reusable, used by CalendarView)
 
-struct DailyMealSection: View {
-    @Query(sort: \Meal.timestamp, order: .reverse) private var allMeals: [Meal]
-    @Environment(\.modelContext) private var modelContext
+struct AddMealSheet: View {
+    let date: Date
+    let onAdd: (Meal) -> Void
 
-    @State private var showAddMeal = false
+    @Environment(\.dismiss) private var dismiss
     @State private var searchText = ""
     @State private var searchResults: [USDAFood] = []
     @State private var isSearching = false
-    @State private var selectedFood: USDAFood?
     @State private var errorMessage: String?
-    @State private var showSettings = false
     @State private var servingGrams: String = "100"
-    @State private var mealToDelete: Meal?
-
-    private var todaysMeals: [Meal] {
-        let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
-        return allMeals.filter { calendar.startOfDay(for: $0.timestamp) == today }
-    }
-
-    private var todaysCalories: Int {
-        todaysMeals.reduce(0) { $0 + $1.calories }
-    }
-
-    private var todaysProtein: Double {
-        todaysMeals.reduce(0.0) { $0 + $1.protein }
-    }
-
-    private var todaysCarbs: Double {
-        todaysMeals.reduce(0.0) { $0 + $1.carbs }
-    }
-
-    private var todaysFat: Double {
-        todaysMeals.reduce(0.0) { $0 + $1.fat }
-    }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            HStack {
-                Text("meals")
-                    .font(.custom("Menlo-Bold", size: 28))
-                    .foregroundStyle(DoodleTheme.orange)
-                Spacer()
-                Button { showSettings = true } label: {
-                    Image(systemName: "gearshape")
-                        .foregroundStyle(DoodleTheme.dim)
-                }
-                Button { showAddMeal = true } label: {
-                    Image(systemName: "plus")
-                        .foregroundStyle(DoodleTheme.orange)
-                        .padding(.leading, 12)
-                }
-                .accessibilityLabel("add meal")
-            }
-            .padding(.bottom, 8)
-
-            // daily summary
-            if !todaysMeals.isEmpty {
-                HStack(spacing: 16) {
-                    macroBox("cal", value: "\(todaysCalories)", color: DoodleTheme.orange)
-                    macroBox("protein", value: String(format: "%.0fg", todaysProtein), color: DoodleTheme.blue)
-                    macroBox("carbs", value: String(format: "%.0fg", todaysCarbs), color: DoodleTheme.green)
-                    macroBox("fat", value: String(format: "%.0fg", todaysFat), color: DoodleTheme.yellow)
-                }
-                .padding(.bottom, 4)
-            }
-
-            // meal list
-            ForEach(todaysMeals, id: \.id) { meal in
-                HStack(spacing: 0) {
-                    Text("  ")
-                    Text(meal.name)
-                        .font(DoodleTheme.monoSmall)
-                        .foregroundStyle(DoodleTheme.fg)
-                    Spacer()
-                    Text("\(meal.calories) cal")
-                        .font(DoodleTheme.monoSmall)
-                        .foregroundStyle(DoodleTheme.dim)
-                }
-                .contextMenu {
-                    Button(role: .destructive) {
-                        mealToDelete = meal
-                    } label: {
-                        Label("delete", systemImage: "trash")
-                    }
-                }
-            }
-
-            if todaysMeals.isEmpty {
-                HStack(spacing: 0) {
-                    Text("  ")
-                    Text("no meals logged today")
-                        .font(DoodleTheme.monoSmall)
-                        .foregroundStyle(DoodleTheme.dim)
-                }
-            }
-
-        }
-        .sheet(isPresented: $showAddMeal) { addMealSheet }
-        .sheet(isPresented: $showSettings) { SettingsView() }
-        .alert("delete meal?", isPresented: Binding(
-            get: { mealToDelete != nil },
-            set: { if !$0 { mealToDelete = nil } }
-        )) {
-            Button("cancel", role: .cancel) { mealToDelete = nil }
-            Button("delete", role: .destructive) {
-                if let m = mealToDelete { modelContext.delete(m) }
-                mealToDelete = nil
-            }
-        } message: {
-            Text("this meal will be deleted")
-        }
-    }
-
-    // MARK: - Add Meal Sheet
-
-    private var addMealSheet: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 8) {
                 Text("add meal")
@@ -279,7 +174,7 @@ struct DailyMealSection: View {
             .background(DoodleTheme.bg.ignoresSafeArea(.all))
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("close") { showAddMeal = false }
+                    Button("close") { dismiss() }
                         .font(DoodleTheme.mono)
                         .foregroundStyle(DoodleTheme.dim)
                 }
@@ -293,6 +188,7 @@ struct DailyMealSection: View {
         guard !searchText.isEmpty else { return }
         isSearching = true
         searchResults = []
+        errorMessage = nil
 
         let urlString = Config.usdaSearchURL(query: searchText)
 
@@ -303,6 +199,7 @@ struct DailyMealSection: View {
                 let (data, _) = try await URLSession.shared.data(from: url)
                 let response = try JSONDecoder().decode(USDASearchResponse.self, from: data)
                 await MainActor.run {
+                    errorMessage = nil
                     searchResults = response.foods ?? []
                     isSearching = false
                 }
@@ -329,24 +226,10 @@ struct DailyMealSection: View {
         meal.protein = food.protein * scale
         meal.carbs = food.carbs * scale
         meal.fat = food.fat * scale
-        modelContext.insert(meal)
-        showAddMeal = false
-        searchText = ""
-        searchResults = []
-        servingGrams = "100"
+        // set the meal timestamp to the selected date (noon) so it shows on the right day
+        let calendar = Calendar.current
+        let noon = calendar.date(bySettingHour: 12, minute: 0, second: 0, of: date) ?? date
+        meal.timestamp = noon
+        onAdd(meal)
     }
-
-    // MARK: - Helpers
-
-    private func macroBox(_ label: String, value: String, color: Color) -> some View {
-        VStack(alignment: .leading, spacing: 1) {
-            Text(label)
-                .font(.system(size: 10, weight: .regular, design: .monospaced))
-                .foregroundStyle(DoodleTheme.dim)
-            Text(value)
-                .font(DoodleTheme.monoBold)
-                .foregroundStyle(color)
-        }
-    }
-
 }
