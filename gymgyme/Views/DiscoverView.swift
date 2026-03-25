@@ -1,7 +1,7 @@
 import SwiftUI
 import SwiftData
 
-// MARK: - wger API Models
+// MARK: - wger API Models (kept for online search fallback)
 
 struct WgerSearchResponse: Codable {
     let suggestions: [WgerSuggestion]
@@ -37,22 +37,44 @@ struct WgerEquipment: Codable { let id: Int; let name: String }
 struct WgerImage: Codable { let id: Int; let image: String; let is_main: Bool }
 struct WgerTranslation: Codable { let id: Int; let name: String; let description: String; let language: Int }
 
-// MARK: - Unified Exercise Item (used in list + detail)
+// MARK: - Discover Exercise Item
 
 struct DiscoverExercise: Identifiable {
-    let id: Int
-    let baseId: Int
+    let id: String
     let name: String
-    let category: String
-    let imageURL: String?
+    let tag: String
+    let secondaryMuscles: [String]
+    let type: ExerciseType
+    let equipmentList: [Equipment]
+    let isBuiltIn: Bool
 
-    // detail fields (loaded on tap)
+    // wger detail fields (only for online results)
+    var wgerBaseId: Int?
     var muscles: [String] = []
-    var secondaryMuscles: [String] = []
-    var equipment: [String] = []
     var descriptionEN: String = ""
     var descriptionTR: String = ""
     var imageURLs: [String] = []
+
+    init(builtIn: BuiltInExercise) {
+        self.id = "builtin_\(builtIn.name)"
+        self.name = builtIn.name
+        self.tag = builtIn.tag
+        self.secondaryMuscles = builtIn.secondaryMuscles
+        self.type = builtIn.type
+        self.equipmentList = builtIn.equipment
+        self.isBuiltIn = true
+    }
+
+    init(wgerName: String, category: String, baseId: Int, imageURL: String?) {
+        self.id = "wger_\(baseId)"
+        self.name = wgerName
+        self.tag = category.lowercased()
+        self.secondaryMuscles = []
+        self.type = .weightReps
+        self.equipmentList = [.gym]
+        self.isBuiltIn = false
+        self.wgerBaseId = baseId
+    }
 }
 
 // MARK: - Discover View
@@ -60,116 +82,209 @@ struct DiscoverExercise: Identifiable {
 struct DiscoverView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var myExercises: [Exercise]
+
     @State private var searchText = ""
-    @State private var selectedTag: String?
-    @State private var exercises: [DiscoverExercise] = []
-    @State private var isLoading = false
-    @State private var selectedExercise: DiscoverExercise?
+    @State private var selectedMuscle: String?
+    @State private var selectedEquipment: Equipment?
+    @State private var selectedType: ExerciseType?
     @State private var addedMessage: String?
-    @State private var errorMessage: String?
+    @State private var displayCount = 30
+    @State private var selectedDetail: DiscoverExercise?
     @State private var isLoadingDetail = false
 
-    private var existingTags: [String] {
-        Array(Set(myExercises.map(\.tag))).sorted()
+    private let muscleGroups = ["chest", "back", "shoulders", "biceps", "triceps", "legs", "hamstrings", "glutes", "abs", "calves", "cardio"]
+
+    // MARK: - Filtered exercises
+
+    private var filteredExercises: [DiscoverExercise] {
+        var results = ExerciseDB.all.map { DiscoverExercise(builtIn: $0) }
+
+        if let muscle = selectedMuscle {
+            results = results.filter { $0.tag == muscle }
+        }
+
+        if let equip = selectedEquipment {
+            results = results.filter { $0.equipmentList.contains(equip) }
+        }
+
+        if let type = selectedType {
+            results = results.filter { $0.type == type }
+        }
+
+        if !searchText.isEmpty {
+            let query = searchText.lowercased()
+            results = results.filter {
+                $0.name.contains(query) || $0.tag.contains(query) ||
+                $0.secondaryMuscles.contains { $0.lowercased().contains(query) }
+            }
+        }
+
+        return results
     }
 
-    private let commonTags = ["legs", "chest", "back", "shoulders", "biceps", "triceps", "abs", "glutes"]
+    private var visibleExercises: [DiscoverExercise] {
+        Array(filteredExercises.prefix(displayCount))
+    }
 
-    private var displayTags: [String] {
-        Array(Set(commonTags + existingTags)).sorted()
+    private var activeFilterCount: Int {
+        (selectedMuscle != nil ? 1 : 0) + (selectedEquipment != nil ? 1 : 0) + (selectedType != nil ? 1 : 0)
     }
 
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 0) {
+                    // header
                     Text("discover")
                         .font(.custom("Menlo-Bold", size: 28))
                         .foregroundStyle(DoodleTheme.blue)
+                        .padding(.horizontal, 16)
                         .padding(.bottom, 8)
 
-                    // tags
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            ForEach(displayTags, id: \.self) { tag in
-                                Button {
-                                    if selectedTag == tag { selectedTag = nil; exercises = [] }
-                                    else { selectedTag = tag; searchByMuscle(tag) }
-                                } label: {
-                                    TagChip(tag: tag, isSelected: selectedTag == tag)
-                                }
+                    // search bar
+                    HStack(spacing: 8) {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundStyle(DoodleTheme.dim)
+                        TextField("search exercises...", text: $searchText)
+                            .font(DoodleTheme.mono)
+                            .foregroundStyle(DoodleTheme.fg)
+                            .autocorrectionDisabled()
+                            .textInputAutocapitalization(.never)
+                        if !searchText.isEmpty {
+                            Button { searchText = "" } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundStyle(DoodleTheme.dim)
                             }
                         }
                     }
+                    .padding(10)
+                    .background(DoodleTheme.surface)
+                    .cornerRadius(8)
+                    .padding(.horizontal, 16)
                     .padding(.bottom, 8)
 
+                    // filter chips
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 6) {
+                            // muscle group filter
+                            filterMenu(title: selectedMuscle ?? "muscle group", isActive: selectedMuscle != nil, icon: "figure.strengthtraining.traditional") {
+                                Button("all muscle groups") { selectedMuscle = nil; resetPagination() }
+                                ForEach(muscleGroups, id: \.self) { group in
+                                    Button(group) { selectedMuscle = group; resetPagination() }
+                                }
+                            }
+
+                            // equipment filter
+                            filterMenu(title: selectedEquipment?.label ?? "equipment", isActive: selectedEquipment != nil, icon: "wrench.and.screwdriver") {
+                                Button("all equipment") { selectedEquipment = nil; resetPagination() }
+                                ForEach(Equipment.allCases) { equip in
+                                    Button {
+                                        selectedEquipment = equip; resetPagination()
+                                    } label: {
+                                        Label(equip.label, systemImage: equip.icon)
+                                    }
+                                }
+                            }
+
+                            // type filter
+                            filterMenu(title: selectedType?.label ?? "type", isActive: selectedType != nil, icon: "tag") {
+                                Button("all types") { selectedType = nil; resetPagination() }
+                                ForEach(ExerciseType.allCases, id: \.self) { type in
+                                    Button {
+                                        selectedType = type; resetPagination()
+                                    } label: {
+                                        Label(type.label, systemImage: type.icon)
+                                    }
+                                }
+                            }
+
+                            // clear all
+                            if activeFilterCount > 0 {
+                                Button {
+                                    selectedMuscle = nil
+                                    selectedEquipment = nil
+                                    selectedType = nil
+                                    resetPagination()
+                                } label: {
+                                    HStack(spacing: 4) {
+                                        Image(systemName: "xmark")
+                                            .font(.system(size: 10))
+                                        Text("clear")
+                                            .font(DoodleTheme.monoSmall)
+                                    }
+                                    .foregroundStyle(DoodleTheme.red)
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 6)
+                                    .background(DoodleTheme.red.opacity(0.1))
+                                    .cornerRadius(6)
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 16)
+                    }
+                    .padding(.bottom, 8)
+
+                    // active filters summary
+                    if activeFilterCount > 0 {
+                        HStack(spacing: 4) {
+                            Text("\(filteredExercises.count) exercises")
+                                .font(DoodleTheme.monoSmall)
+                                .foregroundStyle(DoodleTheme.dim)
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 8)
+                    } else {
+                        Text("\(ExerciseDB.all.count) exercises")
+                            .font(DoodleTheme.monoSmall)
+                            .foregroundStyle(DoodleTheme.dim)
+                            .padding(.horizontal, 16)
+                            .padding(.bottom, 8)
+                    }
+
+                    // added message
                     if let msg = addedMessage {
-                        HStack(spacing: 0) {
-                            Text("✓ ")
-                                .font(DoodleTheme.mono)
+                        HStack(spacing: 4) {
+                            Image(systemName: "checkmark.circle.fill")
                                 .foregroundStyle(DoodleTheme.green)
                             Text(msg)
                                 .font(DoodleTheme.monoSmall)
                                 .foregroundStyle(DoodleTheme.fg)
                         }
-                        .padding(.bottom, 4)
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, 8)
                     }
 
-                    if let err = errorMessage {
-                        HStack(spacing: 0) {
-                            Text("! ")
+                    // exercise list
+                    LazyVStack(alignment: .leading, spacing: 0) {
+                        ForEach(visibleExercises) { exercise in
+                            exerciseRow(exercise)
+                        }
+
+                        // load more trigger
+                        if displayCount < filteredExercises.count {
+                            ProgressView()
+                                .tint(DoodleTheme.blue)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 16)
+                                .onAppear { displayCount += 30 }
+                        }
+                    }
+
+                    if filteredExercises.isEmpty {
+                        VStack(spacing: 4) {
+                            Text("no exercises match these filters")
                                 .font(DoodleTheme.mono)
-                                .foregroundStyle(DoodleTheme.red)
-                            Text(err)
+                                .foregroundStyle(DoodleTheme.dim)
+                            Text("try changing or removing a filter")
                                 .font(DoodleTheme.monoSmall)
                                 .foregroundStyle(DoodleTheme.dim)
                         }
-                        .padding(.bottom, 4)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 32)
                     }
 
-                    if isLoading {
-                        HStack(spacing: 0) {
-                            Text("● ")
-                                .font(DoodleTheme.mono)
-                                .foregroundStyle(DoodleTheme.blue)
-                            Text("loading...")
-                                .font(DoodleTheme.mono)
-                                .foregroundStyle(DoodleTheme.dim)
-                        }
-                    } else if exercises.isEmpty {
-                        HStack(spacing: 0) {
-                            Text("~ ")
-                                .font(DoodleTheme.mono)
-                                .foregroundStyle(DoodleTheme.dim)
-                            Text("tap a muscle group or search by name")
-                                .font(DoodleTheme.mono)
-                                .foregroundStyle(DoodleTheme.dim)
-                        }
-                    } else {
-                        ForEach(Array(exercises.enumerated()), id: \.element.id) { index, item in
-                            Button { loadDetail(item) } label: {
-                                VStack(alignment: .leading, spacing: 1) {
-                                    HStack(spacing: 0) {
-                                        Text("● ")
-                                            .font(DoodleTheme.mono)
-                                            .foregroundStyle(DoodleTheme.color(for: index))
-                                        Text(item.name)
-                                            .font(DoodleTheme.monoBold)
-                                            .foregroundStyle(DoodleTheme.fg)
-                                            .lineLimit(1)
-                                    }
-                                    HStack(spacing: 0) {
-                                        Text("  #\(item.category.lowercased())")
-                                            .font(DoodleTheme.monoSmall)
-                                            .foregroundStyle(DoodleTheme.color(for: item.category))
-                                    }
-                                    Text("").frame(height: 4)
-                                }
-                            }
-                        }
-                    }
+                    Spacer().frame(height: 40)
                 }
-                .padding(.horizontal, 16)
                 .padding(.top, 8)
             }
             .background(DoodleTheme.bg.ignoresSafeArea(.all))
@@ -189,128 +304,76 @@ struct DiscoverView: View {
                     .background(DoodleTheme.bg.opacity(0.8))
                 }
             }
-            .searchable(text: $searchText, prompt: "search exercises...")
-            .onSubmit(of: .search) { searchByName() }
-            .sheet(item: $selectedExercise) { item in
-                ExerciseDetailView(item: item) { addToMyExercises(item) }
+            .sheet(item: $selectedDetail) { item in
+                BuiltInDetailView(item: item) { addToMyExercises(item) }
             }
         }
     }
 
-    // MARK: - Search by muscle tag
+    // MARK: - Exercise Row
 
-    private func searchByMuscle(_ tag: String) {
-        let term = tag
-        searchWger(term: term)
-    }
+    private func exerciseRow(_ exercise: DiscoverExercise) -> some View {
+        VStack(spacing: 0) {
+            Button { selectedDetail = exercise } label: {
+                VStack(alignment: .leading, spacing: 3) {
+                    HStack {
+                        Text(exercise.name)
+                            .font(DoodleTheme.monoBold)
+                            .foregroundStyle(DoodleTheme.fg)
+                            .lineLimit(1)
+                        Spacer()
+                        HStack(spacing: 4) {
+                            ForEach(exercise.equipmentList, id: \.rawValue) { equip in
+                                Image(systemName: equip.icon)
+                                    .font(.system(size: 10))
+                                    .foregroundStyle(DoodleTheme.dim)
+                            }
+                        }
+                    }
 
-    // MARK: - Search by name
-
-    private func searchByName() {
-        guard !searchText.isEmpty else { return }
-        searchWger(term: searchText)
-    }
-
-    // MARK: - wger search API
-
-    private func searchWger(term: String) {
-        isLoading = true
-        exercises = []
-        errorMessage = nil
-        let encoded = term.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? term
-        let urlString = "https://wger.de/api/v2/exercise/search/?term=\(encoded)&language=en&format=json"
-
-        guard let url = URL(string: urlString) else { isLoading = false; return }
-
-        Task {
-            do {
-                let (data, _) = try await URLSession.shared.data(from: url)
-                let response = try JSONDecoder().decode(WgerSearchResponse.self, from: data)
-                let items = response.suggestions.map { s in
-                    DiscoverExercise(
-                        id: s.data.id,
-                        baseId: s.data.base_id,
-                        name: s.data.name.lowercased(),
-                        category: Self.normalizeCategory(s.data.category),
-                        imageURL: s.data.image.map { "https://wger.de\($0)" }
-                    )
+                    HStack(spacing: 6) {
+                        TagChip(tag: exercise.tag)
+                        if !exercise.secondaryMuscles.isEmpty {
+                            Text("+ \(exercise.secondaryMuscles.joined(separator: ", "))")
+                                .font(.system(size: 10, design: .monospaced))
+                                .foregroundStyle(DoodleTheme.dim)
+                                .lineLimit(1)
+                        }
+                    }
                 }
-                await MainActor.run {
-                    exercises = items
-                    isLoading = false
-                    if items.isEmpty { errorMessage = "no exercises found for \"\(term)\"" }
-                }
-            } catch {
-                await MainActor.run { isLoading = false; errorMessage = "search failed" }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
             }
+
+            Divider()
+                .background(DoodleTheme.surface)
+                .padding(.horizontal, 16)
         }
     }
 
-    // MARK: - Load exercise detail
+    // MARK: - Filter Menu
 
-    private func loadDetail(_ item: DiscoverExercise) {
-        let urlString = "https://wger.de/api/v2/exerciseinfo/\(item.baseId)/?format=json"
-        guard let url = URL(string: urlString) else { return }
-        isLoadingDetail = true
-
-        Task {
-            do {
-                let (data, _) = try await URLSession.shared.data(from: url)
-                let info = try JSONDecoder().decode(WgerExerciseInfo.self, from: data)
-
-                let stripHTML: (String) -> String = { text in
-                    text.replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
-                        .trimmingCharacters(in: .whitespacesAndNewlines)
-                }
-
-                let enTranslation = info.translations.first { $0.language == 2 }
-                let trTranslation = info.translations.first { $0.language == 14 } // wger TR = 14? Let's try common IDs
-                    ?? info.translations.first { $0.language == 6 } // try other possible TR IDs
-
-                let descEN = stripHTML(enTranslation?.description ?? "")
-                let descTR = stripHTML(trTranslation?.description ?? "")
-
-                let imageURLs = info.images.map { "https://wger.de\($0.image)" }
-                let muscles = info.muscles.map { $0.name_en.isEmpty ? $0.name : $0.name_en }
-                let secondaryMuscles = info.muscles_secondary.map { $0.name_en.isEmpty ? $0.name : $0.name_en }
-                let equipment = info.equipment.map { $0.name }
-
-                var detail = item
-                detail.muscles = muscles
-                detail.secondaryMuscles = secondaryMuscles
-                detail.equipment = equipment
-                detail.descriptionEN = descEN
-                detail.descriptionTR = descTR
-                detail.imageURLs = imageURLs
-
-                await MainActor.run { selectedExercise = detail; isLoadingDetail = false }
-            } catch {
-                await MainActor.run {
-                    isLoadingDetail = false
-                    selectedExercise = item
-                    errorMessage = "could not load exercise details"
-                }
+    private func filterMenu<Content: View>(title: String, isActive: Bool, icon: String, @ViewBuilder content: () -> Content) -> some View {
+        Menu {
+            content()
+        } label: {
+            HStack(spacing: 4) {
+                Image(systemName: icon)
+                    .font(.system(size: 10))
+                Text(title)
+                    .font(DoodleTheme.monoSmall)
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 8))
             }
+            .foregroundStyle(isActive ? DoodleTheme.bg : DoodleTheme.fg)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(isActive ? DoodleTheme.blue : DoodleTheme.surface)
+            .cornerRadius(6)
         }
     }
 
-    // MARK: - Normalize category from wger (can be Turkish/other languages)
-
-    private static func normalizeCategory(_ raw: String) -> String {
-        let map: [String: String] = [
-            "bacaklar": "Legs", "beine": "Legs", "piernas": "Legs",
-            "göğüs": "Chest", "brust": "Chest", "pecho": "Chest",
-            "sırt": "Back", "rücken": "Back", "espalda": "Back",
-            "omuzlar": "Shoulders", "schultern": "Shoulders", "hombros": "Shoulders",
-            "kollar": "Arms", "arme": "Arms", "brazos": "Arms",
-            "karın": "Abs", "bauch": "Abs", "abdominales": "Abs",
-            "kardio": "Cardio", "ausdauer": "Cardio",
-            "streching": "Stretching", "dehnen": "Stretching",
-        ]
-        return map[raw.lowercased()] ?? raw
-    }
-
-    // MARK: - Add to my exercises
+    // MARK: - Add to My Exercises
 
     private func addToMyExercises(_ item: DiscoverExercise) {
         let alreadyExists = myExercises.contains { $0.name.lowercased() == item.name.lowercased() }
@@ -319,120 +382,100 @@ struct DiscoverView: View {
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) { withAnimation { addedMessage = nil } }
             return
         }
-        let tagMap: [String: String] = [
-            "chest": "chest", "back": "back", "shoulders": "shoulders",
-            "arms": "biceps", "legs": "legs", "abs": "abs",
-            "cardio": "cardio", "stretching": "stretching",
-        ]
-        let tag = tagMap[item.category.lowercased()] ?? selectedTag ?? item.category.lowercased()
-        let secondaryMuscles = item.muscles + item.secondaryMuscles
-        modelContext.insert(Exercise(name: item.name, tag: tag, type: .weightReps, secondaryMuscles: secondaryMuscles))
+        modelContext.insert(Exercise(
+            name: item.name, tag: item.tag, type: item.type,
+            secondaryMuscles: item.secondaryMuscles, equipment: item.equipmentList
+        ))
         withAnimation { addedMessage = "\(item.name) added!" }
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) { withAnimation { addedMessage = nil } }
     }
+
+    private func resetPagination() {
+        displayCount = 30
+    }
 }
 
-// MARK: - Exercise Detail View
+// MARK: - Built-in Exercise Detail View
 
-struct ExerciseDetailView: View {
+struct BuiltInDetailView: View {
     let item: DiscoverExercise
     let onAdd: () -> Void
     @Environment(\.dismiss) private var dismiss
-    @State private var showTurkish = false
-
-    private var activeDescription: String {
-        if showTurkish && !item.descriptionTR.isEmpty {
-            return item.descriptionTR
-        }
-        return item.descriptionEN
-    }
 
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 8) {
-                    // image
-                    if let firstImage = item.imageURLs.first, let url = URL(string: firstImage) {
-                        AsyncImage(url: url) { image in
-                            image.resizable().aspectRatio(contentMode: .fit)
-                        } placeholder: {
-                            Text("loading image...")
-                                .font(DoodleTheme.mono)
-                                .foregroundStyle(DoodleTheme.dim)
-                                .frame(height: 200)
-                        }
-                        .cornerRadius(8)
+                VStack(alignment: .leading, spacing: 12) {
+                    // name
+                    Text(item.name)
+                        .font(.system(size: 22, weight: .black, design: .monospaced))
+                        .foregroundStyle(DoodleTheme.fg)
+
+                    // tags
+                    HStack(spacing: 8) {
+                        TagChip(tag: item.tag)
+                        Image(systemName: item.type.icon)
+                            .font(.system(size: 12))
+                            .foregroundStyle(DoodleTheme.dim)
+                        Text(item.type.label)
+                            .font(DoodleTheme.monoSmall)
+                            .foregroundStyle(DoodleTheme.dim)
                     }
 
-                    Text("").frame(height: 4)
-
-                    infoLine("category", item.category, DoodleTheme.pink)
-
-                    if !item.muscles.isEmpty {
-                        infoLine("muscles", item.muscles.joined(separator: ", "), DoodleTheme.orange)
-                    }
-
-                    if !item.equipment.isEmpty {
-                        infoLine("equip", item.equipment.joined(separator: ", "), DoodleTheme.blue)
-                    }
-
-                    if !item.secondaryMuscles.isEmpty {
-                        infoLine("also", item.secondaryMuscles.joined(separator: ", "), DoodleTheme.green)
-                    }
-
-                    if !activeDescription.isEmpty {
-                        Text("").frame(height: 8)
-
-                        HStack {
-                            Text("how to do it")
+                    // equipment
+                    if !item.equipmentList.isEmpty {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("equipment")
                                 .font(DoodleTheme.monoBold)
-                                .foregroundStyle(DoodleTheme.green)
-
-                            Spacer()
-
-                            if !item.descriptionTR.isEmpty {
-                                Button {
-                                    withAnimation { showTurkish.toggle() }
-                                } label: {
-                                    Text(showTurkish ? "EN" : "TR")
-                                        .font(DoodleTheme.monoSmall)
-                                        .foregroundStyle(showTurkish ? DoodleTheme.fg : DoodleTheme.blue)
-                                        .padding(.horizontal, 8)
-                                        .padding(.vertical, 3)
-                                        .background(DoodleTheme.surface)
-                                        .cornerRadius(4)
+                                .foregroundStyle(DoodleTheme.blue)
+                            HStack(spacing: 8) {
+                                ForEach(item.equipmentList, id: \.rawValue) { equip in
+                                    HStack(spacing: 4) {
+                                        Image(systemName: equip.icon)
+                                            .font(.system(size: 14))
+                                        Text(equip.label)
+                                            .font(DoodleTheme.monoSmall)
+                                    }
+                                    .foregroundStyle(DoodleTheme.fg)
                                 }
                             }
                         }
+                    }
 
-                        Text("").frame(height: 4)
-                        Text(activeDescription)
-                            .font(DoodleTheme.monoSmall)
-                            .foregroundStyle(DoodleTheme.fg)
+                    // muscles
+                    if !item.secondaryMuscles.isEmpty {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("also works")
+                                .font(DoodleTheme.monoBold)
+                                .foregroundStyle(DoodleTheme.orange)
+                            Text(item.secondaryMuscles.joined(separator: ", "))
+                                .font(DoodleTheme.mono)
+                                .foregroundStyle(DoodleTheme.fg)
+                        }
                     }
 
                     Text("").frame(height: 12)
+
+                    // add button
                     Button {
                         onAdd(); dismiss()
                     } label: {
-                        HStack(spacing: 0) {
-                            Text("+ ")
-                                .foregroundStyle(DoodleTheme.green)
+                        HStack(spacing: 8) {
+                            Image(systemName: "plus.circle.fill")
                             Text("add to my exercises")
-                                .foregroundStyle(DoodleTheme.fg)
                         }
                         .font(DoodleTheme.monoBold)
+                        .foregroundStyle(DoodleTheme.bg)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
-                        .background(DoodleTheme.surface)
+                        .background(DoodleTheme.green)
                         .cornerRadius(8)
                     }
                 }
                 .padding(.horizontal, 16)
-                .padding(.top, 8)
+                .padding(.top, 16)
             }
             .background(DoodleTheme.bg.ignoresSafeArea(.all))
-            .navigationTitle(item.name)
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
@@ -444,15 +487,56 @@ struct ExerciseDetailView: View {
             }
         }
     }
+}
 
-    private func infoLine(_ label: String, _ value: String, _ color: Color) -> some View {
-        HStack(spacing: 0) {
-            Text("\(label): ")
-                .font(DoodleTheme.monoSmall)
-                .foregroundStyle(DoodleTheme.dim)
-            Text(value)
-                .font(DoodleTheme.monoSmall)
-                .foregroundStyle(color)
+// MARK: - Keep ExerciseDetailView for wger results (unused now but kept for future online search)
+
+struct ExerciseDetailView: View {
+    let item: DiscoverExercise
+    let onAdd: () -> Void
+    @Environment(\.dismiss) private var dismiss
+    @State private var showTurkish = false
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text(item.name)
+                        .font(.system(size: 22, weight: .black, design: .monospaced))
+                        .foregroundStyle(DoodleTheme.fg)
+
+                    if !item.descriptionEN.isEmpty {
+                        Text(showTurkish && !item.descriptionTR.isEmpty ? item.descriptionTR : item.descriptionEN)
+                            .font(DoodleTheme.monoSmall)
+                            .foregroundStyle(DoodleTheme.fg)
+                    }
+
+                    Button {
+                        onAdd(); dismiss()
+                    } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: "plus.circle.fill")
+                            Text("add to my exercises")
+                        }
+                        .font(DoodleTheme.monoBold)
+                        .foregroundStyle(DoodleTheme.bg)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(DoodleTheme.green)
+                        .cornerRadius(8)
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 16)
+            }
+            .background(DoodleTheme.bg.ignoresSafeArea(.all))
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("close") { dismiss() }
+                        .font(DoodleTheme.mono)
+                        .foregroundStyle(DoodleTheme.dim)
+                }
+            }
         }
     }
 }
