@@ -15,7 +15,7 @@ struct CreatePlanView: View {
         NavigationStack {
             ScrollView {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("new plan")
+                        Text("new program")
                         .font(.system(size: 20, weight: .black, design: .monospaced))
                         .foregroundStyle(DoodleTheme.orange)
                         .padding(.bottom, 8)
@@ -24,7 +24,7 @@ struct CreatePlanView: View {
                         .font(DoodleTheme.monoBold)
                         .foregroundStyle(DoodleTheme.blue)
 
-                    TextField("plan name", text: $planName)
+                    TextField("program name", text: $planName)
                         .font(DoodleTheme.mono)
                         .foregroundStyle(DoodleTheme.fg)
                         .padding(10)
@@ -72,7 +72,7 @@ struct CreatePlanView: View {
                     }
 
                     if exercises.isEmpty {
-                        Text("  add exercises from home tab first")
+                        Text("  add exercises from the home screen first")
                             .font(DoodleTheme.monoSmall)
                             .foregroundStyle(DoodleTheme.dim)
                     } else {

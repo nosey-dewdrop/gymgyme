@@ -316,7 +316,7 @@ struct CalendarView: View {
                         } label: {
                             HStack(spacing: 0) {
                                 Text("  ")
-                                Text(dayProg == nil ? "+ assign program" : "~ change program")
+                                Text(dayProg == nil ? "+ assign a program" : "~ change program")
                                     .font(DoodleTheme.monoSmall)
                                     .foregroundStyle(DoodleTheme.orange)
                             }
@@ -385,7 +385,7 @@ struct CalendarView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 8) {
-                    ColoredHeader("assign program", color: DoodleTheme.orange)
+                    ColoredHeader("assign a program", color: DoodleTheme.orange)
                         .padding(.top, 20)
 
                     if plans.isEmpty {

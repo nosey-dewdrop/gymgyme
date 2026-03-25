@@ -58,7 +58,7 @@ struct LogWorkoutView: View {
                         .padding(.bottom, 4)
                     }
 
-                    Text("─ sets")
+                    Text("your sets")
                         .font(DoodleTheme.monoBold)
                         .foregroundStyle(DoodleTheme.blue)
                         .padding(.top, 4)
