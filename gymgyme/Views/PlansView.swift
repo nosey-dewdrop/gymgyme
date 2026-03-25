@@ -4,8 +4,10 @@ import SwiftData
 struct PlansView: View {
     @Query(sort: \WorkoutPlan.createdAt, order: .reverse) private var plans: [WorkoutPlan]
     @Environment(\.modelContext) private var modelContext
+    @StateObject private var store = StoreManager.shared
     @State private var showCreatePlan = false
     @State private var showSettings = false
+    @State private var showPaywall = false
     @State private var planToDelete: WorkoutPlan?
 
     var body: some View {
@@ -96,16 +98,74 @@ struct PlansView: View {
                         }
                     }
 
-                    // premium section
+                    // pocket pt section
                     Text("").frame(height: 24)
-                    Text("premium programs")
-                        .font(DoodleTheme.monoBold)
-                        .foregroundStyle(DoodleTheme.purple)
+
+                    if store.isPocketPTActive {
+                        // active subscriber
+                        HStack(spacing: 0) {
+                            Text("★ ")
+                                .font(DoodleTheme.mono)
+                                .foregroundStyle(DoodleTheme.yellow)
+                            Text("pocket pt active")
+                                .font(DoodleTheme.monoBold)
+                                .foregroundStyle(DoodleTheme.yellow)
+                        }
                         .padding(.bottom, 8)
 
-                    premiumCard("ai program builder", desc: "balanced programs generated for your goals", icon: "sparkles")
-                    premiumCard("expert templates", desc: "programs designed by certified trainers", icon: "star")
-                    premiumCard("periodization", desc: "auto-adjusting progressive overload plans", icon: "chart.line.uptrend.xyaxis")
+                        premiumFeatureButton("ai program builder", icon: "sparkles", color: DoodleTheme.purple) {
+                            // TODO: open PT program builder
+                        }
+                        premiumFeatureButton("expert templates", icon: "star", color: DoodleTheme.orange) {
+                            // TODO: open templates
+                        }
+                        premiumFeatureButton("progressive overload", icon: "chart.line.uptrend.xyaxis", color: DoodleTheme.green) {
+                            // TODO: open overload settings
+                        }
+                    } else {
+                        // not subscribed — show upsell
+                        Text("pocket pt")
+                            .font(DoodleTheme.monoBold)
+                            .foregroundStyle(DoodleTheme.yellow)
+                            .padding(.bottom, 4)
+
+                        Text("  let ai build your perfect program")
+                            .font(DoodleTheme.monoSmall)
+                            .foregroundStyle(DoodleTheme.dim)
+
+                        Text("").frame(height: 8)
+
+                        Button { showPaywall = true } label: {
+                            HStack(spacing: 8) {
+                                Image(systemName: "sparkles")
+                                Text("unlock pocket pt")
+                            }
+                            .font(DoodleTheme.monoBold)
+                            .foregroundStyle(DoodleTheme.bg)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(DoodleTheme.yellow)
+                            .cornerRadius(8)
+                        }
+
+                        Text("").frame(height: 12)
+
+                        premiumPreviewCard("ai program builder", desc: "programs built from your exercises and goals", icon: "sparkles")
+                        premiumPreviewCard("expert templates", desc: "science-backed programs by real trainers", icon: "star")
+                        premiumPreviewCard("progressive overload", desc: "weekly suggestions to keep you growing", icon: "chart.line.uptrend.xyaxis")
+                    }
+
+                    if store.programCredits > 0 && !store.isPocketPTActive {
+                        Text("").frame(height: 8)
+                        HStack(spacing: 0) {
+                            Text("● ")
+                                .font(DoodleTheme.mono)
+                                .foregroundStyle(DoodleTheme.purple)
+                            Text("\(store.programCredits) program credit\(store.programCredits == 1 ? "" : "s") available")
+                                .font(DoodleTheme.monoSmall)
+                                .foregroundStyle(DoodleTheme.fg)
+                        }
+                    }
 
                     Spacer().frame(height: 40)
                 }
@@ -117,6 +177,7 @@ struct PlansView: View {
             .navigationBarHidden(true)
             .sheet(isPresented: $showCreatePlan) { CreatePlanView() }
             .sheet(isPresented: $showSettings) { SettingsView() }
+            .sheet(isPresented: $showPaywall) { PaywallView() }
             .alert("delete program?", isPresented: Binding(
                 get: { planToDelete != nil },
                 set: { if !$0 { planToDelete = nil } }
@@ -135,11 +196,36 @@ struct PlansView: View {
         }
     }
 
-    private func premiumCard(_ title: String, desc: String, icon: String) -> some View {
+    // MARK: - Active Premium Feature Button
+
+    private func premiumFeatureButton(_ title: String, icon: String, color: Color, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 12) {
+                Image(systemName: icon)
+                    .font(.system(size: 18))
+                    .foregroundStyle(color)
+                    .frame(width: 28)
+                Text(title)
+                    .font(DoodleTheme.monoBold)
+                    .foregroundStyle(DoodleTheme.fg)
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12))
+                    .foregroundStyle(DoodleTheme.dim)
+            }
+            .padding(12)
+            .background(DoodleTheme.surface)
+            .cornerRadius(8)
+        }
+    }
+
+    // MARK: - Preview Card (Locked)
+
+    private func premiumPreviewCard(_ title: String, desc: String, icon: String) -> some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
                 .font(.system(size: 20))
-                .foregroundStyle(DoodleTheme.purple)
+                .foregroundStyle(DoodleTheme.yellow.opacity(0.5))
                 .frame(width: 32)
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
@@ -150,13 +236,9 @@ struct PlansView: View {
                     .foregroundStyle(DoodleTheme.dim)
             }
             Spacer()
-            Text("soon")
-                .font(DoodleTheme.monoSmall)
-                .foregroundStyle(DoodleTheme.purple)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(DoodleTheme.purple.opacity(0.15))
-                .cornerRadius(6)
+            Image(systemName: "lock")
+                .font(.system(size: 12))
+                .foregroundStyle(DoodleTheme.yellow.opacity(0.5))
         }
         .padding(12)
         .background(DoodleTheme.surface)
