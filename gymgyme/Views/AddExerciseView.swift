@@ -69,7 +69,7 @@ struct AddExerciseView: View {
                     }
 
                     HStack(spacing: 0) {
-                        Text("tag:  ")
+                        Text("muscle group: ")
                             .font(DoodleTheme.mono)
                             .foregroundStyle(DoodleTheme.dim)
                         TextField("legs", text: $tagInput)
@@ -115,7 +115,7 @@ struct AddExerciseView: View {
                     Button { showDiscover = true } label: {
                         HStack(spacing: 8) {
                             Image(systemName: "magnifyingglass")
-                            Text("browse exercise database")
+                            Text("browse exercises")
                         }
                         .font(DoodleTheme.mono)
                         .foregroundStyle(DoodleTheme.blue)

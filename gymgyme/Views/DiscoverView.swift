@@ -141,7 +141,7 @@ struct DiscoverView: View {
                             Text("~ ")
                                 .font(DoodleTheme.mono)
                                 .foregroundStyle(DoodleTheme.dim)
-                            Text("tap a #tag or search by name")
+                            Text("tap a muscle group or search by name")
                                 .font(DoodleTheme.mono)
                                 .foregroundStyle(DoodleTheme.dim)
                         }
