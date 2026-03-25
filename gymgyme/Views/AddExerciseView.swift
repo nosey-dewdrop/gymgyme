@@ -8,6 +8,7 @@ struct AddExerciseView: View {
 
     @State private var name = ""
     @State private var tagInput = ""
+    @State private var selectedType: ExerciseType = .weightReps
     @State private var showDiscover = false
 
     private var existingTags: [String] {
@@ -110,6 +111,33 @@ struct AddExerciseView: View {
                             }
                         }
                     }
+
+                    Text("").frame(height: 8)
+
+                    Text("type")
+                        .font(DoodleTheme.monoBold)
+                        .foregroundStyle(DoodleTheme.blue)
+
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach(ExerciseType.allCases, id: \.self) { type in
+                                Button { selectedType = type } label: {
+                                    HStack(spacing: 4) {
+                                        Image(systemName: type.icon)
+                                            .font(.system(size: 12))
+                                        Text(type.label)
+                                            .font(DoodleTheme.monoSmall)
+                                    }
+                                    .foregroundStyle(selectedType == type ? DoodleTheme.bg : DoodleTheme.fg)
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 6)
+                                    .background(selectedType == type ? DoodleTheme.blue : DoodleTheme.surface)
+                                    .cornerRadius(6)
+                                }
+                            }
+                        }
+                    }
+
                     Text("").frame(height: 16)
 
                     Button { showDiscover = true } label: {
@@ -142,7 +170,7 @@ struct AddExerciseView: View {
                         let trimmed = name.trimmingCharacters(in: .whitespaces)
                         guard !isDuplicate(trimmed) else { return }
                         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                        modelContext.insert(Exercise(name: trimmed, tag: resolvedTag))
+                        modelContext.insert(Exercise(name: trimmed, tag: resolvedTag, type: selectedType))
                         dismiss()
                     }
                     .font(DoodleTheme.monoBold)
