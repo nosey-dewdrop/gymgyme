@@ -2,16 +2,16 @@ import SwiftUI
 
 struct ContentView: View {
     @AppStorage("hasSeenOnboarding") private var hasSeenOnboarding = false
-    @State private var currentPage = 1
+    @State private var currentPage = 0
 
     var body: some View {
         if !hasSeenOnboarding {
             OnboardingView()
         } else {
             TabView(selection: $currentPage) {
-                CalendarView()
-                    .tag(0)
                 HomeView()
+                    .tag(0)
+                CalendarView()
                     .tag(1)
                 PlansView()
                     .tag(2)
