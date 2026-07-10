@@ -14,19 +14,20 @@ body {
   padding: 44px 20px 60px;
 }
 
-h1 { font-size: 30px; letter-spacing: -0.01em; margin-bottom: 6px; }
-h2 { font-size: 15px; text-transform: lowercase; margin: 34px 0 8px; }
+/* no decoration = size IS the hierarchy. important things are simply bigger. */
+h1 { font-size: 44px; letter-spacing: -0.01em; margin-bottom: 6px; }
+h2 { font-size: 24px; text-transform: lowercase; margin: 38px 0 8px; }
 
 .tag { margin-bottom: 6px; }
 .small { font-size: 12px; opacity: 0.75; margin-bottom: 8px; }
 .loading { margin-top: 30px; }
 
 /* directory */
-.cat { margin-top: 26px; }
-.cat h2 { margin: 0 0 6px; }
-.cat p.count { font-size: 11px; opacity: 0.6; margin-bottom: 6px; }
-.entry { margin: 0 0 3px; }
+.cat { margin-top: 30px; }
+.cat h2 { margin: 0 0 8px; }
+.entry { margin: 0 0 4px; }
 .entry a { font-weight: bold; }
+/* the more recommended, the bigger the link (set inline by script.js) */
 .entry .desc { opacity: 0.85; }
 .entry .by { font-size: 11px; opacity: 0.6; }
 .entry .kindmark { font-size: 11px; opacity: 0.6; }

@@ -2,6 +2,12 @@
 const CATEGORIES = ['healthy-living-articles', 'home-workouts', 'pilates', 'ballet', 'yoga', 'gym', 'calisthenics', 'bodyweight'];
 const HEADERS = { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY };
 
+// more recommended = bigger font. size is the hierarchy on this site.
+function linkSize(count, max) {
+  const t = max <= 1 ? 0 : Math.min((count - 1) / (max - 1), 1);
+  return (13 + t * 9).toFixed(1) + 'px'; // 13px → 22px
+}
+
 // darker pink = recommended more
 function linkShade(count, max) {
   const t = max <= 1 ? 0 : Math.min((count - 1) / (max - 1), 1);
@@ -47,6 +53,7 @@ async function load() {
         a.rel = 'noopener';
         a.target = '_blank';
         a.style.color = linkShade(e.recommend_count, max);
+        a.style.fontSize = linkSize(e.recommend_count, max);
         row.appendChild(a);
         if (e.description) row.appendChild(el('span', 'desc', ' — ' + e.description));
         row.appendChild(el('span', 'by', ` · ${e.contributor}` + (e.recommend_count > 1 ? ` · recommended ${e.recommend_count}×` : '')));
