@@ -33,14 +33,15 @@ h2 { font-size: 24px; text-transform: lowercase; margin: 38px 0 8px; }
 .greet { margin-bottom: 24px; }
 .greet input, .greet select { width: auto; display: inline-block; margin: 0 4px 0 0; padding: 6px 8px; }
 
-/* the big clickable invite - on every page */
-.suggest-big { font-size: 26px; font-weight: bold; display: inline-block; margin-top: 30px; }
+/* the big clickable invite - top of every page, impossible to miss */
+.toprow { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; }
+.toprow .brand { margin-bottom: 0; }
+.suggest-big { font-size: 24px; font-weight: bold; display: inline-block; }
 
 /* navbar - plain links, current category is simply bigger */
 #nav { margin-bottom: 26px; line-height: 2; }
-#nav a { margin-right: 14px; font-weight: bold; }
+#nav a { margin-right: 14px; font-weight: bold; display: inline-block; white-space: nowrap; }
 #nav a.on { font-size: 19px; }
-.suggest-link { opacity: 0.9; }
 
 /* tiny inline buttons (my program add/remove) - bare, no boxes */
 button.mini {
