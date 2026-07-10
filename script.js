@@ -122,7 +122,6 @@ function render() {
         row.appendChild(el('i', 'eq', parts[1]));
       }
     }
-    if (e.recommend_count > 1) row.appendChild(el('span', 'by', ` - recommended ${e.recommend_count}×`));
     if (e.kind === 'exercise') {
       const btn = el('button', 'mini', inProgram(e) ? '✓ in your program' : '+ add');
       btn.onclick = () => toggleProgram(e);

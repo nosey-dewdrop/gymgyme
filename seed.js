@@ -8,7 +8,7 @@ const SEED_ENTRIES = [
   "url": "https://my.clevelandclinic.org/health/articles/9445-diaphragmatic-breathing",
   "description": "Cleveland Clinic",
   "contributor": "damla",
-  "recommend_count": 2
+  "recommend_count": 1
  },
  {
   "kind": "link",
@@ -26,7 +26,7 @@ const SEED_ENTRIES = [
   "url": "https://www.health.harvard.edu/staying-healthy/why-good-posture-matters",
   "description": "Harvard Health Publishing",
   "contributor": "damla",
-  "recommend_count": 2
+  "recommend_count": 1
  },
  {
   "kind": "link",
@@ -35,7 +35,7 @@ const SEED_ENTRIES = [
   "url": "https://health.clevelandclinic.org/everything-you-want-to-know-about-pilates",
   "description": "Cleveland Clinic",
   "contributor": "damla",
-  "recommend_count": 3
+  "recommend_count": 1
  },
  {
   "kind": "link",
@@ -44,7 +44,7 @@ const SEED_ENTRIES = [
   "url": "https://www.healthline.com/health/how-long-does-it-take-to-form-a-habit",
   "description": "Healthline",
   "contributor": "damla",
-  "recommend_count": 3
+  "recommend_count": 1
  },
  {
   "kind": "link",
@@ -53,7 +53,7 @@ const SEED_ENTRIES = [
   "url": "https://www.health.harvard.edu/staying-healthy/exercising-to-relax",
   "description": "Harvard Health Publishing",
   "contributor": "damla",
-  "recommend_count": 2
+  "recommend_count": 1
  },
  {
   "kind": "link",
@@ -62,7 +62,7 @@ const SEED_ENTRIES = [
   "url": "https://www.health.harvard.edu/mind-and-mood/exercise-is-an-all-natural-treatment-to-fight-depression",
   "description": "Harvard Health Publishing",
   "contributor": "damla",
-  "recommend_count": 2
+  "recommend_count": 1
  },
  {
   "kind": "link",
@@ -71,7 +71,7 @@ const SEED_ENTRIES = [
   "url": "https://www.health.harvard.edu/staying-healthy/strength-training-builds-more-than-muscles",
   "description": "Harvard Health Publishing",
   "contributor": "damla",
-  "recommend_count": 2
+  "recommend_count": 1
  },
  {
   "kind": "link",
@@ -89,7 +89,7 @@ const SEED_ENTRIES = [
   "url": "https://my.clevelandclinic.org/health/diseases/delayed-onset-muscle-soreness",
   "description": "Cleveland Clinic",
   "contributor": "damla",
-  "recommend_count": 2
+  "recommend_count": 1
  },
  {
   "kind": "link",
@@ -98,7 +98,7 @@ const SEED_ENTRIES = [
   "url": "https://health.clevelandclinic.org/active-recovery",
   "description": "Cleveland Clinic",
   "contributor": "damla",
-  "recommend_count": 2
+  "recommend_count": 1
  },
  {
   "kind": "link",
@@ -107,7 +107,7 @@ const SEED_ENTRIES = [
   "url": "https://www.nhs.uk/live-well/exercise/walking-for-health/",
   "description": "NHS",
   "contributor": "damla",
-  "recommend_count": 2
+  "recommend_count": 1
  },
  {
   "kind": "link",
@@ -116,7 +116,7 @@ const SEED_ENTRIES = [
   "url": "https://www.health.harvard.edu/stay-healthy/5-surprising-benefits-of-walking",
   "description": "Harvard Health Publishing",
   "contributor": "damla",
-  "recommend_count": 2
+  "recommend_count": 1
  },
  {
   "kind": "link",
@@ -125,7 +125,7 @@ const SEED_ENTRIES = [
   "url": "https://www.sleepfoundation.org/physical-activity/exercise-and-sleep",
   "description": "Sleep Foundation",
   "contributor": "damla",
-  "recommend_count": 2
+  "recommend_count": 1
  },
  {
   "kind": "link",
@@ -134,7 +134,7 @@ const SEED_ENTRIES = [
   "url": "https://www.health.harvard.edu/staying-healthy/the-importance-of-stretching",
   "description": "Harvard Health Publishing",
   "contributor": "damla",
-  "recommend_count": 2
+  "recommend_count": 1
  },
  {
   "kind": "link",
