@@ -210,7 +210,6 @@ function renderCalendar(dir) {
   const title = el('h2', 'cal-title', monthName + ' ' + y);
   const next = el('button', 'mini', 'later ›');
   next.onclick = () => { calOffset++; render(); };
-  if (calOffset >= 0) next.style.visibility = 'hidden'; // future months make no sense yet
   head.append(prev, title, next);
   dir.appendChild(head);
 
