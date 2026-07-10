@@ -1,5 +1,4 @@
 User-agent: *
 Allow: /
 
-# update with the real domain once attached:
-# Sitemap: https://DOMAIN/sitemap.xml
+Sitemap: https://gymgyme.vercel.app/sitemap.xml
