@@ -197,6 +197,7 @@ function lastDoneText(m) {
 
 let calOffset = 0; // months back/forward from the current one
 let selectedDay = null; // clicked day shows its plan below the calendar
+let armedMove = null; // two-tap planning for touch: tap "plan" on a move, then tap a day
 
 function renderCalendar(dir) {
   const now = new Date();
@@ -226,9 +227,13 @@ function renderCalendar(dir) {
     if (days.includes(iso)) cls += ' done';
     if (iso === isoToday()) cls += ' today';
     if (iso === selectedDay) cls += ' sel';
+    if (armedMove) cls += ' armable';
     const cell = el('button', cls, String(d));
     if (plan[iso] && plan[iso].length) cell.appendChild(el('i', 'plandot', '•'));
-    cell.onclick = () => { selectedDay = (selectedDay === iso) ? null : iso; render(); };
+    cell.onclick = () => {
+      if (armedMove) { const m = armedMove; armedMove = null; selectedDay = iso; addToDay(iso, m); return; }
+      selectedDay = (selectedDay === iso) ? null : iso; render();
+    };
     cell.ondragover = ev => ev.preventDefault();
     cell.ondrop = ev => {
       ev.preventDefault();
@@ -239,8 +244,16 @@ function renderCalendar(dir) {
     grid.appendChild(cell);
   }
   dir.appendChild(grid);
-  dir.appendChild(el('p', 'small', 'drag a move onto a day to plan it - tap a day to see its plan - "did it!" marks today. lives only in this browser.'));
-  if (selectedDay) renderDayPlan(dir, selectedDay);
+  if (armedMove) {
+    const hint = el('p', 'small armed-hint', 'now tap a day to plan "' + armedMove.title + '" - ');
+    const cancel = el('button', 'mini', 'cancel');
+    cancel.onclick = () => { armedMove = null; render(); };
+    hint.appendChild(cancel);
+    dir.appendChild(hint);
+  } else {
+    dir.appendChild(el('p', 'small', 'drag a move onto a day (or tap "plan" then a day) - tap a day to see its plan - "did it!" marks today. lives only in this browser: clearing browser data clears it too.'));
+  }
+  if (selectedDay && !armedMove) renderDayPlan(dir, selectedDay);
 }
 
 function renderDayPlan(dir, iso) {
@@ -282,10 +295,12 @@ function renderProgram(dir) {
     if (m.description) row.appendChild(el('span', 'desc', ' - ' + m.description.replace(' · ', ' - ')));
     row.appendChild(el('span', 'by', ' - last done: ' + lastDoneText(m)));
     const did = el('button', 'mini', 'did it!'); did.onclick = () => markDone(m);
+    const planBtn = el('button', 'mini noprint', armedMove && moveKey(armedMove) === moveKey(m) ? 'tap a day…' : 'plan');
+    planBtn.onclick = () => { armedMove = (armedMove && moveKey(armedMove) === moveKey(m)) ? null : m; render(); };
     const up = el('button', 'mini noprint', '↑'); up.onclick = () => moveInProgram(moveKey(m), -1);
     const down = el('button', 'mini noprint', '↓'); down.onclick = () => moveInProgram(moveKey(m), 1);
     const rm = el('button', 'mini noprint', 'remove'); rm.onclick = () => toggleProgram(m);
-    row.append(' ', did, ' ', up, ' ', down, ' ', rm);
+    row.append(' ', did, ' ', planBtn, ' ', up, ' ', down, ' ', rm);
     const how = getHow(m);
     if (how) appendHow(dir, row, how);
     else dir.appendChild(row);
@@ -317,6 +332,27 @@ function filterRow(dir, label, options, current, setter) {
     p.appendChild(b);
   }
   dir.appendChild(p);
+}
+
+// ---- +recommend: one per entry per browser, needs supabase live (rows with id) ----
+const RECS_KEY = 'hl_recs';
+function getRecs() { try { return JSON.parse(localStorage.getItem(RECS_KEY)) || []; } catch { return []; } }
+async function recommend(e, btn) {
+  const recs = getRecs();
+  if (recs.includes(e.id)) return;
+  btn.textContent = '…';
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/hl_recommend`, {
+      method: 'POST',
+      headers: { ...HEADERS, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ entry_id: e.id }),
+    });
+    if (!res.ok) throw new Error(res.status);
+    recs.push(e.id);
+    localStorage.setItem(RECS_KEY, JSON.stringify(recs));
+    e.recommend_count++;
+    render();
+  } catch { btn.textContent = '+1 failed, try later'; }
 }
 
 function matchesFilters(e) {
@@ -352,8 +388,10 @@ function render() {
   let list = allEntries.filter(e => e.category === cat);
   const hasMoves = list.some(e => e.kind === 'exercise');
   if (hasMoves) {
-    filterRow(dir, 'equipment', EQ_OPTIONS, filterEq, v => { filterEq = v; });
-    filterRow(dir, 'muscles', MUS_OPTIONS, filterMus, v => { filterMus = v; });
+    const box = el('div', 'filterbox');
+    filterRow(box, 'equipment', EQ_OPTIONS, filterEq, v => { filterEq = v; });
+    filterRow(box, 'muscles', MUS_OPTIONS, filterMus, v => { filterMus = v; });
+    dir.appendChild(box);
     list = list.filter(e => e.kind !== 'exercise' || matchesFilters(e));
   }
   const max = Math.max(1, ...list.map(e => e.recommend_count));
@@ -377,6 +415,11 @@ function render() {
       const btn = el('button', 'mini', inProgram(e) ? '✓ in your program' : '+ add');
       btn.onclick = () => toggleProgram(e);
       row.append(' ', btn);
+    }
+    if (e.id) { // live rows only: recommending needs the database
+      const rec = el('button', 'mini', getRecs().includes(e.id) ? '♥ you recommended this' : 'recommend ♥');
+      if (!getRecs().includes(e.id)) rec.onclick = () => recommend(e, rec);
+      row.append(' ', rec);
     }
     if (e.how) appendHow(dir, row, e.how);
     else dir.appendChild(row);
@@ -406,7 +449,7 @@ function render() {
 // supabase is the live layer on top of the bundled seed: its rows win by url, new rows join.
 async function loadRemote() {
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/hl_entries?approved=eq.true&select=kind,category,title,url,description,contributor,recommend_count&order=recommend_count.desc,title.asc`, { headers: HEADERS });
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/hl_entries?approved=eq.true&select=id,kind,category,title,url,description,how,contributor,recommend_count&order=recommend_count.desc,title.asc`, { headers: HEADERS });
     if (!res.ok) return;
     const remote = await res.json();
     if (!remote.length) return;
