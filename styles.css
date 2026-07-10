@@ -109,10 +109,11 @@ button:hover { background: #6E0030; }
 /* filters - follow the site's font convention: plain body text, active one bigger and bold */
 .filterbox { margin: 0 0 26px; }
 .filters { margin: 0 0 2px; }
-.flabel { font-size: 11px; font-weight: bold; opacity: 0.6; text-transform: uppercase; margin-right: 4px; }
+.flabel { font-size: 12px; font-weight: bold; opacity: 0.6; margin-right: 4px; }
 button.mini.fopt { font-size: 13px; font-weight: normal; color: #33000E; opacity: 0.8; text-decoration: none; margin-right: 10px; }
-button.mini.fopt:hover { opacity: 1; color: #33000E; }
+button.mini.fopt:hover { opacity: 0.8; color: #33000E; }
 button.mini.fopt.fon { font-size: 15px; font-weight: bold; color: #8E0038; opacity: 1; }
+button.mini.fopt.fon:hover { opacity: 1; color: #8E0038; }
 
 /* how-to: opens under the move on click, hover tooltip works too */
 .howto { font-size: 12px; opacity: 0.9; margin: 2px 0 10px 14px; max-width: 560px; }
@@ -123,7 +124,7 @@ button.mini.fopt.fon { font-size: 15px; font-weight: bold; color: #8E0038; opaci
 .cal-head .cal-title { margin: 0; }
 .cal { display: grid; grid-template-columns: repeat(7, 40px); gap: 4px; margin-top: 8px; justify-content: center; }
 .cal + .small { text-align: center; margin: 6px 0 40px; }
-.cal-h { font-size: 10px; font-weight: bold; opacity: 0.6; text-align: center; text-transform: uppercase; }
+.cal-h { font-size: 10px; font-weight: bold; opacity: 0.6; text-align: center; }
 .cal-d { width: 40px; height: 34px; background: #FFCEDF; color: #33000E; font-weight: bold; padding: 0; text-align: center; }
 .cal-d.empty { background: none; }
 .cal-d.done { background: #8E0038; color: #FFDCE9; }
