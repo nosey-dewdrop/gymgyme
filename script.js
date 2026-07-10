@@ -80,7 +80,7 @@ function renderProgram(dir) {
     const a = el('a', null, m.title);
     a.href = m.url; a.rel = 'noopener'; a.target = '_blank';
     row.appendChild(a);
-    if (m.description) row.appendChild(el('span', 'desc', ' — ' + m.description));
+    if (m.description) row.appendChild(el('span', 'desc', ' - ' + m.description.replace(' · ', ' - ')));
     const up = el('button', 'mini', '↑'); up.onclick = () => moveInProgram(moveKey(m), -1);
     const down = el('button', 'mini', '↓'); down.onclick = () => moveInProgram(moveKey(m), 1);
     const rm = el('button', 'mini', 'remove'); rm.onclick = () => toggleProgram(m);
@@ -114,8 +114,15 @@ function render() {
     a.href = e.url; a.rel = 'noopener'; a.target = '_blank';
     a.style.fontSize = linkSize(e.recommend_count, max);
     row.appendChild(a);
-    if (e.description) row.appendChild(el('span', 'desc', ' — ' + e.description));
-    row.appendChild(el('span', 'by', ` · ${e.contributor}` + (e.recommend_count > 1 ? ` · recommended ${e.recommend_count}×` : '')));
+    if (e.description) {
+      const parts = e.kind === 'exercise' ? e.description.split(' · ') : [e.description];
+      row.appendChild(el('span', 'desc', ' - ' + parts[0]));
+      if (parts[1]) {
+        row.appendChild(el('span', 'desc', ' - '));
+        row.appendChild(el('i', 'eq', parts[1]));
+      }
+    }
+    if (e.recommend_count > 1) row.appendChild(el('span', 'by', ` - recommended ${e.recommend_count}×`));
     if (e.kind === 'exercise') {
       const btn = el('button', 'mini', inProgram(e) ? '✓ in your program' : '+ add');
       btn.onclick = () => toggleProgram(e);
