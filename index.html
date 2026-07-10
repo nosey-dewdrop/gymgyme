@@ -3,47 +3,34 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>healthy living — home workouts, pilates, ballet, yoga & more</title>
+  <!-- site name TBD — Damla names it with the domain -->
+  <title>home workouts, pilates, ballet, yoga & more — a community directory</title>
   <meta name="description" content="A community-curated directory of home training resources: healthy living articles, home workouts, pilates, ballet, yoga, gym, calisthenics, bodyweight. Free, no ads, forever.">
-  <!-- canonical + og:url: update after the domain is attached -->
   <meta property="og:type" content="website">
-  <meta property="og:title" content="healthy living — a community directory">
+  <meta property="og:title" content="a community directory of home training">
   <meta property="og:description" content="Home workouts, pilates, ballet, yoga, gym, calisthenics, bodyweight. Everyone adds, everyone benefits. Free, no ads, forever.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎀</text></svg>">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<h1>healthy living</h1>
-<p class="tag">home workouts · pilates · ballet · yoga · gym · calisthenics · bodyweight — a directory by everyone, for everyone. free, no ads, no accounts, forever.</p>
-<p class="tag small">studios are expensive or simply don't exist where you live. moving at home shouldn't require anything but a wall, a chair and a good link. people recommend, the best rise up. darker pink = recommended more.</p>
+<nav id="nav">
+  <a href="#healthy-living-articles">healthy-living-articles</a>
+  <a href="#home-workouts">home-workouts</a>
+  <a href="#pilates">pilates</a>
+  <a href="#ballet">ballet</a>
+  <a href="#yoga">yoga</a>
+  <a href="#gym">gym</a>
+  <a href="#calisthenics">calisthenics</a>
+  <a href="#bodyweight">bodyweight</a>
+  <a href="#my-program" id="nav-program">my program</a>
+  <a href="suggest.html" class="suggest-link">suggest ✚</a>
+</nav>
+
+<h1 id="cat-title">home-workouts</h1>
+<p class="tag small">a directory by everyone, for everyone. free, no ads, no accounts, forever. people recommend, the important grows — literally.</p>
 
 <div id="directory"><p class="loading">loading the good stuff…</p></div>
-
-<h2 id="suggest-title">suggest something</h2>
-<p class="small">a link (article, video, resource) or a move you love. it appears after a human looks at it. your name will be published on this page — use a nickname if you prefer. that's all we ever store.</p>
-<form id="suggest">
-  <select name="kind" required>
-    <option value="link">it's a link</option>
-    <option value="exercise">it's a move</option>
-  </select>
-  <select name="category" required>
-    <option value="healthy-living-articles">healthy-living-articles</option>
-    <option value="home-workouts">home-workouts</option>
-    <option value="pilates">pilates</option>
-    <option value="ballet">ballet</option>
-    <option value="yoga">yoga</option>
-    <option value="gym">gym</option>
-    <option value="calisthenics">calisthenics</option>
-    <option value="bodyweight">bodyweight</option>
-  </select>
-  <input name="title" placeholder="title (e.g. Wall Pilates for absolute beginners)" required maxlength="200">
-  <input name="url" type="url" placeholder="https://… (where to find it)" required>
-  <input name="description" placeholder="one short line: why is it good?" maxlength="500">
-  <input name="contributor" placeholder="your name (will be published)" required maxlength="60">
-  <button type="submit">suggest it</button>
-  <span id="form-msg"></span>
-</form>
 
 <h2>contributors (thank you!)</h2>
 <p id="contributors" class="contribs">…</p>
@@ -51,6 +38,7 @@
 <p class="footer">no ads, no tracking, no cookies, no money — just links. we store only what you see on this page. built with 🎀 by <a href="https://github.com/damlahelloworld">damlahelloworld</a>.</p>
 
 <script src="config.js"></script>
+<script src="seed.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
