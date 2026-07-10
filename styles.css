@@ -21,7 +21,7 @@ body > * { flex-shrink: 0; }
 .push-down { margin-top: auto; padding-top: 60px; }
 
 /* no decoration = size IS the hierarchy. important things are simply bigger. */
-h1 { font-size: 44px; letter-spacing: -0.01em; margin-bottom: 6px; }
+h1 { font-size: 44px; letter-spacing: -0.01em; margin: 10px 0 6px; }
 h2 { font-size: 24px; text-transform: lowercase; margin: 38px 0 8px; }
 
 .tag { margin-bottom: 6px; }
@@ -47,7 +47,7 @@ h2 { font-size: 24px; text-transform: lowercase; margin: 38px 0 8px; }
 @media (max-width: 1260px) { .sidebar { position: static; width: auto; margin-bottom: 20px; } }
 
 /* onboarding rows */
-.ob-row { margin: 14px 0; }
+.ob-row { margin: 10px 0; }
 .ob-row input[type="text"], .ob-row input:not([type]) { width: 280px; }
 .ob-label { margin-top: 20px; font-weight: bold; }
 .ob-check { display: inline-block; margin: 6px 18px 0 0; }
@@ -111,10 +111,10 @@ button:hover { background: #6E0030; }
 .howto.hidden { display: none; }
 
 /* workout calendar - centered, pink filled days, no boxes on screen */
-.cal-head { display: flex; align-items: baseline; justify-content: center; gap: 18px; margin-top: 26px; }
+.cal-head { display: flex; align-items: baseline; justify-content: center; gap: 14px; margin-top: 24px; }
 .cal-head .cal-title { margin: 0; }
-.cal { display: grid; grid-template-columns: repeat(7, 40px); gap: 4px; margin-top: 10px; justify-content: center; }
-.cal + .small { text-align: center; }
+.cal { display: grid; grid-template-columns: repeat(7, 40px); gap: 4px; margin-top: 8px; justify-content: center; }
+.cal + .small { text-align: center; margin: 6px 0 0; }
 .cal-h { font-size: 10px; font-weight: bold; opacity: 0.6; text-align: center; text-transform: uppercase; }
 .cal-d { width: 40px; height: 34px; background: #FFCEDF; color: #33000E; font-weight: bold; padding: 0; text-align: center; }
 .cal-d.empty { background: none; }
@@ -124,7 +124,7 @@ button:hover { background: #6E0030; }
 .cal-d.sel.done { background: #8E0038; }
 .cal-d .plandot { font-style: normal; display: block; line-height: 0.3; color: #8E0038; }
 .cal-d.done .plandot { color: #FFDCE9; }
-.dayplan-title { text-align: center; }
+.dayplan-title { text-align: center; margin: 20px 0 6px; }
 
 /* print = one clean ink-friendly page: the program + the calendar */
 @media print {
