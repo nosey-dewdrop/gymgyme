@@ -172,7 +172,7 @@ function render() {
   }
   if (!list.length) {
     const empty = el('p', 'loading', 'nothing in ' + cat + ' yet - be the first: ');
-    const link = el('a', 'suggest-big', 'suggest something');
+    const link = el('a', 'suggest-big', 'suggest something!');
     link.href = 'suggest.html';
     empty.appendChild(link);
     dir.appendChild(empty);
