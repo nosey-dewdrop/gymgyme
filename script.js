@@ -145,11 +145,7 @@ function render() {
 
   if (cat === 'my-program') { renderProgram(dir); return; }
 
-  const q = (document.getElementById('search').value || '').trim().toLowerCase();
-  const list = q
-    ? allEntries.filter(e => (e.title + ' ' + (e.description || '')).toLowerCase().includes(q))
-    : allEntries.filter(e => e.category === cat);
-  if (q) document.getElementById('cat-title').textContent = 'search: ' + q;
+  const list = allEntries.filter(e => e.category === cat);
   const max = Math.max(1, ...list.map(e => e.recommend_count));
 
   for (const e of list) {
@@ -157,6 +153,7 @@ function render() {
     const a = el('a', null, e.title);
     a.href = e.url; a.rel = 'noopener'; a.target = '_blank';
     a.style.fontSize = linkSize(e.recommend_count, max);
+    if (e.how) a.title = e.how; // hover: how to do the move
     row.appendChild(a);
     if (e.description) {
       const parts = e.kind === 'exercise' ? e.description.split(' · ') : [e.description];
@@ -173,7 +170,13 @@ function render() {
     }
     dir.appendChild(row);
   }
-  if (!list.length) dir.appendChild(el('p', 'loading', q ? 'nothing found for "' + q + '" - try another word.' : 'nothing in ' + cat + ' yet - be the first to suggest something.'));
+  if (!list.length) {
+    const empty = el('p', 'loading', 'nothing in ' + cat + ' yet - be the first: ');
+    const link = el('a', 'suggest-big', 'suggest something');
+    link.href = 'suggest.html';
+    empty.appendChild(link);
+    dir.appendChild(empty);
+  }
 
   const names = [...new Set(allEntries.map(e => e.contributor))];
   const contribs = document.getElementById('contributors');
@@ -200,7 +203,6 @@ async function loadRemote() {
 }
 
 window.addEventListener('hashchange', render);
-document.getElementById('search').addEventListener('input', render);
 updateProgramCount();
 renderGreet();
 render();
