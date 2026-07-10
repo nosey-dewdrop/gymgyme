@@ -8,7 +8,7 @@ A public-good website: a community-fed directory of home training resources — 
 - Design: strong pink background, plain Arial, dense list, links in pink tones (darker = more recommended), NO borders anywhere ("içim daralmasın"), contributors as a flowing paragraph with per-name colors under "contributors (thank you!)". Deliberately raw — "bi güzellik beklentimiz yok".
 
 ## Status
-2026-07-10: site built (index.html + styles.css + script.js + config.js, no build step), migration + 61 seed rows ready (16 articles from gunun-notu sources + 45 exercises, contributor "damla"). WAITING ON DAMLA: (1) paste supabase/migration.sql into the shared Supabase SQL editor, (2) create GitHub repo connection to Vercel, (3) buy domain + update canonical/og:url + sitemap.
+2026-07-10 (late night): structure reworked per Damla — "healthy living" is NOT the site name, just a navbar category like the others (site name TBD with domain, h1 = selected category). Navbar hash-routing across 8 categories + my program + suggest; selected/important things are simply BIGGER (size is the only hierarchy, 13→24px by recommend count). Seed (61 rows) now BUNDLED into the site (seed.js) so it works with zero backend; Supabase layers on top when live (rows win by url). MY PROGRAM: localStorage builder — "+ add" on any move, reorder ↑↓, remove, clear; lives in the browser only. Suggest form moved to its own page (suggest.html). WAITING ON DAMLA: (1) run supabase/migration.sql, (2) Vercel, (3) domain (then canonical/og/sitemap + site name).
 
 ## Architecture
 - Static site, vanilla JS, Supabase REST directly from the browser (shared damlahelloworld project, table `hl_entries`).
