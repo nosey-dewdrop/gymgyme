@@ -111,7 +111,7 @@ button:hover { background: #6E0030; }
 .howto.hidden { display: none; }
 
 /* workout calendar - centered, pink filled days, no boxes on screen */
-.cal-head { display: flex; align-items: baseline; justify-content: center; gap: 14px; margin-top: 24px; }
+.cal-head { display: flex; align-items: baseline; justify-content: center; gap: 14px; margin-top: 40px; }
 .cal-head .cal-title { margin: 0; }
 .cal { display: grid; grid-template-columns: repeat(7, 40px); gap: 4px; margin-top: 8px; justify-content: center; }
 .cal + .small { text-align: center; margin: 6px 0 0; }
