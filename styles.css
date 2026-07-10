@@ -119,6 +119,10 @@ button.mini.fopt.fon:hover { opacity: 1; color: #8E0038; }
 .howto { font-size: 12px; opacity: 0.9; margin: 2px 0 10px 14px; max-width: 560px; }
 .howto.hidden { display: none; }
 
+/* program stats - one quiet line: total time + muscle spread + friendly nudge */
+.progstats { margin-top: 10px; font-size: 13px; font-weight: bold; }
+.progstats.nudge { font-weight: normal; margin-top: 2px; }
+
 /* workout calendar - centered, pink filled days, no boxes on screen */
 .cal-head { display: flex; align-items: baseline; justify-content: center; gap: 14px; margin-top: 40px; }
 .cal-head .cal-title { margin: 0; }

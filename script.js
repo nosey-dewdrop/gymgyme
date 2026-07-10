@@ -43,7 +43,7 @@ function toggleProgram(entry) {
   const list = getProgram();
   const i = list.findIndex(m => moveKey(m) === moveKey(entry));
   if (i >= 0) list.splice(i, 1);
-  else list.push({ title: entry.title, url: entry.url, description: entry.description, category: entry.category, how: entry.how });
+  else list.push({ title: entry.title, url: entry.url, description: entry.description, category: entry.category, how: entry.how, muscles: entry.muscles, durationSec: entry.durationSec });
   saveProgram(list);
   render();
 }
@@ -168,10 +168,29 @@ function markDone(m) {
   if (!days.includes(isoToday())) { days.push(isoToday()); localStorage.setItem(DAYS_KEY, JSON.stringify(days)); }
   render();
 }
-function getHow(m) {
-  if (m.how) return m.how;
-  const found = allEntries.find(e => moveKey(e) === moveKey(m));
-  return found && found.how;
+function getMeta(m) {
+  const found = allEntries.find(e => moveKey(e) === moveKey(m)) || {};
+  return { how: m.how || found.how, muscles: m.muscles || found.muscles || [], durationSec: m.durationSec || found.durationSec || null };
+}
+function getHow(m) { return getMeta(m).how; }
+
+// program stats: how long it takes and whether it's all legs
+function renderProgramStats(dir, list) {
+  const metas = list.map(getMeta);
+  const totalSec = metas.reduce((s, m) => s + (m.durationSec || 45), 0);
+  const mins = Math.max(1, Math.round(totalSec / 60));
+  const counts = {};
+  for (const m of metas) for (const mus of m.muscles) counts[mus] = (counts[mus] || 0) + 1;
+  const parts = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  const spread = parts.map(([k, v]) => k + ' ×' + v).join(', ');
+  const p = el('p', 'progstats');
+  p.appendChild(el('span', null, '~' + mins + ' min total'));
+  if (spread) p.appendChild(el('span', null, ' - muscles: ' + spread));
+  dir.appendChild(p);
+  const totalTags = parts.reduce((s, [, v]) => s + v, 0);
+  if (parts.length && list.length >= 3 && parts[0][1] / totalTags > 0.55) {
+    dir.appendChild(el('p', 'progstats nudge', 'heads up: this program is mostly ' + parts[0][0] + ' - maybe sprinkle in some ' + (parts[0][0] === 'core' ? 'legs or back' : 'core or back') + '?'));
+  }
 }
 // every move row gets a "how?" toggle - hover works too, but click is for everyone
 function appendHow(dir, row, how) {
@@ -293,7 +312,8 @@ function renderProgram(dir) {
     a.href = m.url; a.rel = 'noopener'; a.target = '_blank';
     row.appendChild(a);
     if (m.description) row.appendChild(el('span', 'desc', ' - ' + m.description.replace(' · ', ' - ')));
-    row.appendChild(el('span', 'by', ' - last done: ' + lastDoneText(m)));
+    const meta = getMeta(m);
+    row.appendChild(el('span', 'by', ' - ~' + (meta.durationSec || 45) + 's - last done: ' + lastDoneText(m)));
     const did = el('button', 'mini', 'did it!'); did.onclick = () => markDone(m);
     const planBtn = el('button', 'mini noprint', armedMove && moveKey(armedMove) === moveKey(m) ? 'tap a day…' : 'plan');
     planBtn.onclick = () => { armedMove = (armedMove && moveKey(armedMove) === moveKey(m)) ? null : m; render(); };
@@ -306,6 +326,7 @@ function renderProgram(dir) {
     else dir.appendChild(row);
   });
 
+  renderProgramStats(dir, list);
   renderCalendar(dir);
 
   const pdf = el('button', null, 'print / save as pdf');

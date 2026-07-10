@@ -178,7 +178,8 @@ const SEED_ENTRIES = [
    "glutes",
    "legs",
    "core"
-  ]
+  ],
+  "durationSec": 45
  },
  {
   "kind": "exercise",
@@ -196,7 +197,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "core",
    "shoulders"
-  ]
+  ],
+  "durationSec": 60
  },
  {
   "kind": "exercise",
@@ -213,7 +215,8 @@ const SEED_ENTRIES = [
   ],
   "muscles": [
    "core"
-  ]
+  ],
+  "durationSec": 45
  },
  {
   "kind": "exercise",
@@ -231,7 +234,8 @@ const SEED_ENTRIES = [
    "legs",
    "glutes",
    "core"
-  ]
+  ],
+  "durationSec": 30
  },
  {
   "kind": "exercise",
@@ -248,7 +252,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "legs",
    "glutes"
-  ]
+  ],
+  "durationSec": 45
  },
  {
   "kind": "exercise",
@@ -266,7 +271,8 @@ const SEED_ENTRIES = [
    "glutes",
    "legs",
    "back"
-  ]
+  ],
+  "durationSec": 45
  },
  {
   "kind": "exercise",
@@ -283,7 +289,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "glutes",
    "core"
-  ]
+  ],
+  "durationSec": 45
  },
  {
   "kind": "exercise",
@@ -300,7 +307,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "glutes",
    "core"
-  ]
+  ],
+  "durationSec": 45
  },
  {
   "kind": "exercise",
@@ -317,7 +325,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "back",
    "legs"
-  ]
+  ],
+  "durationSec": 45
  },
  {
   "kind": "exercise",
@@ -336,7 +345,8 @@ const SEED_ENTRIES = [
    "arms",
    "shoulders",
    "core"
-  ]
+  ],
+  "durationSec": 45
  },
  {
   "kind": "exercise",
@@ -355,7 +365,8 @@ const SEED_ENTRIES = [
    "legs",
    "back",
    "core"
-  ]
+  ],
+  "durationSec": 60
  },
  {
   "kind": "exercise",
@@ -371,7 +382,8 @@ const SEED_ENTRIES = [
   ],
   "muscles": [
    "core"
-  ]
+  ],
+  "durationSec": 45
  },
  {
   "kind": "exercise",
@@ -387,7 +399,8 @@ const SEED_ENTRIES = [
   ],
   "muscles": [
    "core"
-  ]
+  ],
+  "durationSec": 45
  },
  {
   "kind": "exercise",
@@ -404,7 +417,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "core",
    "back"
-  ]
+  ],
+  "durationSec": 60
  },
  {
   "kind": "exercise",
@@ -421,7 +435,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "core",
    "glutes"
-  ]
+  ],
+  "durationSec": 45
  },
  {
   "kind": "exercise",
@@ -438,7 +453,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "core",
    "back"
-  ]
+  ],
+  "durationSec": 60
  },
  {
   "kind": "exercise",
@@ -455,7 +471,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "core",
    "back"
-  ]
+  ],
+  "durationSec": 45
  },
  {
   "kind": "exercise",
@@ -473,7 +490,8 @@ const SEED_ENTRIES = [
    "glutes",
    "core",
    "legs"
-  ]
+  ],
+  "durationSec": 60
  },
  {
   "kind": "exercise",
@@ -492,7 +510,8 @@ const SEED_ENTRIES = [
    "back",
    "glutes",
    "shoulders"
-  ]
+  ],
+  "durationSec": 60
  },
  {
   "kind": "exercise",
@@ -509,7 +528,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "back",
    "glutes"
-  ]
+  ],
+  "durationSec": 45
  },
  {
   "kind": "exercise",
@@ -526,7 +546,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "legs",
    "glutes"
-  ]
+  ],
+  "durationSec": 45
  },
  {
   "kind": "exercise",
@@ -543,7 +564,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "legs",
    "glutes"
-  ]
+  ],
+  "durationSec": 45
  },
  {
   "kind": "exercise",
@@ -559,7 +581,8 @@ const SEED_ENTRIES = [
   ],
   "muscles": [
    "legs"
-  ]
+  ],
+  "durationSec": 45
  },
  {
   "kind": "exercise",
@@ -575,7 +598,8 @@ const SEED_ENTRIES = [
   ],
   "muscles": [
    "glutes"
-  ]
+  ],
+  "durationSec": 45
  },
  {
   "kind": "exercise",
@@ -592,7 +616,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "glutes",
    "back"
-  ]
+  ],
+  "durationSec": 45
  },
  {
   "kind": "exercise",
@@ -608,7 +633,8 @@ const SEED_ENTRIES = [
   ],
   "muscles": [
    "arms"
-  ]
+  ],
+  "durationSec": 45
  },
  {
   "kind": "exercise",
@@ -626,7 +652,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "shoulders",
    "back"
-  ]
+  ],
+  "durationSec": 45
  },
  {
   "kind": "exercise",
@@ -644,7 +671,8 @@ const SEED_ENTRIES = [
    "arms",
    "shoulders",
    "chest"
-  ]
+  ],
+  "durationSec": 45
  },
  {
   "kind": "exercise",
@@ -663,7 +691,8 @@ const SEED_ENTRIES = [
    "glutes",
    "legs",
    "core"
-  ]
+  ],
+  "durationSec": 45
  },
  {
   "kind": "exercise",
@@ -680,7 +709,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "legs",
    "glutes"
-  ]
+  ],
+  "durationSec": 45
  },
  {
   "kind": "exercise",
@@ -697,7 +727,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "legs",
    "glutes"
-  ]
+  ],
+  "durationSec": 60
  },
  {
   "kind": "exercise",
@@ -714,7 +745,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "legs",
    "shoulders"
-  ]
+  ],
+  "durationSec": 60
  },
  {
   "kind": "exercise",
@@ -731,7 +763,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "legs",
    "glutes"
-  ]
+  ],
+  "durationSec": 45
  },
  {
   "kind": "exercise",
@@ -750,7 +783,8 @@ const SEED_ENTRIES = [
    "glutes",
    "shoulders",
    "core"
-  ]
+  ],
+  "durationSec": 45
  },
  {
   "kind": "exercise",
@@ -767,7 +801,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "core",
    "glutes"
-  ]
+  ],
+  "durationSec": 45
  },
  {
   "kind": "exercise",
@@ -784,7 +819,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "legs",
    "glutes"
-  ]
+  ],
+  "durationSec": 45
  },
  {
   "kind": "exercise",
@@ -802,7 +838,8 @@ const SEED_ENTRIES = [
    "legs",
    "glutes",
    "core"
-  ]
+  ],
+  "durationSec": 45
  },
  {
   "kind": "exercise",
@@ -820,7 +857,8 @@ const SEED_ENTRIES = [
    "back",
    "core",
    "shoulders"
-  ]
+  ],
+  "durationSec": 60
  },
  {
   "kind": "exercise",
@@ -837,7 +875,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "legs",
    "back"
-  ]
+  ],
+  "durationSec": 30
  },
  {
   "kind": "exercise",
@@ -853,7 +892,8 @@ const SEED_ENTRIES = [
   ],
   "muscles": [
    "legs"
-  ]
+  ],
+  "durationSec": 30
  },
  {
   "kind": "exercise",
@@ -870,7 +910,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "legs",
    "glutes"
-  ]
+  ],
+  "durationSec": 30
  },
  {
   "kind": "exercise",
@@ -886,7 +927,8 @@ const SEED_ENTRIES = [
   ],
   "muscles": [
    "glutes"
-  ]
+  ],
+  "durationSec": 30
  },
  {
   "kind": "exercise",
@@ -904,7 +946,8 @@ const SEED_ENTRIES = [
    "chest",
    "shoulders",
    "arms"
-  ]
+  ],
+  "durationSec": 30
  },
  {
   "kind": "exercise",
@@ -921,7 +964,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "back",
    "shoulders"
-  ]
+  ],
+  "durationSec": 30
  },
  {
   "kind": "exercise",
@@ -937,7 +981,8 @@ const SEED_ENTRIES = [
   ],
   "muscles": [
    "shoulders"
-  ]
+  ],
+  "durationSec": 30
  },
  {
   "kind": "exercise",
@@ -954,7 +999,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "legs",
    "glutes"
-  ]
+  ],
+  "durationSec": null
  },
  {
   "kind": "exercise",
@@ -970,7 +1016,8 @@ const SEED_ENTRIES = [
   ],
   "muscles": [
    "legs"
-  ]
+  ],
+  "durationSec": null
  },
  {
   "kind": "exercise",
@@ -986,7 +1033,8 @@ const SEED_ENTRIES = [
   ],
   "muscles": [
    "legs"
-  ]
+  ],
+  "durationSec": null
  },
  {
   "kind": "exercise",
@@ -1002,7 +1050,8 @@ const SEED_ENTRIES = [
   ],
   "muscles": [
    "legs"
-  ]
+  ],
+  "durationSec": null
  },
  {
   "kind": "exercise",
@@ -1019,7 +1068,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "legs",
    "glutes"
-  ]
+  ],
+  "durationSec": null
  },
  {
   "kind": "exercise",
@@ -1036,7 +1086,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "glutes",
    "back"
-  ]
+  ],
+  "durationSec": null
  },
  {
   "kind": "exercise",
@@ -1053,7 +1104,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "arms",
    "shoulders"
-  ]
+  ],
+  "durationSec": null
  },
  {
   "kind": "exercise",
@@ -1070,7 +1122,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "core",
    "legs"
-  ]
+  ],
+  "durationSec": null
  },
  {
   "kind": "exercise",
@@ -1086,7 +1139,8 @@ const SEED_ENTRIES = [
   ],
   "muscles": [
    "core"
-  ]
+  ],
+  "durationSec": null
  },
  {
   "kind": "exercise",
@@ -1103,7 +1157,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "legs",
    "back"
-  ]
+  ],
+  "durationSec": null
  },
  {
   "kind": "exercise",
@@ -1121,7 +1176,8 @@ const SEED_ENTRIES = [
    "shoulders",
    "legs",
    "back"
-  ]
+  ],
+  "durationSec": null
  },
  {
   "kind": "exercise",
@@ -1137,7 +1193,8 @@ const SEED_ENTRIES = [
   ],
   "muscles": [
    "back"
-  ]
+  ],
+  "durationSec": null
  },
  {
   "kind": "exercise",
@@ -1154,7 +1211,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "back",
    "core"
-  ]
+  ],
+  "durationSec": null
  },
  {
   "kind": "exercise",
@@ -1170,7 +1228,8 @@ const SEED_ENTRIES = [
   ],
   "muscles": [
    "back"
-  ]
+  ],
+  "durationSec": null
  },
  {
   "kind": "exercise",
@@ -1187,7 +1246,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "legs",
    "core"
-  ]
+  ],
+  "durationSec": null
  },
  {
   "kind": "exercise",
@@ -1204,7 +1264,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "glutes",
    "back"
-  ]
+  ],
+  "durationSec": null
  },
  {
   "kind": "exercise",
@@ -1222,7 +1283,8 @@ const SEED_ENTRIES = [
    "chest",
    "arms",
    "shoulders"
-  ]
+  ],
+  "durationSec": null
  },
  {
   "kind": "exercise",
@@ -1240,7 +1302,8 @@ const SEED_ENTRIES = [
    "chest",
    "arms",
    "shoulders"
-  ]
+  ],
+  "durationSec": null
  },
  {
   "kind": "exercise",
@@ -1258,7 +1321,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "back",
    "arms"
-  ]
+  ],
+  "durationSec": null
  },
  {
   "kind": "exercise",
@@ -1275,7 +1339,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "arms",
    "shoulders"
-  ]
+  ],
+  "durationSec": null
  },
  {
   "kind": "exercise",
@@ -1292,7 +1357,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "legs",
    "glutes"
-  ]
+  ],
+  "durationSec": null
  },
  {
   "kind": "exercise",
@@ -1309,7 +1375,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "back",
    "glutes"
-  ]
+  ],
+  "durationSec": null
  },
  {
   "kind": "exercise",
@@ -1326,7 +1393,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "legs",
    "glutes"
-  ]
+  ],
+  "durationSec": null
  },
  {
   "kind": "exercise",
@@ -1342,7 +1410,8 @@ const SEED_ENTRIES = [
   ],
   "muscles": [
    "glutes"
-  ]
+  ],
+  "durationSec": null
  },
  {
   "kind": "exercise",
@@ -1358,7 +1427,8 @@ const SEED_ENTRIES = [
   ],
   "muscles": [
    "core"
-  ]
+  ],
+  "durationSec": null
  },
  {
   "kind": "exercise",
@@ -1375,7 +1445,8 @@ const SEED_ENTRIES = [
   "muscles": [
    "core",
    "back"
-  ]
+  ],
+  "durationSec": null
  },
  {
   "kind": "exercise",
@@ -1391,7 +1462,8 @@ const SEED_ENTRIES = [
   ],
   "muscles": [
    "core"
-  ]
+  ],
+  "durationSec": null
  },
  {
   "kind": "exercise",
@@ -1407,6 +1479,7 @@ const SEED_ENTRIES = [
   ],
   "muscles": [
    "legs"
-  ]
+  ],
+  "durationSec": null
  }
 ];
