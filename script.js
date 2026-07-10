@@ -36,18 +36,20 @@ function saveProgram(list) {
   localStorage.setItem(PROGRAM_KEY, JSON.stringify(list));
   updateProgramCount();
 }
-function inProgram(url) { return getProgram().some(m => m.url === url); }
+// several moves can share one source url (e.g. NHS pages) — identity is title+url
+function moveKey(m) { return m.title + '|' + m.url; }
+function inProgram(entry) { return getProgram().some(m => moveKey(m) === moveKey(entry)); }
 function toggleProgram(entry) {
   const list = getProgram();
-  const i = list.findIndex(m => m.url === entry.url);
+  const i = list.findIndex(m => moveKey(m) === moveKey(entry));
   if (i >= 0) list.splice(i, 1);
   else list.push({ title: entry.title, url: entry.url, description: entry.description, category: entry.category });
   saveProgram(list);
   render();
 }
-function moveInProgram(url, dir) {
+function moveInProgram(key, dir) {
   const list = getProgram();
-  const i = list.findIndex(m => m.url === url);
+  const i = list.findIndex(m => moveKey(m) === key);
   const j = i + dir;
   if (i < 0 || j < 0 || j >= list.length) return;
   [list[i], list[j]] = [list[j], list[i]];
@@ -79,8 +81,8 @@ function renderProgram(dir) {
     a.href = m.url; a.rel = 'noopener'; a.target = '_blank';
     row.appendChild(a);
     if (m.description) row.appendChild(el('span', 'desc', ' — ' + m.description));
-    const up = el('button', 'mini', '↑'); up.onclick = () => moveInProgram(m.url, -1);
-    const down = el('button', 'mini', '↓'); down.onclick = () => moveInProgram(m.url, 1);
+    const up = el('button', 'mini', '↑'); up.onclick = () => moveInProgram(moveKey(m), -1);
+    const down = el('button', 'mini', '↓'); down.onclick = () => moveInProgram(moveKey(m), 1);
     const rm = el('button', 'mini', 'remove'); rm.onclick = () => toggleProgram(m);
     row.append(' ', up, ' ', down, ' ', rm);
     dir.appendChild(row);
@@ -108,7 +110,6 @@ function render() {
 
   for (const e of list) {
     const row = el('p', 'entry');
-    if (e.kind === 'exercise') row.appendChild(el('span', 'kindmark', '(move) '));
     const a = el('a', null, e.title);
     a.href = e.url; a.rel = 'noopener'; a.target = '_blank';
     a.style.fontSize = linkSize(e.recommend_count, max);
@@ -116,7 +117,7 @@ function render() {
     if (e.description) row.appendChild(el('span', 'desc', ' — ' + e.description));
     row.appendChild(el('span', 'by', ` · ${e.contributor}` + (e.recommend_count > 1 ? ` · recommended ${e.recommend_count}×` : '')));
     if (e.kind === 'exercise') {
-      const btn = el('button', 'mini', inProgram(e.url) ? '✓ in your program' : '+ add');
+      const btn = el('button', 'mini', inProgram(e) ? '✓ in your program' : '+ add');
       btn.onclick = () => toggleProgram(e);
       row.append(' ', btn);
     }
@@ -141,9 +142,9 @@ async function loadRemote() {
     if (!res.ok) return;
     const remote = await res.json();
     if (!remote.length) return;
-    const byUrl = new Map(allEntries.map(e => [e.url, e]));
-    for (const r of remote) byUrl.set(r.url, r);
-    allEntries = [...byUrl.values()].sort((a, b) => b.recommend_count - a.recommend_count || a.title.localeCompare(b.title));
+    const byKey = new Map(allEntries.map(e => [moveKey(e), e]));
+    for (const r of remote) byKey.set(moveKey(r), r);
+    allEntries = [...byKey.values()].sort((a, b) => b.recommend_count - a.recommend_count || a.title.localeCompare(b.title));
     render();
   } catch { /* offline or table not created yet — bundled seed already rendered */ }
 }

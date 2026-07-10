@@ -4,7 +4,7 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  background: #FFD9E6;
+  background: #FFBDD4;
   color: #33000E;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 13px;
@@ -67,7 +67,8 @@ button { background: #8E0038; color: #FFDCE9; font-weight: bold; cursor: pointer
 button:hover { background: #6E0030; }
 #form-msg { font-size: 12px; }
 
-/* contributors — a flowing paragraph, every name its own color */
+/* contributors — a flowing paragraph, every name its own color, centered */
+.center { text-align: center; }
 .contribs { line-height: 1.9; }
 .contribs span { font-weight: bold; margin-right: 10px; white-space: nowrap; }
 
