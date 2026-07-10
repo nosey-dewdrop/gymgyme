@@ -1,6 +1,10 @@
 // suggest page - posts a suggestion to supabase; it publishes after approval.
 const HEADERS = { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY };
 
+// sidebar counters (from the bundled seed)
+document.getElementById('stat-articles').textContent = `articles (${SEED_ENTRIES.filter(e => e.kind === 'link').length})`;
+document.getElementById('stat-workouts').textContent = `workouts (${SEED_ENTRIES.filter(e => e.kind === 'exercise').length})`;
+
 document.getElementById('suggest').addEventListener('submit', async ev => {
   ev.preventDefault();
   const form = ev.target;

@@ -33,16 +33,23 @@ h2 { font-size: 24px; text-transform: lowercase; margin: 38px 0 8px; }
 .greet { margin-bottom: 24px; }
 .greet input, .greet select { width: auto; display: inline-block; margin: 0 4px 0 0; padding: 6px 8px; }
 
-/* the big clickable invite - top of every page, impossible to miss */
-.toprow { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; }
-.toprow .brand { margin-bottom: 0; }
+/* the big clickable invite */
 .suggest-big { font-size: 24px; font-weight: bold; display: inline-block; }
 
-/* top right: suggest something! with my program right under it */
-.topright { text-align: right; }
-.topright a { display: block; font-weight: bold; }
-.topright a:not(.suggest-big) { font-size: 15px; margin-top: 2px; }
-.topright .stat { display: block; font-size: 12px; opacity: 0.75; margin-top: 2px; }
+/* left sidebar - lives in the empty left space of the page */
+.sidebar { position: fixed; left: 24px; top: 48px; width: 230px; }
+.sidebar a { display: block; font-weight: bold; margin-bottom: 4px; }
+.sidebar a:not(.suggest-big) { font-size: 15px; }
+.sidebar .stat { display: block; font-size: 12px; opacity: 0.75; margin-top: 2px; }
+/* narrow screens: no empty left space, sidebar flows on top */
+@media (max-width: 1260px) { .sidebar { position: static; width: auto; margin-bottom: 20px; } }
+
+/* onboarding rows */
+.ob-row { margin: 14px 0; }
+.ob-row input[type="text"], .ob-row input:not([type]) { width: 280px; }
+.ob-label { margin-top: 20px; font-weight: bold; }
+.ob-check { display: inline-block; margin: 6px 18px 0 0; }
+.ob-check input { width: auto; }
 
 /* navbar - plain links, current category is simply bigger */
 #nav { margin-bottom: 26px; line-height: 2; }

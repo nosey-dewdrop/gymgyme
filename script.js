@@ -71,33 +71,53 @@ function renderGreet() {
   const box = document.getElementById('greet');
   box.textContent = '';
   const p = getProfile();
-  if (p && p.name) {
-    box.appendChild(el('span', null, `hi, ${p.name}! good day to move a little.`));
-    const edit = el('button', 'mini', 'not you?');
-    edit.onclick = () => { localStorage.removeItem(PROFILE_KEY); renderGreet(); };
-    box.append(' ', edit);
-    return;
-  }
+  if (!p || !p.name) return; // onboarding takes over the page instead
+  box.appendChild(el('span', null, `hi, ${p.name}! good day to move a little.`));
+  const edit = el('button', 'mini', 'not you?');
+  edit.onclick = () => { localStorage.removeItem(PROFILE_KEY); renderGreet(); render(); };
+  box.append(' ', edit);
+}
+
+// first visit: the page itself is the onboarding, then never again
+function renderOnboarding(dir) {
+  document.getElementById('cat-title').textContent = 'welcome!';
+  dir.appendChild(el('p', 'tag', 'before you wander around: two tiny questions. everything stays in your browser, we never see it.'));
+
   const name = el('input');
   name.placeholder = 'what should we call you?';
   name.maxLength = 40;
-  const interest = el('select');
-  for (const c of CATEGORIES) {
-    const o = el('option', null, c);
-    o.value = c;
-    interest.appendChild(o);
+  const nameP = el('p', 'ob-row');
+  nameP.appendChild(name);
+  dir.appendChild(nameP);
+
+  dir.appendChild(el('p', 'ob-label', 'and what do you do? pick as many as you like:'));
+  const boxes = [];
+  const list = el('p', 'ob-row');
+  for (const c of CATEGORIES.filter(c => c !== 'healthy-living-articles')) {
+    const lab = el('label', 'ob-check');
+    const cb = el('input');
+    cb.type = 'checkbox';
+    cb.value = c;
+    boxes.push(cb);
+    lab.appendChild(cb);
+    lab.append(' ' + c);
+    list.appendChild(lab);
   }
-  interest.value = DEFAULT_CATEGORY;
-  const save = el('button', 'mini', 'hi!');
-  save.onclick = () => {
+  dir.appendChild(list);
+
+  const go = el('button', null, "let's go");
+  go.onclick = () => {
     const n = name.value.trim();
-    if (!n) return;
-    localStorage.setItem(PROFILE_KEY, JSON.stringify({ name: n, interest: interest.value }));
-    location.hash = '#' + interest.value;
+    if (!n) { name.focus(); return; }
+    const interests = boxes.filter(b => b.checked).map(b => b.value);
+    localStorage.setItem(PROFILE_KEY, JSON.stringify({ name: n, interests }));
+    location.hash = '#' + (interests[0] || DEFAULT_CATEGORY);
     renderGreet();
     render();
   };
-  box.append(el('span', null, 'hello! '), name, ' ', interest, ' ', save);
+  const goP = el('p', 'ob-row');
+  goP.appendChild(go);
+  dir.appendChild(goP);
 }
 
 function currentCategory() {
@@ -105,7 +125,8 @@ function currentCategory() {
   if (hash === 'my-program') return 'my-program';
   if (CATEGORIES.includes(hash)) return hash;
   const p = getProfile();
-  return (p && CATEGORIES.includes(p.interest)) ? p.interest : DEFAULT_CATEGORY;
+  const first = p && (p.interests && p.interests[0] || p.interest);
+  return CATEGORIES.includes(first) ? first : DEFAULT_CATEGORY;
 }
 
 function renderProgram(dir) {
@@ -153,6 +174,7 @@ function render() {
   const dir = document.getElementById('directory');
   dir.textContent = '';
 
+  if (!getProfile()) { renderOnboarding(dir); return; }
   if (cat === 'my-program') { renderProgram(dir); return; }
 
   const list = allEntries.filter(e => e.category === cat);
