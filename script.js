@@ -184,7 +184,7 @@ function renderProgramStats(dir, list) {
   const parts = Object.entries(counts).sort((a, b) => b[1] - a[1]);
   const spread = parts.map(([k, v]) => k + ' ×' + v).join(', ');
   const p = el('p', 'progstats');
-  p.appendChild(el('span', null, '~' + mins + ' min total'));
+  p.appendChild(el('span', null, 'duration: ~' + mins + ' min'));
   if (spread) p.appendChild(el('span', null, ' - muscles: ' + spread));
   dir.appendChild(p);
   const totalTags = parts.reduce((s, [, v]) => s + v, 0);
