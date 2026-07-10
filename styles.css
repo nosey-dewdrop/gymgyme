@@ -126,16 +126,26 @@ button:hover { background: #6E0030; }
 .cal-d.done .plandot { color: #FFDCE9; }
 .dayplan-title { text-align: center; margin: 20px 0 6px; }
 
-/* print = one clean ink-friendly page: the program + the calendar */
+/* print = one clean ink-friendly A4 sheet: the program + the calendar */
 @media print {
-  body { background: #fff; color: #000; display: block; min-height: 0; padding: 0; }
-  .sidebar, #nav, .greet, .footer, .contribs, h2.center, .push-down, button.mini, .small { display: none !important; }
-  .cal-d { background: #fff; border: 1px solid #000; color: #000; }
-  .cal-d.empty { border: none; }
+  @page { size: A4 portrait; margin: 15mm; }
+  body { background: #fff; color: #000; display: block; min-height: 0; padding: 0; max-width: 100%; font-size: 11pt; line-height: 1.55; }
+  .sidebar, #nav, .greet, .footer, .contribs, h2.center, .push-down, .small, button { display: none !important; }
+  h1 { font-size: 20pt; margin: 0 0 10pt; text-align: left; }
+  .entry { margin: 0 0 4pt; }
+  .entry a { font-size: 12pt !important; }
+  .entry .kindmark, .entry .by, .entry .desc { font-size: 10pt; color: #000; opacity: 1; }
+  .howto { display: block !important; font-size: 9.5pt; opacity: 1; margin: 0 0 8pt 14pt; max-width: none; }
+  .cal-head { margin-top: 16pt; page-break-before: auto; }
+  .cal-head .cal-title { font-size: 14pt; }
+  .cal { grid-template-columns: repeat(7, 16mm); gap: 0; margin-top: 4pt; page-break-inside: avoid; }
+  .cal-h { border: none; padding: 2pt 0; }
+  .cal-d { background: #fff; border: 0.5pt solid #000; color: #000; width: 16mm; height: 11mm; font-size: 10pt; }
+  .cal-d.empty { border: none; background: none; }
   .cal-d.done { background: #000; color: #fff; }
-  .cal-d.today { outline: none; }
+  .cal-d.done .plandot { color: #fff; }
+  .cal-d .plandot { color: #000; }
+  .cal-d.today, .cal-d.sel { outline: none; }
+  .dayplan-title { font-size: 13pt; margin-top: 12pt; }
   a { color: #000; text-decoration: none; }
-  .entry .by { color: #000; }
-  button { display: none !important; }
-  .howto { display: block !important; } /* the fridge sheet includes every how-to */
 }
