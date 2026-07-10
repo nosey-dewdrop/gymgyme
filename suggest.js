@@ -43,7 +43,7 @@ document.getElementById('suggest').addEventListener('submit', async ev => {
     title: form.title.value.trim(),
     url: form.url.value.trim(),
     description: form.description.value.trim() || null,
-    how: isMove ? (form.how.value.trim() || null) : null,
+    how: null, // the linked source does the explaining - contributors never write essays
     muscles: isMove && checked('mus-boxes').length ? checked('mus-boxes') : null,
     equipment: isMove && checked('eq-boxes').length ? checked('eq-boxes') : null,
     duration_sec: isMove && form.duration.value ? parseInt(form.duration.value, 10) : null,
