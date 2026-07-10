@@ -132,7 +132,17 @@ function renderProgram(dir) {
   dir.appendChild(clear);
 }
 
+function updateStats() {
+  const links = allEntries.filter(e => e.kind === 'link').length;
+  const moves = allEntries.filter(e => e.kind === 'exercise').length;
+  const a = document.getElementById('stat-articles');
+  const w = document.getElementById('stat-workouts');
+  if (a) a.textContent = `articles (${links})`;
+  if (w) w.textContent = `workouts (${moves})`;
+}
+
 function render() {
+  updateStats();
   const cat = currentCategory();
   document.getElementById('cat-title').textContent = cat === 'my-program' ? 'my program' : cat;
   document.title = (cat === 'my-program' ? 'my program' : cat) + ' - a community directory';

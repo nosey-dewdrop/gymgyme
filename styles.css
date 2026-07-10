@@ -42,6 +42,7 @@ h2 { font-size: 24px; text-transform: lowercase; margin: 38px 0 8px; }
 .topright { text-align: right; }
 .topright a { display: block; font-weight: bold; }
 .topright a:not(.suggest-big) { font-size: 15px; margin-top: 2px; }
+.topright .stat { display: block; font-size: 12px; opacity: 0.75; margin-top: 2px; }
 
 /* navbar - plain links, current category is simply bigger */
 #nav { margin-bottom: 26px; line-height: 2; }
