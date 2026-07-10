@@ -38,6 +38,11 @@ h2 { font-size: 24px; text-transform: lowercase; margin: 38px 0 8px; }
 .toprow .brand { margin-bottom: 0; }
 .suggest-big { font-size: 24px; font-weight: bold; display: inline-block; }
 
+/* top right: suggest something! with my program right under it */
+.topright { text-align: right; }
+.topright a { display: block; font-weight: bold; }
+.topright a:not(.suggest-big) { font-size: 15px; margin-top: 2px; }
+
 /* navbar - plain links, current category is simply bigger */
 #nav { margin-bottom: 26px; line-height: 2; }
 #nav a { margin-right: 14px; font-weight: bold; display: inline-block; white-space: nowrap; }
