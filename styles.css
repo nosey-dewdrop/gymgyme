@@ -4,7 +4,7 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  background: #FF8FB6;
+  background: #FFD9E6;
   color: #33000E;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 13px;
@@ -58,11 +58,11 @@ input, select, button {
   border: none;
   outline: none;
   padding: 8px 10px;
-  background: #FFB1CC;
+  background: #FFC7DB;
   color: #33000E;
 }
 input::placeholder { color: #7A2647; }
-input:focus, select:focus { background: #FFC4D9; }
+input:focus, select:focus { background: #FFBBD3; }
 button { background: #8E0038; color: #FFDCE9; font-weight: bold; cursor: pointer; width: fit-content; padding: 8px 18px; }
 button:hover { background: #6E0030; }
 #form-msg { font-size: 12px; }
