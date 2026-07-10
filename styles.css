@@ -111,7 +111,7 @@ button:hover { background: #6E0030; }
 .filters { margin: 0 0 2px; }
 .flabel { font-size: 12px; font-weight: bold; opacity: 0.6; margin-right: 4px; }
 button.mini.fopt { font-size: 13px; font-weight: normal; color: #33000E; opacity: 0.8; text-decoration: none; margin-right: 10px; }
-button.mini.fopt:hover { opacity: 0.8; color: #33000E; }
+button.mini.fopt:hover { opacity: 1; color: #8E0038; }
 button.mini.fopt.fon { font-size: 15px; font-weight: bold; color: #8E0038; opacity: 1; }
 button.mini.fopt.fon:hover { opacity: 1; color: #8E0038; }
 
