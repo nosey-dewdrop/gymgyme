@@ -260,15 +260,6 @@ function renderDayPlan(dir, iso) {
     row.append(' ', rm);
     dir.appendChild(row);
   }
-  // add without drag too (touch screens deserve love)
-  const prog = getProgram().filter(m => !moves.some(x => moveKey(x) === moveKey(m)));
-  if (prog.length) {
-    const sel = el('select');
-    sel.appendChild(el('option', null, 'add a move to this day…'));
-    for (const m of prog) { const o = el('option', null, m.title); o.value = moveKey(m); sel.appendChild(o); }
-    sel.onchange = () => { const m = prog.find(x => moveKey(x) === sel.value); if (m) addToDay(iso, m); };
-    const p = el('p', 'ob-row noprint'); p.appendChild(sel); dir.appendChild(p);
-  }
   const doneBtn = el('button', 'mini', getDays().includes(iso) ? '✓ done - undo' : 'mark this day done');
   doneBtn.onclick = () => toggleDay(iso);
   const p2 = el('p', 'ob-row'); p2.appendChild(doneBtn); dir.appendChild(p2);
