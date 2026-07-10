@@ -38,7 +38,8 @@ h2 { font-size: 24px; text-transform: lowercase; margin: 38px 0 8px; }
 
 /* left sidebar - lives in the empty left space of the page */
 .sidebar { position: fixed; left: 24px; top: 48px; width: 230px; }
-.sidebar .brand { margin-bottom: 18px; }
+.sidebar .brand { margin-bottom: 6px; }
+.sidebar-tag { margin-bottom: 16px; }
 .sidebar a { display: block; font-weight: bold; margin-bottom: 4px; }
 .sidebar a:not(.suggest-big) { font-size: 15px; }
 .sidebar .stat { display: block; font-size: 12px; opacity: 0.75; margin-top: 2px; }
