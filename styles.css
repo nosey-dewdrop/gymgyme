@@ -105,3 +105,29 @@ button:hover { background: #6E0030; }
 .contribs span { font-weight: bold; margin-right: 10px; white-space: nowrap; }
 
 .footer { margin-top: 44px; font-size: 11px; opacity: 0.7; text-align: center; line-height: 1.8; }
+
+/* how-to: opens under the move on click, hover tooltip works too */
+.howto { font-size: 12px; opacity: 0.9; margin: 2px 0 10px 14px; max-width: 560px; }
+.howto.hidden { display: none; }
+
+/* workout calendar - pink filled days, no boxes on screen */
+.cal { display: grid; grid-template-columns: repeat(7, 40px); gap: 4px; margin-top: 10px; }
+.cal-h { font-size: 10px; font-weight: bold; opacity: 0.6; text-align: center; text-transform: uppercase; }
+.cal-d { width: 40px; height: 34px; background: #FFCEDF; color: #33000E; font-weight: bold; padding: 0; text-align: center; }
+.cal-d.empty { background: none; }
+.cal-d.done { background: #8E0038; color: #FFDCE9; }
+.cal-d.today { outline: 2px solid #8E0038; }
+
+/* print = one clean ink-friendly page: the program + the calendar */
+@media print {
+  body { background: #fff; color: #000; display: block; min-height: 0; padding: 0; }
+  .sidebar, #nav, .greet, .footer, .contribs, h2.center, .push-down, button.mini, .small { display: none !important; }
+  .cal-d { background: #fff; border: 1px solid #000; color: #000; }
+  .cal-d.empty { border: none; }
+  .cal-d.done { background: #000; color: #fff; }
+  .cal-d.today { outline: none; }
+  a { color: #000; text-decoration: none; }
+  .entry .by { color: #000; }
+  button { display: none !important; }
+  .howto { display: block !important; } /* the fridge sheet includes every how-to */
+}

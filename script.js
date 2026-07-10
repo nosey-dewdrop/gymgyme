@@ -43,7 +43,7 @@ function toggleProgram(entry) {
   const list = getProgram();
   const i = list.findIndex(m => moveKey(m) === moveKey(entry));
   if (i >= 0) list.splice(i, 1);
-  else list.push({ title: entry.title, url: entry.url, description: entry.description, category: entry.category });
+  else list.push({ title: entry.title, url: entry.url, description: entry.description, category: entry.category, how: entry.how });
   saveProgram(list);
   render();
 }
@@ -129,10 +129,80 @@ function currentCategory() {
   return CATEGORIES.includes(first) ? first : DEFAULT_CATEGORY;
 }
 
+// ---- workout days + last-done (localStorage) ----
+const DAYS_KEY = 'hl_days';
+const LASTDONE_KEY = 'hl_lastdone';
+function isoToday() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+function getDays() { try { return JSON.parse(localStorage.getItem(DAYS_KEY)) || []; } catch { return []; } }
+function toggleDay(iso) {
+  const days = getDays();
+  const i = days.indexOf(iso);
+  if (i >= 0) days.splice(i, 1); else days.push(iso);
+  localStorage.setItem(DAYS_KEY, JSON.stringify(days));
+  render();
+}
+function getLastDone() { try { return JSON.parse(localStorage.getItem(LASTDONE_KEY)) || {}; } catch { return {}; } }
+function markDone(m) {
+  const map = getLastDone();
+  map[moveKey(m)] = isoToday();
+  localStorage.setItem(LASTDONE_KEY, JSON.stringify(map));
+  const days = getDays();
+  if (!days.includes(isoToday())) { days.push(isoToday()); localStorage.setItem(DAYS_KEY, JSON.stringify(days)); }
+  render();
+}
+function getHow(m) {
+  if (m.how) return m.how;
+  const found = allEntries.find(e => moveKey(e) === moveKey(m));
+  return found && found.how;
+}
+// every move row gets a "how?" toggle - hover works too, but click is for everyone
+function appendHow(dir, row, how) {
+  const p = el('p', 'howto hidden', how);
+  const btn = el('button', 'mini', 'how?');
+  btn.onclick = () => {
+    const hidden = p.classList.toggle('hidden');
+    btn.textContent = hidden ? 'how?' : 'got it';
+  };
+  row.append(' ', btn);
+  dir.appendChild(row);
+  dir.appendChild(p);
+}
+
+function lastDoneText(m) {
+  const iso = getLastDone()[moveKey(m)];
+  if (!iso) return 'never';
+  const diff = Math.round((new Date(isoToday()) - new Date(iso)) / 86400000);
+  if (diff <= 0) return 'today';
+  if (diff === 1) return 'yesterday';
+  return diff + ' days ago';
+}
+
+function renderCalendar(dir) {
+  const now = new Date();
+  const y = now.getFullYear(), mo = now.getMonth();
+  const monthName = now.toLocaleString('en', { month: 'long' }).toLowerCase();
+  dir.appendChild(el('h2', null, monthName + ' ' + y));
+  const days = getDays();
+  const grid = el('div', 'cal');
+  for (const d of ['mo', 'tu', 'we', 'th', 'fr', 'sa', 'su']) grid.appendChild(el('span', 'cal-h', d));
+  const firstDow = (new Date(y, mo, 1).getDay() + 6) % 7; // monday first
+  for (let i = 0; i < firstDow; i++) grid.appendChild(el('span', 'cal-d empty'));
+  const total = new Date(y, mo + 1, 0).getDate();
+  for (let d = 1; d <= total; d++) {
+    const iso = y + '-' + String(mo + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+    const cell = el('button', 'cal-d' + (days.includes(iso) ? ' done' : '') + (iso === isoToday() ? ' today' : ''), String(d));
+    cell.onclick = () => toggleDay(iso);
+    grid.appendChild(cell);
+  }
+  dir.appendChild(grid);
+  dir.appendChild(el('p', 'small', 'tap a day to mark it - "did it!" on a move marks today by itself. lives only in this browser.'));
+}
+
 function renderProgram(dir) {
   const list = getProgram();
   if (!list.length) {
     dir.appendChild(el('p', 'loading', 'your program is empty - open a category and hit “+ add” on the moves you like. it lives only in this browser.'));
+    renderCalendar(dir);
     return;
   }
   list.forEach((m, i) => {
@@ -142,15 +212,26 @@ function renderProgram(dir) {
     a.href = m.url; a.rel = 'noopener'; a.target = '_blank';
     row.appendChild(a);
     if (m.description) row.appendChild(el('span', 'desc', ' - ' + m.description.replace(' · ', ' - ')));
-    const up = el('button', 'mini', '↑'); up.onclick = () => moveInProgram(moveKey(m), -1);
-    const down = el('button', 'mini', '↓'); down.onclick = () => moveInProgram(moveKey(m), 1);
-    const rm = el('button', 'mini', 'remove'); rm.onclick = () => toggleProgram(m);
-    row.append(' ', up, ' ', down, ' ', rm);
-    dir.appendChild(row);
+    row.appendChild(el('span', 'by', ' - last done: ' + lastDoneText(m)));
+    const did = el('button', 'mini', 'did it!'); did.onclick = () => markDone(m);
+    const up = el('button', 'mini noprint', '↑'); up.onclick = () => moveInProgram(moveKey(m), -1);
+    const down = el('button', 'mini noprint', '↓'); down.onclick = () => moveInProgram(moveKey(m), 1);
+    const rm = el('button', 'mini noprint', 'remove'); rm.onclick = () => toggleProgram(m);
+    row.append(' ', did, ' ', up, ' ', down, ' ', rm);
+    const how = getHow(m);
+    if (how) appendHow(dir, row, how);
+    else dir.appendChild(row);
   });
+
+  renderCalendar(dir);
+
+  const pdf = el('button', null, 'print / save as pdf');
+  pdf.onclick = () => window.print();
   const clear = el('button', 'mini clear', 'clear the whole program');
   clear.onclick = () => { if (confirm('remove all moves from your program?')) { saveProgram([]); render(); } };
-  dir.appendChild(clear);
+  const actions = el('p', 'ob-row');
+  actions.append(pdf, ' ', clear);
+  dir.appendChild(actions);
 }
 
 function updateStats() {
@@ -200,7 +281,8 @@ function render() {
       btn.onclick = () => toggleProgram(e);
       row.append(' ', btn);
     }
-    dir.appendChild(row);
+    if (e.how) appendHow(dir, row, e.how);
+    else dir.appendChild(row);
   }
   if (!list.length) {
     const empty = el('p', 'loading', 'nothing in ' + cat + ' yet - be the first: ');
