@@ -155,6 +155,28 @@ button.mini.fopt.fon:hover { opacity: 1; color: #8E0038; }
 .cal-d.done .plandot { color: #FFDCE9; }
 .dayplan-title { text-align: center; margin: 20px 0 6px; }
 
+/* mobile - same soul, everything breathes and fits */
+@media (max-width: 700px) {
+  body { padding: 22px 16px 40px; font-size: 14px; }
+  h1 { font-size: 30px; margin-top: 4px; }
+  h2 { font-size: 20px; }
+  .brand { font-size: 22px; }
+  .sidebar { margin-bottom: 22px; }
+  .sidebar .stat { display: inline-block; margin-right: 12px; }
+  .suggest-big { font-size: 20px; }
+  #nav { line-height: 2.2; }
+  #nav a { font-size: 14px; margin-right: 12px; }
+  #nav a.on { font-size: 17px; }
+  .entry { line-height: 1.9; }
+  button.mini { font-size: 13px; padding: 2px 4px; }
+  .cal { grid-template-columns: repeat(7, minmax(0, 1fr)); width: 100%; max-width: 340px; margin-left: auto; margin-right: auto; }
+  .cal-d { width: auto; height: 40px; }
+  .cal-head { gap: 10px; }
+  form { max-width: 100%; }
+  .howto { margin-left: 8px; }
+  .filters { line-height: 2; }
+}
+
 /* print = one clean ink-friendly A4 sheet: the program + the calendar */
 @media print {
   @page { size: A4 portrait; margin: 15mm; }

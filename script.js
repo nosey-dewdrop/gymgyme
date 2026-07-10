@@ -1,9 +1,8 @@
-// directory page - vanilla JS, no build, no libraries.
+// directory page - vanilla JS, no build, no libraries, NO backend.
 // navbar picks the category (hash routing); importance = font size, that's it.
-// content = bundled seed + supabase (when the table is live); my program = localStorage.
+// content = bundled seed (suggestions arrive by mail and get merged in); my program = localStorage.
 const CATEGORIES = ['healthy-living-articles', 'home-workouts', 'pilates', 'ballet', 'yoga', 'gym', 'calisthenics', 'bodyweight'];
 const DEFAULT_CATEGORY = 'home-workouts';
-const HEADERS = { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY };
 const PROGRAM_KEY = 'hl_program';
 
 let allEntries = [...SEED_ENTRIES];
@@ -355,27 +354,6 @@ function filterRow(dir, label, options, current, setter) {
   dir.appendChild(p);
 }
 
-// ---- +recommend: one per entry per browser, needs supabase live (rows with id) ----
-const RECS_KEY = 'hl_recs';
-function getRecs() { try { return JSON.parse(localStorage.getItem(RECS_KEY)) || []; } catch { return []; } }
-async function recommend(e, btn) {
-  const recs = getRecs();
-  if (recs.includes(e.id)) return;
-  btn.textContent = '…';
-  try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/hl_recommend`, {
-      method: 'POST',
-      headers: { ...HEADERS, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ entry_id: e.id }),
-    });
-    if (!res.ok) throw new Error(res.status);
-    recs.push(e.id);
-    localStorage.setItem(RECS_KEY, JSON.stringify(recs));
-    e.recommend_count++;
-    render();
-  } catch { btn.textContent = '+1 failed, try later'; }
-}
-
 function matchesFilters(e) {
   if (filterEq !== 'all' && !(e.equipment || []).includes(filterEq)) return false;
   if (filterMus !== 'all' && !(e.muscles || []).includes(filterMus)) return false;
@@ -437,11 +415,6 @@ function render() {
       btn.onclick = () => toggleProgram(e);
       row.append(' ', btn);
     }
-    if (e.id) { // live rows only: recommending needs the database
-      const rec = el('button', 'mini', getRecs().includes(e.id) ? '♥ you recommended this' : 'recommend ♥');
-      if (!getRecs().includes(e.id)) rec.onclick = () => recommend(e, rec);
-      row.append(' ', rec);
-    }
     if (e.how) appendHow(dir, row, e.how);
     else dir.appendChild(row);
   }
@@ -467,22 +440,7 @@ function render() {
   }
 }
 
-// supabase is the live layer on top of the bundled seed: its rows win by url, new rows join.
-async function loadRemote() {
-  try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/hl_entries?approved=eq.true&select=id,kind,category,title,url,description,how,muscles,equipment,duration_sec,contributor,recommend_count&order=recommend_count.desc,title.asc`, { headers: HEADERS });
-    if (!res.ok) return;
-    const remote = (await res.json()).map(r => ({ ...r, durationSec: r.duration_sec }));
-    if (!remote.length) return;
-    const byKey = new Map(allEntries.map(e => [moveKey(e), e]));
-    for (const r of remote) byKey.set(moveKey(r), r);
-    allEntries = [...byKey.values()].sort((a, b) => b.recommend_count - a.recommend_count || a.title.localeCompare(b.title));
-    render();
-  } catch { /* offline or table not created yet - bundled seed already rendered */ }
-}
-
 window.addEventListener('hashchange', render);
 updateProgramCount();
 renderGreet();
 render();
-loadRemote();
