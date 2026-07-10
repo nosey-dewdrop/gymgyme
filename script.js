@@ -1,4 +1,4 @@
-// directory page — vanilla JS, no build, no libraries.
+// directory page - vanilla JS, no build, no libraries.
 // navbar picks the category (hash routing); importance = font size, that's it.
 // content = bundled seed + supabase (when the table is live); my program = localStorage.
 const CATEGORIES = ['healthy-living-articles', 'home-workouts', 'pilates', 'ballet', 'yoga', 'gym', 'calisthenics', 'bodyweight'];
@@ -14,7 +14,7 @@ function linkSize(count, max) {
   return (13 + t * 11).toFixed(1) + 'px'; // 13px → 24px
 }
 
-// deterministic color per contributor name — dark enough to read on pink
+// deterministic color per contributor name - dark enough to read on pink
 function nameColor(name) {
   let h = 0;
   for (const ch of name.toLowerCase()) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
@@ -36,7 +36,7 @@ function saveProgram(list) {
   localStorage.setItem(PROGRAM_KEY, JSON.stringify(list));
   updateProgramCount();
 }
-// several moves can share one source url (e.g. NHS pages) — identity is title+url
+// several moves can share one source url (e.g. NHS pages) - identity is title+url
 function moveKey(m) { return m.title + '|' + m.url; }
 function inProgram(entry) { return getProgram().some(m => moveKey(m) === moveKey(entry)); }
 function toggleProgram(entry) {
@@ -62,16 +62,56 @@ function updateProgramCount() {
   if (link) link.textContent = n ? `my program (${n})` : 'my program';
 }
 
+// ---- profile: name + interest, localStorage only ----
+const PROFILE_KEY = 'hl_profile';
+function getProfile() {
+  try { return JSON.parse(localStorage.getItem(PROFILE_KEY)); } catch { return null; }
+}
+function renderGreet() {
+  const box = document.getElementById('greet');
+  box.textContent = '';
+  const p = getProfile();
+  if (p && p.name) {
+    box.appendChild(el('span', null, `hi, ${p.name}! good day to move a little.`));
+    const edit = el('button', 'mini', 'not you?');
+    edit.onclick = () => { localStorage.removeItem(PROFILE_KEY); renderGreet(); };
+    box.append(' ', edit);
+    return;
+  }
+  const name = el('input');
+  name.placeholder = 'what should we call you?';
+  name.maxLength = 40;
+  const interest = el('select');
+  for (const c of CATEGORIES) {
+    const o = el('option', null, c);
+    o.value = c;
+    interest.appendChild(o);
+  }
+  interest.value = DEFAULT_CATEGORY;
+  const save = el('button', 'mini', 'hi!');
+  save.onclick = () => {
+    const n = name.value.trim();
+    if (!n) return;
+    localStorage.setItem(PROFILE_KEY, JSON.stringify({ name: n, interest: interest.value }));
+    location.hash = '#' + interest.value;
+    renderGreet();
+    render();
+  };
+  box.append(el('span', null, 'hello! '), name, ' ', interest, ' ', save);
+}
+
 function currentCategory() {
   const hash = location.hash.replace('#', '');
   if (hash === 'my-program') return 'my-program';
-  return CATEGORIES.includes(hash) ? hash : DEFAULT_CATEGORY;
+  if (CATEGORIES.includes(hash)) return hash;
+  const p = getProfile();
+  return (p && CATEGORIES.includes(p.interest)) ? p.interest : DEFAULT_CATEGORY;
 }
 
 function renderProgram(dir) {
   const list = getProgram();
   if (!list.length) {
-    dir.appendChild(el('p', 'loading', 'your program is empty — open a category and hit “+ add” on the moves you like. it lives only in this browser.'));
+    dir.appendChild(el('p', 'loading', 'your program is empty - open a category and hit “+ add” on the moves you like. it lives only in this browser.'));
     return;
   }
   list.forEach((m, i) => {
@@ -95,7 +135,7 @@ function renderProgram(dir) {
 function render() {
   const cat = currentCategory();
   document.getElementById('cat-title').textContent = cat === 'my-program' ? 'my program' : cat;
-  document.title = (cat === 'my-program' ? 'my program' : cat) + ' — a community directory';
+  document.title = (cat === 'my-program' ? 'my program' : cat) + ' - a community directory';
   for (const a of document.querySelectorAll('#nav a')) {
     a.classList.toggle('on', a.getAttribute('href') === '#' + cat);
   }
@@ -105,7 +145,11 @@ function render() {
 
   if (cat === 'my-program') { renderProgram(dir); return; }
 
-  const list = allEntries.filter(e => e.category === cat);
+  const q = (document.getElementById('search').value || '').trim().toLowerCase();
+  const list = q
+    ? allEntries.filter(e => (e.title + ' ' + (e.description || '')).toLowerCase().includes(q))
+    : allEntries.filter(e => e.category === cat);
+  if (q) document.getElementById('cat-title').textContent = 'search: ' + q;
   const max = Math.max(1, ...list.map(e => e.recommend_count));
 
   for (const e of list) {
@@ -129,7 +173,7 @@ function render() {
     }
     dir.appendChild(row);
   }
-  if (!list.length) dir.appendChild(el('p', 'loading', 'nothing in ' + cat + ' yet — be the first to suggest something.'));
+  if (!list.length) dir.appendChild(el('p', 'loading', q ? 'nothing found for "' + q + '" - try another word.' : 'nothing in ' + cat + ' yet - be the first to suggest something.'));
 
   const names = [...new Set(allEntries.map(e => e.contributor))];
   const contribs = document.getElementById('contributors');
@@ -152,10 +196,12 @@ async function loadRemote() {
     for (const r of remote) byKey.set(moveKey(r), r);
     allEntries = [...byKey.values()].sort((a, b) => b.recommend_count - a.recommend_count || a.title.localeCompare(b.title));
     render();
-  } catch { /* offline or table not created yet — bundled seed already rendered */ }
+  } catch { /* offline or table not created yet - bundled seed already rendered */ }
 }
 
 window.addEventListener('hashchange', render);
+document.getElementById('search').addEventListener('input', render);
 updateProgramCount();
+renderGreet();
 render();
 loadRemote();

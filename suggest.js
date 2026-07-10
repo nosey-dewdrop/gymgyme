@@ -1,4 +1,4 @@
-// suggest page — posts a suggestion to supabase; it publishes after approval.
+// suggest page - posts a suggestion to supabase; it publishes after approval.
 const HEADERS = { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY };
 
 document.getElementById('suggest').addEventListener('submit', async ev => {
@@ -22,8 +22,8 @@ document.getElementById('suggest').addEventListener('submit', async ev => {
     });
     if (!res.ok) throw new Error(res.status);
     form.reset();
-    msg.textContent = 'got it — thank you! it shows up after a human takes a look. 🎀';
+    msg.textContent = 'got it - thank you! it shows up after a human takes a look. 🎀';
   } catch (err) {
-    msg.textContent = 'could not send — check the link starts with https:// and try again.';
+    msg.textContent = 'could not send - check the link starts with https:// and try again.';
   }
 });
