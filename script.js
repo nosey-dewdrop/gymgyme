@@ -129,9 +129,27 @@ function currentCategory() {
   return CATEGORIES.includes(first) ? first : DEFAULT_CATEGORY;
 }
 
-// ---- workout days + last-done (localStorage) ----
+// ---- workout days + last-done + day plans (localStorage) ----
 const DAYS_KEY = 'hl_days';
 const LASTDONE_KEY = 'hl_lastdone';
+const PLAN_KEY = 'hl_plan';
+function getPlan() { try { return JSON.parse(localStorage.getItem(PLAN_KEY)) || {}; } catch { return {}; } }
+function savePlan(plan) { localStorage.setItem(PLAN_KEY, JSON.stringify(plan)); }
+function addToDay(iso, m) {
+  const plan = getPlan();
+  const day = plan[iso] || [];
+  if (!day.some(x => moveKey(x) === moveKey(m))) day.push({ title: m.title, url: m.url, description: m.description, how: m.how });
+  plan[iso] = day;
+  savePlan(plan);
+  render();
+}
+function removeFromDay(iso, m) {
+  const plan = getPlan();
+  plan[iso] = (plan[iso] || []).filter(x => moveKey(x) !== moveKey(m));
+  if (!plan[iso].length) delete plan[iso];
+  savePlan(plan);
+  render();
+}
 function isoToday() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
 function getDays() { try { return JSON.parse(localStorage.getItem(DAYS_KEY)) || []; } catch { return []; } }
 function toggleDay(iso) {
@@ -177,25 +195,83 @@ function lastDoneText(m) {
   return diff + ' days ago';
 }
 
+let calOffset = 0; // months back/forward from the current one
+let selectedDay = null; // clicked day shows its plan below the calendar
+
 function renderCalendar(dir) {
   const now = new Date();
-  const y = now.getFullYear(), mo = now.getMonth();
-  const monthName = now.toLocaleString('en', { month: 'long' }).toLowerCase();
-  dir.appendChild(el('h2', null, monthName + ' ' + y));
+  const shown = new Date(now.getFullYear(), now.getMonth() + calOffset, 1);
+  const y = shown.getFullYear(), mo = shown.getMonth();
+  const monthName = shown.toLocaleString('en', { month: 'long' }).toLowerCase();
+
+  const head = el('p', 'cal-head');
+  const prev = el('button', 'mini', '‹ earlier');
+  prev.onclick = () => { calOffset--; render(); };
+  const title = el('h2', 'cal-title', monthName + ' ' + y);
+  const next = el('button', 'mini', 'later ›');
+  next.onclick = () => { calOffset++; render(); };
+  if (calOffset >= 0) next.style.visibility = 'hidden'; // future months make no sense yet
+  head.append(prev, title, next);
+  dir.appendChild(head);
+
   const days = getDays();
   const grid = el('div', 'cal');
   for (const d of ['mo', 'tu', 'we', 'th', 'fr', 'sa', 'su']) grid.appendChild(el('span', 'cal-h', d));
   const firstDow = (new Date(y, mo, 1).getDay() + 6) % 7; // monday first
   for (let i = 0; i < firstDow; i++) grid.appendChild(el('span', 'cal-d empty'));
+  const plan = getPlan();
   const total = new Date(y, mo + 1, 0).getDate();
   for (let d = 1; d <= total; d++) {
     const iso = y + '-' + String(mo + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
-    const cell = el('button', 'cal-d' + (days.includes(iso) ? ' done' : '') + (iso === isoToday() ? ' today' : ''), String(d));
-    cell.onclick = () => toggleDay(iso);
+    let cls = 'cal-d';
+    if (days.includes(iso)) cls += ' done';
+    if (iso === isoToday()) cls += ' today';
+    if (iso === selectedDay) cls += ' sel';
+    const cell = el('button', cls, String(d));
+    if (plan[iso] && plan[iso].length) cell.appendChild(el('i', 'plandot', '•'));
+    cell.onclick = () => { selectedDay = (selectedDay === iso) ? null : iso; render(); };
+    cell.ondragover = ev => ev.preventDefault();
+    cell.ondrop = ev => {
+      ev.preventDefault();
+      const key = ev.dataTransfer.getData('text/plain');
+      const m = getProgram().find(x => moveKey(x) === key);
+      if (m) { selectedDay = iso; addToDay(iso, m); }
+    };
     grid.appendChild(cell);
   }
   dir.appendChild(grid);
-  dir.appendChild(el('p', 'small', 'tap a day to mark it - "did it!" on a move marks today by itself. lives only in this browser.'));
+  dir.appendChild(el('p', 'small', 'drag a move onto a day to plan it - tap a day to see its plan - "did it!" marks today. lives only in this browser.'));
+  if (selectedDay) renderDayPlan(dir, selectedDay);
+}
+
+function renderDayPlan(dir, iso) {
+  const nice = new Date(iso + 'T00:00').toLocaleString('en', { day: 'numeric', month: 'long' }).toLowerCase();
+  dir.appendChild(el('h2', 'dayplan-title', 'plan for ' + nice));
+  const moves = getPlan()[iso] || [];
+  if (!moves.length) dir.appendChild(el('p', 'small', 'nothing planned - drag a move from your program onto this day.'));
+  for (const m of moves) {
+    const row = el('p', 'entry');
+    const a = el('a', null, m.title);
+    a.href = m.url; a.rel = 'noopener'; a.target = '_blank';
+    if (m.how) a.title = m.how;
+    row.appendChild(a);
+    if (m.description) row.appendChild(el('span', 'desc', ' - ' + m.description.replace(' · ', ' - ')));
+    const rm = el('button', 'mini noprint', 'remove'); rm.onclick = () => removeFromDay(iso, m);
+    row.append(' ', rm);
+    dir.appendChild(row);
+  }
+  // add without drag too (touch screens deserve love)
+  const prog = getProgram().filter(m => !moves.some(x => moveKey(x) === moveKey(m)));
+  if (prog.length) {
+    const sel = el('select');
+    sel.appendChild(el('option', null, 'add a move to this day…'));
+    for (const m of prog) { const o = el('option', null, m.title); o.value = moveKey(m); sel.appendChild(o); }
+    sel.onchange = () => { const m = prog.find(x => moveKey(x) === sel.value); if (m) addToDay(iso, m); };
+    const p = el('p', 'ob-row noprint'); p.appendChild(sel); dir.appendChild(p);
+  }
+  const doneBtn = el('button', 'mini', getDays().includes(iso) ? '✓ done - undo' : 'mark this day done');
+  doneBtn.onclick = () => toggleDay(iso);
+  const p2 = el('p', 'ob-row'); p2.appendChild(doneBtn); dir.appendChild(p2);
 }
 
 function renderProgram(dir) {
@@ -207,6 +283,8 @@ function renderProgram(dir) {
   }
   list.forEach((m, i) => {
     const row = el('p', 'entry');
+    row.draggable = true;
+    row.ondragstart = ev => ev.dataTransfer.setData('text/plain', moveKey(m));
     row.appendChild(el('span', 'kindmark', (i + 1) + '. '));
     const a = el('a', null, m.title);
     a.href = m.url; a.rel = 'noopener'; a.target = '_blank';

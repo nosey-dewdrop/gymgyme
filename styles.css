@@ -110,13 +110,21 @@ button:hover { background: #6E0030; }
 .howto { font-size: 12px; opacity: 0.9; margin: 2px 0 10px 14px; max-width: 560px; }
 .howto.hidden { display: none; }
 
-/* workout calendar - pink filled days, no boxes on screen */
-.cal { display: grid; grid-template-columns: repeat(7, 40px); gap: 4px; margin-top: 10px; }
+/* workout calendar - centered, pink filled days, no boxes on screen */
+.cal-head { display: flex; align-items: baseline; justify-content: center; gap: 18px; margin-top: 26px; }
+.cal-head .cal-title { margin: 0; }
+.cal { display: grid; grid-template-columns: repeat(7, 40px); gap: 4px; margin-top: 10px; justify-content: center; }
+.cal + .small { text-align: center; }
 .cal-h { font-size: 10px; font-weight: bold; opacity: 0.6; text-align: center; text-transform: uppercase; }
 .cal-d { width: 40px; height: 34px; background: #FFCEDF; color: #33000E; font-weight: bold; padding: 0; text-align: center; }
 .cal-d.empty { background: none; }
 .cal-d.done { background: #8E0038; color: #FFDCE9; }
 .cal-d.today { outline: 2px solid #8E0038; }
+.cal-d.sel { background: #FF9FC2; }
+.cal-d.sel.done { background: #8E0038; }
+.cal-d .plandot { font-style: normal; display: block; line-height: 0.3; color: #8E0038; }
+.cal-d.done .plandot { color: #FFDCE9; }
+.dayplan-title { text-align: center; }
 
 /* print = one clean ink-friendly page: the program + the calendar */
 @media print {

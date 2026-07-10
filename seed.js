@@ -169,7 +169,7 @@ const SEED_ENTRIES = [
   "description": "beginner · wall, mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Ayaklarını duvara kalça genişliğinde yerleştir. Kalçanı omurga boyunca yavaşça yukarı kaldır. Dizlerden omuzlara düz bir çizgi hayal et. Nefes: Kalçanı kaldırırken nefes ver, inerken nefes al."
+  "how": "Lie on your back with your feet on the wall, hip-width apart. Roll your hips up one vertebra at a time, picturing a straight line from knees to shoulders, then melt back down. Exhale as you lift, inhale as you lower."
  },
  {
   "kind": "exercise",
@@ -179,7 +179,7 @@ const SEED_ENTRIES = [
   "description": "intermediate · wall, mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Ayaklarını duvara daya, belini mata yumuşakça bastır. Kollarını küçük ve ritmik hareketlerle pompala. Omuzlarını kulaklarından uzak tut. Nefes: Beş sayı boyunca nefes al, beş sayı boyunca nefes ver."
+  "how": "Rest your feet on the wall and press your lower back gently into the mat. Pump your arms in small, rhythmic beats, keeping your shoulders away from your ears. Breathe in for five counts, out for five."
  },
  {
   "kind": "exercise",
@@ -189,7 +189,7 @@ const SEED_ENTRIES = [
   "description": "intermediate · wall, mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Ayaklarını duvara koy, karnını içeri çek. Çapraz dirseği çapraz dize doğru nazikçe getir. Aceleye getirme, kontrol sende. Nefes: Dönerken nefes ver, merkeze dönerken nefes al."
+  "how": "With your feet on the wall, draw your belly in and bring the opposite elbow toward the opposite knee. No rush - stay in control. Exhale as you rotate, inhale back to center."
  },
  {
   "kind": "exercise",
@@ -199,7 +199,7 @@ const SEED_ENTRIES = [
   "description": "beginner · wall",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Sırtını duvara tamamen yasla. Dizlerin 90 dereceye gelene kadar yavaşça kay. Sırtını duvara bastırıp bacaklarında gücü hisset. Nefes: Beklerken sakin ve derin nefes almaya devam et."
+  "how": "Lean your whole back against the wall and slide down slowly until your knees reach about 90 degrees. Press your back into the wall and feel the strength in your legs. Keep breathing calmly while you hold."
  },
  {
   "kind": "exercise",
@@ -209,7 +209,7 @@ const SEED_ENTRIES = [
   "description": "intermediate · wall",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Bir elinle duvardan destek al. İçteki bacağını geriye adımla ve yavaşça alçal. Gövdeni dik, adımını yumuşak tut. Nefes: Alçalırken nefes al, yukarı çıkarken nefes ver."
+  "how": "Take support from the wall with one hand, step the inner leg back and lower slowly. Keep your torso tall and the step soft. Inhale as you lower, exhale as you rise."
  },
  {
   "kind": "exercise",
@@ -219,7 +219,7 @@ const SEED_ENTRIES = [
   "description": "beginner · wall",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "İki elinle duvara yaslan. Bir bacağını geride uzatıp kalçanı sıkarak kaldır. Beli çukurlaştırmadan, küçük ve kontrollü kaldır. Nefes: Bacağını kaldırırken nefes ver, indirirken nefes al."
+  "how": "Lean on the wall with both hands, stretch one leg back and lift it by squeezing the glute. Keep the lift small and controlled, without arching your lower back. Exhale as the leg rises, inhale as it lowers."
  },
  {
   "kind": "exercise",
@@ -229,7 +229,7 @@ const SEED_ENTRIES = [
   "description": "beginner · wall",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Duvardan hafif destek alarak yan dur. Bacağını yana doğru süzülür gibi kaldır. Gövdeni uzun ve dik tut, sallanma. Nefes: Bacak yükselirken nefes ver, inerken nefes al."
+  "how": "Stand sideways with light support from the wall and float your leg out to the side. Keep your body long and tall - no swinging. Exhale as the leg rises, inhale as it lowers."
  },
  {
   "kind": "exercise",
@@ -239,7 +239,7 @@ const SEED_ENTRIES = [
   "description": "beginner · wall",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Avuçlarını ve kalçanı duvara yasla. Bir bacağını hafif kaldırıp ayak ucunla küçük daireler çiz. Daireleri minik ve zarif tut. Nefes: Dairenin yarısında nefes al, diğer yarısında nefes ver."
+  "how": "Rest your palms and hips against the wall, lift one leg slightly and draw small circles with your toes. Keep the circles tiny and elegant. Inhale for half the circle, exhale for the other half."
  },
  {
   "kind": "exercise",
@@ -249,7 +249,7 @@ const SEED_ENTRIES = [
   "description": "beginner · wall",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Omuzlarını duvara yasla. Çeneden başlayarak omur omur öne doğru süzül. Yukarı dönerken omurganı tek tek duvara diz. Nefes: Aşağı süzülürken nefes ver, doğrulurken nefes al."
+  "how": "Lean your shoulders on the wall and peel forward one vertebra at a time, starting from the chin. On the way up, stack your spine back onto the wall piece by piece. Exhale gliding down, inhale rolling up."
  },
  {
   "kind": "exercise",
@@ -259,7 +259,7 @@ const SEED_ENTRIES = [
   "description": "beginner · wall",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Ellerini omuz genişliğinde duvara koy. Dirseklerini 45 derece açıyla bükerek duvara yaklaş. Vücudunu baştan topuğa dümdüz bir çizgi gibi taşı. Nefes: Duvara yaklaşırken nefes al, iterken nefes ver."
+  "how": "Place your hands on the wall at shoulder width. Bend your elbows at about 45 degrees to bring yourself toward the wall, carrying your body as one straight line from head to heels. Inhale approaching, exhale pushing away."
  },
  {
   "kind": "exercise",
@@ -269,7 +269,7 @@ const SEED_ENTRIES = [
   "description": "beginner · mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Dizler bükülü, ayaklar kalça genişliğinde. Kuyruk sokumundan başlayarak omur omur yüksel. İnerken de aynı zarafetle tek tek diz. Nefes: Yükselirken nefes ver, inerken nefes al."
+  "how": "Knees bent, feet hip-width apart. Rise one vertebra at a time starting from the tailbone, then lay them back down with the same grace. Exhale as you rise, inhale as you lower."
  },
  {
   "kind": "exercise",
@@ -279,7 +279,7 @@ const SEED_ENTRIES = [
   "description": "beginner · mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Dizler bükülü, eller başının arkasında. Kürek kemiklerin mattan kalkana dek nazikçe kıvrıl. Çeneni göğsüne yapıştırma, arada mandalina boşluğu bırak. Nefes: Yukarı kıvrılırken nefes ver, inerken nefes al."
+  "how": "Knees bent, hands behind your head. Curl up gently until your shoulder blades leave the mat, keeping a little space under your chin. Exhale as you curl up, inhale as you lower."
  },
  {
   "kind": "exercise",
@@ -289,7 +289,7 @@ const SEED_ENTRIES = [
   "description": "intermediate · mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Göğüs kaldırma pozisyonundan başla. Kaburganı çapraz kalçaya doğru döndür. Kalçanı sabit tut, dönüş belden değil gövdeden gelsin. Nefes: Dönerken nefes ver, merkeze dönerken nefes al."
+  "how": "Start from the chest lift position and rotate your ribcage toward the opposite hip. Keep your pelvis still - the turn comes from the trunk, not the lower back. Exhale on the turn, inhale back to center."
  },
  {
   "kind": "exercise",
@@ -299,7 +299,7 @@ const SEED_ENTRIES = [
   "description": "beginner · mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Bacaklarını masa pozisyonuna getir. Dizlerini bir yana yumuşakça indir. Karşı omzunu matta demirli tut. Nefes: Dizler yana giderken nefes al, merkeze dönerken nefes ver."
+  "how": "Bring your legs to tabletop and let your knees fall softly to one side while the opposite shoulder stays anchored to the mat. Inhale as the knees travel, exhale as they return to center."
  },
  {
   "kind": "exercise",
@@ -309,7 +309,7 @@ const SEED_ENTRIES = [
   "description": "intermediate · mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Göğüs kaldırma pozisyonunda kal. Bir bacağını uzatırken diğer dizini kucakla. Belini mata yumuşakça bastırmayı unutma. Nefes: Bacak değişimlerinde ritmik nefes al ve ver."
+  "how": "Stay in the chest-lift position, hug one knee while stretching the other leg long. Keep your lower back gently pressed into the mat. Breathe in rhythm with each leg change."
  },
  {
   "kind": "exercise",
@@ -319,7 +319,7 @@ const SEED_ENTRIES = [
   "description": "intermediate · mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Kollar uzun, omurganı tek tek mattan kaldır. Öne uzanırken karnını içeri çekili tut. İnerken omurlarını inci dizer gibi tek tek yerleştir. Nefes: Doğrulurken nefes ver, geri açılırken nefes al."
+  "how": "Arms long, peel your spine off the mat one bone at a time. Keep your belly drawn in as you reach forward, then lay each vertebra back down like stringing pearls. Exhale rolling up, inhale opening back."
  },
  {
   "kind": "exercise",
@@ -329,7 +329,7 @@ const SEED_ENTRIES = [
   "description": "intermediate · mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Dizlerini kucakla, sırtını yumuşak bir C yap. Top şeklini bozmadan geriye yuvarlan ve geri gel. Başının yere değmemesine dikkat et. Nefes: Geriye yuvarlanırken nefes al, dönerken nefes ver."
+  "how": "Hug your knees and make a soft C with your back. Roll back and return without losing the ball shape, keeping your head off the floor. Inhale rolling back, exhale coming up."
  },
  {
   "kind": "exercise",
@@ -339,7 +339,7 @@ const SEED_ENTRIES = [
   "description": "intermediate · mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Bir bacağını tavana doğru uzat. Ayak ucunla tavana küçük daireler çiz. Kalçaların matta sakin ve sabit kalsın. Nefes: Dairenin ilk yarısında nefes al, ikinci yarısında nefes ver."
+  "how": "Stretch one leg toward the ceiling and draw small circles with your toes. Keep both hips calm and steady on the mat. Inhale for the first half of the circle, exhale for the second."
  },
  {
   "kind": "exercise",
@@ -349,7 +349,7 @@ const SEED_ENTRIES = [
   "description": "beginner · mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Eller omuz, dizler kalça hizasında. Bir bacağını geriye doğru uzat, istersen karşı kolu ekle. Sırtını sehpa gibi dümdüz ve sakin tut. Nefes: Uzanırken nefes ver, toplanırken nefes al."
+  "how": "Hands under shoulders, knees under hips. Stretch one leg back - add the opposite arm if you like - and keep your back flat and quiet like a tabletop. Exhale as you reach, inhale as you gather."
  },
  {
   "kind": "exercise",
@@ -359,7 +359,7 @@ const SEED_ENTRIES = [
   "description": "beginner · mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Yüzüstü uzan, alnını matta dinlendir. Sırtının orta-üst kaslarıyla göğsünü nazikçe kaldır. Boynunu uzun tut, gökyüzüne değil öne bak. Nefes: Yükselirken nefes al, inerken nefes ver."
+  "how": "Lie face down with your forehead resting on the mat. Lift your chest gently using your mid-upper back muscles, keeping your neck long and your gaze forward. Inhale as you rise, exhale as you lower."
  },
  {
   "kind": "exercise",
@@ -369,7 +369,7 @@ const SEED_ENTRIES = [
   "description": "beginner · chair",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Sandalyenin ucuna otur, hafifçe öne eğil. Kollarını değil bacaklarını kullanarak kalk. Ne kadar yavaş, o kadar iyi. Nefes: Kalkarken nefes ver, otururken nefes al."
+  "how": "Sit at the front edge of a chair and lean slightly forward. Stand up using your legs, not your arms - the slower, the better. Exhale standing up, inhale sitting down."
  },
  {
   "kind": "exercise",
@@ -379,7 +379,7 @@ const SEED_ENTRIES = [
   "description": "beginner · chair",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Ellerini sandalyenin arkasına koy. Dizlerini rahat ettiğin kadar bük. Sırtın dik, dizlerin ayak ucunla aynı yönde. Nefes: Çömelirken nefes al, doğrulurken nefes ver."
+  "how": "Hold the back of a chair and bend your knees as far as feels comfortable. Back tall, knees tracking over your toes. Inhale down, exhale up."
  },
  {
   "kind": "exercise",
@@ -389,7 +389,7 @@ const SEED_ENTRIES = [
   "description": "beginner · chair",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Sandalyeden hafif destek al. İki topuğunu rahatça kalktığı kadar yukarı kaldır. İnişi aceleye getirme, süzülerek in. Nefes: Yükselirken nefes ver, inerken nefes al."
+  "how": "Take light support from a chair and lift both heels as high as they comfortably go. Glide down slowly - no rushing the landing. Exhale rising, inhale lowering."
  },
  {
   "kind": "exercise",
@@ -399,7 +399,7 @@ const SEED_ENTRIES = [
   "description": "beginner · chair",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Sandalyeden destek alarak dik dur. Bacağını yana doğru kontrollü kaldır. Gövden dimdik kalsın, yana eğilme. Nefes: Bacak yükselirken nefes ver, inerken nefes al."
+  "how": "Stand tall with chair support and lift one leg out to the side with control. Keep your body upright - no leaning. Exhale as the leg rises, inhale as it lowers."
  },
  {
   "kind": "exercise",
@@ -409,7 +409,7 @@ const SEED_ENTRIES = [
   "description": "beginner · chair",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Sandalyeye tutunarak dik dur. Bacağını dümdüz geriye doğru uzat. Beli bükmeden, kalçandan çalış. Nefes: Bacak geriye giderken nefes ver, dönerken nefes al."
+  "how": "Hold the chair and stretch one leg straight behind you, working from the glute without bending your lower back. Exhale as the leg goes back, inhale as it returns."
  },
  {
   "kind": "exercise",
@@ -419,7 +419,7 @@ const SEED_ENTRIES = [
   "description": "beginner · water bottle",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Her eline birer dolu su şişesi al. Şişeyi omzuna doğru yavaşça bük. Dirseklerini bedenine yakın, sabit tut. Nefes: Şişe yükselirken nefes ver, inerken nefes al."
+  "how": "Take a full water bottle in each hand and curl slowly toward your shoulders, elbows close to your sides. Exhale as the bottle rises, inhale as it lowers."
  },
  {
   "kind": "exercise",
@@ -429,7 +429,7 @@ const SEED_ENTRIES = [
   "description": "beginner · chair, water bottle",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Sandalyede dik otur, şişeler kucağında. Dirseklerini yana açarak şişeleri göğüs hizasına çek. Omuzlarını kulaklarına yaklaştırma. Nefes: Çekerken nefes ver, indirirken nefes al."
+  "how": "Sit tall with the bottles in your lap. Pull them up to chest height, elbows opening to the sides, shoulders away from your ears. Exhale pulling, inhale lowering."
  },
  {
   "kind": "exercise",
@@ -439,7 +439,7 @@ const SEED_ENTRIES = [
   "description": "intermediate · chair",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Sağlam bir sandalyenin ucuna ellerini yerleştir. Kalçanı öne kaydırıp dirseklerini yavaşça bük. Dirsekler geriye baksın, omuzlar rahat kalsın. Nefes: Alçalırken nefes al, yukarı iterken nefes ver."
+  "how": "Place your hands on the edge of a sturdy chair, slide your hips forward and bend your elbows slowly. Elbows point back, shoulders stay relaxed. Inhale lowering, exhale pressing up."
  },
  {
   "kind": "exercise",
@@ -449,7 +449,7 @@ const SEED_ENTRIES = [
   "description": "intermediate · mat, towel",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Topuklarını havlunun üzerine koy ve köprüye kalk. Ayaklarını yavaşça uzağa kaydır. Topuklarını çekerek köprüye geri dön. Nefes: Ayaklar kayarken nefes al, topukları çekerken nefes ver."
+  "how": "Heels on a towel, lift into a bridge. Slide your feet slowly away, then pull your heels back in to return to the bridge. Inhale as the feet slide out, exhale as they pull in."
  },
  {
   "kind": "exercise",
@@ -459,7 +459,7 @@ const SEED_ENTRIES = [
   "description": "intermediate · towel",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Bir ayağını küçük havlunun üstüne koy. Havlulu ayağını yana kaydırırken diğer dizini bük. Kalçanı geriye oturt, göğsün dik kalsın. Nefes: Yana kayarken nefes al, toparlanırken nefes ver."
+  "how": "Place one foot on a small towel. Slide it out to the side while bending the other knee, sitting your hips back with your chest tall. Inhale sliding out, exhale gathering back."
  },
  {
   "kind": "exercise",
@@ -469,7 +469,7 @@ const SEED_ENTRIES = [
   "description": "beginner · no equipment",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Dizlerini rahatça yukarı kaldırarak yerinde yürü. Kollarını doğal bir ritimle salla. Omuzların rahat, bakışın ileride olsun. Nefes: Adımlarınla uyumlu, düzenli nefes al."
+  "how": "Walk in place, lifting your knees comfortably and swinging your arms in a natural rhythm. Shoulders relaxed, gaze ahead. Keep your breath steady with your steps."
  },
  {
   "kind": "exercise",
@@ -479,7 +479,7 @@ const SEED_ENTRIES = [
   "description": "beginner · no equipment",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Sağ ayağını yana adımlarken sağ kolunu başının üzerine kaldır. Merkeze dön, aynısını sol tarafla yap. Zıplamak yok, adımların yumuşacık. Nefes: Her iki adımda bir nefes al, sonraki ikide ver."
+  "how": "Step one foot out while raising the same-side arm overhead, return to center, switch sides. No jumping - keep the steps soft. Breathe in for two steps, out for the next two."
  },
  {
   "kind": "exercise",
@@ -489,7 +489,7 @@ const SEED_ENTRIES = [
   "description": "intermediate · no equipment",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Bir yana geniş bir adım at, diğer ayağı arkadan çaprazla. Patenci gibi süzülerek yön değiştir. Dizlerin yumuşak, gövden hafif öne eğik. Nefes: Her yön değişiminde ritmik nefes ver."
+  "how": "Take a wide step to one side, crossing the other foot behind like a skater gliding, then switch directions. Knees soft, torso slightly forward. Exhale rhythmically on each direction change."
  },
  {
   "kind": "exercise",
@@ -499,7 +499,7 @@ const SEED_ENTRIES = [
   "description": "intermediate · no equipment",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Hafif bir çömelme yap. Doğrulurken havaya çapraz yumruklar at. Yumruklar keyifli, çömelme kontrollü olsun. Nefes: Çömelirken nefes al, yumruk atarken nefes ver."
+  "how": "Do a light squat, then throw playful cross punches as you rise. The punches are fun, the squat stays controlled. Inhale squatting, exhale punching."
  },
  {
   "kind": "exercise",
@@ -509,7 +509,7 @@ const SEED_ENTRIES = [
   "description": "beginner · no equipment",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Ellerini başının yanına koy. Dizini yandan kaldırıp aynı taraftaki dirseğinle buluştur. Gövden dik, hareket yandan gelsin. Nefes: Diz yükselirken nefes ver, inerken nefes al."
+  "how": "Hands beside your head. Lift one knee out to the side and meet it with the same-side elbow. Body tall - the movement comes from your side. Exhale as the knee rises, inhale as it lowers."
  },
  {
   "kind": "exercise",
@@ -519,7 +519,7 @@ const SEED_ENTRIES = [
   "description": "beginner · no equipment",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Dizlerin hafif bükülü, küçük yan adımlarla ilerle. Birkaç adım sonra yön değiştir. Ayakların yerden çok kopmadan tempolu git. Nefes: Tempoya eşlik eden düzenli nefesler al."
+  "how": "Knees slightly bent, travel with small side steps, then switch direction after a few. Stay quick without your feet leaving the floor much. Keep an even breath with the tempo."
  },
  {
   "kind": "exercise",
@@ -529,7 +529,7 @@ const SEED_ENTRIES = [
   "description": "intermediate · no equipment",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Bir bacağınla geriye yumuşak bir hamle yap. Doğrulurken aynı bacakla öne nazik bir tekme at. Tekme küçük olsun, denge büyük. Nefes: Hamlede nefes al, tekmede nefes ver."
+  "how": "Step back into a soft lunge, then rise and give a gentle front kick with the same leg. Small kick, big balance. Inhale on the lunge, exhale on the kick."
  },
  {
   "kind": "exercise",
@@ -539,7 +539,7 @@ const SEED_ENTRIES = [
   "description": "beginner · mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Emekleme pozisyonunda başla. Nefes verirken sırtını kedi gibi yukarı kamburlaştır. Nefes alırken karnını bırak, göğsünü öne aç. Nefes: Devede nefes al, kedide nefes ver."
+  "how": "Start on all fours. Exhale and round your back up like a cat; inhale, drop your belly and open your chest forward. Flow between the two with your breath."
  },
  {
   "kind": "exercise",
@@ -549,7 +549,7 @@ const SEED_ENTRIES = [
   "description": "beginner · mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Bir bacağını öne uzat. Kalçandan öne doğru nazikçe eğil. Gerginliği hisset ama acıya gitme. Nefes: Esnerken yavaş ve derin nefes vermeye devam et."
+  "how": "Extend one leg forward and hinge gently from your hips. Feel the stretch without chasing pain. Keep breathing slow and deep as you hold."
  },
  {
   "kind": "exercise",
@@ -559,7 +559,7 @@ const SEED_ENTRIES = [
   "description": "beginner · wall",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Ellerini duvara koy, bir ayağını geriye adımla. Arka topuğunu yere bastır. Baldırında tatlı bir gerilme hisset. Nefes: Pozisyonda kalırken sakin nefes al."
+  "how": "Hands on the wall, step one foot back and press the back heel into the floor. Feel a sweet stretch in your calf. Breathe calmly while you hold."
  },
  {
   "kind": "exercise",
@@ -569,7 +569,7 @@ const SEED_ENTRIES = [
   "description": "beginner · wall",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Bir elinle duvardan destek al. Ayak bileğini tutup topuğunu kalçana yaklaştır. Dizlerini yan yana, gövdeni dik tut. Nefes: Esneme boyunca nefesini tutma, akmaya bırak."
+  "how": "Take support from the wall with one hand, hold your ankle and bring your heel toward your glute. Knees side by side, body tall. Don't hold your breath - let it flow."
  },
  {
   "kind": "exercise",
@@ -579,7 +579,7 @@ const SEED_ENTRIES = [
   "description": "beginner · mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Sırtüstü uzan, bir ayak bileğini karşı dizinin üstüne koy. Alttaki bacağını göğsüne doğru nazikçe çek. Kalçanda yumuşak bir açılma hisset. Nefes: Her nefes verişte biraz daha gevşe."
+  "how": "Lie on your back, cross one ankle over the opposite knee and gently pull the bottom leg toward your chest. Feel a soft opening in your hip. Relax a little more with every exhale."
  },
  {
   "kind": "exercise",
@@ -589,7 +589,7 @@ const SEED_ENTRIES = [
   "description": "beginner · wall",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Kolunu omuz hizasında duvara yasla. Gövdeni duvardan uzağa hafifçe döndür. Göğsünün açıldığını hisset, omzunu düşük tut. Nefes: Nefes aldıkça göğsünün genişlediğini hisset."
+  "how": "Rest your arm on the wall at shoulder height and rotate your body gently away. Feel your chest open while your shoulder stays low. Feel your chest widen as you inhale."
  },
  {
   "kind": "exercise",
@@ -599,7 +599,7 @@ const SEED_ENTRIES = [
   "description": "beginner · no equipment",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Parmaklarını önünde kenetle. Kollarını öne uzatırken sırtını yuvarla. Kürek kemiklerinin arasının açıldığını hisset. Nefes: Nefes verirken sırtındaki gerginliği bırak."
+  "how": "Interlace your fingers in front of you, reach your arms forward and round your back. Feel the space between your shoulder blades open. Release the tension with each exhale."
  },
  {
   "kind": "exercise",
@@ -609,7 +609,7 @@ const SEED_ENTRIES = [
   "description": "beginner · no equipment",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Çeneni göğsüne doğru nazikçe indir. Başınla yavaş ve küçük yarım daireler çiz. Omuzların ağır ve rahat kalsın. Nefes: Her dairede yavaşça nefes alıp ver."
+  "how": "Lower your chin gently toward your chest and draw slow, small half circles with your head. Keep your shoulders heavy and relaxed. Breathe slowly with each circle."
  },
  {
   "kind": "exercise",
