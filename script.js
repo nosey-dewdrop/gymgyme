@@ -470,9 +470,9 @@ function render() {
 // supabase is the live layer on top of the bundled seed: its rows win by url, new rows join.
 async function loadRemote() {
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/hl_entries?approved=eq.true&select=id,kind,category,title,url,description,how,contributor,recommend_count&order=recommend_count.desc,title.asc`, { headers: HEADERS });
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/hl_entries?approved=eq.true&select=id,kind,category,title,url,description,how,muscles,equipment,duration_sec,contributor,recommend_count&order=recommend_count.desc,title.asc`, { headers: HEADERS });
     if (!res.ok) return;
-    const remote = await res.json();
+    const remote = (await res.json()).map(r => ({ ...r, durationSec: r.duration_sec }));
     if (!remote.length) return;
     const byKey = new Map(allEntries.map(e => [moveKey(e), e]));
     for (const r of remote) byKey.set(moveKey(r), r);
