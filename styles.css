@@ -135,6 +135,12 @@ button.mini.fopt.fon:hover { opacity: 1; color: #8E0038; }
 .howto { font-size: 12px; opacity: 0.9; margin: 2px 0 10px 14px; max-width: 560px; }
 .howto.hidden { display: none; }
 
+/* generator row */
+.genrow { line-height: 2.2; }
+.genrow select { margin-right: 10px; }
+.genrow .ob-check { margin-right: 12px; }
+.genrow button { margin-left: 4px; }
+
 /* program stats - one quiet line: total time + muscle spread + friendly nudge */
 .progstats { margin-top: 10px; font-size: 13px; font-weight: bold; }
 .progstats.nudge { font-weight: normal; margin-top: 2px; }

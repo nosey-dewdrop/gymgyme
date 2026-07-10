@@ -295,7 +295,57 @@ function renderDayPlan(dir, iso) {
   const p2 = el('p', 'ob-row'); p2.appendChild(doneBtn); dir.appendChild(p2);
 }
 
+// "make me a program": pure formula, no ai - time budget + muscle balance + stretch to finish
+function generateProgram(minutes, allowedEq) {
+  const pool = allEntries.filter(e => e.kind === 'exercise' && (e.equipment || []).every(q => q === 'no equipment' || allowedEq.includes(q)));
+  for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+  const budget = minutes * 60;
+  const picked = [];
+  const counts = {};
+  let total = 0;
+  for (const e of pool) {
+    const dur = e.durationSec || 45;
+    if (total + dur > budget) continue;
+    const primary = (e.muscles || [])[0];
+    if (primary && (counts[primary] || 0) >= Math.ceil((picked.length + 1) / 2)) continue; // no single-muscle pileup
+    picked.push(e);
+    total += dur;
+    for (const m of e.muscles || []) counts[m] = (counts[m] || 0) + 1;
+    if (budget - total < 30) break;
+  }
+  const si = picked.findIndex(e => /stretch/i.test(e.title));
+  if (si >= 0 && si !== picked.length - 1) picked.push(picked.splice(si, 1)[0]); // cool down at the end
+  return picked.map(e => ({ title: e.title, url: e.url, description: e.description, category: e.category, how: e.how, muscles: e.muscles, durationSec: e.durationSec }));
+}
+
+function renderGenerator(dir) {
+  dir.appendChild(el('p', 'ob-label', 'in a hurry? tell gymgyme what you have and it builds one:'));
+  const row = el('p', 'ob-row genrow');
+  const mins = el('select');
+  for (const m of [10, 15, 20, 30]) { const o = el('option', null, m + ' minutes'); o.value = m; mins.appendChild(o); }
+  mins.value = '15';
+  row.appendChild(mins);
+  const boxes = [];
+  for (const q of ['wall', 'mat', 'chair', 'towel', 'water bottle']) {
+    const lab = el('label', 'ob-check');
+    const cb = el('input'); cb.type = 'checkbox'; cb.checked = true; cb.value = q;
+    boxes.push(cb); lab.appendChild(cb); lab.append(' ' + q);
+    row.appendChild(lab);
+  }
+  const go = el('button', null, 'make me a program');
+  go.onclick = () => {
+    if (getProgram().length && !confirm('this replaces your current program - go on?')) return;
+    const prog = generateProgram(parseInt(mins.value, 10), boxes.filter(b => b.checked).map(b => b.value));
+    if (!prog.length) { alert('could not fit anything - loosen the equipment boxes.'); return; }
+    saveProgram(prog);
+    render();
+  };
+  row.append(' ', go);
+  dir.appendChild(row);
+}
+
 function renderProgram(dir) {
+  renderGenerator(dir);
   const list = getProgram();
   if (!list.length) {
     dir.appendChild(el('p', 'loading', 'your program is empty - open a category and hit “+ add” on the moves you like. it lives only in this browser.'));
