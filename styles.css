@@ -123,8 +123,8 @@ button.mini.fopt.fon:hover { opacity: 1; color: #8E0038; }
 .cal-head { display: flex; align-items: baseline; justify-content: center; gap: 14px; margin-top: 40px; }
 .cal-head .cal-title { margin: 0; }
 .cal { display: grid; grid-template-columns: repeat(7, 40px); gap: 4px; margin-top: 8px; justify-content: center; }
-.cal + .small { text-align: center; margin: 6px 0 40px; }
-.cal-h { font-size: 10px; font-weight: bold; opacity: 0.6; text-align: center; }
+.cal + .small { text-align: center; margin: 6px 0 40px; opacity: 1; }
+.cal-h { font-size: 10px; font-weight: bold; text-align: center; }
 .cal-d { width: 40px; height: 34px; background: #FFCEDF; color: #33000E; font-weight: bold; padding: 0; text-align: center; }
 .cal-d.empty { background: none; }
 .cal-d.done { background: #8E0038; color: #FFDCE9; }
