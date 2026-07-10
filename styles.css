@@ -29,7 +29,7 @@ h2 { font-size: 24px; text-transform: lowercase; margin: 38px 0 8px; }
 .loading { margin-top: 30px; }
 
 /* brand header + greeting */
-.brand { font-size: 26px; font-weight: bold; letter-spacing: 0.35em; margin-bottom: 10px; }
+.brand { font-size: 26px; font-weight: bold; margin-bottom: 10px; }
 .greet { margin-bottom: 24px; }
 .greet input, .greet select { width: auto; display: inline-block; margin: 0 4px 0 0; padding: 6px 8px; }
 
