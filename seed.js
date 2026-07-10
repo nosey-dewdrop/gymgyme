@@ -169,7 +169,16 @@ const SEED_ENTRIES = [
   "description": "beginner · wall, mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Lie on your back with your feet on the wall, hip-width apart. Roll your hips up one vertebra at a time, picturing a straight line from knees to shoulders, then melt back down. Exhale as you lift, inhale as you lower."
+  "how": "Lie on your back with your feet on the wall, hip-width apart. Roll your hips up one vertebra at a time, picturing a straight line from knees to shoulders, then melt back down. Exhale as you lift, inhale as you lower.",
+  "equipment": [
+   "wall",
+   "mat"
+  ],
+  "muscles": [
+   "glutes",
+   "legs",
+   "core"
+  ]
  },
  {
   "kind": "exercise",
@@ -179,7 +188,15 @@ const SEED_ENTRIES = [
   "description": "intermediate · wall, mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Rest your feet on the wall and press your lower back gently into the mat. Pump your arms in small, rhythmic beats, keeping your shoulders away from your ears. Breathe in for five counts, out for five."
+  "how": "Rest your feet on the wall and press your lower back gently into the mat. Pump your arms in small, rhythmic beats, keeping your shoulders away from your ears. Breathe in for five counts, out for five.",
+  "equipment": [
+   "wall",
+   "mat"
+  ],
+  "muscles": [
+   "core",
+   "shoulders"
+  ]
  },
  {
   "kind": "exercise",
@@ -189,7 +206,14 @@ const SEED_ENTRIES = [
   "description": "intermediate · wall, mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "With your feet on the wall, draw your belly in and bring the opposite elbow toward the opposite knee. No rush - stay in control. Exhale as you rotate, inhale back to center."
+  "how": "With your feet on the wall, draw your belly in and bring the opposite elbow toward the opposite knee. No rush - stay in control. Exhale as you rotate, inhale back to center.",
+  "equipment": [
+   "wall",
+   "mat"
+  ],
+  "muscles": [
+   "core"
+  ]
  },
  {
   "kind": "exercise",
@@ -199,7 +223,15 @@ const SEED_ENTRIES = [
   "description": "beginner · wall",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Lean your whole back against the wall and slide down slowly until your knees reach about 90 degrees. Press your back into the wall and feel the strength in your legs. Keep breathing calmly while you hold."
+  "how": "Lean your whole back against the wall and slide down slowly until your knees reach about 90 degrees. Press your back into the wall and feel the strength in your legs. Keep breathing calmly while you hold.",
+  "equipment": [
+   "wall"
+  ],
+  "muscles": [
+   "legs",
+   "glutes",
+   "core"
+  ]
  },
  {
   "kind": "exercise",
@@ -209,7 +241,14 @@ const SEED_ENTRIES = [
   "description": "intermediate · wall",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Take support from the wall with one hand, step the inner leg back and lower slowly. Keep your torso tall and the step soft. Inhale as you lower, exhale as you rise."
+  "how": "Take support from the wall with one hand, step the inner leg back and lower slowly. Keep your torso tall and the step soft. Inhale as you lower, exhale as you rise.",
+  "equipment": [
+   "wall"
+  ],
+  "muscles": [
+   "legs",
+   "glutes"
+  ]
  },
  {
   "kind": "exercise",
@@ -219,7 +258,15 @@ const SEED_ENTRIES = [
   "description": "beginner · wall",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Lean on the wall with both hands, stretch one leg back and lift it by squeezing the glute. Keep the lift small and controlled, without arching your lower back. Exhale as the leg rises, inhale as it lowers."
+  "how": "Lean on the wall with both hands, stretch one leg back and lift it by squeezing the glute. Keep the lift small and controlled, without arching your lower back. Exhale as the leg rises, inhale as it lowers.",
+  "equipment": [
+   "wall"
+  ],
+  "muscles": [
+   "glutes",
+   "legs",
+   "back"
+  ]
  },
  {
   "kind": "exercise",
@@ -229,7 +276,14 @@ const SEED_ENTRIES = [
   "description": "beginner · wall",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Stand sideways with light support from the wall and float your leg out to the side. Keep your body long and tall - no swinging. Exhale as the leg rises, inhale as it lowers."
+  "how": "Stand sideways with light support from the wall and float your leg out to the side. Keep your body long and tall - no swinging. Exhale as the leg rises, inhale as it lowers.",
+  "equipment": [
+   "wall"
+  ],
+  "muscles": [
+   "glutes",
+   "core"
+  ]
  },
  {
   "kind": "exercise",
@@ -239,7 +293,14 @@ const SEED_ENTRIES = [
   "description": "beginner · wall",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Rest your palms and hips against the wall, lift one leg slightly and draw small circles with your toes. Keep the circles tiny and elegant. Inhale for half the circle, exhale for the other half."
+  "how": "Rest your palms and hips against the wall, lift one leg slightly and draw small circles with your toes. Keep the circles tiny and elegant. Inhale for half the circle, exhale for the other half.",
+  "equipment": [
+   "wall"
+  ],
+  "muscles": [
+   "glutes",
+   "core"
+  ]
  },
  {
   "kind": "exercise",
@@ -249,7 +310,14 @@ const SEED_ENTRIES = [
   "description": "beginner · wall",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Lean your shoulders on the wall and peel forward one vertebra at a time, starting from the chin. On the way up, stack your spine back onto the wall piece by piece. Exhale gliding down, inhale rolling up."
+  "how": "Lean your shoulders on the wall and peel forward one vertebra at a time, starting from the chin. On the way up, stack your spine back onto the wall piece by piece. Exhale gliding down, inhale rolling up.",
+  "equipment": [
+   "wall"
+  ],
+  "muscles": [
+   "back",
+   "legs"
+  ]
  },
  {
   "kind": "exercise",
@@ -259,7 +327,16 @@ const SEED_ENTRIES = [
   "description": "beginner · wall",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Place your hands on the wall at shoulder width. Bend your elbows at about 45 degrees to bring yourself toward the wall, carrying your body as one straight line from head to heels. Inhale approaching, exhale pushing away."
+  "how": "Place your hands on the wall at shoulder width. Bend your elbows at about 45 degrees to bring yourself toward the wall, carrying your body as one straight line from head to heels. Inhale approaching, exhale pushing away.",
+  "equipment": [
+   "wall"
+  ],
+  "muscles": [
+   "chest",
+   "arms",
+   "shoulders",
+   "core"
+  ]
  },
  {
   "kind": "exercise",
@@ -269,7 +346,16 @@ const SEED_ENTRIES = [
   "description": "beginner · mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Knees bent, feet hip-width apart. Rise one vertebra at a time starting from the tailbone, then lay them back down with the same grace. Exhale as you rise, inhale as you lower."
+  "how": "Knees bent, feet hip-width apart. Rise one vertebra at a time starting from the tailbone, then lay them back down with the same grace. Exhale as you rise, inhale as you lower.",
+  "equipment": [
+   "mat"
+  ],
+  "muscles": [
+   "glutes",
+   "legs",
+   "back",
+   "core"
+  ]
  },
  {
   "kind": "exercise",
@@ -279,7 +365,13 @@ const SEED_ENTRIES = [
   "description": "beginner · mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Knees bent, hands behind your head. Curl up gently until your shoulder blades leave the mat, keeping a little space under your chin. Exhale as you curl up, inhale as you lower."
+  "how": "Knees bent, hands behind your head. Curl up gently until your shoulder blades leave the mat, keeping a little space under your chin. Exhale as you curl up, inhale as you lower.",
+  "equipment": [
+   "mat"
+  ],
+  "muscles": [
+   "core"
+  ]
  },
  {
   "kind": "exercise",
@@ -289,7 +381,13 @@ const SEED_ENTRIES = [
   "description": "intermediate · mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Start from the chest lift position and rotate your ribcage toward the opposite hip. Keep your pelvis still - the turn comes from the trunk, not the lower back. Exhale on the turn, inhale back to center."
+  "how": "Start from the chest lift position and rotate your ribcage toward the opposite hip. Keep your pelvis still - the turn comes from the trunk, not the lower back. Exhale on the turn, inhale back to center.",
+  "equipment": [
+   "mat"
+  ],
+  "muscles": [
+   "core"
+  ]
  },
  {
   "kind": "exercise",
@@ -299,7 +397,14 @@ const SEED_ENTRIES = [
   "description": "beginner · mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Bring your legs to tabletop and let your knees fall softly to one side while the opposite shoulder stays anchored to the mat. Inhale as the knees travel, exhale as they return to center."
+  "how": "Bring your legs to tabletop and let your knees fall softly to one side while the opposite shoulder stays anchored to the mat. Inhale as the knees travel, exhale as they return to center.",
+  "equipment": [
+   "mat"
+  ],
+  "muscles": [
+   "core",
+   "back"
+  ]
  },
  {
   "kind": "exercise",
@@ -309,7 +414,14 @@ const SEED_ENTRIES = [
   "description": "intermediate · mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Stay in the chest-lift position, hug one knee while stretching the other leg long. Keep your lower back gently pressed into the mat. Breathe in rhythm with each leg change."
+  "how": "Stay in the chest-lift position, hug one knee while stretching the other leg long. Keep your lower back gently pressed into the mat. Breathe in rhythm with each leg change.",
+  "equipment": [
+   "mat"
+  ],
+  "muscles": [
+   "core",
+   "glutes"
+  ]
  },
  {
   "kind": "exercise",
@@ -319,7 +431,14 @@ const SEED_ENTRIES = [
   "description": "intermediate · mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Arms long, peel your spine off the mat one bone at a time. Keep your belly drawn in as you reach forward, then lay each vertebra back down like stringing pearls. Exhale rolling up, inhale opening back."
+  "how": "Arms long, peel your spine off the mat one bone at a time. Keep your belly drawn in as you reach forward, then lay each vertebra back down like stringing pearls. Exhale rolling up, inhale opening back.",
+  "equipment": [
+   "mat"
+  ],
+  "muscles": [
+   "core",
+   "back"
+  ]
  },
  {
   "kind": "exercise",
@@ -329,7 +448,14 @@ const SEED_ENTRIES = [
   "description": "intermediate · mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Hug your knees and make a soft C with your back. Roll back and return without losing the ball shape, keeping your head off the floor. Inhale rolling back, exhale coming up."
+  "how": "Hug your knees and make a soft C with your back. Roll back and return without losing the ball shape, keeping your head off the floor. Inhale rolling back, exhale coming up.",
+  "equipment": [
+   "mat"
+  ],
+  "muscles": [
+   "core",
+   "back"
+  ]
  },
  {
   "kind": "exercise",
@@ -339,7 +465,15 @@ const SEED_ENTRIES = [
   "description": "intermediate · mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Stretch one leg toward the ceiling and draw small circles with your toes. Keep both hips calm and steady on the mat. Inhale for the first half of the circle, exhale for the second."
+  "how": "Stretch one leg toward the ceiling and draw small circles with your toes. Keep both hips calm and steady on the mat. Inhale for the first half of the circle, exhale for the second.",
+  "equipment": [
+   "mat"
+  ],
+  "muscles": [
+   "glutes",
+   "core",
+   "legs"
+  ]
  },
  {
   "kind": "exercise",
@@ -349,7 +483,16 @@ const SEED_ENTRIES = [
   "description": "beginner · mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Hands under shoulders, knees under hips. Stretch one leg back - add the opposite arm if you like - and keep your back flat and quiet like a tabletop. Exhale as you reach, inhale as you gather."
+  "how": "Hands under shoulders, knees under hips. Stretch one leg back - add the opposite arm if you like - and keep your back flat and quiet like a tabletop. Exhale as you reach, inhale as you gather.",
+  "equipment": [
+   "mat"
+  ],
+  "muscles": [
+   "core",
+   "back",
+   "glutes",
+   "shoulders"
+  ]
  },
  {
   "kind": "exercise",
@@ -359,7 +502,14 @@ const SEED_ENTRIES = [
   "description": "beginner · mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Lie face down with your forehead resting on the mat. Lift your chest gently using your mid-upper back muscles, keeping your neck long and your gaze forward. Inhale as you rise, exhale as you lower."
+  "how": "Lie face down with your forehead resting on the mat. Lift your chest gently using your mid-upper back muscles, keeping your neck long and your gaze forward. Inhale as you rise, exhale as you lower.",
+  "equipment": [
+   "mat"
+  ],
+  "muscles": [
+   "back",
+   "glutes"
+  ]
  },
  {
   "kind": "exercise",
@@ -369,7 +519,14 @@ const SEED_ENTRIES = [
   "description": "beginner · chair",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Sit at the front edge of a chair and lean slightly forward. Stand up using your legs, not your arms - the slower, the better. Exhale standing up, inhale sitting down."
+  "how": "Sit at the front edge of a chair and lean slightly forward. Stand up using your legs, not your arms - the slower, the better. Exhale standing up, inhale sitting down.",
+  "equipment": [
+   "chair"
+  ],
+  "muscles": [
+   "legs",
+   "glutes"
+  ]
  },
  {
   "kind": "exercise",
@@ -379,7 +536,14 @@ const SEED_ENTRIES = [
   "description": "beginner · chair",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Hold the back of a chair and bend your knees as far as feels comfortable. Back tall, knees tracking over your toes. Inhale down, exhale up."
+  "how": "Hold the back of a chair and bend your knees as far as feels comfortable. Back tall, knees tracking over your toes. Inhale down, exhale up.",
+  "equipment": [
+   "chair"
+  ],
+  "muscles": [
+   "legs",
+   "glutes"
+  ]
  },
  {
   "kind": "exercise",
@@ -389,7 +553,13 @@ const SEED_ENTRIES = [
   "description": "beginner · chair",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Take light support from a chair and lift both heels as high as they comfortably go. Glide down slowly - no rushing the landing. Exhale rising, inhale lowering."
+  "how": "Take light support from a chair and lift both heels as high as they comfortably go. Glide down slowly - no rushing the landing. Exhale rising, inhale lowering.",
+  "equipment": [
+   "chair"
+  ],
+  "muscles": [
+   "legs"
+  ]
  },
  {
   "kind": "exercise",
@@ -399,7 +569,13 @@ const SEED_ENTRIES = [
   "description": "beginner · chair",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Stand tall with chair support and lift one leg out to the side with control. Keep your body upright - no leaning. Exhale as the leg rises, inhale as it lowers."
+  "how": "Stand tall with chair support and lift one leg out to the side with control. Keep your body upright - no leaning. Exhale as the leg rises, inhale as it lowers.",
+  "equipment": [
+   "chair"
+  ],
+  "muscles": [
+   "glutes"
+  ]
  },
  {
   "kind": "exercise",
@@ -409,7 +585,14 @@ const SEED_ENTRIES = [
   "description": "beginner · chair",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Hold the chair and stretch one leg straight behind you, working from the glute without bending your lower back. Exhale as the leg goes back, inhale as it returns."
+  "how": "Hold the chair and stretch one leg straight behind you, working from the glute without bending your lower back. Exhale as the leg goes back, inhale as it returns.",
+  "equipment": [
+   "chair"
+  ],
+  "muscles": [
+   "glutes",
+   "back"
+  ]
  },
  {
   "kind": "exercise",
@@ -419,7 +602,13 @@ const SEED_ENTRIES = [
   "description": "beginner · water bottle",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Take a full water bottle in each hand and curl slowly toward your shoulders, elbows close to your sides. Exhale as the bottle rises, inhale as it lowers."
+  "how": "Take a full water bottle in each hand and curl slowly toward your shoulders, elbows close to your sides. Exhale as the bottle rises, inhale as it lowers.",
+  "equipment": [
+   "water bottle"
+  ],
+  "muscles": [
+   "arms"
+  ]
  },
  {
   "kind": "exercise",
@@ -429,7 +618,15 @@ const SEED_ENTRIES = [
   "description": "beginner · chair, water bottle",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Sit tall with the bottles in your lap. Pull them up to chest height, elbows opening to the sides, shoulders away from your ears. Exhale pulling, inhale lowering."
+  "how": "Sit tall with the bottles in your lap. Pull them up to chest height, elbows opening to the sides, shoulders away from your ears. Exhale pulling, inhale lowering.",
+  "equipment": [
+   "chair",
+   "water bottle"
+  ],
+  "muscles": [
+   "shoulders",
+   "back"
+  ]
  },
  {
   "kind": "exercise",
@@ -439,7 +636,15 @@ const SEED_ENTRIES = [
   "description": "intermediate · chair",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Place your hands on the edge of a sturdy chair, slide your hips forward and bend your elbows slowly. Elbows point back, shoulders stay relaxed. Inhale lowering, exhale pressing up."
+  "how": "Place your hands on the edge of a sturdy chair, slide your hips forward and bend your elbows slowly. Elbows point back, shoulders stay relaxed. Inhale lowering, exhale pressing up.",
+  "equipment": [
+   "chair"
+  ],
+  "muscles": [
+   "arms",
+   "shoulders",
+   "chest"
+  ]
  },
  {
   "kind": "exercise",
@@ -449,7 +654,16 @@ const SEED_ENTRIES = [
   "description": "intermediate · mat, towel",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Heels on a towel, lift into a bridge. Slide your feet slowly away, then pull your heels back in to return to the bridge. Inhale as the feet slide out, exhale as they pull in."
+  "how": "Heels on a towel, lift into a bridge. Slide your feet slowly away, then pull your heels back in to return to the bridge. Inhale as the feet slide out, exhale as they pull in.",
+  "equipment": [
+   "mat",
+   "towel"
+  ],
+  "muscles": [
+   "glutes",
+   "legs",
+   "core"
+  ]
  },
  {
   "kind": "exercise",
@@ -459,7 +673,14 @@ const SEED_ENTRIES = [
   "description": "intermediate · towel",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Place one foot on a small towel. Slide it out to the side while bending the other knee, sitting your hips back with your chest tall. Inhale sliding out, exhale gathering back."
+  "how": "Place one foot on a small towel. Slide it out to the side while bending the other knee, sitting your hips back with your chest tall. Inhale sliding out, exhale gathering back.",
+  "equipment": [
+   "towel"
+  ],
+  "muscles": [
+   "legs",
+   "glutes"
+  ]
  },
  {
   "kind": "exercise",
@@ -469,7 +690,14 @@ const SEED_ENTRIES = [
   "description": "beginner · no equipment",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Walk in place, lifting your knees comfortably and swinging your arms in a natural rhythm. Shoulders relaxed, gaze ahead. Keep your breath steady with your steps."
+  "how": "Walk in place, lifting your knees comfortably and swinging your arms in a natural rhythm. Shoulders relaxed, gaze ahead. Keep your breath steady with your steps.",
+  "equipment": [
+   "no equipment"
+  ],
+  "muscles": [
+   "legs",
+   "glutes"
+  ]
  },
  {
   "kind": "exercise",
@@ -479,7 +707,14 @@ const SEED_ENTRIES = [
   "description": "beginner · no equipment",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Step one foot out while raising the same-side arm overhead, return to center, switch sides. No jumping - keep the steps soft. Breathe in for two steps, out for the next two."
+  "how": "Step one foot out while raising the same-side arm overhead, return to center, switch sides. No jumping - keep the steps soft. Breathe in for two steps, out for the next two.",
+  "equipment": [
+   "no equipment"
+  ],
+  "muscles": [
+   "legs",
+   "shoulders"
+  ]
  },
  {
   "kind": "exercise",
@@ -489,7 +724,14 @@ const SEED_ENTRIES = [
   "description": "intermediate · no equipment",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Take a wide step to one side, crossing the other foot behind like a skater gliding, then switch directions. Knees soft, torso slightly forward. Exhale rhythmically on each direction change."
+  "how": "Take a wide step to one side, crossing the other foot behind like a skater gliding, then switch directions. Knees soft, torso slightly forward. Exhale rhythmically on each direction change.",
+  "equipment": [
+   "no equipment"
+  ],
+  "muscles": [
+   "legs",
+   "glutes"
+  ]
  },
  {
   "kind": "exercise",
@@ -499,7 +741,16 @@ const SEED_ENTRIES = [
   "description": "intermediate · no equipment",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Do a light squat, then throw playful cross punches as you rise. The punches are fun, the squat stays controlled. Inhale squatting, exhale punching."
+  "how": "Do a light squat, then throw playful cross punches as you rise. The punches are fun, the squat stays controlled. Inhale squatting, exhale punching.",
+  "equipment": [
+   "no equipment"
+  ],
+  "muscles": [
+   "legs",
+   "glutes",
+   "shoulders",
+   "core"
+  ]
  },
  {
   "kind": "exercise",
@@ -509,7 +760,14 @@ const SEED_ENTRIES = [
   "description": "beginner · no equipment",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Hands beside your head. Lift one knee out to the side and meet it with the same-side elbow. Body tall - the movement comes from your side. Exhale as the knee rises, inhale as it lowers."
+  "how": "Hands beside your head. Lift one knee out to the side and meet it with the same-side elbow. Body tall - the movement comes from your side. Exhale as the knee rises, inhale as it lowers.",
+  "equipment": [
+   "no equipment"
+  ],
+  "muscles": [
+   "core",
+   "glutes"
+  ]
  },
  {
   "kind": "exercise",
@@ -519,7 +777,14 @@ const SEED_ENTRIES = [
   "description": "beginner · no equipment",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Knees slightly bent, travel with small side steps, then switch direction after a few. Stay quick without your feet leaving the floor much. Keep an even breath with the tempo."
+  "how": "Knees slightly bent, travel with small side steps, then switch direction after a few. Stay quick without your feet leaving the floor much. Keep an even breath with the tempo.",
+  "equipment": [
+   "no equipment"
+  ],
+  "muscles": [
+   "legs",
+   "glutes"
+  ]
  },
  {
   "kind": "exercise",
@@ -529,7 +794,15 @@ const SEED_ENTRIES = [
   "description": "intermediate · no equipment",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Step back into a soft lunge, then rise and give a gentle front kick with the same leg. Small kick, big balance. Inhale on the lunge, exhale on the kick."
+  "how": "Step back into a soft lunge, then rise and give a gentle front kick with the same leg. Small kick, big balance. Inhale on the lunge, exhale on the kick.",
+  "equipment": [
+   "no equipment"
+  ],
+  "muscles": [
+   "legs",
+   "glutes",
+   "core"
+  ]
  },
  {
   "kind": "exercise",
@@ -539,7 +812,15 @@ const SEED_ENTRIES = [
   "description": "beginner · mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Start on all fours. Exhale and round your back up like a cat; inhale, drop your belly and open your chest forward. Flow between the two with your breath."
+  "how": "Start on all fours. Exhale and round your back up like a cat; inhale, drop your belly and open your chest forward. Flow between the two with your breath.",
+  "equipment": [
+   "mat"
+  ],
+  "muscles": [
+   "back",
+   "core",
+   "shoulders"
+  ]
  },
  {
   "kind": "exercise",
@@ -549,7 +830,14 @@ const SEED_ENTRIES = [
   "description": "beginner · mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Extend one leg forward and hinge gently from your hips. Feel the stretch without chasing pain. Keep breathing slow and deep as you hold."
+  "how": "Extend one leg forward and hinge gently from your hips. Feel the stretch without chasing pain. Keep breathing slow and deep as you hold.",
+  "equipment": [
+   "mat"
+  ],
+  "muscles": [
+   "legs",
+   "back"
+  ]
  },
  {
   "kind": "exercise",
@@ -559,7 +847,13 @@ const SEED_ENTRIES = [
   "description": "beginner · wall",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Hands on the wall, step one foot back and press the back heel into the floor. Feel a sweet stretch in your calf. Breathe calmly while you hold."
+  "how": "Hands on the wall, step one foot back and press the back heel into the floor. Feel a sweet stretch in your calf. Breathe calmly while you hold.",
+  "equipment": [
+   "wall"
+  ],
+  "muscles": [
+   "legs"
+  ]
  },
  {
   "kind": "exercise",
@@ -569,7 +863,14 @@ const SEED_ENTRIES = [
   "description": "beginner · wall",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Take support from the wall with one hand, hold your ankle and bring your heel toward your glute. Knees side by side, body tall. Don't hold your breath - let it flow."
+  "how": "Take support from the wall with one hand, hold your ankle and bring your heel toward your glute. Knees side by side, body tall. Don't hold your breath - let it flow.",
+  "equipment": [
+   "wall"
+  ],
+  "muscles": [
+   "legs",
+   "glutes"
+  ]
  },
  {
   "kind": "exercise",
@@ -579,7 +880,13 @@ const SEED_ENTRIES = [
   "description": "beginner · mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Lie on your back, cross one ankle over the opposite knee and gently pull the bottom leg toward your chest. Feel a soft opening in your hip. Relax a little more with every exhale."
+  "how": "Lie on your back, cross one ankle over the opposite knee and gently pull the bottom leg toward your chest. Feel a soft opening in your hip. Relax a little more with every exhale.",
+  "equipment": [
+   "mat"
+  ],
+  "muscles": [
+   "glutes"
+  ]
  },
  {
   "kind": "exercise",
@@ -589,7 +896,15 @@ const SEED_ENTRIES = [
   "description": "beginner · wall",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Rest your arm on the wall at shoulder height and rotate your body gently away. Feel your chest open while your shoulder stays low. Feel your chest widen as you inhale."
+  "how": "Rest your arm on the wall at shoulder height and rotate your body gently away. Feel your chest open while your shoulder stays low. Feel your chest widen as you inhale.",
+  "equipment": [
+   "wall"
+  ],
+  "muscles": [
+   "chest",
+   "shoulders",
+   "arms"
+  ]
  },
  {
   "kind": "exercise",
@@ -599,7 +914,14 @@ const SEED_ENTRIES = [
   "description": "beginner · no equipment",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Interlace your fingers in front of you, reach your arms forward and round your back. Feel the space between your shoulder blades open. Release the tension with each exhale."
+  "how": "Interlace your fingers in front of you, reach your arms forward and round your back. Feel the space between your shoulder blades open. Release the tension with each exhale.",
+  "equipment": [
+   "no equipment"
+  ],
+  "muscles": [
+   "back",
+   "shoulders"
+  ]
  },
  {
   "kind": "exercise",
@@ -609,7 +931,13 @@ const SEED_ENTRIES = [
   "description": "beginner · no equipment",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Lower your chin gently toward your chest and draw slow, small half circles with your head. Keep your shoulders heavy and relaxed. Breathe slowly with each circle."
+  "how": "Lower your chin gently toward your chest and draw slow, small half circles with your head. Keep your shoulders heavy and relaxed. Breathe slowly with each circle.",
+  "equipment": [
+   "no equipment"
+  ],
+  "muscles": [
+   "shoulders"
+  ]
  },
  {
   "kind": "exercise",
@@ -619,7 +947,14 @@ const SEED_ENTRIES = [
   "description": "beginner · chair",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Rest your hands lightly on the back of a chair, heels together and toes turned comfortably outward. Exhale as you bend your knees out over your toes, keeping your back tall and heels on the floor, then inhale as you press back up and squeeze your inner thighs together. Move slowly and never force the turnout from your knees."
+  "how": "Rest your hands lightly on the back of a chair, heels together and toes turned comfortably outward. Exhale as you bend your knees out over your toes, keeping your back tall and heels on the floor, then inhale as you press back up and squeeze your inner thighs together. Move slowly and never force the turnout from your knees.",
+  "equipment": [
+   "chair"
+  ],
+  "muscles": [
+   "legs",
+   "glutes"
+  ]
  },
  {
   "kind": "exercise",
@@ -629,7 +964,13 @@ const SEED_ENTRIES = [
   "description": "beginner · chair",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Stand tall with fingertips resting on a chair back or counter, feet parallel and hip-width apart. Exhale and rise slowly onto the balls of your feet, lifting your heels about an inch or more, then inhale as you lower them back down with control. Imagine growing taller through the crown of your head the whole time."
+  "how": "Stand tall with fingertips resting on a chair back or counter, feet parallel and hip-width apart. Exhale and rise slowly onto the balls of your feet, lifting your heels about an inch or more, then inhale as you lower them back down with control. Imagine growing taller through the crown of your head the whole time.",
+  "equipment": [
+   "chair"
+  ],
+  "muscles": [
+   "legs"
+  ]
  },
  {
   "kind": "exercise",
@@ -639,7 +980,13 @@ const SEED_ENTRIES = [
   "description": "beginner · chair",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "With one hand on your chair-barre, slide one foot along the floor to the front until only the toes touch, leg fully stretched. Exhale as you extend, inhale as you slide the foot back in to meet the other. Keep both hips level and your standing leg strong - the polish comes from the slow slide, not speed."
+  "how": "With one hand on your chair-barre, slide one foot along the floor to the front until only the toes touch, leg fully stretched. Exhale as you extend, inhale as you slide the foot back in to meet the other. Keep both hips level and your standing leg strong - the polish comes from the slow slide, not speed.",
+  "equipment": [
+   "chair"
+  ],
+  "muscles": [
+   "legs"
+  ]
  },
  {
   "kind": "exercise",
@@ -649,7 +996,13 @@ const SEED_ENTRIES = [
   "description": "beginner · chair",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Like a tendu with a little lift: brush your pointed foot along the floor to the front, side, or back until it just leaves the ground a few centimeters. Exhale on the brush out, inhale as the foot closes back in. Keep the movement small and crisp, with your supporting side tall and quiet."
+  "how": "Like a tendu with a little lift: brush your pointed foot along the floor to the front, side, or back until it just leaves the ground a few centimeters. Exhale on the brush out, inhale as the foot closes back in. Keep the movement small and crisp, with your supporting side tall and quiet.",
+  "equipment": [
+   "chair"
+  ],
+  "muscles": [
+   "legs"
+  ]
  },
  {
   "kind": "exercise",
@@ -659,7 +1012,14 @@ const SEED_ENTRIES = [
   "description": "beginner · chair",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Holding your chair-barre, trace a smooth half-circle on the floor with a pointed foot - front, to the side, then behind you - keeping the supporting leg still. Breathe evenly and let the circle stay slow and round rather than big. It quietly works your hips, turnout, and balance all at once."
+  "how": "Holding your chair-barre, trace a smooth half-circle on the floor with a pointed foot - front, to the side, then behind you - keeping the supporting leg still. Breathe evenly and let the circle stay slow and round rather than big. It quietly works your hips, turnout, and balance all at once.",
+  "equipment": [
+   "chair"
+  ],
+  "muscles": [
+   "legs",
+   "glutes"
+  ]
  },
  {
   "kind": "exercise",
@@ -669,7 +1029,14 @@ const SEED_ENTRIES = [
   "description": "beginner · chair",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Face the chair with both hands resting on its back and stretch one leg straight behind you, toes pointed on the floor. Exhale and lift the back leg a few inches, keeping hips square and chest lifted, then lower with control. Height doesn't matter - a long, low line beats a high, crooked one."
+  "how": "Face the chair with both hands resting on its back and stretch one leg straight behind you, toes pointed on the floor. Exhale and lift the back leg a few inches, keeping hips square and chest lifted, then lower with control. Height doesn't matter - a long, low line beats a high, crooked one.",
+  "equipment": [
+   "chair"
+  ],
+  "muscles": [
+   "glutes",
+   "back"
+  ]
  },
  {
   "kind": "exercise",
@@ -679,7 +1046,14 @@ const SEED_ENTRIES = [
   "description": "beginner · no equipment",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Stand tall and float your arms through the classic ballet positions - low in front, rounded at your chest, then open to the sides or overhead. Inhale as the arms rise, exhale as they melt back down, keeping shoulders relaxed and elbows softly curved. Slow, controlled arms are a surprisingly good upper-body and posture workout."
+  "how": "Stand tall and float your arms through the classic ballet positions - low in front, rounded at your chest, then open to the sides or overhead. Inhale as the arms rise, exhale as they melt back down, keeping shoulders relaxed and elbows softly curved. Slow, controlled arms are a surprisingly good upper-body and posture workout.",
+  "equipment": [
+   "no equipment"
+  ],
+  "muscles": [
+   "arms",
+   "shoulders"
+  ]
  },
  {
   "kind": "exercise",
@@ -689,7 +1063,14 @@ const SEED_ENTRIES = [
   "description": "beginner · chair",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Stand behind your chair with both hands on the backrest. Exhale and draw one knee up toward a 90-degree angle, toes pointed, then lower it back down with the same control. Keep your standing leg long and your core gently braced so you don't lean into the chair."
+  "how": "Stand behind your chair with both hands on the backrest. Exhale and draw one knee up toward a 90-degree angle, toes pointed, then lower it back down with the same control. Keep your standing leg long and your core gently braced so you don't lean into the chair.",
+  "equipment": [
+   "chair"
+  ],
+  "muscles": [
+   "core",
+   "legs"
+  ]
  },
  {
   "kind": "exercise",
@@ -699,7 +1080,13 @@ const SEED_ENTRIES = [
   "description": "beginner · no equipment",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Stand with your big toes barely touching and heels slightly apart, pressing evenly into all four corners of your feet. Roll your shoulders back and down, let your arms hang with palms facing forward, and breathe slowly through your nose. It looks like just standing - it's actually the blueprint for every other pose."
+  "how": "Stand with your big toes barely touching and heels slightly apart, pressing evenly into all four corners of your feet. Roll your shoulders back and down, let your arms hang with palms facing forward, and breathe slowly through your nose. It looks like just standing - it's actually the blueprint for every other pose.",
+  "equipment": [
+   "no equipment"
+  ],
+  "muscles": [
+   "core"
+  ]
  },
  {
   "kind": "exercise",
@@ -709,7 +1096,14 @@ const SEED_ENTRIES = [
   "description": "beginner · mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "From standing, inhale your arms overhead, then exhale and fold your torso over your legs, keeping at least a slight bend in your knees. Let your head and arms hang heavy toward the floor. If your hamstrings complain, bend the knees more - the goal is a long spine, not straight legs."
+  "how": "From standing, inhale your arms overhead, then exhale and fold your torso over your legs, keeping at least a slight bend in your knees. Let your head and arms hang heavy toward the floor. If your hamstrings complain, bend the knees more - the goal is a long spine, not straight legs.",
+  "equipment": [
+   "mat"
+  ],
+  "muscles": [
+   "legs",
+   "back"
+  ]
  },
  {
   "kind": "exercise",
@@ -719,7 +1113,15 @@ const SEED_ENTRIES = [
   "description": "beginner · mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "From hands and knees, spread your fingers wide, then push into your hands and lift your hips up and back on an inhale so your body forms an upside-down V. Keep a soft bend in your knees and work your heels toward the floor over time. Take a few slow breaths and pedal your feet if your legs feel tight."
+  "how": "From hands and knees, spread your fingers wide, then push into your hands and lift your hips up and back on an inhale so your body forms an upside-down V. Keep a soft bend in your knees and work your heels toward the floor over time. Take a few slow breaths and pedal your feet if your legs feel tight.",
+  "equipment": [
+   "mat"
+  ],
+  "muscles": [
+   "shoulders",
+   "legs",
+   "back"
+  ]
  },
  {
   "kind": "exercise",
@@ -729,7 +1131,13 @@ const SEED_ENTRIES = [
   "description": "beginner · mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Kneel on your mat, pull your hips back toward your heels, and rest your forehead on the floor with arms stretched forward or alongside your body. Breathe slowly into your back and let each exhale sink you a little deeper. This is your safe resting spot - come back to it whenever you need a break."
+  "how": "Kneel on your mat, pull your hips back toward your heels, and rest your forehead on the floor with arms stretched forward or alongside your body. Breathe slowly into your back and let each exhale sink you a little deeper. This is your safe resting spot - come back to it whenever you need a break.",
+  "equipment": [
+   "mat"
+  ],
+  "muscles": [
+   "back"
+  ]
  },
  {
   "kind": "exercise",
@@ -739,7 +1147,14 @@ const SEED_ENTRIES = [
   "description": "beginner · mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Start on hands and knees with wrists under shoulders and knees under hips. Inhale and drop your belly while lifting your gaze (Cow), then exhale and round your spine toward the ceiling, letting your head hang (Cat). Flow between the two with your breath to gently wake up your whole spine."
+  "how": "Start on hands and knees with wrists under shoulders and knees under hips. Inhale and drop your belly while lifting your gaze (Cow), then exhale and round your spine toward the ceiling, letting your head hang (Cat). Flow between the two with your breath to gently wake up your whole spine.",
+  "equipment": [
+   "mat"
+  ],
+  "muscles": [
+   "back",
+   "core"
+  ]
  },
  {
   "kind": "exercise",
@@ -749,7 +1164,13 @@ const SEED_ENTRIES = [
   "description": "beginner · mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Lie on your belly with feet hip-distance apart and hands beside your ribs. Inhale and press lightly into your hands to lift your head and chest, rolling your shoulders back and down. Keep your elbows bent and abdominals gently engaged - if your lower back pinches, lower down and stay smaller."
+  "how": "Lie on your belly with feet hip-distance apart and hands beside your ribs. Inhale and press lightly into your hands to lift your head and chest, rolling your shoulders back and down. Keep your elbows bent and abdominals gently engaged - if your lower back pinches, lower down and stay smaller.",
+  "equipment": [
+   "mat"
+  ],
+  "muscles": [
+   "back"
+  ]
  },
  {
   "kind": "exercise",
@@ -759,7 +1180,14 @@ const SEED_ENTRIES = [
   "description": "beginner · no equipment",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Stand tall, then place the sole of one foot on your inner calf or thigh - never on the knee - and press foot and standing leg into each other. Bring your hands to prayer at your chest and fix your gaze on one still point. Breathe steadily; wobbling is part of the practice, and a wall nearby makes a great spotter."
+  "how": "Stand tall, then place the sole of one foot on your inner calf or thigh - never on the knee - and press foot and standing leg into each other. Bring your hands to prayer at your chest and fix your gaze on one still point. Breathe steadily; wobbling is part of the practice, and a wall nearby makes a great spotter.",
+  "equipment": [
+   "no equipment"
+  ],
+  "muscles": [
+   "legs",
+   "core"
+  ]
  },
  {
   "kind": "exercise",
@@ -769,7 +1197,14 @@ const SEED_ENTRIES = [
   "description": "beginner · mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Lie on your back with knees bent and feet on the mat hip-distance apart, close to your glutes. Exhale, press into your feet, and lift your hips toward the ceiling, keeping knees tracking over ankles. Breathe evenly at the top, then roll your spine down one vertebra at a time."
+  "how": "Lie on your back with knees bent and feet on the mat hip-distance apart, close to your glutes. Exhale, press into your feet, and lift your hips toward the ceiling, keeping knees tracking over ankles. Breathe evenly at the top, then roll your spine down one vertebra at a time.",
+  "equipment": [
+   "mat"
+  ],
+  "muscles": [
+   "glutes",
+   "back"
+  ]
  },
  {
   "kind": "exercise",
@@ -779,7 +1214,15 @@ const SEED_ENTRIES = [
   "description": "beginner · wall",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Stand a few feet from a wall and place your hands on it slightly wider than your shoulders. Inhale as you bend your elbows and bring your chest toward the wall, keeping your body in one straight line, then exhale as you push back out. It's the friendliest first step on the road to a full push-up."
+  "how": "Stand a few feet from a wall and place your hands on it slightly wider than your shoulders. Inhale as you bend your elbows and bring your chest toward the wall, keeping your body in one straight line, then exhale as you push back out. It's the friendliest first step on the road to a full push-up.",
+  "equipment": [
+   "wall"
+  ],
+  "muscles": [
+   "chest",
+   "arms",
+   "shoulders"
+  ]
  },
  {
   "kind": "exercise",
@@ -789,7 +1232,15 @@ const SEED_ENTRIES = [
   "description": "beginner · sturdy chair or table",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Place your hands slightly wider than shoulder-width on a sturdy table, counter, or chair seat and walk your feet back until your body is straight. Inhale as you lower your chest to the edge, exhale as you press away. When it feels easy, pick a lower surface - that's the whole progression toward floor push-ups."
+  "how": "Place your hands slightly wider than shoulder-width on a sturdy table, counter, or chair seat and walk your feet back until your body is straight. Inhale as you lower your chest to the edge, exhale as you press away. When it feels easy, pick a lower surface - that's the whole progression toward floor push-ups.",
+  "equipment": [
+   "chair"
+  ],
+  "muscles": [
+   "chest",
+   "arms",
+   "shoulders"
+  ]
  },
  {
   "kind": "exercise",
@@ -799,7 +1250,15 @@ const SEED_ENTRIES = [
   "description": "beginner · doorway, towel (optional)",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Stand in an open doorway, grab both sides of the frame (or a sturdy towel looped around the handle of a firmly closed door), and lean back with arms straight. Exhale and pull your chest toward the frame, squeezing your shoulder blades together, then inhale as you lean back out. Walk your feet closer to the door to make it harder."
+  "how": "Stand in an open doorway, grab both sides of the frame (or a sturdy towel looped around the handle of a firmly closed door), and lean back with arms straight. Exhale and pull your chest toward the frame, squeezing your shoulder blades together, then inhale as you lean back out. Walk your feet closer to the door to make it harder.",
+  "equipment": [
+   "towel",
+   "doorway"
+  ],
+  "muscles": [
+   "back",
+   "arms"
+  ]
  },
  {
   "kind": "exercise",
@@ -809,7 +1268,14 @@ const SEED_ENTRIES = [
   "description": "beginner · sturdy chair",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Sit on the edge of a sturdy chair, grip the front of the seat beside your hips, and walk your hips just off the chair with knees slightly bent. Breathe in as you bend your elbows to about 90 degrees, lowering your body, then breathe out as you press back up. Keep your back brushing close to the chair the whole time."
+  "how": "Sit on the edge of a sturdy chair, grip the front of the seat beside your hips, and walk your hips just off the chair with knees slightly bent. Breathe in as you bend your elbows to about 90 degrees, lowering your body, then breathe out as you press back up. Keep your back brushing close to the chair the whole time.",
+  "equipment": [
+   "chair"
+  ],
+  "muscles": [
+   "arms",
+   "shoulders"
+  ]
  },
  {
   "kind": "exercise",
@@ -819,7 +1285,14 @@ const SEED_ENTRIES = [
   "description": "beginner · sturdy step or low bench",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Stand facing a bottom stair or low, stable platform and place one whole foot on it, knee lined up over your second toe. Exhale and press through that foot to lift your body up, then inhale as you step back down with control. Keep your torso tall - no leaning or pushing off the back leg more than you need."
+  "how": "Stand facing a bottom stair or low, stable platform and place one whole foot on it, knee lined up over your second toe. Exhale and press through that foot to lift your body up, then inhale as you step back down with control. Keep your torso tall - no leaning or pushing off the back leg more than you need.",
+  "equipment": [
+   "step"
+  ],
+  "muscles": [
+   "legs",
+   "glutes"
+  ]
  },
  {
   "kind": "exercise",
@@ -829,7 +1302,14 @@ const SEED_ENTRIES = [
   "description": "beginner · mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Lie facedown with legs straight and arms extended in front of you, head neutral. Exhale and slowly lift your arms and legs about six inches off the floor until you feel your lower back working, hold briefly, then lower with an inhale. Think long, not high - reach your fingers and toes away from each other."
+  "how": "Lie facedown with legs straight and arms extended in front of you, head neutral. Exhale and slowly lift your arms and legs about six inches off the floor until you feel your lower back working, hold briefly, then lower with an inhale. Think long, not high - reach your fingers and toes away from each other.",
+  "equipment": [
+   "mat"
+  ],
+  "muscles": [
+   "back",
+   "glutes"
+  ]
  },
  {
   "kind": "exercise",
@@ -839,7 +1319,14 @@ const SEED_ENTRIES = [
   "description": "beginner · no equipment",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Stand with feet about shoulder-width apart, brace your core, and keep your chest up. Inhale as you shift your weight into your heels and send your hips back and down like you're sitting into a chair, then exhale as you push the floor away to stand tall. Only go as deep as you can while keeping your heels down."
+  "how": "Stand with feet about shoulder-width apart, brace your core, and keep your chest up. Inhale as you shift your weight into your heels and send your hips back and down like you're sitting into a chair, then exhale as you push the floor away to stand tall. Only go as deep as you can while keeping your heels down.",
+  "equipment": [
+   "no equipment"
+  ],
+  "muscles": [
+   "legs",
+   "glutes"
+  ]
  },
  {
   "kind": "exercise",
@@ -849,7 +1336,13 @@ const SEED_ENTRIES = [
   "description": "beginner · mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Lie on your back with knees bent and feet flat on the floor. Exhale and press your hips up by squeezing your glutes until your body forms a straight line from shoulders to knees, then inhale as you lower slowly. Keep your abs engaged so your lower back doesn't over-arch at the top."
+  "how": "Lie on your back with knees bent and feet flat on the floor. Exhale and press your hips up by squeezing your glutes until your body forms a straight line from shoulders to knees, then inhale as you lower slowly. Keep your abs engaged so your lower back doesn't over-arch at the top.",
+  "equipment": [
+   "mat"
+  ],
+  "muscles": [
+   "glutes"
+  ]
  },
  {
   "kind": "exercise",
@@ -859,7 +1352,13 @@ const SEED_ENTRIES = [
   "description": "beginner · mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Rest on your forearms and toes with elbows under your shoulders, body in one straight line from head to heels. Squeeze your glutes and brace your belly as if about to be poked, and breathe steadily - don't hold your breath. Drop to your knees any time your hips start to sag."
+  "how": "Rest on your forearms and toes with elbows under your shoulders, body in one straight line from head to heels. Squeeze your glutes and brace your belly as if about to be poked, and breathe steadily - don't hold your breath. Drop to your knees any time your hips start to sag.",
+  "equipment": [
+   "mat"
+  ],
+  "muscles": [
+   "core"
+  ]
  },
  {
   "kind": "exercise",
@@ -869,7 +1368,14 @@ const SEED_ENTRIES = [
   "description": "beginner · mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Start on hands and knees with a flat back. Exhale and extend one arm forward and the opposite leg back until both are level with your torso, hold a beat, then inhale as you return and switch sides. Move slowly and keep your hips square - imagine balancing a cup of tea on your lower back."
+  "how": "Start on hands and knees with a flat back. Exhale and extend one arm forward and the opposite leg back until both are level with your torso, hold a beat, then inhale as you return and switch sides. Move slowly and keep your hips square - imagine balancing a cup of tea on your lower back.",
+  "equipment": [
+   "mat"
+  ],
+  "muscles": [
+   "core",
+   "back"
+  ]
  },
  {
   "kind": "exercise",
@@ -879,7 +1385,13 @@ const SEED_ENTRIES = [
   "description": "beginner · mat",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Lie on your back with knees bent over your hips and arms reaching toward the ceiling. Exhale and slowly lower one arm and the opposite leg toward the floor, keeping your lower back gently pressed into the mat, then inhale as you bring them back and switch sides. If your back arches, shorten the range."
+  "how": "Lie on your back with knees bent over your hips and arms reaching toward the ceiling. Exhale and slowly lower one arm and the opposite leg toward the floor, keeping your lower back gently pressed into the mat, then inhale as you bring them back and switch sides. If your back arches, shorten the range.",
+  "equipment": [
+   "mat"
+  ],
+  "muscles": [
+   "core"
+  ]
  },
  {
   "kind": "exercise",
@@ -889,6 +1401,12 @@ const SEED_ENTRIES = [
   "description": "beginner · wall",
   "contributor": "damla",
   "recommend_count": 1,
-  "how": "Lean your back flat against a wall and slide down until your knees are bent at about 90 degrees, feet planted under your knees. Press your whole back into the wall and hold, breathing slowly and evenly rather than holding your breath. Start with 20-30 seconds and build up as your legs get stronger."
+  "how": "Lean your back flat against a wall and slide down until your knees are bent at about 90 degrees, feet planted under your knees. Press your whole back into the wall and hold, breathing slowly and evenly rather than holding your breath. Start with 20-30 seconds and build up as your legs get stronger.",
+  "equipment": [
+   "wall"
+  ],
+  "muscles": [
+   "legs"
+  ]
  }
 ];

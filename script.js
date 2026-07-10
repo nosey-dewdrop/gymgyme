@@ -302,6 +302,29 @@ function renderProgram(dir) {
   dir.appendChild(actions);
 }
 
+// ---- filters (exercise categories only): equipment + muscles ----
+let filterEq = 'all';
+let filterMus = 'all';
+const EQ_OPTIONS = ['all', 'no equipment', 'wall', 'mat', 'chair', 'towel', 'water bottle'];
+const MUS_OPTIONS = ['all', 'legs', 'glutes', 'core', 'back', 'chest', 'arms', 'shoulders'];
+
+function filterRow(dir, label, options, current, setter) {
+  const p = el('p', 'filters');
+  p.appendChild(el('span', 'flabel', label + ': '));
+  for (const opt of options) {
+    const b = el('button', 'mini fopt' + (opt === current ? ' fon' : ''), opt);
+    b.onclick = () => { setter(opt); render(); };
+    p.appendChild(b);
+  }
+  dir.appendChild(p);
+}
+
+function matchesFilters(e) {
+  if (filterEq !== 'all' && !(e.equipment || []).includes(filterEq)) return false;
+  if (filterMus !== 'all' && !(e.muscles || []).includes(filterMus)) return false;
+  return true;
+}
+
 function updateStats() {
   const links = allEntries.filter(e => e.kind === 'link').length;
   const moves = allEntries.filter(e => e.kind === 'exercise').length;
@@ -326,7 +349,13 @@ function render() {
   if (!getProfile()) { renderOnboarding(dir); return; }
   if (cat === 'my-program') { renderProgram(dir); return; }
 
-  const list = allEntries.filter(e => e.category === cat);
+  let list = allEntries.filter(e => e.category === cat);
+  const hasMoves = list.some(e => e.kind === 'exercise');
+  if (hasMoves) {
+    filterRow(dir, 'equipment', EQ_OPTIONS, filterEq, v => { filterEq = v; });
+    filterRow(dir, 'muscles', MUS_OPTIONS, filterMus, v => { filterMus = v; });
+    list = list.filter(e => e.kind !== 'exercise' || matchesFilters(e));
+  }
   const max = Math.max(1, ...list.map(e => e.recommend_count));
 
   for (const e of list) {
@@ -353,11 +382,15 @@ function render() {
     else dir.appendChild(row);
   }
   if (!list.length) {
-    const empty = el('p', 'loading', 'nothing in ' + cat + ' yet - be the first: ');
-    const link = el('a', 'suggest-big', 'suggest something!');
-    link.href = 'suggest.html';
-    empty.appendChild(link);
-    dir.appendChild(empty);
+    if (hasMoves || filterEq !== 'all' || filterMus !== 'all') {
+      dir.appendChild(el('p', 'loading', 'nothing matches these filters - try loosening them.'));
+    } else {
+      const empty = el('p', 'loading', 'nothing in ' + cat + ' yet - be the first: ');
+      const link = el('a', 'suggest-big', 'suggest something!');
+      link.href = 'suggest.html';
+      empty.appendChild(link);
+      dir.appendChild(empty);
+    }
   }
 
   const names = [...new Set(allEntries.map(e => e.contributor))];
