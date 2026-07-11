@@ -54,6 +54,28 @@ Hepsi ekrana bağlı: coach sayfasında artık büyük bir kelime ("standing" / 
 
 ---
 
+## Mimari — motoru bir "API" gibi kurmak
+
+Bir soru geldi: "motor" diyoruz ama iyi tasarlanmış, ileride başka yere de takılabilen bir şey mi, yoksa tek kullanımlık bir yığın kod mu? Doğru cevap için motoru ikiye böldüm.
+
+Bir yanda **saf çekirdek** (`coach_engine.hpp` + `coach_engine.cpp`): bu dosyalar web'i, tarayıcıyı, WebAssembly'yi *hiç* bilmez. Sadece "hareket analizi" bilir — 33 nokta ver, temiz bir okuma (açı, derinlik, faz) al. Öbür yanda **ince bir bağlama katmanı** (`bindings.cpp`): tek işi çeviri, JS'in verdiği diziyi C++ nesnesine, C++ sonucunu JS'in okuyabileceği nesneye çevirmek. Mantık burada değil, çekirdekte.
+
+Bu ayrım motoru gerçek bir API yapıyor: aynı çekirdek yarın native bir uygulamaya, bir sunucuya, başka bir dile de bağlanabilir — sadece bağlama katmanını değiştirirsin, beyin aynı kalır. Ayrıca hareketleri **veri** olarak tanımladım (`MoveSpec`): squat = "diz eklemini izle, dip 110°, üst 155°". Yeni bir hareket eklemek kod yazmak değil, veri eklemek olacak (bu Aşama 12'nin tohumu).
+
+## Derleme — C++ artık gerçekten .wasm
+
+Bugüne kadar C++ kaynak koddu; şimdi **çalışan ikili** oldu. emscripten'i kurdum, `engine/build.sh` iki C++ dosyasını derledi ve iki dosya çıktı: `motor.js` (45 KB, küçük yükleyici) ve `motor.wasm` (**22 KB, asıl motorun kendisi — bir WebAssembly ikilisi**). İşte "JS'ten mi motor" sorusunun somut cevabı: beyin bu 22 KB'lik `.wasm` dosyasında, JavaScript değil. JS sadece onu çağırıyor.
+
+Site yine "build adımı yok" statik kalıyor — bu iki dosyayı repoya koyuyoruz, kullanıcı hiçbir şey derlemiyor, tarayıcı hazır `.wasm`'ı indirip çalıştırıyor.
+
+## Sayfayı bölmek — html ayrı, css ayrı, js ayrı
+
+Küçük ama kimlik açısından önemli bir düzeltme: coach sayfası tek bir HTML dosyasında stil + kodla şişmişti. Kod HTML içinde toplanınca proje "bir HTML projesi" gibi görünüyor — oysa bu bir C++ motoru + ince bir web katmanı. O yüzden üçe böldüm: `coach.html` sadece iskelet (markup + linkler), `css/coach.css` stil, `js/coach.js` tutkal kod. Artık en büyük ve gerçek kod C++, ardından JavaScript; proje ne ise o görünüyor.
+
+## Aşama 1 — Sahne cilası
+
+Motor "görüyor ve anlıyor" ama insanın bunu *hissetmesi* lazım. Bu aşama okuma panelini kurdu: en üstte büyük bir kelime hareketin nerede olduğunu söylüyor ("standing" / "going down" / "deep" / "coming up"); altında üç canlı ölçer — **squat derinliği** (0'dan 1'e dolan vişne bir bar), **takip güveni**, ve **kadraja sığma** (motorun neden bazen "biraz geri çekil" dediğini görürsün). Bir de altı eklem açısı listeleniyor, ve takip edilen dizin hem ham hem yumuşatılmış hali yan yana — böylece EMA'nın titremeyi nasıl sakinleştirdiğini gözünle görüyorsun. Köşede bir fps sayacı, "tüm hesap cihazında" notuyla. İskelet dipteyken vişneye dönüyor. Hepsi gymgyme'nin pembe/bordersiz dilinde; kutu yok, ayrım boşluk ve renk.
+
 ## Yol haritası (19 aşama, 0–18)
 
 Her aşama tek başına çekilebilir gerçek bir adım — biri bitince küçük bir "oldu" anı, bir reels. Sıra kabaca **görmek → anlamak → saymak → düzeltmek → ürünleştirmek** diye ilerliyor.
