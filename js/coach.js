@@ -1,7 +1,9 @@
 // coach.js — SADECE tutkal. Kamerayı açar, MediaPipe'ın verdiği noktaları C++
 // motora (engine/motor.wasm) uzatır, motorun döndürdüğü okumayı ekrana yazar.
-// Hiç analiz yok burada — açı, yumuşatma, faz hepsi C++'ta. Bu dosya "ne gördü"
-// ile "ne çizeceğiz" arasındaki köprü.
+// Hiç analiz yok burada — açı, yumuşatma, faz hepsi C++'ta.
+//
+// Hız: landmark'ları her kare wasm heap'ine bir kez yazıp motora POINTER geçiyoruz
+// (kare başına yüzlerce JS↔wasm sınır geçişi yerine tek çağrı).
 
 import { PoseLandmarker, FilesetResolver, DrawingUtils } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.12";
 
@@ -24,13 +26,19 @@ const fpsEl = $("fps");
 const msgEl = $("msg");
 const privateNote = $("private");
 
+const LM = 33;                 // MediaPipe pose nokta sayısı
+const FLOATS = LM * 4;         // her nokta [x, y, z, visibility]
+
 let poseLandmarker = null;
-let engine = null;            // C++ / wasm motor (opsiyonel: yoksa iskelet yine çalışır)
+let motorMod = null;           // wasm modülü (_malloc / HEAPF32 için)
+let engine = null;             // C++ motor örneği
+let bufPtr = 0;                // heap'te ayrılmış landmark buffer'ı
 let running = false;
 let lastVideoTime = -1;
 let drawer = null;
 let aspect = 1;
 let frames = 0, fps = 0, fpsClock = 0;
+let angleRows = null;          // textContent ile güncellenen satırlar
 
 const setStatus = (m) => { statusEl.textContent = m; };
 
@@ -55,11 +63,36 @@ async function loadPose() {
 async function loadEngine() {
   try {
     const { default: createMotor } = await import("../engine/motor.js");
-    const mod = await createMotor();
-    engine = new mod.Engine("squat");
+    motorMod = await createMotor();
+    engine = new motorMod.Engine("squat");
+    bufPtr = motorMod._malloc(FLOATS * 4);        // 4 byte/float
+    buildAngleRows();
     readEl.hidden = false;
   } catch (e) {
     console.warn("engine not loaded (skeleton still works):", e);
+  }
+}
+
+// açı panelini bir kez kur; sonra her kare sadece değerleri (textContent) güncelle.
+function buildAngleRows() {
+  const defs = [
+    ["tracked knee", "tracked"],
+    ["left knee / right", "knee"],
+    ["left hip / right", "hip"],
+    ["left elbow / right", "elbow"],
+  ];
+  anglesEl.innerHTML = "";
+  angleRows = {};
+  for (const [label, key] of defs) {
+    const row = document.createElement("div");
+    const k = document.createElement("span");
+    k.className = "k";
+    k.textContent = label;
+    const v = document.createElement("span");
+    row.appendChild(k);
+    row.appendChild(v);
+    anglesEl.appendChild(row);
+    angleRows[key] = v;
   }
 }
 
@@ -129,20 +162,19 @@ function render(r) {
     msgEl.textContent = r.message || "";
   }
 
-  // ölçerler
   depthFill.style.width = Math.round((r.depth || 0) * 100) + "%";
   confFill.style.width = Math.round((r.confidence || 0) * 100) + "%";
   framingFill.style.width = Math.round((r.framing || 0) * 100) + "%";
 
-  // altı eklem + ham/yumuşatılmış farkı (yumuşatmanın ne yaptığını göstermek için)
-  anglesEl.innerHTML =
-    line("tracked knee", r.tracking ? Math.round(r.smoothAngle) + "° (raw " + deg(r.rawAngle) + ")" : "–") +
-    line("left knee / right", deg(r.leftKnee) + "  /  " + deg(r.rightKnee)) +
-    line("left hip / right", deg(r.leftHip) + "  /  " + deg(r.rightHip)) +
-    line("left elbow / right", deg(r.leftElbow) + "  /  " + deg(r.rightElbow));
+  if (angleRows) {
+    angleRows.tracked.textContent = r.tracking
+      ? Math.round(r.smoothAngle) + "° (raw " + deg(r.rawAngle) + ")"
+      : "–";
+    angleRows.knee.textContent = deg(r.leftKnee) + "  /  " + deg(r.rightKnee);
+    angleRows.hip.textContent = deg(r.leftHip) + "  /  " + deg(r.rightHip);
+    angleRows.elbow.textContent = deg(r.leftElbow) + "  /  " + deg(r.rightElbow);
+  }
 }
-
-const line = (k, v) => '<div><span class="k">' + k + "</span>" + v + "</div>";
 
 function loop() {
   if (!running) return;
@@ -158,17 +190,20 @@ function loop() {
       const lm = result.landmarks[0];
 
       if (engine) {
-        // motora ver: düz [x, y, z, visibility] * 33. x aspect ile ölçeklenir ki
-        // kare kare olmayan çerçevede açı matematiği bozulmasın.
-        const flat = new Array(lm.length * 4);
-        for (let i = 0; i < lm.length; i++) {
+        // landmark'ları wasm heap'ine yaz (x aspect ile ölçekli ki açı bozulmasın),
+        // sonra motora pointer geç. HEAPF32'yi her kare tazeliyoruz (bellek büyürse
+        // eski görünüm geçersiz olabilir).
+        const heap = motorMod.HEAPF32;
+        const base = bufPtr >> 2;
+        const count = Math.min(lm.length, LM);
+        for (let i = 0; i < count; i++) {
           const p = lm[i];
-          flat[i * 4] = p.x * aspect;
-          flat[i * 4 + 1] = p.y;
-          flat[i * 4 + 2] = p.z ?? 0;
-          flat[i * 4 + 3] = p.visibility ?? 1;
+          heap[base + i * 4]     = p.x * aspect;
+          heap[base + i * 4 + 1] = p.y;
+          heap[base + i * 4 + 2] = p.z ?? 0;
+          heap[base + i * 4 + 3] = p.visibility ?? 1;
         }
-        const r = engine.update(flat);
+        const r = engine.updatePtr(bufPtr, count * 4);
         if (r.tracking) skeletonColor = r.phase === "bottom" ? "#A61B42" : "#33000E";
         render(r);
       }
@@ -177,7 +212,6 @@ function loop() {
       drawer.drawLandmarks(lm, { color: "#FFFFFF", fillColor: skeletonColor, radius: 5, lineWidth: 2 });
     }
 
-    // fps sayacı (her yarım saniyede güncelle)
     frames++;
     const now = performance.now();
     if (now - fpsClock >= 500) {

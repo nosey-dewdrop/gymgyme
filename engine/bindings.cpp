@@ -1,13 +1,17 @@
 // bindings.cpp — saf coach motorunu (coach_engine) tarayıcıya açan İNCE katman.
 //
-// Buradaki tek iş çeviri: JS'ten gelen düz sayı dizisini C++ Landmark'lara,
-// C++ Reading'i JS'in okuyabileceği düz bir nesneye çevirmek. Hiç mantık yok —
-// mantık coach_engine'de. Bu ayrım sayesinde motor web'e bağımlı değil.
+// Buradaki tek iş çeviri: gelen noktaları C++ Landmark'lara, C++ Reading'i JS'in
+// okuyabileceği düz bir nesneye çevirmek. Hiç analiz yok burada — açı, yumuşatma,
+// faz hepsi coach_engine'de. Bu ayrım sayesinde motor web'e bağımlı değil.
 //
-// Sadece bu dosya emscripten bilir; coach_engine saf C++ kalır.
+// İki giriş yolu:
+//   updatePtr(ptr, n) — HIZLI yol: JS landmark'ları wasm heap'ine yazar, biz
+//                       pointer'dan okuruz. Kare başına sınır geçişi ~yok.
+//   update(array)     — kolay yol / yedek: JS dizisini eleman eleman okur.
 
 #include <emscripten/bind.h>
 #include <emscripten/val.h>
+#include <cstdint>
 #include <string>
 #include <vector>
 #include "coach_engine.hpp"
@@ -33,6 +37,25 @@ static std::string motionStr(coach::Motion m) {
     default:                  return "hold";
   }
 }
+static JsReading toJs(const coach::Reading& r) {
+  JsReading j;
+  j.tracking = r.tracking;
+  j.confidence = r.confidence;
+  j.framing = r.framing;
+  j.rawAngle = r.rawAngle;
+  j.smoothAngle = r.smoothAngle;
+  j.depth = r.depth;
+  j.phase = phaseStr(r.phase);
+  j.motion = motionStr(r.motion);
+  j.leftKnee = r.angles.leftKnee;
+  j.rightKnee = r.angles.rightKnee;
+  j.leftHip = r.angles.leftHip;
+  j.rightHip = r.angles.rightHip;
+  j.leftElbow = r.angles.leftElbow;
+  j.rightElbow = r.angles.rightElbow;
+  j.message = r.message;
+  return j;
+}
 
 // motorun web yüzü. içeride saf coach::Engine'i sarar.
 class WebEngine {
@@ -42,6 +65,21 @@ class WebEngine {
   void setMove(std::string move) { engine_.setMove(coach::builtinMove(move)); }
   void reset() { engine_.reset(); }
 
+  // HIZLI yol: heap'teki float buffer'dan oku (count = float adedi, 33*4=132).
+  JsReading updatePtr(std::uintptr_t ptr, unsigned count) {
+    const float* buf = reinterpret_cast<const float*>(ptr);
+    unsigned n = count / 4;
+    std::vector<coach::Landmark> pts(n);
+    for (unsigned i = 0; i < n; i++) {
+      pts[i].x = buf[i * 4];
+      pts[i].y = buf[i * 4 + 1];
+      pts[i].z = buf[i * 4 + 2];
+      pts[i].visibility = buf[i * 4 + 3];
+    }
+    return toJs(engine_.update(pts));
+  }
+
+  // yedek yol: JS dizisini eleman eleman oku.
   JsReading update(val landmarks) {
     unsigned n = landmarks["length"].as<unsigned>();
     unsigned count = n / 4;
@@ -52,26 +90,7 @@ class WebEngine {
       pts[i].z = landmarks[i * 4 + 2].as<double>();
       pts[i].visibility = landmarks[i * 4 + 3].as<double>();
     }
-
-    coach::Reading r = engine_.update(pts);
-
-    JsReading j;
-    j.tracking = r.tracking;
-    j.confidence = r.confidence;
-    j.framing = r.framing;
-    j.rawAngle = r.rawAngle;
-    j.smoothAngle = r.smoothAngle;
-    j.depth = r.depth;
-    j.phase = phaseStr(r.phase);
-    j.motion = motionStr(r.motion);
-    j.leftKnee = r.angles.leftKnee;
-    j.rightKnee = r.angles.rightKnee;
-    j.leftHip = r.angles.leftHip;
-    j.rightHip = r.angles.rightHip;
-    j.leftElbow = r.angles.leftElbow;
-    j.rightElbow = r.angles.rightElbow;
-    j.message = r.message;
-    return j;
+    return toJs(engine_.update(pts));
   }
 
  private:
@@ -100,5 +119,6 @@ EMSCRIPTEN_BINDINGS(coach) {
       .constructor<std::string>()
       .function("setMove", &WebEngine::setMove)
       .function("reset", &WebEngine::reset)
+      .function("updatePtr", &WebEngine::updatePtr)
       .function("update", &WebEngine::update);
 }

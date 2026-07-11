@@ -14,6 +14,8 @@ emcc bindings.cpp coach_engine.cpp \
   -sMODULARIZE=1 -sEXPORT_ES6=1 -sEXPORT_NAME=createMotor \
   -sENVIRONMENT=web -sALLOW_MEMORY_GROWTH=1 \
   -sFILESYSTEM=0 \
+  -sEXPORTED_FUNCTIONS=_malloc,_free \
+  -sEXPORTED_RUNTIME_METHODS=HEAPF32 \
   -o motor.js
 
 echo "ok: $(ls -la motor.js motor.wasm | awk '{print $9, $5}' | tr '\n' ' ')"
