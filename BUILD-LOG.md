@@ -76,6 +76,20 @@ Küçük ama kimlik açısından önemli bir düzeltme: coach sayfası tek bir H
 
 Motor "görüyor ve anlıyor" ama insanın bunu *hissetmesi* lazım. Bu aşama okuma panelini kurdu: en üstte büyük bir kelime hareketin nerede olduğunu söylüyor ("standing" / "going down" / "deep" / "coming up"); altında üç canlı ölçer — **squat derinliği** (0'dan 1'e dolan vişne bir bar), **takip güveni**, ve **kadraja sığma** (motorun neden bazen "biraz geri çekil" dediğini görürsün). Bir de altı eklem açısı listeleniyor, ve takip edilen dizin hem ham hem yumuşatılmış hali yan yana — böylece EMA'nın titremeyi nasıl sakinleştirdiğini gözünle görüyorsun. Köşede bir fps sayacı, "tüm hesap cihazında" notuyla. İskelet dipteyken vişneye dönüyor. Hepsi gymgyme'nin pembe/bordersiz dilinde; kutu yok, ayrım boşluk ve renk.
 
+## Sertleştirme — güvenlik, hız, temiz kod, ve "neden JS görünüyor"
+
+Bir duraklama yapıp mevcut hali gerçek bir gözle denetledim: güvenlik, hız, temiz kod. Çıkanları tek tek düzelttim, çünkü "çalışıyor" ile "üretime hazır" arasındaki fark bu.
+
+**"App neden JS görünüyor?"** GitHub'ın dil çubuğu "çoğu JavaScript" diyordu ve bu yanıltıcıydı. Sebep: sayılan JS'in çoğu ya emscripten'in ürettiği yükleyici (`motor.js`, 45 KB) ya da dizin verisi (`seed.js`, 48 KB) — ikisi de elle yazılmış uygulama kodu değil. Bir `.gitattributes` ekleyip bunları "üretilmiş / veri" olarak işaretledim; artık dil çubuğu gerçek kodu, yani C++'ı ve tutkal JS'i gösteriyor. Bir de sayfayı html/css/js diye böldüğüm için kod artık HTML dosyasında toplanmıyor.
+
+**Güvenlik — CDN'i içeri aldım.** En büyük risk gizlilik değildi (o zaten temiz: video cihazdan çıkmıyor), tedarik zinciriydi: MediaPipe kütüphanesini bir CDN'den, modeli Google'dan indiriyordum. O sunuculardan biri ele geçse, kameraya erişimi olan bir sayfaya kötü kod girebilirdi. Çözüm: kütüphaneyi, wasm'ını ve modeli (toplam ~34 MB) repoya **vendor'ladım**. Artık çalışırken hiçbir üçüncü taraf sunucuya bağlanmıyor — hem güvenli, hem çevrimdışı çalışıyor, hem de Google'a "kim kullanıyor" bilgisi sızmıyor. Üstüne sıkı bir **Content-Security-Policy** (her şey `self`) ve `Permissions-Policy: camera=(self)` koydum: sayfa artık yalnızca kendi origin'inden kod çalıştırabiliyor ve kamerayı başka kimse gömemiyor.
+
+**Hız — sınırı geçmeyi bıraktım.** Her karede 33 noktayı JS'ten C++'a tek tek geçiriyordum: kare başına ~132 küçük JS↔wasm sınır geçişi + bir dizi allocation'ı. Bunu tersine çevirdim: noktaları bir kez wasm'ın kendi belleğine (heap) yazıp motora sadece bir **pointer** veriyorum. Tek çağrı, sıfır tekrar allocation. Masaüstünde farkı görmezsin ama telefonda pili ve akıcılığı korur.
+
+**Temiz kod — motoru test ettim.** Çekirdeği web'siz saf C++ tuttuğumun karşılığını burada aldım: normal derleyiciyle (tarayıcı yok) küçük bir test dosyası yazdım ve motorun mantığını doğruladım — düz bacak ~180°, bükülü ~90°, görünmeyen vücut sayılmıyor, ayakta→dip→ayakta faz geçişleri doğru, histerezis sınırda titremiyor. On bir testin hepsi geçti. Motor büyüdükçe bu testler beni yanlış değişiklikten koruyacak. Bir de açı panelini artık her karede baştan kurmak yerine sadece sayıları güncelliyorum (daha temiz, daha hafif).
+
+Özet karne: mimari ve gizlilik baştan sağlamdı; bu turda tedarik zinciri kapatıldı, mobil hız yolu açıldı, motor testlendi, ve proje kimliği (C++) görünür oldu.
+
 ## Yol haritası (19 aşama, 0–18)
 
 Her aşama tek başına çekilebilir gerçek bir adım — biri bitince küçük bir "oldu" anı, bir reels. Sıra kabaca **görmek → anlamak → saymak → düzeltmek → ürünleştirmek** diye ilerliyor.
