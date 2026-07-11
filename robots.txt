@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://gymgyme.vercel.app/sitemap.xml
+Sitemap: https://gymgyme.damlahelloworld.com/sitemap.xml
