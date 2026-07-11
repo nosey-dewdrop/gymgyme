@@ -5,7 +5,8 @@
 // Hız: landmark'ları her kare wasm heap'ine bir kez yazıp motora POINTER geçiyoruz
 // (kare başına yüzlerce JS↔wasm sınır geçişi yerine tek çağrı).
 
-import { PoseLandmarker, FilesetResolver, DrawingUtils } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.12";
+// mediapipe VENDOR'lanmış — üçüncü taraf CDN'e runtime bağımlılık yok, offline çalışır.
+import { PoseLandmarker, FilesetResolver, DrawingUtils } from "../vendor/mediapipe/vision_bundle.mjs";
 
 const $ = (id) => document.getElementById(id);
 const statusEl = $("status");
@@ -45,12 +46,10 @@ const setStatus = (m) => { statusEl.textContent = m; };
 // gören model: MediaPipe pose (kendisi de c++/wasm, gpu'da, cihazda).
 async function loadPose() {
   setStatus("loading the pose model (first time only, then cached)...");
-  const vision = await FilesetResolver.forVisionTasks(
-    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.12/wasm"
-  );
+  const vision = await FilesetResolver.forVisionTasks("vendor/mediapipe/wasm");
   poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
     baseOptions: {
-      modelAssetPath: "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",
+      modelAssetPath: "vendor/models/pose_landmarker_lite.task",
       delegate: "GPU"
     },
     runningMode: "VIDEO",
