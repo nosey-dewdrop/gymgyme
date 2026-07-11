@@ -1,3 +1,5 @@
 .DS_Store
 .vercel
 .env*
+CLAUDE.md
+CLAUDE.context.md
