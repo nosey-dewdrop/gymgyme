@@ -24,6 +24,36 @@ Bu aşama gymgyme'nin dizininde tek bir şeyi bile bozmuyor: ayrı bir sayfa (`c
 
 ---
 
+## Karar — motor hangi dilde yazılsın?
+
+Burada durup dürüst bir soruyu cevaplamak gerekti: "motor" diyoruz ama yine mi HTML/JS yazıyoruz? Çünkü HTML bir motor değil — HTML sadece **çerçeve** (düğme, sayfa yerleşimi). Motor, o çerçevenin içindeki **hesap**: açıyı ölçen, tekrarı tanıyan, formu yargılayan mantık.
+
+İki yol vardı. Biri: her şeyi JavaScript'te yazmak — hızlı, standart, bu math için performansı da yeter (açı hesabı ağır değil). Ama bu, sıkıldığım o "her şey JS" dünyasında kalmak demekti. İkincisi: motorun **beynini C++'ta yazıp WebAssembly'ye derlemek** — tam stitchu'nun yaptığı gibi. JS sadece ince tutkal olur (kameradan kareyi al, ekrana çiz); açıyı, durumu, saymayı **C++ hesaplar**.
+
+C++'ı seçtim, ve sebebi *hız değil* — bu math JS'te de akıcı koşardı. Sebep şu: istediğim şey gerçek dil, gerçek motor, ve HTML sloptan çıkmak. Bunun için doğru olan C++. Bedeli de var: gymgyme bugüne kadar "build adımı yok" saf statik bir siteydi; C++→WASM bir derleyici (emscripten) ekliyor. Ama çıktı iki küçük dosya (motor.js + motor.wasm) — onları repoya koyuyoruz, site yine statik kalıyor, sadece motoru derlemiş oluyoruz. Yani mimariyi bozmadan gerçek bir C++ çekirdeği kazandık.
+
+Önemli ayrım: gözleri (33 noktayı) hazır bir modelden alıyoruz, ama **beyni kendimiz yazıyoruz.** Kütüphaneye "kaç tekrar" diye sormuyoruz — noktalardan anlamı biz üretiyoruz. Motorun olduğu yer tam burası.
+
+---
+
+## Aşama 2–6 — Vücut sayıya dönüşüyor (motor, C++)
+
+Bu dört küçük aşama birlikte tek bir şeyi kurdu: kameranın gördüğü şekilsiz noktaları, üstüne mantık kurulabilecek **temiz bir sinyale** çevirmek. Hepsi `engine/motor.cpp` içinde.
+
+**Açılar (2–3).** Bir koç için önemli olan noktaların yeri değil, aralarındaki **açı**. Diz ne kadar bükülü, sırt ne kadar eğik — hareket bu. O yüzden ilk iş: üç nokta al (mesela kalça-diz-ayakbileği), aradaki açıyı hesapla. Diz, kalça, dirsek için, hem sol hem sağ. Vücut artık altı sayıya dönüştü. Bunu ekranın 2 boyutlu (x,y) haliyle yaptım, çünkü kamera zaten 2B görüyor ve derinlik tahmini gürültülü — sağlam olan basit olandı.
+
+**Yumuşatma (4).** İlk denemede sayılar titriyordu: kişi kıpırdamadan dursa bile açı 141-139-142 diye zıplıyor, çünkü model her karede noktaları azıcık oynatıyor. Bu titreşim sonra sayacı yanıltırdı (eşiğin kenarında ileri-geri sayardı). Çözüm bir **alçak-geçiren süzgeç** (EMA): yeni okumayı eskisiyle harmanla, ani sıçramaları yumuşat. Artık sinyal sakin akıyor.
+
+**Güven kapısı (5).** Motor kötü veriyle karar vermemeli. Kişi kadraja tam sığmıyorsa ya da ışık azsa, model noktaları düşük "güven"le veriyor. O yüzden squat için diz zincirini iki taraftan da kontrol edip **hangi taraf daha net görünüyorsa onu** kullanıyorum; ikisi de zayıfsa hiç saymıyorum, bunun yerine "biraz geri çekil, ışığa bak" diyorum. Bu bir dürüstlük: emin olmadığında susan bir motor, uyduran bir motordan iyidir.
+
+**Durum makinesi (6).** Son parça: hareketin **neresinde** olduğumuzu bilmek. İki durum — "üstte" (ayakta) ve "dipte" (çömelmiş) — arasında geçiş yapan küçük bir mantık. İki ayrı eşik kullandım (inmek için bir, kalkmak için başka): buna histerezis denir, tek eşik olsaydı gürültü sınırın etrafında sürekli ileri-geri tetiklerdi. Şimdi motor "şu an diptesin, şimdi kalkıyorsun" diyebiliyor — ve **tekrar saymak** (Aşama 7) tam olarak bu geçişlerin üstüne binecek. Yani bu aşama sayının iskeletini kurdu, saymanın kendisini bir sonrakine bıraktı.
+
+Hepsi ekrana bağlı: coach sayfasında artık büyük bir kelime ("standing" / "deep"), altında canlı diz açısı, faz ve gidiş yönü görünüyor; iskelet dipteyken vişne, ayaktayken koyu renge dönüyor. Motor gerçekten "anlıyor".
+
+**Burada durduldu (Aşama 6).** Sıradaki oturum: Aşama 7 — durum geçişinden gerçek tekrar sayımı + yarım tekrarı reddetme.
+
+---
+
 ## Yol haritası (19 aşama, 0–18)
 
 Her aşama tek başına çekilebilir gerçek bir adım — biri bitince küçük bir "oldu" anı, bir reels. Sıra kabaca **görmek → anlamak → saymak → düzeltmek → ürünleştirmek** diye ilerliyor.
