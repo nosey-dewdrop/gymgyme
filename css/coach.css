@@ -1,0 +1,35 @@
+/* coach page — gymgyme'nin ham pembe dilini sürdürür: arial, bordersiz,
+   ayrım sadece boşluk + renk tonu. kutu yok. */
+
+.stage { position: relative; width: 100%; max-width: 560px; margin: 16px 0 12px; background: #F7A9C4; min-height: 60px; }
+#cam, #overlay { width: 100%; display: block; }
+#cam { transform: scaleX(-1); }                    /* ayna hissi - antrenman doğal olsun */
+#overlay { position: absolute; inset: 0; transform: scaleX(-1); }
+
+.startbtn { font-family: inherit; font-size: 22px; font-weight: bold; color: #33000E; background: none; cursor: pointer; padding: 0; margin: 6px 12px 6px 0; }
+.startbtn:disabled { opacity: 0.5; cursor: default; }
+.status { margin: 8px 0; min-height: 20px; }
+
+/* canlı okuma paneli */
+.read[hidden] { display: none; }
+.read { max-width: 560px; margin: 6px 0; }
+.phase-word { font-size: 34px; font-weight: bold; letter-spacing: -0.01em; line-height: 1.1; }
+.sub { font-size: 13px; opacity: 0.85; margin-top: 2px; }
+
+/* ölçer barları - track açık pembe, dolgu vişne / koyu. border yok. */
+.meter { margin: 12px 0 2px; }
+.meter-label { font-size: 11px; opacity: 0.7; margin-bottom: 3px; }
+.bar { position: relative; width: 100%; max-width: 360px; height: 10px; background: #F49BBB; overflow: hidden; }
+.bar-fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0%; background: #A61B42; transition: width 0.08s linear; }
+.bar.conf .bar-fill { background: #33000E; }
+
+/* altı eklem açısı - ham vs yumuşatılmış farkını da burada gösteriyoruz */
+.angles { margin-top: 14px; font-size: 12.5px; }
+.angles div { padding: 1px 0; }
+.angles .k { display: inline-block; width: 130px; opacity: 0.7; }
+
+.fps { font-size: 11px; opacity: 0.55; margin-top: 10px; }
+.msg { margin: 6px 0; min-height: 18px; color: #7a0a24; }
+
+.private { font-size: 12px; opacity: 0.75; margin-top: 4px; max-width: 560px; }
+.wip { font-size: 12px; opacity: 0.75; margin-top: 22px; max-width: 560px; }
