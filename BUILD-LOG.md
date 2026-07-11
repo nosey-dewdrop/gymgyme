@@ -24,13 +24,37 @@ Bu aşama gymgyme'nin dizininde tek bir şeyi bile bozmuyor: ayrı bir sayfa (`c
 
 ---
 
-## Yol haritası (kabaca 6 aşama)
+## Yol haritası (19 aşama, 0–18)
 
+Her aşama tek başına çekilebilir gerçek bir adım — biri bitince küçük bir "oldu" anı, bir reels. Sıra kabaca **görmek → anlamak → saymak → düzeltmek → ürünleştirmek** diye ilerliyor.
+
+**Görmek**
 - **0 · Görme** — kamera + canlı iskelet, cihazda. *(bitti)*
-- **1 · Açı okuma** — noktalardan eklem açıları (diz/kalça/dirsek) canlı çıksın. Motorun ham sinyali.
-- **2 · Tekrar sayma** — tek hareket üzerinde (mesela squat) in-çık durumunu tanıyan bir mantık → say. İlk gerçek "motor".
-- **3 · Form kontrol** — açı eşikleriyle "biraz daha in", "sırtın düz kalsın" gibi anlık geri bildirim.
-- **4 · Hareket kütüphanesine bağlama** — gymgyme'deki hareketi seç → o harekete özel koç modu; her harekete kendi kuralı.
-- **5 · Cila + seans** — tam bir set (tekrar/dinlenme), seans özeti, "programım"a bağlanma, mobil + erişilebilirlik.
+- **1 · Sahne cilası** — ayna hissi, "tüm vücudun çerçeveye sığsın" kılavuzu, kaç kare/saniye ve güven göstergesi. Motor değil ama ilk izlenim.
 
-Her aşama kendi içinde birçok küçük, çekilebilir adıma bölünür (build in public için bol malzeme). Büyük ve çok oturumluk iş — acele değil, her aşama ayrı bir "oldu" anı.
+**Anlamak**
+- **2 · İlk açı** — tek eklemi ölç: diz açısı ekranda canlı bir sayı olsun. Motorun ilk ham sinyali.
+- **3 · Tüm açılar** — kalça, dirsek, omuz; sol/sağ ayrı. Vücut artık sayılara dönüşüyor.
+- **4 · Sinyali temizle** — ham noktalar titrer; yumuşatma (EMA/low-pass) ile açı sinyali stabil. Yoksa sayaç zıplar.
+- **5 · Güven kontrolü** — nokta güveni düşükse ("ışık az", "bir adım geri") uyar. Motor kötü veriyle saymasın — bu bir mühendislik dürüstlüğü.
+
+**Saymak**
+- **6 · Durum makinesi** — tek harekette (squat) "aşağı" ve "yukarı" fazlarını tanı. Saymanın kalbi.
+- **7 · Tekrar sayma** — faz geçişinden bir tekrar üret; büyük sayaç + "tık" (ses/haptik). İlk gerçek motor anı.
+- **8 · Yanlış tekrarı reddet** — yarım/eksik hareketi sayma (derinlik eşiği), "yarım kaldı" de. Saymak kolay, doğru saymak zor.
+
+**Düzeltmek**
+- **9 · Form kuralları (squat)** — diz-parmak hizası, sırt açısı → "biraz daha in", "sırtın düz". Koç burada koç oluyor.
+- **10 · İkinci hareket** — push-up ya da lunge ekle; kural setini genelleştir (her hareket = bir eşikler tablosu). Tek harekete gömülü kalmasın.
+
+**Ürünleştirmek**
+- **11 · Kütüphaneye bağla** — gymgyme'deki hareketi seç → o harekete özel koç modu açılsın. Dizin ile motor birleşir.
+- **12 · Hareket kural verisi** — moves verisine açı eşikleri + talimat alanları; yeni hareket = veri eklemek, kod değil. Genişleyen sistem.
+- **13 · Set & dinlenme akışı** — "3 set x 12", set arası dinlenme sayacı, sesli yönlendirme. Tek tekrardan tam antrenmana.
+- **14 · Seans özeti** — kaç tekrar, ortalama derinlik, form skoru; bölge bölge küçük rapor. Yapılandırılmış çıktı (stitchu ruhu).
+- **15 · "Programım"a bağla** — seansı gymgyme planlayıcısına işle, "en son ne zaman yaptın" güncellensin. Motor ürünün geri kalanıyla konuşsun.
+- **16 · Ton & erişilebilirlik** — VOICE diline uygun, suçlamasız cümleler; sesli sayım; düşük görme/renk körü uyumu. Soğuk bir makine değil.
+- **17 · Mobil & performans** — telefon kamerası, dikey çerçeve, lite model/GPU, düşük pil. Çoğu insan telefonla antrenman yapacak.
+- **18 · Yayına aç** — menüye ekle, ilk kullanım onboarding'i, gizlilik/consent metni (cihazda çalışır, kayıt yok — KVKK temiz). Artık herkese açık.
+
+Büyük ve çok oturumluk iş — acele yok. Bittiğinde gymgyme "linklere bak"tan "seni izleyip çalıştıran koç"a dönüşmüş olacak: aynı site, bambaşka bir kalp.
