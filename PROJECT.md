@@ -13,6 +13,16 @@ A public-good website: a community-fed directory of home training resources — 
 ## Status update (supabasesiz + polish)
 2026-07-10 morning: Supabase fully removed (config.js, migration, RPC, remote fetch, recommend hearts). Suggest form now composes a mailto to Damla with all fields. Mobile polish pass: responsive layout under 700px (sidebar flows, inline counters, fluid calendar, bigger touch targets). TO GO LIVE: connect repo to Vercel + domain. Nothing else.
 
+## COACH engine (build-in-public, started 2026-07-12)
+The "slop -> engine" upgrade: an on-device camera coach that watches home workouts, reads joints and (soon) counts reps + checks form. Turns the directory from a link list into a real product. On-device (MediaPipe pose + our own motor, both wasm in the browser) so it does NOT break "no backend" and stays KVKK-clean: the camera image never leaves the device.
+
+- **Engine is C++ -> WebAssembly**, not js. Pure framework-free core `engine/coach_engine.hpp/.cpp` (moves defined as data via `MoveSpec`) + thin `engine/bindings.cpp` (emscripten). Build `engine/build.sh` -> `engine/motor.js` + `engine/motor.wasm` (committed). Native tests `engine/test.sh` (no browser). Glue only in `js/coach.js`; page split html/css/js on purpose.
+- Page: `coach.html` (unlinked, robots noindex until proven). 19-stage roadmap + narrative devlog in `BUILD-LOG.md` (Damla voices it for reels; each step is its own commit).
+- Security: mediapipe + model vendored under `vendor/` (no runtime cdn), tight CSP + Permissions-Policy (`vercel.json` + meta). Perf: landmarks pass by pointer through the wasm heap.
+
+Roadmap (0-18): DONE 0 see, 1 scene polish, 2-3 angles, 4 smoothing, 5 gates, 6 phase machine. NEXT 7 rep counting, 8 reject shallow, 9 form rules, 10 second move, 11 wire to library, 12 move-rule data, 13 sets/rest, 14 session summary, 15 into my-program, 16 tone/a11y, 17 mobile/perf, 18 launch (nav + onboarding + consent line).
+OPEN: Damla felt it thin vs stitchu; option on the table = go deep past stage 6 in one big push (counting + rep-quality + form biomechanics + full move library + 3D depth).
+
 ## Launch (first users - Damla owns content/outreach)
 Suggested channels when live: r/xxfitness + r/bodyweightfitness (helpful-tool framing, not promo), Turkish fitness Instagram/TikTok ("Ankara'da yetişkin balesi yok diye yaptık" story), ekşi sözlük (evde spor başlıkları), Bilkent groups. The pitch is the mission: free forever, no ads, no accounts, everyone adds. The "contributors (thank you!)" wall is the growth loop: people come back to see their name.
 
