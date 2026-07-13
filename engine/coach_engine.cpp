@@ -52,12 +52,16 @@ void Engine::reset() {
   haveSmooth_ = false;
   phaseTop_ = true;
   reps_ = 0;
+  halfReps_ = 0;
+  inExcursion_ = false;
+  excursionMin_ = 1e9;
 }
 
 Reading Engine::update(const std::vector<Landmark>& p) {
   Reading r;
   r.phase = phaseTop_ ? Phase::Top : Phase::Bottom;
   r.reps = reps_;
+  r.halfReps = halfReps_;
 
   if (p.size() < 33) { r.message = "i cannot see you yet"; return r; }
 
@@ -121,7 +125,29 @@ Reading Engine::update(const std::vector<Landmark>& p) {
     r.repTick = true;
   }
   r.phase = phaseTop_ ? Phase::Top : Phase::Bottom;
+
+  // ── Aşama 8: yarım tekrar — üst fazdayken eşiğin altına sarkıp dibe
+  // ULAŞMADAN geri dönen inişi yakala. Dibe ulaşan iniş faza geçer ve buraya
+  // hiç düşmez; ufak kıpırtılar da halfRepDepth'i geçemediği için elenir. ──
+  if (!phaseTop_) {
+    inExcursion_ = false;              // gerçek inişe dönüştü, yarım değil
+    excursionMin_ = 1e9;
+  } else if (smooth_ < spec_.topAngle) {
+    inExcursion_ = true;
+    excursionMin_ = std::min(excursionMin_, smooth_);
+  } else if (inExcursion_) {           // üste dönüldü ama Bottom hiç görülmedi
+    double deepEnough = spec_.topAngle - spec_.halfRepDepth * (spec_.topAngle - spec_.bottomAngle);
+    if (excursionMin_ < deepEnough) {
+      halfReps_++;
+      r.halfTick = true;
+      r.message = "that one did not count - go all the way down";
+    }
+    inExcursion_ = false;
+    excursionMin_ = 1e9;
+  }
+
   r.reps = reps_;
+  r.halfReps = halfReps_;
   return r;
 }
 

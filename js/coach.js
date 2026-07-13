@@ -18,6 +18,7 @@ const canvas = $("overlay");
 const ctx = canvas.getContext("2d");
 const readEl = $("read");
 const repCountEl = $("repCount");
+const halfNoteEl = $("halfNote");
 const phaseWord = $("phaseWord");
 const subEl = $("sub");
 const depthFill = $("depthFill");
@@ -153,34 +154,46 @@ const deg = (v) => (v >= 0 ? Math.round(v) + "°" : "–");
 // tekrar "tık"ı: kısa bir bip (WebAudio, dosya yok) + telefonda küçük titreşim.
 // AudioContext start'taki kullanıcı jestiyle açılır; açılamazsa sessizce vazgeç.
 let audioCtx = null;
-function repTick() {
+function beep(freq, dur, vol) {
   try {
     audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
     const o = audioCtx.createOscillator();
     const g = audioCtx.createGain();
-    o.frequency.value = 880;
-    g.gain.setValueAtTime(0.09, audioCtx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.12);
+    o.frequency.value = freq;
+    g.gain.setValueAtTime(vol, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
     o.connect(g);
     g.connect(audioCtx.destination);
     o.start();
-    o.stop(audioCtx.currentTime + 0.13);
+    o.stop(audioCtx.currentTime + dur + 0.01);
   } catch (_) { /* ses yoksa sayaç yine çalışır */ }
+}
+function repTick() {
+  beep(880, 0.12, 0.09);                     // tiz "tık": saydım
   if (navigator.vibrate) navigator.vibrate(35);
   repCountEl.classList.remove("ticked");
   void repCountEl.offsetWidth;               // animasyonu yeniden tetikle
   repCountEl.classList.add("ticked");
 }
+function halfBuzz() {
+  beep(220, 0.18, 0.07);                     // pes "bzz": o sayılmadı
+  if (navigator.vibrate) navigator.vibrate([50, 40, 50]);
+}
+
+let cueUntil = 0;   // takip sürerken gelen koç mesajı (örn. "yarım kaldı") kısa süre ekranda kalsın
 
 function render(r) {
   phaseWord.textContent = phraseFor(r);
   repCountEl.textContent = r.reps;
   if (r.repTick) repTick();
+  if (r.halfTick) halfBuzz();
+  halfNoteEl.textContent = r.halfReps > 0 ? "not counted: " + r.halfReps + " (too shallow)" : "";
 
   if (r.tracking) {
     subEl.textContent =
       "knee " + Math.round(r.smoothAngle) + "°   ·   moving " + r.motion + "   ·   phase " + r.phase;
-    msgEl.textContent = "";
+    if (r.message) { msgEl.textContent = r.message; cueUntil = performance.now() + 1800; }
+    else if (performance.now() > cueUntil) msgEl.textContent = "";
   } else {
     subEl.textContent = "";
     msgEl.textContent = r.message || "";

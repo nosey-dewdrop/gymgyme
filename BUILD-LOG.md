@@ -102,6 +102,22 @@ Testlere de beş yeni madde girdi: tam döngü bir sayıyor, iki döngü iki say
 
 **Sırada:** saymak kolay, doğru saymak zor — yarım tekrarı fark edip kullanıcıya söylemek ("biraz daha in, o sayılmadı").
 
+---
+
+## Aşama 8 — "O sayılmadı"
+
+Aşama 7'de şunu demiştim: histerezis yarım tekrarı zaten saymıyor. Doğru — ama saymamak yetmiyor. Yarım squat yapan biri sayacın artmadığını fark eder, sebebini anlamaz, ve motora küser: "bozuk bu". İyi bir koç sessizce yok saymaz; **"o sayılmadı, biraz daha in" der.** Bu aşama o cümleyi kurdu.
+
+Mantık şöyle: kişi üst fazdayken açı üst eşiğin altına sarkarsa motor bunu bir "iniş denemesi" olarak izlemeye başlıyor ve o inişte görülen en derin açıyı aklında tutuyor. İki son var. Ya alt eşiği geçer — o zaman bu gerçek bir iniştir, faz makinesi devralır, tekrar normal sayılır. Ya da dibe ulaşmadan üste geri döner — işte o an motor karar veriyor: iniş anlamlı derinliğe ulaştıysa (hareket aralığının üçte birinden fazla) bu bir **yarım tekrar**: sayaç artmıyor ama ayrı bir "sayılmadı" hanesine yazılıyor ve kullanıcıya söyleniyor. Ulaşmadıysa hiçbir şey olmuyor — ağırlık alırken ufak bir kıpırdanma, esneme, duruş değişikliği yarım tekrar DEĞİL; onları azarlamak yanlış olurdu. Yani üç ayrı kader var: tam tekrar sayılır, yarım tekrar söylenir, kıpırtı görmezden gelinir.
+
+Geri bildirim de ikiye ayrıldı: tam tekrarda tiz kısa bir "tık" + tek titreşim; yarımda pes bir "bzz" + çift titreşim. Ekrana bakmadan bile hangisi olduğunu duyuyorsun. Sayacın altında da küçük bir satır birikiyor: "not counted: 2 (too shallow)". Suçlayıcı değil, ama dürüst.
+
+Eşik de veri, kod değil: "ne kadar derin iniş yarım sayılır" MoveSpec'te bir alan (yüzde 35). Yarın başka bir harekette bu oran farklıysa kod değişmeyecek, sayı değişecek.
+
+Beş yeni test: yarım iniş yakalanıyor ve sayılmıyor, yakalandığı karede bayrak kalkıyor, sığ kıpırtı yarım bile değil, tam tekrar yarım üretmiyor, reset temizliyor. Yirmi bir test, hepsi geçiyor.
+
+**Sırada:** her tekrar aynı değil — tekrar başına bir **kalite skoru**: derinlik, tempo, kontrol.
+
 ## Yol haritası (19 aşama, 0–18)
 
 Her aşama tek başına çekilebilir gerçek bir adım — biri bitince küçük bir "oldu" anı, bir reels. Sıra kabaca **görmek → anlamak → saymak → düzeltmek → ürünleştirmek** diye ilerliyor.
@@ -119,7 +135,7 @@ Her aşama tek başına çekilebilir gerçek bir adım — biri bitince küçük
 **Saymak**
 - **6 · Durum makinesi** — tek harekette (squat) "aşağı" ve "yukarı" fazlarını tanı. Saymanın kalbi.
 - **7 · Tekrar sayma** — faz geçişinden bir tekrar üret; büyük sayaç + "tık" (ses/haptik). İlk gerçek motor anı. *(bitti)*
-- **8 · Yanlış tekrarı reddet** — yarım/eksik hareketi sayma (derinlik eşiği), "yarım kaldı" de. Saymak kolay, doğru saymak zor.
+- **8 · Yanlış tekrarı reddet** — yarım/eksik hareketi sayma (derinlik eşiği), "yarım kaldı" de. Saymak kolay, doğru saymak zor. *(bitti)*
 
 **Düzeltmek**
 - **9 · Form kuralları (squat)** — diz-parmak hizası, sırt açısı → "biraz daha in", "sırtın düz". Koç burada koç oluyor.

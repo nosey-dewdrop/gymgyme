@@ -36,6 +36,14 @@ static std::vector<Landmark> poseHalf() {
   return p;
 }
 
+// SIĞ kıpırtı: diz ~148° — üst eşiğin altında ama yarım derinliğine bile ulaşmıyor.
+static std::vector<Landmark> poseSlight() {
+  std::vector<Landmark> p = pose(false);
+  auto set = [&](int i, double x, double y) { p[i].x = x; p[i].y = y; };
+  set(27, 0.55, 0.86); set(28, 0.65, 0.86);
+  return p;
+}
+
 int main() {
   // ── açı geometrisi ──
   {
@@ -110,6 +118,31 @@ int main() {
     e.reset();
     r = e.update(pose(false));
     check(r.reps == 0, "reset clears the rep count");
+  }
+
+  // ── Aşama 8: yarım tekrar — anlamlı ama dipsiz iniş yakalanır, kıpırtı elenir ──
+  {
+    Engine e(builtinMove("squat"));
+    Reading r;
+    for (int i = 0; i < 6; i++) r = e.update(pose(false));
+
+    bool ticked = false;
+    for (int i = 0; i < 10; i++) r = e.update(poseHalf());       // ~135°: derin ama dipsiz
+    for (int i = 0; i < 12; i++) { r = e.update(pose(false)); ticked |= r.halfTick; }
+    check(r.halfReps == 1 && r.reps == 0, "half descent is flagged, not counted");
+    check(ticked, "halfTick fires when the half rep is caught");
+
+    for (int i = 0; i < 10; i++) r = e.update(poseSlight());     // ~148°: kıpırtı
+    for (int i = 0; i < 12; i++) r = e.update(pose(false));
+    check(r.halfReps == 1, "a slight dip is not a half rep");
+
+    for (int i = 0; i < 10; i++) r = e.update(pose(true));       // tam tekrar
+    for (int i = 0; i < 12; i++) r = e.update(pose(false));
+    check(r.reps == 1 && r.halfReps == 1, "a full rep does not add a half");
+
+    e.reset();
+    r = e.update(pose(false));
+    check(r.halfReps == 0, "reset clears half reps");
   }
 
   std::printf(failed ? "\n%d test FAILED\n" : "\nall tests passed\n", failed);

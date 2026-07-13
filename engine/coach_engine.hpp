@@ -37,6 +37,7 @@ struct MoveSpec {
   double emaAlpha = 0.4;        // yumuşatma katsayısı (0..1, küçük = daha sakin)
   double minVisibility = 0.5;   // bu güvenin altındaki okuma reddedilir
   double minFraming = 0.75;     // gövde+bacak noktalarının en az bu kadarı kadrajda olmalı
+  double halfRepDepth = 0.35;   // iniş bu derinliği (0..1) geçip de dibe ulaşmazsa "yarım" sayılır
 };
 
 // altı büyük eklem açısı (gösterim + ileri aşamalar). -1 = okunamadı.
@@ -63,6 +64,9 @@ struct Reading {
   // ── Aşama 7: sayma ──
   int reps = 0;              // bu oturumda sayılan TAM tekrar
   bool repTick = false;      // SADECE tekrarın sayıldığı karede true (ses/titreşim için)
+  // ── Aşama 8: yarım tekrar ──
+  int halfReps = 0;          // dibe ulaşmadan geri dönülen "sayılmadı" inişler
+  bool halfTick = false;     // SADECE yarımın yakalandığı karede true
   std::string message;       // insana dönük kısa mesaj (kadraj/ışık uyarısı vb.)
 };
 
@@ -92,6 +96,9 @@ class Engine {
   bool haveSmooth_ = false;
   bool phaseTop_ = true;
   int reps_ = 0;
+  int halfReps_ = 0;
+  bool inExcursion_ = false;   // üst fazdayken eşiğin altına sarkan bir iniş sürüyor mu
+  double excursionMin_ = 1e9;  // o inişte görülen en derin (en küçük) açı
 };
 
 }  // namespace coach

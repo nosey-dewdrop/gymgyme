@@ -26,6 +26,8 @@ struct JsReading {
   double leftKnee, rightKnee, leftHip, rightHip, leftElbow, rightElbow;
   int reps;
   bool repTick;
+  int halfReps;
+  bool halfTick;
   std::string message;
 };
 
@@ -57,6 +59,8 @@ static JsReading toJs(const coach::Reading& r) {
   j.rightElbow = r.angles.rightElbow;
   j.reps = r.reps;
   j.repTick = r.repTick;
+  j.halfReps = r.halfReps;
+  j.halfTick = r.halfTick;
   j.message = r.message;
   return j;
 }
@@ -119,6 +123,8 @@ EMSCRIPTEN_BINDINGS(coach) {
       .field("rightElbow", &JsReading::rightElbow)
       .field("reps", &JsReading::reps)
       .field("repTick", &JsReading::repTick)
+      .field("halfReps", &JsReading::halfReps)
+      .field("halfTick", &JsReading::halfTick)
       .field("message", &JsReading::message);
 
   class_<WebEngine>("Engine")
