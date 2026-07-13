@@ -60,6 +60,9 @@ struct Reading {
   Phase phase = Phase::Top;
   Motion motion = Motion::Hold;
   JointAngles angles;
+  // ── Aşama 7: sayma ──
+  int reps = 0;              // bu oturumda sayılan TAM tekrar
+  bool repTick = false;      // SADECE tekrarın sayıldığı karede true (ses/titreşim için)
   std::string message;       // insana dönük kısa mesaj (kadraj/ışık uyarısı vb.)
 };
 
@@ -88,6 +91,7 @@ class Engine {
   double prevSmooth_ = -1;
   bool haveSmooth_ = false;
   bool phaseTop_ = true;
+  int reps_ = 0;
 };
 
 }  // namespace coach

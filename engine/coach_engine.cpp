@@ -51,11 +51,13 @@ void Engine::reset() {
   prevSmooth_ = -1.0;
   haveSmooth_ = false;
   phaseTop_ = true;
+  reps_ = 0;
 }
 
 Reading Engine::update(const std::vector<Landmark>& p) {
   Reading r;
   r.phase = phaseTop_ ? Phase::Top : Phase::Bottom;
+  r.reps = reps_;
 
   if (p.size() < 33) { r.message = "i cannot see you yet"; return r; }
 
@@ -108,9 +110,18 @@ Reading Engine::update(const std::vector<Landmark>& p) {
   prevSmooth_ = smooth_;
 
   // ── Aşama 6: durum makinesi (histerezis) ──
-  if (phaseTop_) { if (smooth_ < spec_.bottomAngle) phaseTop_ = false; }
-  else           { if (smooth_ > spec_.topAngle)    phaseTop_ = true;  }
+  // ── Aşama 7: sayma — dipten üste TAM dönüş = bir tekrar. Bottom'a ancak alt
+  // eşiği geçerek girilebildiği için Bottom→Top geçişi her zaman tam bir
+  // döngüdür; yarım inişler fazı hiç değiştirmez, dolayısıyla sayılmaz. ──
+  if (phaseTop_) {
+    if (smooth_ < spec_.bottomAngle) phaseTop_ = false;
+  } else if (smooth_ > spec_.topAngle) {
+    phaseTop_ = true;
+    reps_++;
+    r.repTick = true;
+  }
   r.phase = phaseTop_ ? Phase::Top : Phase::Bottom;
+  r.reps = reps_;
   return r;
 }
 

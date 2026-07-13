@@ -90,6 +90,18 @@ Bir duraklama yapıp mevcut hali gerçek bir gözle denetledim: güvenlik, hız,
 
 Özet karne: mimari ve gizlilik baştan sağlamdı; bu turda tedarik zinciri kapatıldı, mobil hız yolu açıldı, motor testlendi, ve proje kimliği (C++) görünür oldu.
 
+## Aşama 7 — Motor sayıyor
+
+Bugüne kadar motor görüyordu ve anlıyordu — ama söylediği tek şey "şu an diptesin"di. Bugün ilk kez bir işe yaradı: **tekrar saydı.**
+
+İşin güzel tarafı, saymanın neredeyse bedava gelmesi. Aşama 6'daki durum makinesi zaten "üstte/dipte" geçişlerini biliyordu; tekrar dediğin şey de tam bir döngü: dibe in, üste dön. O yüzden sayacın kuralı tek cümle: **motor "dipten üste" geçişini gördüğünde bir tekrar say.** İncelik şurada: histerezis sayesinde "dip" durumuna ancak alt eşiği gerçekten geçersen girebiliyorsun. Yani yarım inişler — 135 dereceye inip geri kalkmalar — fazı hiç değiştirmiyor ve kendiliğinden sayılmıyor. Sahte tekrarı reddetmek için ek kural yazmadım; doğru kurulmuş durum makinesi onu zaten reddediyordu. (Bunun kullanıcıya "yarım kaldı" diye söylenmesi ayrı bir iş — o sonraki aşama.)
+
+Sayaç motorda, C++'ta duruyor — ekranda değil. Ekran sadece motorun verdiği sayıyı gösteriyor: panelin en üstünde, sayfadaki en büyük şey olarak, vişne renkli koca bir sayı. Sayı arttığı karede motor bir de "bu karede saydım" bayrağı veriyor; tarayıcı o bayrağı görünce kısa bir bip çalıyor (ses dosyası yok, tarayıcının kendi ses motoruyla üretiliyor) ve telefonda minik bir titreşim veriyor. Gözünü ekrana dikmeden antrenman yapabilesin diye — koç sayar, sen duyarsın.
+
+Testlere de beş yeni madde girdi: tam döngü bir sayıyor, iki döngü iki sayıyor, yarım iniş saymıyor, sayma anında bayrak kalkıyor, reset sayacı sıfırlıyor. On altı test, hepsi geçiyor.
+
+**Sırada:** saymak kolay, doğru saymak zor — yarım tekrarı fark edip kullanıcıya söylemek ("biraz daha in, o sayılmadı").
+
 ## Yol haritası (19 aşama, 0–18)
 
 Her aşama tek başına çekilebilir gerçek bir adım — biri bitince küçük bir "oldu" anı, bir reels. Sıra kabaca **görmek → anlamak → saymak → düzeltmek → ürünleştirmek** diye ilerliyor.
@@ -106,7 +118,7 @@ Her aşama tek başına çekilebilir gerçek bir adım — biri bitince küçük
 
 **Saymak**
 - **6 · Durum makinesi** — tek harekette (squat) "aşağı" ve "yukarı" fazlarını tanı. Saymanın kalbi.
-- **7 · Tekrar sayma** — faz geçişinden bir tekrar üret; büyük sayaç + "tık" (ses/haptik). İlk gerçek motor anı.
+- **7 · Tekrar sayma** — faz geçişinden bir tekrar üret; büyük sayaç + "tık" (ses/haptik). İlk gerçek motor anı. *(bitti)*
 - **8 · Yanlış tekrarı reddet** — yarım/eksik hareketi sayma (derinlik eşiği), "yarım kaldı" de. Saymak kolay, doğru saymak zor.
 
 **Düzeltmek**

@@ -17,6 +17,7 @@ const video = $("cam");
 const canvas = $("overlay");
 const ctx = canvas.getContext("2d");
 const readEl = $("read");
+const repCountEl = $("repCount");
 const phaseWord = $("phaseWord");
 const subEl = $("sub");
 const depthFill = $("depthFill");
@@ -149,8 +150,32 @@ function phraseFor(r) {
 
 const deg = (v) => (v >= 0 ? Math.round(v) + "°" : "–");
 
+// tekrar "tık"ı: kısa bir bip (WebAudio, dosya yok) + telefonda küçük titreşim.
+// AudioContext start'taki kullanıcı jestiyle açılır; açılamazsa sessizce vazgeç.
+let audioCtx = null;
+function repTick() {
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.frequency.value = 880;
+    g.gain.setValueAtTime(0.09, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.12);
+    o.connect(g);
+    g.connect(audioCtx.destination);
+    o.start();
+    o.stop(audioCtx.currentTime + 0.13);
+  } catch (_) { /* ses yoksa sayaç yine çalışır */ }
+  if (navigator.vibrate) navigator.vibrate(35);
+  repCountEl.classList.remove("ticked");
+  void repCountEl.offsetWidth;               // animasyonu yeniden tetikle
+  repCountEl.classList.add("ticked");
+}
+
 function render(r) {
   phaseWord.textContent = phraseFor(r);
+  repCountEl.textContent = r.reps;
+  if (r.repTick) repTick();
 
   if (r.tracking) {
     subEl.textContent =

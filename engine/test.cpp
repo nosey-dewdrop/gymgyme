@@ -28,6 +28,14 @@ static std::vector<Landmark> pose(bool bent) {
   return p;
 }
 
+// YARIM squat: ayak bileği 45 derece geride -> diz ~135° (alt eşik 110'un ÜSTÜNDE).
+static std::vector<Landmark> poseHalf() {
+  std::vector<Landmark> p = pose(false);
+  auto set = [&](int i, double x, double y) { p[i].x = x; p[i].y = y; };
+  set(27, 0.59, 0.84); set(28, 0.69, 0.84);
+  return p;
+}
+
 int main() {
   // ── açı geometrisi ──
   {
@@ -75,6 +83,33 @@ int main() {
     Reading r;
     for (int i = 0; i < 10; i++) r = e.update(pose(true));
     check(r.phase == Phase::Bottom, "hysteresis: stays bottom until fully up");
+  }
+
+  // ── Aşama 7: sayma — tam döngü sayılır, yarım iniş sayılmaz ──
+  {
+    Engine e(builtinMove("squat"));
+    Reading r;
+    for (int i = 0; i < 6; i++) r = e.update(pose(false));
+    check(r.reps == 0, "no reps before any cycle");
+
+    bool ticked = false;
+    for (int i = 0; i < 10; i++) r = e.update(pose(true));      // dibe
+    for (int i = 0; i < 12; i++) { r = e.update(pose(false)); ticked |= r.repTick; }  // üste
+    check(r.reps == 1, "one full cycle = one rep");
+    check(ticked, "repTick fires on the counting frame");
+
+    for (int i = 0; i < 10; i++) r = e.update(pose(true));
+    for (int i = 0; i < 12; i++) r = e.update(pose(false));
+    check(r.reps == 2, "second full cycle = two reps");
+
+    // yarım iniş: alt eşiğe hiç inilmiyor -> sayaç oynamamalı
+    for (int i = 0; i < 10; i++) r = e.update(poseHalf());
+    for (int i = 0; i < 12; i++) r = e.update(pose(false));
+    check(r.reps == 2, "half descent does not count");
+
+    e.reset();
+    r = e.update(pose(false));
+    check(r.reps == 0, "reset clears the rep count");
   }
 
   std::printf(failed ? "\n%d test FAILED\n" : "\nall tests passed\n", failed);

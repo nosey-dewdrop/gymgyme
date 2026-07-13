@@ -13,6 +13,15 @@
 /* canlı okuma paneli */
 .read[hidden] { display: none; }
 .read { max-width: 560px; margin: 6px 0; }
+
+/* tekrar sayacı - sayfadaki en büyük şey, motorun "gerçek" anı */
+.rep-row { line-height: 1; margin: 4px 0 2px; }
+.rep-count { font-size: 72px; font-weight: bold; color: #A61B42; letter-spacing: -0.02em; }
+.rep-count.ticked { animation: repPop 0.22s ease-out; }
+.rep-label { font-size: 14px; margin-left: 8px; opacity: 0.7; }
+@keyframes repPop { 0% { transform: scale(1); } 35% { transform: scale(1.18); } 100% { transform: scale(1); } }
+.rep-count { display: inline-block; }
+
 .phase-word { font-size: 34px; font-weight: bold; letter-spacing: -0.01em; line-height: 1.1; }
 .sub { font-size: 13px; opacity: 0.85; margin-top: 2px; }
 
