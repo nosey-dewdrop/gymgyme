@@ -8,7 +8,7 @@
 // mediapipe VENDOR'lanmış — üçüncü taraf CDN'e runtime bağımlılık yok, offline çalışır.
 import { PoseLandmarker, FilesetResolver, DrawingUtils } from "../vendor/mediapipe/vision_bundle.mjs";
 // ortak hesap: giriş yapılıysa seanslar DB'ye de gider (cihazlar arası).
-import { sb, currentUser } from "./auth.js";
+import { sb, currentUser, onAuth } from "./auth.js";
 
 const $ = (id) => document.getElementById(id);
 const statusEl = $("status");
@@ -150,6 +150,7 @@ async function start() {
     applyPlan();                               // plan alanlarını motora ver
     summaryEl.hidden = true;                   // yeni seans, eski özet gitsin
     sessionLogged = false;                     // yeni seans yeniden kaydedilebilir
+    syncState = "none"; syncLineDiv = null;    // senkron satırı da sıfırdan
     setStatus("asking for the camera...");
     // ön kamera, esnek çözünürlük — telefon dikey de verse motor kadraja uyar.
     const stream = await navigator.mediaDevices.getUserMedia({
@@ -293,6 +294,45 @@ function isoToday() {
   return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
 }
 let sessionLogged = false;
+
+// ── dürüst senkron: özet "hesabına kaydedildi" demeden önce insert'in sonucunu
+// bekler. başarısız olan satır kuyruğa düşer, bağlantı gelince (online olayı,
+// giriş) yeniden denenir. kullanıcıya hiçbir zaman olmamış bir kayıt söylenmez. ──
+const QUEUE_KEY = "hl_sync_queue";
+let syncState = "none";      // local | pending | ok | queued
+let syncLineDiv = null;      // özet kartındaki senkron satırı (varsa canlı güncellenir)
+
+function syncText() {
+  if (syncState === "pending") return "saving to your account...";
+  if (syncState === "ok") return "saved to your account and lit up today on your gymgyme calendar.";
+  if (syncState === "queued") return "saved on this device - it will sync to your account when the connection is back.";
+  return "saved on this device and lit up today on your calendar - sign in to keep your workouts across devices.";
+}
+function setSyncState(s) { syncState = s; if (syncLineDiv) syncLineDiv.textContent = syncText(); }
+
+function queuePush(row) {
+  try {
+    const q = JSON.parse(localStorage.getItem(QUEUE_KEY)) || [];
+    q.push(row);
+    localStorage.setItem(QUEUE_KEY, JSON.stringify(q.slice(-20)));
+  } catch (_) { /* kuyruk tutulamazsa cihaz kaydı yine durur */ }
+}
+
+// kuyruğu boşalt: yalnız o an girişli kullanıcının satırları gönderilir,
+// başkasının bekleyenleri kendi girişini bekler (hesaplar karışmaz).
+async function flushQueue() {
+  const u = currentUser();
+  if (!sb || !u) return;
+  let q = [];
+  try { q = JSON.parse(localStorage.getItem(QUEUE_KEY)) || []; } catch (_) { return; }
+  const mine = q.filter((r) => r.uid === u.id);
+  if (!mine.length) return;
+  const { error } = await sb.from("gg_coach_sessions").insert(mine.map(({ uid, ...row }) => row));
+  if (error) return;                 // hâlâ offline olabiliriz — kuyruk yerinde kalır
+  try { localStorage.setItem(QUEUE_KEY, JSON.stringify(q.filter((r) => r.uid !== u.id))); } catch (_) {}
+  loadHistory();
+}
+
 function logSession(s) {
   if (sessionLogged || !s || s.reps === 0) return;
   sessionLogged = true;
@@ -304,14 +344,21 @@ function logSession(s) {
     const days = JSON.parse(localStorage.getItem(DAYS_KEY)) || [];
     if (!days.includes(isoToday())) { days.push(isoToday()); localStorage.setItem(DAYS_KEY, JSON.stringify(days)); }
   } catch (_) { /* localStorage yoksa seans yine görünür, sadece kaydedilmez */ }
-  // giriş yapılıysa hesaba da senkron et (best-effort; user_id serverside auth.uid()).
-  if (sb && currentUser()) {
-    sb.from("gg_coach_sessions").insert({
-      move: moveSel.value, reps: s.reps, sets: s.setsCompleted,
-      avg_score: s.avgScore, best_score: s.bestScore, clean_reps: s.cleanReps,
-      half_reps: s.halfReps, duration_sec: s.durationSec, workout_complete: s.workoutComplete
-    }).then(({ error }) => { if (error) console.warn("session sync failed:", error.message); });
-  }
+  const u = currentUser();
+  if (!sb || !u) { setSyncState("local"); return; }
+  // created_at'i biz koyuyoruz: satır kuyruğa düşüp yarın gönderilse bile
+  // seansın gerçek zamanı korunur.
+  const row = {
+    move: moveSel.value, reps: s.reps, sets: s.setsCompleted,
+    avg_score: s.avgScore, best_score: s.bestScore, clean_reps: s.cleanReps,
+    half_reps: s.halfReps, duration_sec: s.durationSec, workout_complete: s.workoutComplete,
+    created_at: new Date().toISOString()
+  };
+  setSyncState("pending");
+  sb.from("gg_coach_sessions").insert(row).then(({ error }) => {
+    if (error) { queuePush({ uid: u.id, ...row }); setSyncState("queued"); }
+    else { setSyncState("ok"); loadHistory(); }
+  });
 }
 
 // seans özeti: motordan al, sıcak cümlelere çevir. reps=0 ise gösterme.
@@ -327,13 +374,61 @@ function showSummary() {
   if (s.avgScore >= 0) lines.push("they averaged " + s.avgScore + " out of 100, your best was " + s.bestScore + ".");
   if (s.cleanReps > 0) lines.push(s.cleanReps + " came with clean form.");
   if (s.halfReps > 0) lines.push(s.halfReps + " did not count - go all the way down next time.");
-  if (sessionLogged) lines.push(currentUser()
-    ? "saved to your account and lit up today on your gymgyme calendar."
-    : "saved on this device and lit up today on your calendar - sign in to keep your workouts across devices.");
   sumTitle.textContent = s.workoutComplete ? "that's a workout" : "nice work";
   sumBody.innerHTML = "";
   lines.forEach((l) => { const d = document.createElement("div"); d.textContent = l; sumBody.appendChild(d); });
+  if (sessionLogged) {
+    // senkron satırı ayrı bir div: insert'in sonucu gelince yerinde güncellenir.
+    syncLineDiv = document.createElement("div");
+    syncLineDiv.textContent = syncText();
+    sumBody.appendChild(syncLineDiv);
+  }
   summaryEl.hidden = false;
+}
+
+// ── geçmiş: yazılan veri artık okunuyor da. girişliyse hesaptaki son seanslar,
+// değilse (ya da DB'ye ulaşılamıyorsa) bu cihazdakiler. ──
+const histEl = $("history"), histList = $("histList");
+let histSeq = 0;   // yarışan yüklemelerden yalnız sonuncusu çizer
+
+function histRow(when, mv, reps, sets, avg) {
+  const div = document.createElement("div");
+  div.className = "hist-row";
+  const d = new Date(when);
+  const day = isNaN(d.getTime()) ? "" : d.toLocaleDateString("en-US", { month: "short", day: "numeric" }).toLowerCase();
+  div.textContent = day + "   ·   " + mv + "   ·   " + reps + " reps" +
+    (sets > 0 ? " in " + sets + " sets" : "") +
+    (avg != null && avg >= 0 ? "   ·   avg " + avg : "");
+  return div;
+}
+
+async function loadHistory() {
+  if (!histEl) return;
+  const seq = ++histSeq;
+  let rows = [];
+  if (sb && currentUser()) {
+    const { data, error } = await sb.from("gg_coach_sessions")
+      .select("move,reps,sets,avg_score,created_at")
+      .order("created_at", { ascending: false }).limit(30);
+    if (!error && data) rows = data.map((r) => [r.created_at, r.move, r.reps, r.sets, r.avg_score]);
+  }
+  if (!rows.length) {
+    try {
+      const list = JSON.parse(localStorage.getItem(SESS_KEY)) || [];
+      rows = list.slice(-30).reverse().map((r) => [r.t || r.date, r.move, r.reps, r.sets, r.avg]);
+    } catch (_) { /* cihaz kaydı da yoksa boş hal gösterilir */ }
+  }
+  if (seq !== histSeq) return;
+  histList.innerHTML = "";
+  if (!rows.length) {
+    const d = document.createElement("div");
+    d.className = "hist-empty";
+    d.textContent = "no workouts yet - finish a session and it will appear here.";
+    histList.appendChild(d);
+  } else {
+    rows.forEach((r) => histList.appendChild(histRow(r[0], r[1], r[2], r[3], r[4])));
+  }
+  histEl.hidden = false;
 }
 
 function render(r) {
@@ -476,6 +571,11 @@ skipRestBtn.addEventListener("click", () => { if (engine) engine.skipRest(); });
 startBtn.addEventListener("click", start);
 stopBtn.addEventListener("click", stop);
 window.addEventListener("resize", () => { if (running) sizeCanvas(); });
+
+// giriş değişince: bekleyen kuyruğu gönder, geçmişi o hesaptan yeniden çiz.
+onAuth(() => { flushQueue(); loadHistory(); });
+window.addEventListener("online", flushQueue);
+window.addEventListener("gg-sessions-changed", loadHistory);   // "delete my synced workouts" sonrası
 
 // pwa: ana ekrana kurulunca offline da açılır (sw.js dosyaları önbelleğe alır).
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
