@@ -72,6 +72,13 @@ function readPlanInputs() {
 function readRestInput() { return Math.max(0, Math.min(600, parseInt(planRest.value, 10) || 0)); }
 function renderProgram() {
   progListEl.innerHTML = "";
+  if (!program.items.length) {
+    const e = document.createElement("div");
+    e.className = "prog-empty";
+    e.textContent = "no moves yet - pick one below and add it.";
+    progListEl.appendChild(e);
+    return;
+  }
   program.items.forEach((it, i) => {
     const d = document.createElement("div");
     d.className = "prog-item";

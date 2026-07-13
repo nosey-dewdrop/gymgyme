@@ -42,8 +42,11 @@
 .move-row label { font-size: 12px; opacity: 0.7; margin-right: 8px; }
 #moveSel { font-family: inherit; font-size: 16px; font-weight: bold; color: #33000E; background: #fff; border: none; box-shadow: 0 1px 5px rgba(51, 0, 14, 0.12); border-radius: 12px; padding: 6px 12px; cursor: pointer; }
 
-.prog-list { margin: 2px 0 8px; }
-.prog-item { font-size: 14px; line-height: 1.9; }
+.prog-lead { font-size: 13px; opacity: 0.75; margin: 0 0 8px; line-height: 1.5; }
+.prog-list { margin: 2px 0 10px; }
+.prog-item { font-size: 15px; font-weight: bold; line-height: 2; color: #33000E; }
+.prog-item .mini { font-weight: normal; }
+.prog-empty { font-size: 13px; opacity: 0.6; padding: 2px 0 4px; }
 .plan-row { margin: 4px 0 2px; font-size: 13px; line-height: 2.1; }
 .plan-lead { opacity: 0.7; margin-right: 6px; }
 .plan-num { font-family: inherit; font-size: 15px; font-weight: bold; color: #33000E; background: #fff; border: none; box-shadow: 0 1px 5px rgba(51, 0, 14, 0.12); border-radius: 12px; width: 48px; padding: 5px 6px; text-align: center; margin: 0 3px; -moz-appearance: textfield; }
