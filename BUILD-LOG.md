@@ -238,6 +238,12 @@ Telefonuna bir fitness app'i kurdun ama App Store'u hiç açmadın. Nasıl?
 
 Bugün personal trainer bir PWA oldu. Üç parça: bir manifest dosyası (isim, ikon, "tam ekran aç" talimatı), site pembesi Arial ikonlar, ve bir service worker. Service worker şunu yapıyor: sayfayı ilk açtığında motorun wasm'ını, MediaPipe'ı, modeli, her şeyi telefona önbellekliyor. Safari'de paylaş menüsünden "ana ekrana ekle" diyorsun, ikon ana ekrana düşüyor, tıklayınca tarayıcı çubuğu olmadan tam ekran açılıyor — ve uçak modunda bile çalışıyor, çünkü kamera da motor da zaten cihazda, sunucuya giden hiçbir şey yok. İndirme bariyeri yok, inceleme kuyruğu yok: reels'te linki gören 10 saniye sonra squat sayıyor, beğenen ana ekranına kuruyor.
 
+## Hesap bandı sertleşti — yalan söylemeyen senkron
+
+Bir fitness uygulaması sana "kaydedildi" dedi ve yalan söyledi. Bizimki söyleyemez, çünkü bugün onu imkansız hale getirdim.
+
+Ship-check üç gedik buldu. Bir: özet kartı, kayıt veritabanına gerçekten ulaşmadan "hesabına kaydedildi" diyordu — offline'da bu düpedüz yalandı. Artık satır önce "saving..." diyor, sonuç gelince gerçeği söylüyor; başaramayan kayıt cihazda kuyruğa giriyor ve bağlantı dönünce kendiliğinden gönderiliyor, seansın gerçek tarihiyle. İki: şifreni unutursan hesabın sonsuza dek kilitliydi. Artık "forgot your password?" var; maildeki link yeni şifre sayfasına düşüyor. Üç: seansların veritabanına yazılıyor ama hiçbir yerde görünmüyordu — yazılan ama okunmayan veri, ölü veridir. Artık sayfanın altında "your workouts" var: girişliysen hesabındaki, değilsen bu cihazdaki son seansların, satır satır.
+
 ## Yol haritası (19 aşama, 0–18)
 
 Her aşama tek başına çekilebilir gerçek bir adım — biri bitince küçük bir "oldu" anı, bir reels. Sıra kabaca **görmek → anlamak → saymak → düzeltmek → ürünleştirmek** diye ilerliyor.
