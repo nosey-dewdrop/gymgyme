@@ -2,9 +2,14 @@
 
 A public-good website: a community-fed directory of home training resources — healthy-living articles, home workouts, pilates, ballet, yoga, gym, calisthenics, bodyweight. Anyone suggests a link or a move; Damla approves; the best-recommended rise up. Born from the home-workout iOS pivot (2026-07-10): the mission is ACCESS ("adult ballet barely exists even in Ankara"), not revenue.
 
-## Non-negotiables (Damla, 2026-07-10)
-- **No monetization by design.** No paywall, no ads, no tracking. The global "every product is born with a paywall" rule is explicitly suspended here — this one is hayır işi.
-- **Low maintenance by design, and SUPABASESIZ (Damla, 2026-07-10 morning).** No backend at all: the whole site is static files. Suggestions arrive as pre-filled mails (suggest form opens the user's mail app addressed to Damla); approved ones get merged into seed.js by Claude. Recommend counts grow the same way ("I recommend X" mails). Zero setup to deploy: connect the repo to Vercel, done. The earlier Supabase design (table, RLS, recommend RPC) lives in git history if ever needed.
+## Direction change (Damla, 2026-07-13): backend is now IN
+Damla: "local olmaz, database gidelim." The coach now has real accounts + a database (shared damlahelloworld Supabase, project ref xjtmqncfhuidctxgthhv). This SUPERSEDES the SUPABASESIZ / no-backend non-negotiable below for the coach. The camera/video still never leaves the device (KVKK); only the workout NUMBERS (reps, scores, dates, move) sync to the account. Accounts open the door to a money model on top (not yet decided/built). The directory link-list itself is still static for now; migrating its my-program/calendar to accounts is the next step.
+- Auth = email + password, shared across the damlahelloworld ecosystem. Tables gg_ prefixed. RLS: each user only their own rows. Anon key is public (client-side, RLS-protected). Run supabase/migration.sql in the shared project's SQL editor.
+- Privacy/consent shipped same session: gizlilik.html + consent line on the auth bar + honest copy (no more "nothing is saved").
+
+## Earlier non-negotiables (Damla, 2026-07-10) — kept for the directory, superseded for the coach
+- **No monetization by design.** No paywall, no ads, no tracking. (Superseded intent: accounts now enable a future money model; nothing built yet.)
+- **Low maintenance by design, and SUPABASESIZ (Damla, 2026-07-10 morning).** The directory site is static files; suggestions arrive as pre-filled mails merged into seed.js. (SUPERSEDED for the coach, which now uses Supabase.)
 - Design: strong pink background, plain Arial, dense list, links in pink tones (darker = more recommended), NO borders anywhere ("içim daralmasın"), contributors as a flowing paragraph with per-name colors under "contributors (thank you!)". Deliberately raw — "bi güzellik beklentimiz yok".
 
 ## Status

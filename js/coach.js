@@ -7,6 +7,8 @@
 
 // mediapipe VENDOR'lanmış — üçüncü taraf CDN'e runtime bağımlılık yok, offline çalışır.
 import { PoseLandmarker, FilesetResolver, DrawingUtils } from "../vendor/mediapipe/vision_bundle.mjs";
+// ortak hesap: giriş yapılıysa seanslar DB'ye de gider (cihazlar arası).
+import { sb, currentUser } from "./auth.js";
 
 const $ = (id) => document.getElementById(id);
 const statusEl = $("status");
@@ -294,6 +296,7 @@ let sessionLogged = false;
 function logSession(s) {
   if (sessionLogged || !s || s.reps === 0) return;
   sessionLogged = true;
+  // her zaman cihaza yaz: offline çalışsın + dizin takvimi bugünü yansıtsın.
   try {
     const list = JSON.parse(localStorage.getItem(SESS_KEY)) || [];
     list.push({ move: moveSel.value, reps: s.reps, sets: s.setsCompleted, avg: s.avgScore, date: isoToday(), t: Date.now() });
@@ -301,6 +304,14 @@ function logSession(s) {
     const days = JSON.parse(localStorage.getItem(DAYS_KEY)) || [];
     if (!days.includes(isoToday())) { days.push(isoToday()); localStorage.setItem(DAYS_KEY, JSON.stringify(days)); }
   } catch (_) { /* localStorage yoksa seans yine görünür, sadece kaydedilmez */ }
+  // giriş yapılıysa hesaba da senkron et (best-effort; user_id serverside auth.uid()).
+  if (currentUser()) {
+    sb.from("gg_coach_sessions").insert({
+      move: moveSel.value, reps: s.reps, sets: s.setsCompleted,
+      avg_score: s.avgScore, best_score: s.bestScore, clean_reps: s.cleanReps,
+      half_reps: s.halfReps, duration_sec: s.durationSec, workout_complete: s.workoutComplete
+    }).then(({ error }) => { if (error) console.warn("session sync failed:", error.message); });
+  }
 }
 
 // seans özeti: motordan al, sıcak cümlelere çevir. reps=0 ise gösterme.
@@ -316,7 +327,9 @@ function showSummary() {
   if (s.avgScore >= 0) lines.push("they averaged " + s.avgScore + " out of 100, your best was " + s.bestScore + ".");
   if (s.cleanReps > 0) lines.push(s.cleanReps + " came with clean form.");
   if (s.halfReps > 0) lines.push(s.halfReps + " did not count - go all the way down next time.");
-  if (sessionLogged) lines.push("saved - today is now a workout day on your gymgyme calendar.");
+  if (sessionLogged) lines.push(currentUser()
+    ? "saved to your account and lit up today on your gymgyme calendar."
+    : "saved on this device and lit up today on your calendar - sign in to keep your workouts across devices.");
   sumTitle.textContent = s.workoutComplete ? "that's a workout" : "nice work";
   sumBody.innerHTML = "";
   lines.forEach((l) => { const d = document.createElement("div"); d.textContent = l; sumBody.appendChild(d); });

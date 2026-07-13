@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- her şey self (mediapipe + model vendor'lu); wasm için wasm-unsafe-eval, worker için blob -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob:; worker-src 'self' blob:; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self' blob:; style-src 'self' 'unsafe-inline'; base-uri 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob:; worker-src 'self' blob:; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self' blob: https://xjtmqncfhuidctxgthhv.supabase.co wss://xjtmqncfhuidctxgthhv.supabase.co; style-src 'self' 'unsafe-inline'; base-uri 'self'">
   <title>gymgyme coach - your camera reads your form, on your device</title>
-  <meta name="description" content="A camera coach that runs fully in your browser: it sees your body, reads your joint angles and knows when you are up or down. The engine is c++ compiled to webassembly. Nothing is uploaded, nothing is saved.">
+  <meta name="description" content="A camera coach that runs fully in your browser: it sees your body, reads your joint angles and counts your reps. The engine is c++ compiled to webassembly. The video never leaves your device; sign in and only your workout numbers are saved to your account.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎀</text></svg>">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="css/coach.css">
@@ -16,12 +16,14 @@
 
 <aside class="sidebar">
   <p class="brand">gymgyme</p>
-  <p class="tag small sidebar-tag">coach: your camera watches you train, reads your joints and knows when you are up or down. the engine is c++ (webassembly), it runs on your device, nothing is uploaded, nothing is saved.</p>
+  <p class="tag small sidebar-tag">coach: your camera watches you train, reads your joints and counts your reps. the engine is c++ (webassembly), it runs on your device. the video is never uploaded; sign in and only your workout numbers are saved to your account.</p>
   <a href="index.html">back to the directory</a>
 </aside>
 
 <h1>coach</h1>
 <p class="tag">stand back so your whole body fits the frame, then press start. your device does the seeing and the thinking - no server ever gets the video.</p>
+
+<div id="authbar" class="authbar"></div>
 
 <div class="move-row">
   <label for="moveSel">move</label>
@@ -92,10 +94,14 @@
   <div class="summary-body" id="sumBody"></div>
 </div>
 
-<p class="private" id="private" hidden>the pose and all the math run inside your browser. the camera image never leaves this device - there is no upload and nothing is stored.</p>
+<p class="private" id="private" hidden>the pose and all the math run inside your browser. the camera image never leaves this device - there is no upload. if you are signed in, only your workout numbers (never the video) are saved to your account. <a href="gizlilik.html">your data</a>.</p>
 
 <p class="wip">the coach watches six moves (squat, push-up, lunge, glute bridge, sit-up, press), counts full reps with a tick, calls out half reps that did not count, scores every rep from depth, tempo and control, and corrects your form in 3d - knees out, chest up, hips in line. set a plan and it counts your sets, rests you between them and rings when the workout is done, then hands you a small summary: reps, sets, how long, your average and best, how many came with clean form.</p>
 
+<!-- ortak Supabase client + config: klasik scriptler, modülden ÖNCE çalışır
+     (window.supabase ve window.GG_CONFIG modül grafiği yüklenmeden hazır olsun) -->
+<script src="vendor/supabase/supabase.js"></script>
+<script src="js/config.js"></script>
 <script type="module" src="js/coach.js"></script>
 
 </body>
