@@ -470,6 +470,64 @@ int main() {
     check(e.summary().reps == 0 && e.summary().bestScore == -1, "reset clears the summary");
   }
 
+  // ── ince takip: tek karelik ışınlanma yutulur, süren hareket kabul edilir ──
+  {
+    Engine e(builtinMove("squat"));
+    Reading r;
+    for (int i = 0; i < 8; i++) r = e.update(pose(false));
+    r = e.update(pose(true));                 // tek karelik glitch (~90° sıçrama)
+    check(r.phase == Phase::Top, "a single teleport frame is swallowed");
+    for (int i = 0; i < 10; i++) r = e.update(pose(true));
+    check(r.phase == Phase::Bottom, "a sustained move is accepted after one frame");
+    for (int i = 0; i < 12; i++) r = e.update(pose(false));
+    check(r.reps == 1, "counting still works with the spike gate on");
+  }
+
+  // ── kalibrasyon: önce vücudu öğren, sayma o sırada dursun, sonra kilitlen ──
+  {
+    Engine e(builtinMove("squat"));
+    e.setCalibration(true);
+    Reading r;
+    double t = 0;
+    r = e.update(pose(false), worldPose(false), (t += 33));
+    check(r.calibrating && r.calibProgress > 0, "calibration starts on the first tracked frame");
+    // kalibrasyon sürerken yapılan tam döngü SAYILMAZ
+    for (int i = 0; i < 10; i++) r = e.update(pose(true), worldPose(true), (t += 33));
+    for (int i = 0; i < 12; i++) r = e.update(pose(false), worldPose(false), (t += 33));
+    check(r.reps == 0, "no reps are counted while calibrating");
+    // öğrenme tamamlanır
+    for (int i = 0; i < 30; i++) r = e.update(pose(false), worldPose(false), (t += 33));
+    check(!r.calibrating, "calibration completes after enough frames");
+    // kalibre olduktan sonra normal döngü sayılır (bükülme oranları bozmaz)
+    for (int i = 0; i < 10; i++) r = e.update(pose(true), worldPose(true), (t += 33));
+    for (int i = 0; i < 14; i++) r = e.update(pose(false), worldPose(false), (t += 33));
+    check(r.reps == 1, "counting works after calibration, bending does not break the lock");
+    // bacakları yarıya inmiş sahte vücut: bu okuma reddedilir
+    std::vector<Landmark> shrunk = worldPose(false);
+    shrunk[25].y = 0.20; shrunk[26].y = 0.20;   // dizler yukarı: uyluk yarıya iner
+    shrunk[27].y = 0.40; shrunk[28].y = 0.40;   // bilekler de: baldır yarıya iner
+    r = e.update(pose(false), shrunk, (t += 33));
+    check(!r.tracking, "a body that does not match the calibration is rejected");
+    // kalibrasyonsuz motor aynı okumayı kabul ederdi (kilit gerçekten kalibrasyondan)
+    Engine e2(builtinMove("squat"));
+    Reading r2;
+    for (int i = 0; i < 6; i++) r2 = e2.update(pose(false), shrunk, 33.0 * (i + 1));
+    check(r2.tracking, "without calibration the same read is accepted");
+  }
+
+  // ── hareket bazında kadraj: push-up bacaksız çalışır, cümlesi kolu ister ──
+  {
+    Engine e(builtinMove("pushup"));
+    Reading r;
+    for (int i = 0; i < 6; i++) r = e.update(poseArms(false));
+    for (int i = 0; i < 10; i++) r = e.update(poseArms(true));
+    for (int i = 0; i < 12; i++) r = e.update(poseArms(false));
+    check(r.reps == 1, "pushup counts with the legs fully out of frame");
+    Engine s(builtinMove("pushup"));
+    Reading rs = s.update(pose(false));       // sadece bacak görünür: kadraj yetmez
+    check(rs.message.find("arms") != std::string::npos, "pushup framing cue asks for the arms");
+  }
+
   std::printf(failed ? "\n%d test FAILED\n" : "\nall tests passed\n", failed);
   return failed ? 1 : 0;
 }

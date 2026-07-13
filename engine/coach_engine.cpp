@@ -53,6 +53,7 @@ MoveSpec builtinMove(const std::string& name) {
     s.topAngle = 150.0;
     s.goodRepSecMin = 1.0;
     s.framingPoints = {L_SHO, R_SHO, L_ELB, R_ELB, L_WRI, R_WRI, L_HIP, R_HIP};
+    s.framingCue = "i need your arms and torso in the frame - your legs can stay out";
     s.rules = {{RuleKind::HipSag, 160.0, View::Unknown, "keep your body in one line - hips up"}};
     return s;
   }
@@ -73,6 +74,7 @@ MoveSpec builtinMove(const std::string& name) {
     s.topAngle = 165.0;      // köprü: gövde-bacak tek çizgi
     s.goodRepSecMin = 1.0;
     s.framingPoints = {L_SHO, R_SHO, L_HIP, R_HIP, L_KNE, R_KNE};
+    s.framingCue = "lie side-on so i can see your torso and knees";
     return s;
   }
   if (name == "situp") {
@@ -83,6 +85,7 @@ MoveSpec builtinMove(const std::string& name) {
     s.topAngle = 130.0;      // yerde (kalça açık)
     s.goodRepSecMin = 1.0;
     s.framingPoints = {L_SHO, R_SHO, L_HIP, R_HIP, L_KNE, R_KNE};
+    s.framingCue = "lie side-on so i can see your torso and knees";
     return s;
   }
   if (name == "press") {
@@ -93,6 +96,7 @@ MoveSpec builtinMove(const std::string& name) {
     s.topAngle = 150.0;      // kilit: kol açık
     s.goodRepSecMin = 0.8;
     s.framingPoints = {L_SHO, R_SHO, L_ELB, R_ELB, L_WRI, R_WRI};
+    s.framingCue = "i need your arms and shoulders in the frame";
     return s;
   }
 
@@ -111,10 +115,22 @@ MoveSpec builtinMove(const std::string& name) {
   return s;
 }
 
+void Engine::setCalibration(bool on) {
+  calibOn_ = on;
+  calibrated_ = false;
+  calibCount_ = 0;
+  for (auto& v : calibSamples_) v.clear();
+}
+
 void Engine::reset() {
   smooth_ = -1.0;
   prevSmooth_ = -1.0;
   haveSmooth_ = false;
+  spikeHold_ = false;
+  // kalibrasyon: açık/kapalı ayarı KORUNUR, öğrenilen vücut yeniden öğrenilir
+  calibrated_ = false;
+  calibCount_ = 0;
+  for (auto& v : calibSamples_) v.clear();
   phaseTop_ = true;
   reps_ = 0;
   halfReps_ = 0;
@@ -178,6 +194,49 @@ void Engine::skipRest() {
 }
 
 static double clamp01(double v) { return std::max(0.0, std::min(1.0, v)); }
+
+// ── kalibrasyon ölçüleri: gövde boyuna oranlanmış uzuv uzunlukları.
+// [uyluk, baldır, üst kol, ön kol, omuz genişliği] / gövde. Ölçekten bağımsız:
+// kameraya yaklaşınca da aynı kalır; başka bir vücutta ya da çöp okumada kalmaz.
+// w = dünya noktaları (geometri), vis = ekran noktaları (görünürlük kaynağı).
+static bool bodyRatiosFrame(const std::vector<Landmark>& w,
+                            const std::vector<Landmark>& vis,
+                            double out[], bool have[]) {
+  enum { L_SHO = 11, R_SHO = 12, L_ELB = 13, R_ELB = 14, L_WRI = 15, R_WRI = 16,
+         L_HIP = 23, R_HIP = 24, L_KNE = 25, R_KNE = 26, L_ANK = 27, R_ANK = 28 };
+  auto dist = [&](int a, int b) {
+    double dx = w[a].x - w[b].x, dy = w[a].y - w[b].y, dz = w[a].z - w[b].z;
+    return std::sqrt(dx * dx + dy * dy + dz * dz);
+  };
+  auto seen = [&](int a, int b) { return vis[a].visibility >= 0.5 && vis[b].visibility >= 0.5; };
+  if (!seen(L_SHO, R_SHO) || !seen(L_HIP, R_HIP)) return false;
+  double tx = (w[L_SHO].x + w[R_SHO].x) / 2.0 - (w[L_HIP].x + w[R_HIP].x) / 2.0;
+  double ty = (w[L_SHO].y + w[R_SHO].y) / 2.0 - (w[L_HIP].y + w[R_HIP].y) / 2.0;
+  double tz = (w[L_SHO].z + w[R_SHO].z) / 2.0 - (w[L_HIP].z + w[R_HIP].z) / 2.0;
+  double torso = std::sqrt(tx * tx + ty * ty + tz * tz);
+  if (torso < 1e-6) return false;
+  // her uzuv iki taraftan görüneni kullanır; ikisi de görünüyorsa ortalama.
+  auto limb = [&](int aL, int bL, int aR, int bR, double& val) {
+    bool l = seen(aL, bL), r = seen(aR, bR);
+    if (!l && !r) return false;
+    double s = 0; int n = 0;
+    if (l) { s += dist(aL, bL); n++; }
+    if (r) { s += dist(aR, bR); n++; }
+    val = (s / n) / torso;
+    return true;
+  };
+  have[0] = limb(L_HIP, L_KNE, R_HIP, R_KNE, out[0]);   // uyluk
+  have[1] = limb(L_KNE, L_ANK, R_KNE, R_ANK, out[1]);   // baldır
+  have[2] = limb(L_SHO, L_ELB, R_SHO, R_ELB, out[2]);   // üst kol
+  have[3] = limb(L_ELB, L_WRI, R_ELB, R_WRI, out[3]);   // ön kol
+  out[4] = dist(L_SHO, R_SHO) / torso; have[4] = true;  // omuz genişliği
+  return true;
+}
+
+static double medianOf(std::vector<double> v) {
+  std::nth_element(v.begin(), v.begin() + v.size() / 2, v.end());
+  return v[v.size() / 2];
+}
 
 Reading Engine::update(const std::vector<Landmark>& p, double timestampMs) {
   static const std::vector<Landmark> kNoWorld;
@@ -257,14 +316,66 @@ Reading Engine::update(const std::vector<Landmark>& p,
   else              { raw = angleAt(g, spec_.primaryRight); bestVis = visR; }
   r.confidence = bestVis;
 
-  if (r.framing < spec_.minFraming) { r.message = "step back so your whole body fits the frame"; return r; }
+  if (r.framing < spec_.minFraming) {
+    // hareketin kendi cümlesi varsa onu söyle: push-up bacak istemez, bunu bilsin.
+    r.message = spec_.framingCue.empty() ? "step back so your whole body fits the frame" : spec_.framingCue;
+    return r;
+  }
   if (bestVis < spec_.minVisibility || raw < 0.0) { r.message = "i lost the joints i am watching - check the light and the frame"; return r; }
   r.tracking = true;
   r.rawAngle = raw;
 
-  // ── Aşama 4: yumuşatma (EMA) ──
-  if (!haveSmooth_) { smooth_ = raw; haveSmooth_ = true; }
-  else              { smooth_ = spec_.emaAlpha * raw + (1.0 - spec_.emaAlpha) * smooth_; }
+  // ── kalibrasyon + vücut kilidi (önce vücudu tanı, sonra ona kilitlen).
+  // dünya verisi şart: uzuv boyu 3B'de bükülmeyle değişmez, ölçünün güvenilir
+  // olduğu tek yer orası. dünya verisi olmayan kare es geçilir.
+  if (calibOn_ && hasWorld) {
+    double ratios[kRatioN]; bool have[kRatioN];
+    if (bodyRatiosFrame(world, p, ratios, have)) {
+      if (!calibrated_) {
+        for (int i = 0; i < kRatioN; i++) if (have[i]) calibSamples_[i].push_back(ratios[i]);
+        calibCount_++;
+        r.calibrating = true;
+        r.calibProgress = (double)calibCount_ / kCalibFrames;
+        r.message = "learning your body - one moment";
+        if (calibCount_ >= kCalibFrames) {
+          for (int i = 0; i < kRatioN; i++) {
+            ratioUsable_[i] = calibSamples_[i].size() >= (size_t)(kCalibFrames * 3 / 5);
+            if (ratioUsable_[i]) bodyRatio_[i] = medianOf(calibSamples_[i]);
+            calibSamples_[i].clear();
+          }
+          calibrated_ = true;
+        }
+      } else {
+        // öğrenilen vücutla karşılaştır: test edilebilen oranların üçte ikisi
+        // şaşıyorsa bu okuma bu vücut değil — kareyi reddet, iskelet kaçamaz.
+        int tested = 0, bad = 0;
+        for (int i = 0; i < kRatioN; i++) {
+          if (!ratioUsable_[i] || !have[i] || bodyRatio_[i] < 1e-6) continue;
+          tested++;
+          if (std::fabs(ratios[i] - bodyRatio_[i]) / bodyRatio_[i] > 0.35) bad++;
+        }
+        if (tested >= 2 && bad * 3 >= tested * 2) {
+          r.tracking = false;
+          r.message = "that read did not match your body - skipped it";
+          return r;
+        }
+      }
+    } else if (!calibrated_) {
+      r.calibrating = true;
+      r.message = "learning your body - one moment";
+    }
+  }
+
+  // ── Aşama 4: yumuşatma (EMA) + ince takip: tek karelik dev sıçrama (iskeletin
+  // eşyaya/başkasına ışınlanması) yutulur; iki kare sürerse gerçek kabul edilir. ──
+  const bool spike = haveSmooth_ && std::fabs(raw - smooth_) > 60.0;
+  if (spike && !spikeHold_) {
+    spikeHold_ = true;                 // bu kareyi yut: yumuşatılmış açı yerinde kalır
+  } else {
+    spikeHold_ = false;
+    if (!haveSmooth_) { smooth_ = raw; haveSmooth_ = true; }
+    else              { smooth_ = spec_.emaAlpha * raw + (1.0 - spec_.emaAlpha) * smooth_; }
+  }
   r.smoothAngle = smooth_;
 
   // derinlik: topAngle'da 0, bottomAngle'da 1 (daha derini 1'e kırpılır).
@@ -332,7 +443,8 @@ Reading Engine::update(const std::vector<Landmark>& p,
   // döngüdür; yarım inişler fazı hiç değiştirmez, dolayısıyla sayılmaz. ──
   // dinlenirken ya da antrenman bittiğinde faz izlenmeye devam eder ama tekrar
   // SAYILMAZ — mola sırasında yaptığın hareket sıradaki setin hanesine yazılmaz.
-  const bool countingPaused = resting_ || workoutDone_;
+  // kalibrasyon sürerken tekrar sayılmaz: motor daha kimin vücudu olduğunu öğreniyor.
+  const bool countingPaused = resting_ || workoutDone_ || r.calibrating;
   if (phaseTop_) {
     if (smooth_ < spec_.bottomAngle) phaseTop_ = false;
   } else if (smooth_ > spec_.topAngle) {

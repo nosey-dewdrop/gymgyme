@@ -110,6 +110,7 @@ async function loadEngine() {
     const { default: createMotor } = await import("../engine/motor.js");
     motorMod = await createMotor();
     engine = new motorMod.Engine(moveSel.value);
+    engine.setCalibration(true);   // önce vücudu öğren, sonra ona kilitlen
     bufPtr = motorMod._malloc(FLOATS * 4);        // 4 byte/float
     worldBufPtr = motorMod._malloc(FLOATS * 4);
     buildAngleRows();

@@ -38,6 +38,8 @@ struct JsReading {
   double restRemaining;
   bool workoutComplete;
   std::string message;
+  bool calibrating;
+  double calibProgress;
 };
 
 // Aşama 14: seans özeti (düz nesne).
@@ -107,6 +109,8 @@ static JsReading toJs(const coach::Reading& r) {
   j.restRemaining = r.restRemaining;
   j.workoutComplete = r.workoutComplete;
   j.message = r.message;
+  j.calibrating = r.calibrating;
+  j.calibProgress = r.calibProgress;
   return j;
 }
 
@@ -122,6 +126,8 @@ class WebEngine {
     engine_.setPlan(targetReps, totalSets, restSeconds);
   }
   void skipRest() { engine_.skipRest(); }
+  // kalibrasyon: aç/kapa (motor önce vücudu öğrenir, sonra ona kilitlenir).
+  void setCalibration(bool on) { engine_.setCalibration(on); }
   JsSummary summary() { return toJsSummary(engine_.summary()); }
 
   // HIZLI yol: heap'teki float buffer'lardan oku (count = float adedi, 33*4=132).
@@ -200,7 +206,9 @@ EMSCRIPTEN_BINDINGS(coach) {
       .field("resting", &JsReading::resting)
       .field("restRemaining", &JsReading::restRemaining)
       .field("workoutComplete", &JsReading::workoutComplete)
-      .field("message", &JsReading::message);
+      .field("message", &JsReading::message)
+      .field("calibrating", &JsReading::calibrating)
+      .field("calibProgress", &JsReading::calibProgress);
 
   value_object<JsSummary>("Summary")
       .field("reps", &JsSummary::reps)
@@ -219,6 +227,7 @@ EMSCRIPTEN_BINDINGS(coach) {
       .function("reset", &WebEngine::reset)
       .function("setPlan", &WebEngine::setPlan)
       .function("skipRest", &WebEngine::skipRest)
+      .function("setCalibration", &WebEngine::setCalibration)
       .function("summary", &WebEngine::summary)
       .function("updatePtr", &WebEngine::updatePtr)
       .function("update", &WebEngine::update);

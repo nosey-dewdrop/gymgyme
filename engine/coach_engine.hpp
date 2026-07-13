@@ -63,6 +63,7 @@ struct MoveSpec {
   double goodRepSecMin = 1.2;   // bundan hızlı tekrar = momentum/sıçrama, tempo puanı düşer
   double goodRepSecMax = 8.0;   // bundan yavaşı da tam puan almaz (takılma/duraksama)
   std::vector<FormRule> rules;  // form kuralları (Aşama 9) — hepsi veri
+  std::string framingCue;       // kadraj yetersizken hareketin KENDİ cümlesi ("" = genel mesaj)
 };
 
 // altı büyük eklem açısı (gösterim + ileri aşamalar). -1 = okunamadı.
@@ -107,6 +108,9 @@ struct Reading {
   double restRemaining = 0;  // dinlenmede kalan saniye (0 = dinlenmede değil)
   bool workoutComplete = false; // son setin hedefi de doldu — antrenman bitti
   std::string message;       // insana dönük kısa mesaj (kadraj/ışık uyarısı vb.)
+  // ── kalibrasyon: motor önce vücudu tanır, sonra ona kilitlenir ──
+  bool calibrating = false;  // şu an vücut ölçüleri öğreniliyor (sayma duraklatılır)
+  double calibProgress = 0;  // 0..1
 };
 
 // ── Aşama 14: seans özeti — antrenman bitince (ya da durunca) yapılandırılmış
@@ -146,6 +150,14 @@ class Engine {
   // dinlenmeyi erken bitir (kullanıcı "hazırım" derse) — sıradaki sete geç.
   void skipRest();
 
+  // ── kalibrasyon (opt-in): açıkken motor ilk ~1.5 saniyede uzuv ORANLARINI
+  // öğrenir (uyluk/baldır/kol/omuz, gövdeye bölünmüş — ölçekten bağımsız),
+  // sonrasında bu vücuda uymayan okumaları reddeder: iskelet başka birine ya da
+  // eşyaya "ışınlanamaz". 3B dünya verisi ister (uzuv boyu 3B'de bükülmeyle
+  // değişmez); dünya verisi olmayan karede es geçilir. reset() ilerlemeyi
+  // sıfırlar (yeniden öğrenir), açık/kapalı ayarı korunur.
+  void setCalibration(bool on);
+
   // Aşama 14: oturumun o ana kadarki özeti.
   Summary summary() const;
 
@@ -169,6 +181,17 @@ class Engine {
   double smooth_ = -1;
   double prevSmooth_ = -1;
   bool haveSmooth_ = false;
+  // ince takip: tek karelik dev sıçrama (ışınlanma) yutulur, süreni kabul edilir
+  bool spikeHold_ = false;
+  // kalibrasyon durumu (setCalibration açar; ilerleme reset'te sıfırlanır)
+  static constexpr int kCalibFrames = 45;   // ~1.5 sn @30fps
+  static constexpr int kRatioN = 5;         // uyluk, baldır, üst kol, ön kol, omuz genişliği
+  bool calibOn_ = false;
+  bool calibrated_ = false;
+  int calibCount_ = 0;
+  std::vector<double> calibSamples_[kRatioN];
+  double bodyRatio_[kRatioN] = {0, 0, 0, 0, 0};
+  bool ratioUsable_[kRatioN] = {false, false, false, false, false};
   bool phaseTop_ = true;
   int reps_ = 0;
   int halfReps_ = 0;

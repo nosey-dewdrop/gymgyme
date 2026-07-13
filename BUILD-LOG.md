@@ -250,6 +250,12 @@ On dokuz aşamanın sonuncusu tek kelimeyle geldi: "yayınla".
 
 Bugüne kadar personal trainer sitede saklı bir sayfaydı: menüde yok, Google'a kapalı, sadece adresi bilen girer. Bugün üç kilit açıldı. Menü: dizinin ve öneri sayfasının kenar çubuğuna "personal trainer" linki kondu, artık siteye giren herkes onu görüyor. Google: noindex kalktı, sitemap'e girdi, canonical ve paylaşım kartı eklendi — arayan bulacak. Ve kapının önüne bir cümle: ilk seansından önce, kamera izni istenmeden, ürün sana açıkça söylüyor — "kameran bu cihazda okunur, hiçbir video yüklenmez, kaydedilmez" — sen "got it - start" demeden kamera açılmıyor. KVKK'nın istediği de, zaten doğrusu da bu. Motor 0'dan 18'e tamam: link listesi olarak doğan site, artık seni izleyip sayan, puanlayan, düzelten ve hatırlayan bir ürün.
 
+## Motor vücudunu tanıyor artık
+
+İlk gerçek kullanıcım (Damla) ilk gerçek şikayeti getirdi: "iskelet bazen iç içe geçiyor, takip kopuyor." Haklıydı. Üç şey değişti.
+
+Bir: kalibrasyon. Kamera açılınca motor ilk bir buçuk saniyede vücudunun oranlarını öğreniyor — uyluğun, baldırın, kolların, omuz genişliğin, hepsi gövdene bölünmüş halde, yani kameraya yaklaşsan da aynı. Sonra o vücuda kilitleniyor: gelen okuma öğrendiği vücuda uymuyorsa (iskelet koltuğa ya da odaya giren birine ışınlandıysa) o kareyi reddediyor. "learning your body - one moment" derken yaptığı bu. İki: ince takip. Tek karelik dev açı sıçramaları (ışınlanma) yutuluyor; hareket iki kare sürüyorsa gerçek kabul ediliyor. Üç: her hareket artık kendi kadraj cümlesini söylüyor. Push-up bütün vücudunu istemiyor; bacakların kadraj dışında kalabilir ve motor bunu biliyor: "i need your arms and torso - your legs can stay out." 86 native test, hepsi yeşil. Ve en güzeli: bu üçü de motora girdi, yani yarın bale de fizyoterapi de aynı kilidi miras alacak.
+
 ## Yol haritası (19 aşama, 0–18)
 
 Her aşama tek başına çekilebilir gerçek bir adım — biri bitince küçük bir "oldu" anı, bir reels. Sıra kabaca **görmek → anlamak → saymak → düzeltmek → ürünleştirmek** diye ilerliyor.
