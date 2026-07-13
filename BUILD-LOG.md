@@ -232,6 +232,12 @@ Derin bağlantı (11): coach.html artık `?move=squat` gibi bir adresle açılı
 
 Seansı gymgyme'ye işlemek (15): antrenman bitince seans localStorage'a yazılıyor ve bugün gymgyme takviminde bir "antrenman günü" olarak yanıyor — koç ile dizin aynı origin, aynı hafıza. "Programım"a gidince bugünün dolu olduğunu görüyorsun. Özette küçük bir satır da bunu söylüyor: "saved - today is now a workout day". Koç artık ürünün geri kalanıyla konuşuyor.
 
+## PWA — App Store'a uğramadan telefona kurulan app
+
+Telefonuna bir fitness app'i kurdun ama App Store'u hiç açmadın. Nasıl?
+
+Bugün personal trainer bir PWA oldu. Üç parça: bir manifest dosyası (isim, ikon, "tam ekran aç" talimatı), site pembesi Arial ikonlar, ve bir service worker. Service worker şunu yapıyor: sayfayı ilk açtığında motorun wasm'ını, MediaPipe'ı, modeli, her şeyi telefona önbellekliyor. Safari'de paylaş menüsünden "ana ekrana ekle" diyorsun, ikon ana ekrana düşüyor, tıklayınca tarayıcı çubuğu olmadan tam ekran açılıyor — ve uçak modunda bile çalışıyor, çünkü kamera da motor da zaten cihazda, sunucuya giden hiçbir şey yok. İndirme bariyeri yok, inceleme kuyruğu yok: reels'te linki gören 10 saniye sonra squat sayıyor, beğenen ana ekranına kuruyor.
+
 ## Yol haritası (19 aşama, 0–18)
 
 Her aşama tek başına çekilebilir gerçek bir adım — biri bitince küçük bir "oldu" anı, bir reels. Sıra kabaca **görmek → anlamak → saymak → düzeltmek → ürünleştirmek** diye ilerliyor.

@@ -476,3 +476,6 @@ skipRestBtn.addEventListener("click", () => { if (engine) engine.skipRest(); });
 startBtn.addEventListener("click", start);
 stopBtn.addEventListener("click", stop);
 window.addEventListener("resize", () => { if (running) sizeCanvas(); });
+
+// pwa: ana ekrana kurulunca offline da açılır (sw.js dosyaları önbelleğe alır).
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
