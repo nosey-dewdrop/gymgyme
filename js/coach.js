@@ -305,7 +305,7 @@ function logSession(s) {
     if (!days.includes(isoToday())) { days.push(isoToday()); localStorage.setItem(DAYS_KEY, JSON.stringify(days)); }
   } catch (_) { /* localStorage yoksa seans yine görünür, sadece kaydedilmez */ }
   // giriş yapılıysa hesaba da senkron et (best-effort; user_id serverside auth.uid()).
-  if (currentUser()) {
+  if (sb && currentUser()) {
     sb.from("gg_coach_sessions").insert({
       move: moveSel.value, reps: s.reps, sets: s.setsCompleted,
       avg_score: s.avgScore, best_score: s.bestScore, clean_reps: s.cleanReps,

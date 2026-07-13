@@ -3,8 +3,12 @@
 // Koç giriş yapmadan da çalışır (seans localStorage'a düşer); giriş yapınca
 // seanslar hesaba senkron olur.
 
-const { createClient } = window.supabase;
-export const sb = createClient(window.GG_CONFIG.SUPABASE_URL, window.GG_CONFIG.SUPABASE_ANON_KEY);
+// backend opsiyonel: supabase client ya da config yüklenmediyse koç YINE çalışır
+// (cihazda, girişsiz). Bar gizlenir, senkron pasif kalır — çekirdek ürün ölmez.
+const hasBackend = !!(window.supabase && window.GG_CONFIG && window.GG_CONFIG.SUPABASE_URL);
+export const sb = hasBackend
+  ? window.supabase.createClient(window.GG_CONFIG.SUPABASE_URL, window.GG_CONFIG.SUPABASE_ANON_KEY)
+  : null;
 
 let user = null;
 const listeners = new Set();
@@ -111,5 +115,9 @@ function mapErr(m) {
   return "something went wrong: " + m;
 }
 
-sb.auth.getSession().then(({ data }) => setUser(data.session ? data.session.user : null));
-sb.auth.onAuthStateChange((_e, session) => setUser(session ? session.user : null));
+if (sb) {
+  sb.auth.getSession().then(({ data }) => setUser(data.session ? data.session.user : null));
+  sb.auth.onAuthStateChange((_e, session) => setUser(session ? session.user : null));
+} else if (bar) {
+  bar.hidden = true;   // backend yok: giriş barını hiç gösterme
+}
