@@ -1,24 +1,46 @@
-/* healthy living - pink world, white soft cards (coach page language, sitewide since the
-   temmuz rework). no borders (Damla: "içim daralmasın") - separation = white cards,
-   whitespace and color. arial, dense, the funny voice stays. */
+/* gymgyme - pink monochrome, quiet-luxury. NO borders, NO new fonts (Arial only).
+   premium comes from: one pink world with real depth, pink-tinted soft shadows
+   (never gray), a confident type scale, an 8px rhythm, and smooth motion.
+   separation = white cards + shadow + light, never a line. the funny voice stays. */
+
+:root {
+  --bg: #FFBDD4;          /* the pink world */
+  --card: #ffffff;        /* elevated surfaces */
+  --tint: #FFE3EE;        /* soft pink: inputs, chips, focus */
+  --tint-2: #FFCEDF;      /* a shade deeper */
+  --ink: #33000E;         /* near-black plum text */
+  --ink-soft: #7A2647;    /* muted plum */
+  --cherry: #8E0038;      /* the single strong accent */
+  --cherry-deep: #6E0030;
+  --on-cherry: #FFDCE9;   /* text on cherry */
+  --r: 20px;              /* card radius */
+  --r-sm: 12px;           /* control radius */
+  /* pink-tinted shadows = the premium tell (gray shadows read cheap) */
+  --sh-1: 0 1px 2px rgba(142,0,56,.06), 0 3px 10px rgba(142,0,56,.07);
+  --sh-2: 0 4px 16px rgba(142,0,56,.10), 0 14px 40px rgba(142,0,56,.09);
+  --sh-btn: 0 3px 12px rgba(142,0,56,.26);
+  --t: 180ms cubic-bezier(.2,.7,.3,1);
+}
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html { overflow-x: hidden; } /* .topbar breaks out to 100vw */
+html { overflow-x: hidden; }
 
 body {
-  background: #FFBDD4;
-  color: #33000E;
+  background: var(--bg);
+  color: var(--ink);
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 13px;
-  line-height: 1.45;
+  font-size: 14px;
+  line-height: 1.5;
+  letter-spacing: -0.005em;
+  -webkit-font-smoothing: antialiased;
   max-width: 760px;
   margin: 0 auto;
-  padding: 44px 20px 48px;
-  /* short lists must not pull the bottom block up - pin it down */
+  padding: 52px 24px 56px;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
+a { transition: color var(--t); }
 body > * { flex-shrink: 0; }
 .push-down { margin-top: auto; padding-top: 36px; }
 
@@ -50,8 +72,9 @@ h2 { font-size: 24px; text-transform: lowercase; margin: 22px 0 6px; }
 .hero-big { font-size: clamp(34px, 6vw, 56px); font-weight: bold; letter-spacing: -0.02em; line-height: 1.08; margin: 0 0 6px; }
 .hero-big .nowrap { white-space: nowrap; }
 .hero-line { font-size: 15px; line-height: 1.6; max-width: 600px; margin: 0 0 4px; }
-.herobtn, .herobtn:visited { display: inline-block; background: #8E0038; color: #FFDCE9; font-weight: bold; font-size: 15px; border-radius: 12px; padding: 10px 18px; margin: 10px 0 4px; text-decoration: none; }
-.herobtn:hover { background: #6E0030; }
+.herobtn, .herobtn:visited { display: inline-block; background: var(--cherry); color: var(--on-cherry); font-weight: bold; font-size: 15px; border-radius: var(--r-sm); padding: 12px 22px; margin: 12px 0 4px; text-decoration: none; box-shadow: var(--sh-btn); transition: transform var(--t), background var(--t), box-shadow var(--t); }
+.herobtn:hover { background: var(--cherry-deep); transform: translateY(-1px); box-shadow: 0 8px 22px rgba(142,0,56,.34); }
+.herobtn:active { transform: translateY(0); box-shadow: var(--sh-btn); }
 .hero-sub { font-size: 12px; opacity: 0.7; margin-top: 4px; }
 .dir-tag { margin: 0 0 8px; }
 .dir-tag .stat { font-weight: bold; opacity: 0.9; }
@@ -105,8 +128,9 @@ button.mini.clear { margin-top: 16px; font-size: 12px; }
 /* directory */
 .cat { margin-top: 18px; }
 .cat h2 { margin: 0 0 8px; }
-.entry { margin: 0 0 4px; }
+.entry { margin: 0 0 5px; }
 .entry a { font-weight: bold; }
+.entry a:hover { color: var(--cherry-deep); }
 /* the more recommended, the bigger the link (set inline by script.js) */
 .entry .desc { opacity: 0.85; }
 .entry .by { font-size: 11px; opacity: 0.6; }
@@ -147,9 +171,12 @@ input, select, button {
   color: #33000E;
 }
 input::placeholder { color: #7A2647; }
-input:focus, select:focus { background: #FFE3EE; }
-button { background: #8E0038; color: #FFDCE9; font-weight: bold; cursor: pointer; width: fit-content; padding: 8px 18px; }
-button:hover { background: #6E0030; }
+input:focus, select:focus, textarea:focus { background: var(--tint); box-shadow: 0 0 0 3px rgba(142,0,56,.10); }
+button { background: var(--cherry); color: var(--on-cherry); font-weight: bold; cursor: pointer; width: fit-content; padding: 10px 20px; box-shadow: var(--sh-btn); transition: transform var(--t), background var(--t), box-shadow var(--t); }
+button:hover { background: var(--cherry-deep); transform: translateY(-1px); box-shadow: 0 6px 18px rgba(142,0,56,.32); }
+button:active { transform: translateY(0); box-shadow: var(--sh-btn); }
+button.mini { box-shadow: none; transform: none; }
+button.mini:hover { transform: none; }
 #form-msg { font-size: 12px; }
 
 /* contributors - a flowing paragraph, every name its own color, centered */

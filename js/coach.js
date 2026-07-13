@@ -13,7 +13,6 @@ import { sb, currentUser, onAuth } from "./auth.js";
 const $ = (id) => document.getElementById(id);
 const statusEl = $("status");
 const moveSel = $("moveSel");
-const startBtn = $("start");
 const stopBtn = $("stop");
 const stage = $("stage");
 const video = $("cam");
@@ -220,7 +219,9 @@ function advanceMove() {
 }
 
 async function start() {
-  startBtn.disabled = true;
+  // kurulum çekilir, kamera sahnesi açılır (video ortada kocaman gelir)
+  introCard.hidden = true; progCard.hidden = true; consentEl.hidden = true;
+  startWrap.hidden = false;
   try {
     if (!poseLandmarker) await loadPose();
     if (!engine) await loadEngine();
@@ -238,6 +239,7 @@ async function start() {
     privateNote.hidden = false;
     stopBtn.hidden = false;
     sizeCanvas();
+    document.body.classList.add("running");   // kamera sahnesi: video ortada ve kocaman, kurulum çekilir
     loadItem(0);
     setStatus("i can see you - move 1 of " + program.items.length + ": " +
       moveLabel(program.items[0].move) + ". stand back so your whole body fits.");
@@ -246,13 +248,16 @@ async function start() {
     requestAnimationFrame(loop);
   } catch (e) {
     setStatus("could not start the camera: " + (e && e.message ? e.message : e));
-    startBtn.disabled = false;
+    document.body.classList.remove("running");
+    startWrap.hidden = true;
+    introCard.hidden = false; progCard.hidden = false;   // kurulum geri gelsin, tekrar denesin
   }
 }
 
 function stop() {
   running = false;
   switching = false;
+  document.body.classList.remove("running");
   const s = video.srcObject;
   if (s) s.getTracks().forEach((t) => t.stop());
   video.srcObject = null;
@@ -272,7 +277,9 @@ function stop() {
   wasComplete = false;
   stage.hidden = true;
   stopBtn.hidden = true;
-  startBtn.disabled = false;
+  // kurulum geri gelsin: özet üstte, altında yeni workout kurabilir
+  startWrap.hidden = true;
+  introCard.hidden = false; progCard.hidden = false;
   setStatus("stopped. the camera is off.");
 }
 
@@ -654,45 +661,40 @@ planRest.addEventListener("change", () => { program.rest = readRestInput(); save
 // "hazırım": molayı erken bitir, sıradaki sete geç.
 skipRestBtn.addEventListener("click", () => { if (engine) engine.skipRest(); });
 
-// ── sihirbaz: 1. program kur → next → 2. kamera. geri dönüş her an var. ──
+// ── akış: workout kur → "start the workout" (TEK buton) → ilk sefer izin → kamera.
+// ara "start camera" ekranı YOK; en az bir hareket olmadan kamera açılmaz. ──
 const readyBtn = $("ready"), startWrap = $("startWrap");
-addMoveBtn.addEventListener("click", () => {
-  program.items.push(readPlanInputs());
-  program.rest = readRestInput();
-  saveProgram(); renderProgram();
-});
-readyBtn.addEventListener("click", () => {
-  if (!program.items.length) program.items.push(readPlanInputs());  // tek hareket de bir programdır
-  program.rest = readRestInput();
-  saveProgram(); renderProgram();
-  introCard.hidden = true; progCard.hidden = true;
-  startWrap.hidden = false;
-  startBtn.focus();
-});
-backProg.addEventListener("click", () => {
-  if (running) stop();
-  startWrap.hidden = true;
-  introCard.hidden = false; progCard.hidden = false;
-});
-planRest.value = program.rest;
-renderProgram();
-
-// ilk kullanım onayı (KVKK): kamera izninden ÖNCE bir kez, açık cümlelerle.
-// localStorage yoksa her seferinde gösterilir — kimse habersiz kamera açmaz.
 const consentEl = $("consent"), consentGo = $("consentGo");
 const CONSENT_KEY = "gg_consent_v1";
 function consentGiven() {
   try { return localStorage.getItem(CONSENT_KEY) === "yes"; } catch (_) { return false; }
 }
-startBtn.addEventListener("click", () => {
-  if (!consentGiven()) { consentEl.hidden = false; consentGo.focus(); return; }
+// workout'u başlat: hareket yoksa seçili olanı workout say, sonra (ilk sefer) izin iste ve kamerayı aç.
+function beginWorkout() {
+  if (!program.items.length) program.items.push(readPlanInputs());
+  program.rest = readRestInput();
+  saveProgram(); renderProgram();
+  if (!consentGiven()) { introCard.hidden = true; progCard.hidden = true; consentEl.hidden = false; consentGo.focus(); return; }
   start();
+}
+addMoveBtn.addEventListener("click", () => {
+  program.items.push(readPlanInputs());
+  program.rest = readRestInput();
+  saveProgram(); renderProgram();
 });
+readyBtn.addEventListener("click", beginWorkout);
 consentGo.addEventListener("click", () => {
   try { localStorage.setItem(CONSENT_KEY, "yes"); } catch (_) { /* yine başlar, bir daha sorulur */ }
   consentEl.hidden = true;
   start();
 });
+backProg.addEventListener("click", () => {
+  if (running) stop();
+  startWrap.hidden = true; consentEl.hidden = true;
+  introCard.hidden = false; progCard.hidden = false;
+});
+planRest.value = program.rest;
+renderProgram();
 stopBtn.addEventListener("click", stop);
 window.addEventListener("resize", () => { if (running) sizeCanvas(); });
 
