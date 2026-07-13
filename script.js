@@ -421,6 +421,7 @@ function updateStats() {
 
 function render() {
   updateStats();
+  document.body.classList.toggle('fresh', !getProfile());
   const cat = currentCategory();
   document.getElementById('cat-title').textContent = cat === 'my-program' ? 'my program' : cat;
   document.title = (cat === 'my-program' ? 'my program' : cat) + ' - a community directory';

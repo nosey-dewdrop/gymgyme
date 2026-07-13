@@ -1,7 +1,7 @@
 // gymgyme service worker: ana ekrana kurulan personal trainer offline da açılsın.
 // kamera + motor zaten cihazda çalışıyor; burada sadece dosyaları önbelleğe alıyoruz.
 // vendor/ ya da engine/ değişirse CACHE sürümünü artır — eski önbellek silinir.
-const CACHE = "gg-pwa-v5";   // v5: index rework - beyaz kart dili + trainer hero
+const CACHE = "gg-pwa-v6";   // v6: topbar + hero-first rework, kamera düz köşe, kutular geri alındı
 
 const CORE = [
   "coach.html",
