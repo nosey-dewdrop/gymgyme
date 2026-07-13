@@ -20,7 +20,7 @@
   <meta property="og:description" content="It counts your reps, scores every rep and corrects your form in 3d - fully in your browser. The video never leaves your device.">
   <meta property="og:url" content="https://gymgyme.damlahelloworld.com/coach.html">
 </head>
-<body>
+<body class="coach">
 
 <header class="topbar">
   <a class="brand" href="index.html">gymgyme</a>
@@ -34,6 +34,8 @@
 <h1 class="pt-title">✨ personal trainer 🎀</h1>
 <p class="small">your camera watches you train, reads your joints and counts your reps. the engine is c++ (webassembly), it runs on your device. the video is never uploaded; sign in and only your workout numbers are saved to your account.</p>
 
+<div class="coach-main">
+<div class="setup">
 <div class="card intro" id="intro">
   <p class="intro-big">meet the engine.</p>
   <p>your camera reads 33 points of your body and our own c++ engine turns them into reps, scores and form cues - all inside your browser. no video ever leaves your device. first it learns YOUR body, then it locks onto you.</p>
@@ -88,7 +90,9 @@
   </div>
 </div>
 <p class="status" id="status" role="status" aria-live="polite"></p>
+</div><!-- /setup -->
 
+<div class="live">
 <div class="stage" id="stage" hidden>
   <video id="cam" autoplay playsinline muted></video>
   <canvas id="overlay"></canvas>
@@ -131,7 +135,10 @@
   <div class="summary-title" id="sumTitle">that's a workout</div>
   <div class="summary-body" id="sumBody"></div>
 </div>
+</div><!-- /live -->
+</div><!-- /coach-main -->
 
+<div class="coach-foot">
 <div class="history card" id="history" role="region" aria-label="your workouts" hidden>
   <div class="history-title">your workouts</div>
   <div class="history-list" id="histList"></div>
@@ -141,6 +148,7 @@
   <p class="card-title">your account</p>
   <div id="authbar" class="authbar"></div>
 </div>
+</div><!-- /coach-foot -->
 
 <p class="private" id="private" hidden>the pose and all the math run inside your browser. the camera image never leaves this device - there is no upload. if you are signed in, only your workout numbers (never the video) are saved to your account. <a href="gizlilik.html">your data</a>.</p>
 

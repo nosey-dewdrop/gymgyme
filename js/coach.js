@@ -548,11 +548,16 @@ function render(r) {
       move.joint + " " + Math.round(r.smoothAngle) + "°   ·   moving " + r.motion + "   ·   phase " + r.phase +
       (r.view !== "unknown" ? "   ·   view " + r.view : "");
     const cue = r.message || r.formCue;      // yarım uyarısı > form düzeltmesi
-    if (cue) { msgEl.textContent = cue; cueUntil = performance.now() + 1800; }
-    else if (performance.now() > cueUntil) msgEl.textContent = "";
+    if (cue) {
+      msgEl.textContent = cue;
+      // yarım tekrar uyarısı = koç sesi: kocaman ve kırmızı, 1.8 sn ekranda.
+      msgEl.classList.toggle("loud", r.halfTick || /go all the way down/.test(cue));
+      cueUntil = performance.now() + 1800;
+    } else if (performance.now() > cueUntil) { msgEl.textContent = ""; msgEl.classList.remove("loud"); }
   } else {
     subEl.textContent = "";
     msgEl.textContent = r.message || "";
+    msgEl.classList.remove("loud");
   }
 
   depthFill.style.width = Math.round((r.depth || 0) * 100) + "%";

@@ -105,7 +105,7 @@ MoveSpec builtinMove(const std::string& name) {
     s.name = "sumosquat";
     s.primaryLeft  = {L_HIP, L_KNE, L_ANK};
     s.primaryRight = {R_HIP, R_KNE, R_ANK};
-    s.bottomAngle = 110.0;
+    s.bottomAngle = 120.0;   // 110'du — kameraya dönük squat açıyı olduğundan düz gösteriyor, gerçek dip sayılsın
     s.topAngle = 155.0;
     s.rules = {{RuleKind::TorsoLean, 40.0, View::Unknown, "stay tall - sumo keeps the chest up"}};
     return s;
@@ -193,7 +193,7 @@ MoveSpec builtinMove(const std::string& name) {
   s.name = "squat";
   s.primaryLeft  = {L_HIP, L_KNE, L_ANK};   // diz = kalça-diz-ayakbileği
   s.primaryRight = {R_HIP, R_KNE, R_ANK};
-  s.bottomAngle = 110.0;
+  s.bottomAngle = 120.0;   // 110'du — kameraya dönük squat açıyı olduğundan düz gösteriyor, gerçek dip sayılsın
   s.topAngle = 155.0;
   // form kuralları: veri. gövde dikeyden 55°'den fazla eğilmesin (her görüşte);
   // dizler bilek genişliğinin %72'sinden fazla içe çökmesin (sadece önden okunur).

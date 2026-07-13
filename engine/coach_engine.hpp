@@ -59,7 +59,8 @@ struct MoveSpec {
   double minFraming = 0.75;     // izlenen noktaların en az bu kadarı kadrajda olmalı
   std::vector<int> framingPoints;  // bu hareket için kadrajda olması GEREKEN noktalar
                                    // (boşsa gövde+bacak varsayılanı kullanılır)
-  double halfRepDepth = 0.35;   // iniş bu derinliği (0..1) geçip de dibe ulaşmazsa "yarım" sayılır
+  double halfRepDepth = 0.20;   // iniş bu derinliği (0..1) geçip de dibe ulaşmazsa "yarım" sayılır
+                                // (0.35'ti — Damla'nın sığ denemeleri sessiz kalıyordu; artık uyarı alır)
   double goodRepSecMin = 1.2;   // bundan hızlı tekrar = momentum/sıçrama, tempo puanı düşer
   double goodRepSecMax = 8.0;   // bundan yavaşı da tam puan almaz (takılma/duraksama)
   std::vector<FormRule> rules;  // form kuralları (Aşama 9) — hepsi veri
