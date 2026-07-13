@@ -2,8 +2,7 @@
    yumuşak kartlar, kocaman başlık, gerçek butonlar, mecburi ayar adımı.
    arial ve site dili aynı kalır. */
 
-/* coach sayfası tüm genişliği kullanır - ortaya sıkışmaz (Damla emri) */
-body.coach { max-width: 1120px; }
+/* coach sayfası da gövde genişlik kuralını kullanır (styles.css) - ortaya sıkışmaz */
 
 /* kocaman başlık */
 .pt-title { font-size: clamp(40px, 7vw, 76px); letter-spacing: -0.02em; line-height: 1.05; margin: 6px 0 2px; }

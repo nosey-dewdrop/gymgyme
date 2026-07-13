@@ -22,28 +22,23 @@
 </head>
 <body class="coach">
 
-<header class="topbar">
+<aside class="sidebar">
   <a class="brand" href="index.html">gymgyme</a>
-  <nav class="topnav">
-    <a class="suggest-big" href="suggest.html">suggest something!</a>
-    <a href="index.html#my-program">my program</a>
-    <a href="index.html">back to the directory</a>
+  <nav class="sidenav">
+    <a class="navbig" href="coach.html">personal trainer</a>
+    <a class="navbig" href="index.html#my-program">my program</a>
+    <a class="navbig" href="index.html">the directory</a>
+    <a class="navbig" href="suggest.html">suggest something</a>
   </nav>
-</header>
+</aside>
 
 <h1 class="pt-title">✨ personal trainer 🎀</h1>
 <p class="small">your camera watches you train, reads your joints and counts your reps. the engine is c++ (webassembly), it runs on your device. the video is never uploaded; sign in and only your workout numbers are saved to your account.</p>
 
 <div class="coach-main">
 <div class="setup">
-<div class="card intro" id="intro">
-  <p class="intro-big">meet the engine.</p>
-  <p>your camera reads 33 points of your body and our own c++ engine turns them into reps, scores and form cues - all inside your browser. no video ever leaves your device. first it learns YOUR body, then it locks onto you.</p>
-  <p class="intro-steps">1. build your program · 2. start the camera · 3. train - it plays your program, move by move</p>
-</div>
-
 <div class="card" id="progCard">
-  <p class="card-title">your program</p>
+  <p class="card-title">pick your move</p>
   <div id="progList" class="prog-list"></div>
   <div class="move-row">
     <label for="moveSel">move</label>
@@ -68,8 +63,8 @@
     <input id="planReps" class="plan-num" type="number" min="0" max="99" inputmode="numeric" value="10" aria-label="reps per set"><label for="planReps">reps</label>
     <span class="plan-x">in</span>
     <input id="planSets" class="plan-num" type="number" min="1" max="20" inputmode="numeric" value="3" aria-label="number of sets"><label for="planSets">sets</label>
-    <button id="addMove" class="restbtn" type="button">+ add to program</button>
-    <span class="plan-hint">reps 0 = count freely (that move ends when you press stop).</span>
+    <button id="addMove" class="restbtn" type="button">+ line up another move</button>
+    <span class="plan-hint">one move is enough. lining up more just plays them back to back, with rest in between. reps 0 = count freely.</span>
   </div>
   <div class="plan-row">
     <span class="plan-lead">resting</span>
@@ -93,6 +88,12 @@
 </div><!-- /setup -->
 
 <div class="live">
+<div class="card intro" id="intro">
+  <p class="intro-big">meet the engine.</p>
+  <p>your camera reads 33 points of your body and our own c++ engine turns them into reps, scores and form cues - all inside your browser. no video ever leaves your device. first it learns YOUR body, then it locks onto you.</p>
+  <p class="intro-steps">pick a move · start the camera · it counts, scores and calls out every rep</p>
+</div>
+<p class="wip" id="wip-moves">the trainer watches fourteen moves - squats and lunges, push-ups on toes or knees, bridge, sit-up, press, kickback, bird dog, calf raise, jumping jack, arm raise. it counts full reps with a tick, calls out the half reps that did not count, and scores every rep from depth, tempo and control.</p>
 <div class="stage" id="stage" hidden>
   <video id="cam" autoplay playsinline muted></video>
   <canvas id="overlay"></canvas>
@@ -151,8 +152,6 @@
 </div><!-- /coach-foot -->
 
 <p class="private" id="private" hidden>the pose and all the math run inside your browser. the camera image never leaves this device - there is no upload. if you are signed in, only your workout numbers (never the video) are saved to your account. <a href="gizlilik.html">your data</a>.</p>
-
-<p class="wip">the personal trainer watches fourteen moves - squats and lunges, push-ups on toes or knees, bridge, sit-up, press, kickback, bird dog, calf raise, jumping jack, arm raise - counts full reps with a tick, calls out half reps that did not count, scores every rep from depth, tempo and control, and corrects your form in 3d. it learns your body first and locks onto you. set a plan and it counts your sets, rests you between them and rings when the workout is done, then hands you a small summary.</p>
 
 <!-- ortak Supabase client + config: klasik scriptler, modülden ÖNCE çalışır
      (window.supabase ve window.GG_CONFIG modül grafiği yüklenmeden hazır olsun) -->

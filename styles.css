@@ -22,6 +22,12 @@ body {
 body > * { flex-shrink: 0; }
 .push-down { margin-top: auto; padding-top: 36px; }
 
+/* wide screens: content sits to the RIGHT of the left nav and fills the width,
+   left-anchored - no centered island, no empty half (Damla). */
+@media (min-width: 1041px) {
+  body { max-width: none; margin: 0; padding-left: 300px; padding-right: 52px; }
+}
+
 /* no decoration = size IS the hierarchy. important things are simply bigger. */
 h1 { font-size: 44px; letter-spacing: -0.01em; margin: 6px 0 4px; }
 h2 { font-size: 24px; text-transform: lowercase; margin: 22px 0 6px; }
@@ -61,15 +67,19 @@ body.fresh #nav, body.fresh .dir-tag { display: none; }
 /* the big clickable invite */
 .suggest-big { font-size: 24px; font-weight: bold; display: inline-block; }
 
-/* left sidebar - a white card living in the empty left space of the page */
-.sidebar { position: fixed; left: 24px; top: 48px; width: 250px; padding: 16px 18px; }
-.sidebar .brand { margin-bottom: 6px; }
-.sidebar-tag { margin-bottom: 16px; }
-.sidebar a { display: block; font-weight: bold; margin-bottom: 4px; }
-.sidebar a:not(.suggest-big) { font-size: 15px; }
-.sidebar .stat { display: block; font-size: 12px; opacity: 0.75; margin-top: 2px; }
-/* narrow screens: no empty left space, sidebar flows on top */
-@media (max-width: 1320px) { .sidebar { position: static; width: auto; margin-bottom: 20px; } }
+/* left sidebar - navigation lives on the LEFT (first-version layout), big links */
+.sidebar { position: fixed; left: 28px; top: 44px; width: 240px; }
+.sidebar .brand, .sidebar .brand:visited { display: block; font-size: 26px; font-weight: bold; color: #33000E; margin-bottom: 18px; text-decoration: none; }
+.sidenav { display: block; }
+.navbig, .navbig:visited { display: block; font-size: 23px; font-weight: bold; line-height: 1.55; color: #8E0038; text-decoration: none; }
+.navbig:hover { color: #6E0030; }
+/* narrow screens: sidebar flows on top, links go inline */
+@media (max-width: 1040px) {
+  .sidebar { position: static; width: auto; margin-bottom: 16px; }
+  .sidebar .brand { margin-bottom: 8px; }
+  .sidenav { display: flex; flex-wrap: wrap; gap: 4px 18px; }
+  .navbig { font-size: 18px; }
+}
 
 /* onboarding rows */
 .ob-row { margin: 10px 0; }
