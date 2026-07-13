@@ -25,8 +25,26 @@ The "slop -> engine" upgrade: an on-device camera coach that watches home workou
 - Page: `coach.html` (unlinked, robots noindex until proven). 19-stage roadmap + narrative devlog in `BUILD-LOG.md` (Damla voices it for reels; each step is its own commit).
 - Security: mediapipe + model vendored under `vendor/` (no runtime cdn), tight CSP + Permissions-Policy (`vercel.json` + meta). Perf: landmarks pass by pointer through the wasm heap.
 
-Roadmap (0-18): DONE 0-10, 11 deep link (?move=), 12 move-rule data, 13 sets/rest, 14 session summary, 15 into my-program (session logged + calendar day), 16 tone/a11y, 17 mobile/perf. LEFT: 18 launch only, held for Damla's explicit "yayınla".
-The whole engineering band is done: the engine holds a full workout (sets, timed rest, completion + summary), is accessible and mobile/battery aware, opens on a specific move by url, and writes each session into the shared gymgyme calendar. 76 native tests. Stage 18 (link into nav, drop noindex, first-use consent line) is outward-facing and semi-irreversible, so it waits until Damla opens the coach in dev and says publish.
+Roadmap (0-18): ALL DONE, including 18 launch (2026-07-13, Damla: "yayınla yayınla sen durma").
+
+## Status update (2026-07-13 evening — LIVE at gymgyme.damlahelloworld.com)
+Big day, all pushed and deployed (Vercel auto-deploys on push, domain is bound):
+- WORDING: user-facing "coach" -> "personal trainer" (urls unchanged).
+- PWA: manifest + icons (PIL, pink+arial "gg") + sw.js (precache, vendor/engine cache-first; BUMP CACHE version in sw.js whenever vendor/ or engine/ change — currently v3).
+- SHIP-CHECK ran (report: reports/2026-07-13-gymgyme-ship-check.md). 4 blockers fixed same day: honest sync (summary waits for insert result; failed rows queue in hl_sync_queue, flush on online/sign-in), password reset (forgot link + reset-password.html), "your workouts" history section (DB last 30 signed in, device otherwise), first-use consent gate before camera (gg_consent_v1).
+- LEGAL BAND: gizlilik-tr.html (KVKK in Turkish), terms.html, honest gizlilik copy, sitewide CSP + frame-ancestors (vercel.json), in-app full account deletion (delete_me RPC in migration.sql, double-confirm button).
+- TRADEMARK: "gymgyme" clean in US (justia/trademarkia) AND TURKPATENT ("sonuç bulunamadı", Damla verified). Note: @gymgymie is a 63k fitness creator (handle confusion risk, not legal).
+- ENGINE BAND (Damla feedback after first real use): body calibration (opt-in, learns limb ratios ~2s then locks on and rejects mismatched reads), spike gate (single-frame teleports swallowed), per-move framing cues (push-up works without legs in frame). emaAlpha 0.5, match tolerance 0.30.
+- UI BAND (Damla's explicit order): white soft cards on pink, huge "🎀 personal trainer ✨" title, "meet the engine" onboarding card, MANDATORY "step 1 - your session" before the camera area appears, real buttons.
+- MOVES: 6 -> 14 (sumo squat, side lunge, kneeling push-up, glute kickback, bird dog, calf raise, jumping jack, arm raise) — all pure MoveSpec data. 92 native tests green.
+- Damla's account works in prod (signup + auth bar verified live); camera worked after permission.
+
+OPEN / NEXT:
+- Damla to verify on phone: PWA install (Safari share -> add to home screen), offline open, camera in standalone; and add live reset-password.html url to Supabase Auth redirect allowlist; check "Confirm email" setting.
+- Damla judgement pending on new UI + calibration feel ("hassas değil" was the complaint; tuned, needs her camera test).
+- Engine next: "hold" capability for plank/wall sit type moves, then library grows toward "all moves" (data-only). Detail mode idea (per-frame readings panel) approved concept, not built.
+- Product decisions open: money model (none by new direction), physio B2B pivot (Damla thinking), progression insights on history.
+- Ship-check leftovers: signup autocomplete nuance, sw CACHE bump discipline (manual).
 
 ## Launch (first users - Damla owns content/outreach)
 Suggested channels when live: r/xxfitness + r/bodyweightfitness (helpful-tool framing, not promo), Turkish fitness Instagram/TikTok ("Ankara'da yetişkin balesi yok diye yaptık" story), ekşi sözlük (evde spor başlıkları), Bilkent groups. The pitch is the mission: free forever, no ads, no accounts, everyone adds. The "contributors (thank you!)" wall is the growth loop: people come back to see their name.
