@@ -55,13 +55,30 @@ void Engine::reset() {
   halfReps_ = 0;
   inExcursion_ = false;
   excursionMin_ = 1e9;
+  fakeT_ = 0;
+  lastTrackedT_ = -1;
+  inRep_ = false;
+  repStartT_ = 0;
+  repMinA_ = 1e9;
+  repMinT_ = 0;
+  lastScore_ = -1;
+  lastRepSec_ = 0;
+  scoreSum_ = 0;
 }
 
-Reading Engine::update(const std::vector<Landmark>& p) {
+static double clamp01(double v) { return std::max(0.0, std::min(1.0, v)); }
+
+Reading Engine::update(const std::vector<Landmark>& p, double timestampMs) {
+  double t = timestampMs;
+  if (t < 0) { fakeT_ += 1000.0 / 30.0; t = fakeT_; }   // saat verilmediyse ~30fps varsay
+
   Reading r;
   r.phase = phaseTop_ ? Phase::Top : Phase::Bottom;
   r.reps = reps_;
   r.halfReps = halfReps_;
+  r.lastRepScore = lastScore_;
+  r.lastRepSeconds = lastRepSec_;
+  r.avgRepScore = reps_ > 0 ? (int)std::lround(scoreSum_ / reps_) : -1;
 
   if (p.size() < 33) { r.message = "i cannot see you yet"; return r; }
 
@@ -113,6 +130,19 @@ Reading Engine::update(const std::vector<Landmark>& p) {
   }
   prevSmooth_ = smooth_;
 
+  // ── Kalite skoru: tekrar penceresi. Üstten ilk sarkma anında açılır; en derin
+  // açıyı ve zamanını tutar (iniş/çıkış süresi ayrımı için). Takip 2 sn'den uzun
+  // koparsa pencere atılır — eski zamanlarla sahte süre üretmeyelim. ──
+  if (inRep_ && lastTrackedT_ >= 0 && t - lastTrackedT_ > 2000.0) inRep_ = false;
+  lastTrackedT_ = t;
+  if (!inRep_ && phaseTop_ && smooth_ < spec_.topAngle) {
+    inRep_ = true;
+    repStartT_ = t;
+    repMinA_ = smooth_;
+    repMinT_ = t;
+  }
+  if (inRep_ && smooth_ < repMinA_) { repMinA_ = smooth_; repMinT_ = t; }
+
   // ── Aşama 6: durum makinesi (histerezis) ──
   // ── Aşama 7: sayma — dipten üste TAM dönüş = bir tekrar. Bottom'a ancak alt
   // eşiği geçerek girilebildiği için Bottom→Top geçişi her zaman tam bir
@@ -123,6 +153,25 @@ Reading Engine::update(const std::vector<Landmark>& p) {
     phaseTop_ = true;
     reps_++;
     r.repTick = true;
+
+    // tekrar bitti → puanla. Üç bileşen: derinlik (yarısı), tempo, kontrol.
+    // Kontrol = iniş serbest düşüş olmasın (eksantrik faz çıkışa göre çok kısaysa
+    // ağırlığı bırakıyorsun demektir). Hepsi MoveSpec verisinden beslenir.
+    if (inRep_) {
+      double durSec  = (t - repStartT_) / 1000.0;
+      double descSec = (repMinT_ - repStartT_) / 1000.0;
+      double ascSec  = (t - repMinT_) / 1000.0;
+      double depthS = clamp01((spec_.topAngle - repMinA_) / (spec_.topAngle - spec_.bottomAngle));
+      double tempoS = 1.0;
+      if (durSec < spec_.goodRepSecMin)      tempoS = clamp01(durSec / spec_.goodRepSecMin);
+      else if (durSec > spec_.goodRepSecMax) tempoS = clamp01(spec_.goodRepSecMax / durSec);
+      double controlS = ascSec <= 0.05 ? 1.0 : clamp01(descSec / (0.4 * ascSec));
+      lastScore_ = (int)std::lround(100.0 * (0.5 * depthS + 0.3 * tempoS + 0.2 * controlS));
+      lastRepSec_ = durSec;
+      scoreSum_ += lastScore_;
+      inRep_ = false;
+      repMinA_ = 1e9;
+    }
   }
   r.phase = phaseTop_ ? Phase::Top : Phase::Bottom;
 
@@ -144,10 +193,15 @@ Reading Engine::update(const std::vector<Landmark>& p) {
     }
     inExcursion_ = false;
     excursionMin_ = 1e9;
+    inRep_ = false;              // yarım iniş skorlanmaz, pencereyi kapat
+    repMinA_ = 1e9;
   }
 
   r.reps = reps_;
   r.halfReps = halfReps_;
+  r.lastRepScore = lastScore_;
+  r.lastRepSeconds = lastRepSec_;
+  r.avgRepScore = reps_ > 0 ? (int)std::lround(scoreSum_ / reps_) : -1;
   return r;
 }
 

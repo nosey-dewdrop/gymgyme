@@ -145,6 +145,31 @@ int main() {
     check(r.halfReps == 0, "reset clears half reps");
   }
 
+  // ── kalite skoru: kontrollü tekrar yüksek, aceleci tekrar düşük puan alır ──
+  {
+    Engine e(builtinMove("squat"));
+    Reading r;
+    double t = 0;
+    auto step = [&](const std::vector<Landmark>& p, double dtMs) { t += dtMs; return e.update(p, t); };
+
+    for (int i = 0; i < 6; i++) r = step(pose(false), 100);
+    check(r.lastRepScore == -1, "no score before the first rep");
+
+    for (int i = 0; i < 10; i++) r = step(pose(true), 100);   // 1 sn kontrollü iniş
+    for (int i = 0; i < 10; i++) r = step(pose(false), 100);  // 1 sn kontrollü çıkış
+    check(r.reps == 1 && r.lastRepScore >= 90, "controlled full rep scores high");
+    int good = r.lastRepScore;
+
+    for (int i = 0; i < 9; i++) r = step(pose(true), 20);     // ~0.4 sn'lik aceleci tekrar
+    for (int i = 0; i < 9; i++) r = step(pose(false), 20);
+    check(r.reps == 2 && r.lastRepScore < good, "a rushed rep scores lower");
+    check(r.avgRepScore > 0 && r.avgRepScore <= 100, "session average is tracked");
+
+    e.reset();
+    r = e.update(pose(false));
+    check(r.lastRepScore == -1, "reset clears the score");
+  }
+
   std::printf(failed ? "\n%d test FAILED\n" : "\nall tests passed\n", failed);
   return failed ? 1 : 0;
 }

@@ -28,6 +28,9 @@ struct JsReading {
   bool repTick;
   int halfReps;
   bool halfTick;
+  int lastRepScore;
+  double lastRepSeconds;
+  int avgRepScore;
   std::string message;
 };
 
@@ -61,6 +64,9 @@ static JsReading toJs(const coach::Reading& r) {
   j.repTick = r.repTick;
   j.halfReps = r.halfReps;
   j.halfTick = r.halfTick;
+  j.lastRepScore = r.lastRepScore;
+  j.lastRepSeconds = r.lastRepSeconds;
+  j.avgRepScore = r.avgRepScore;
   j.message = r.message;
   return j;
 }
@@ -74,7 +80,8 @@ class WebEngine {
   void reset() { engine_.reset(); }
 
   // HIZLI yol: heap'teki float buffer'dan oku (count = float adedi, 33*4=132).
-  JsReading updatePtr(std::uintptr_t ptr, unsigned count) {
+  // tMs = kare zamanı (performance.now()); tempo/kalite ölçümü için.
+  JsReading updatePtr(std::uintptr_t ptr, unsigned count, double tMs) {
     const float* buf = reinterpret_cast<const float*>(ptr);
     unsigned n = count / 4;
     std::vector<coach::Landmark> pts(n);
@@ -84,11 +91,11 @@ class WebEngine {
       pts[i].z = buf[i * 4 + 2];
       pts[i].visibility = buf[i * 4 + 3];
     }
-    return toJs(engine_.update(pts));
+    return toJs(engine_.update(pts, tMs));
   }
 
   // yedek yol: JS dizisini eleman eleman oku.
-  JsReading update(val landmarks) {
+  JsReading update(val landmarks, double tMs) {
     unsigned n = landmarks["length"].as<unsigned>();
     unsigned count = n / 4;
     std::vector<coach::Landmark> pts(count);
@@ -98,7 +105,7 @@ class WebEngine {
       pts[i].z = landmarks[i * 4 + 2].as<double>();
       pts[i].visibility = landmarks[i * 4 + 3].as<double>();
     }
-    return toJs(engine_.update(pts));
+    return toJs(engine_.update(pts, tMs));
   }
 
  private:
@@ -125,6 +132,9 @@ EMSCRIPTEN_BINDINGS(coach) {
       .field("repTick", &JsReading::repTick)
       .field("halfReps", &JsReading::halfReps)
       .field("halfTick", &JsReading::halfTick)
+      .field("lastRepScore", &JsReading::lastRepScore)
+      .field("lastRepSeconds", &JsReading::lastRepSeconds)
+      .field("avgRepScore", &JsReading::avgRepScore)
       .field("message", &JsReading::message);
 
   class_<WebEngine>("Engine")

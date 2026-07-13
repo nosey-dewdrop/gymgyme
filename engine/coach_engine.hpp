@@ -38,6 +38,8 @@ struct MoveSpec {
   double minVisibility = 0.5;   // bu güvenin altındaki okuma reddedilir
   double minFraming = 0.75;     // gövde+bacak noktalarının en az bu kadarı kadrajda olmalı
   double halfRepDepth = 0.35;   // iniş bu derinliği (0..1) geçip de dibe ulaşmazsa "yarım" sayılır
+  double goodRepSecMin = 1.2;   // bundan hızlı tekrar = momentum/sıçrama, tempo puanı düşer
+  double goodRepSecMax = 8.0;   // bundan yavaşı da tam puan almaz (takılma/duraksama)
 };
 
 // altı büyük eklem açısı (gösterim + ileri aşamalar). -1 = okunamadı.
@@ -67,6 +69,10 @@ struct Reading {
   // ── Aşama 8: yarım tekrar ──
   int halfReps = 0;          // dibe ulaşmadan geri dönülen "sayılmadı" inişler
   bool halfTick = false;     // SADECE yarımın yakalandığı karede true
+  // ── Kalite skoru: her tekrar aynı değil ──
+  int lastRepScore = -1;     // son tekrarın puanı 0..100 (-1 = henüz tekrar yok)
+  double lastRepSeconds = 0; // son tekrarın süresi
+  int avgRepScore = -1;      // oturum ortalaması 0..100
   std::string message;       // insana dönük kısa mesaj (kadraj/ışık uyarısı vb.)
 };
 
@@ -86,8 +92,10 @@ class Engine {
   // yumuşatma ve faz durumunu sıfırla (hareket/oturum değişince).
   void reset();
 
-  // bir kare işle: 33 nokta ver, okuma al.
-  Reading update(const std::vector<Landmark>& landmarks);
+  // bir kare işle: 33 nokta ver, okuma al. timestampMs = kare zamanı (milisaniye,
+  // herhangi bir monotonik saat); verilmezse motor kendi sahte saatini ilerletir
+  // (kare başına ~33 ms) — tempo/kalite ölçümü zaman ister.
+  Reading update(const std::vector<Landmark>& landmarks, double timestampMs = -1.0);
 
  private:
   MoveSpec spec_;
@@ -99,6 +107,16 @@ class Engine {
   int halfReps_ = 0;
   bool inExcursion_ = false;   // üst fazdayken eşiğin altına sarkan bir iniş sürüyor mu
   double excursionMin_ = 1e9;  // o inişte görülen en derin (en küçük) açı
+  // kalite skoru durumu
+  double fakeT_ = 0;           // timestamp verilmezse kullanılan sahte saat
+  double lastTrackedT_ = -1;   // takip kopmalarını yakalamak için
+  bool inRep_ = false;         // skorlanan bir tekrar penceresi açık mı
+  double repStartT_ = 0;       // pencere başlangıcı (üstten ilk sarkma anı)
+  double repMinA_ = 1e9;       // penceredeki en derin açı
+  double repMinT_ = 0;         // o derinliğin zamanı (iniş/çıkış süresi ayrımı)
+  int lastScore_ = -1;
+  double lastRepSec_ = 0;
+  double scoreSum_ = 0;
 };
 
 }  // namespace coach

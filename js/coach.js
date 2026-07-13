@@ -19,6 +19,7 @@ const ctx = canvas.getContext("2d");
 const readEl = $("read");
 const repCountEl = $("repCount");
 const halfNoteEl = $("halfNote");
+const scoreLineEl = $("scoreLine");
 const phaseWord = $("phaseWord");
 const subEl = $("sub");
 const depthFill = $("depthFill");
@@ -189,6 +190,18 @@ function render(r) {
   if (r.halfTick) halfBuzz();
   halfNoteEl.textContent = r.halfReps > 0 ? "not counted: " + r.halfReps + " (too shallow)" : "";
 
+  if (r.lastRepScore >= 0) {
+    scoreLineEl.innerHTML = "";
+    const b = document.createElement("span");
+    b.className = "big";
+    b.textContent = "last rep " + r.lastRepScore;
+    scoreLineEl.appendChild(b);
+    scoreLineEl.appendChild(document.createTextNode(
+      "   ·   " + r.lastRepSeconds.toFixed(1) + "s   ·   session avg " + r.avgRepScore));
+  } else {
+    scoreLineEl.textContent = "";
+  }
+
   if (r.tracking) {
     subEl.textContent =
       "knee " + Math.round(r.smoothAngle) + "°   ·   moving " + r.motion + "   ·   phase " + r.phase;
@@ -240,7 +253,7 @@ function loop() {
           heap[base + i * 4 + 2] = p.z ?? 0;
           heap[base + i * 4 + 3] = p.visibility ?? 1;
         }
-        const r = engine.updatePtr(bufPtr, count * 4);
+        const r = engine.updatePtr(bufPtr, count * 4, performance.now());
         if (r.tracking) skeletonColor = r.phase === "bottom" ? "#A61B42" : "#33000E";
         render(r);
       }

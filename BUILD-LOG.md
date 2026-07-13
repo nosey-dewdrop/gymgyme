@@ -118,6 +118,22 @@ Beş yeni test: yarım iniş yakalanıyor ve sayılmıyor, yakalandığı karede
 
 **Sırada:** her tekrar aynı değil — tekrar başına bir **kalite skoru**: derinlik, tempo, kontrol.
 
+---
+
+## Kalite skoru — motor saate kavuşuyor
+
+Sayaç 12 diyor; ama 12 tekrarın 12'si aynı değil. Biri dibe kadar inip kontrollü kalktı, öbürü yarı yolda zıplayarak gitti geldi. İkisine de "1" demek saymak, ama koçluk değil. Bu adım her tekrara bir **puan** verdi: 0–100.
+
+Bunun için motorun eksik bir duyusu vardı: **zaman.** Bugüne kadar motor kareleri sırayla görüyordu ama aralarında ne kadar süre geçtiğini bilmiyordu — tempo ölçemezsin. Şimdi her kareyle birlikte bir zaman damgası geliyor. Tasarım yine temiz kaldı: tarayıcı kendi saatini veriyor, testler sahte bir saat veriyor, motor umursamıyor — kim çağırırsa onun saatiyle çalışıyor. Saat verilmezse de saniyede 30 kare varsayıp kendi ilerliyor.
+
+Puan üç bileşenden: **derinlik** (puanın yarısı — dibe gerçekten inildi mi), **tempo** (tekrar makul sürede mi; 1.2 saniyeden hızlısı momentumla zıplamaktır, puan kırar), ve **kontrol** (iniş serbest düşüş olmasın — inişin süresi çıkışa göre çok kısaysa ağırlığı bırakıyorsun demektir; spora gidenler bilir, eksantrik faz işin yarısı). Üç eşik de MoveSpec verisinde — başka hareket, başka tempo, kod aynı.
+
+Bir de dürüstlük detayı: takip koparsa (kadrajdan çıktın, ışık gitti) motor o anki tekrar penceresini çöpe atıyor. Yoksa iki dakika sonra döndüğünde "126 saniyelik tekrar" diye saçma bir süre puanlanırdı. Emin olmadığını puanlamayan motor, uyduran motordan iyidir — bu ilke artık her katmanda.
+
+Ekranda sayacın altında küçük bir satır: son tekrarın puanı, süresi, oturum ortalaması. Testler: kontrollü tekrar 90 üstü alıyor, aceleci tekrar daha düşük, ortalama birikimli, reset temizliyor. Yirmi altı test, hepsi geçiyor.
+
+**Sırada:** motorun gözüne üçüncü boyut — MediaPipe'ın dünya koordinatları ile açıları 3B ölçmek, kamera açısından bağımsızlaşmak.
+
 ## Yol haritası (19 aşama, 0–18)
 
 Her aşama tek başına çekilebilir gerçek bir adım — biri bitince küçük bir "oldu" anı, bir reels. Sıra kabaca **görmek → anlamak → saymak → düzeltmek → ürünleştirmek** diye ilerliyor.
