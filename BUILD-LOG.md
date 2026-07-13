@@ -244,6 +244,12 @@ Bir fitness uygulaması sana "kaydedildi" dedi ve yalan söyledi. Bizimki söyle
 
 Ship-check üç gedik buldu. Bir: özet kartı, kayıt veritabanına gerçekten ulaşmadan "hesabına kaydedildi" diyordu — offline'da bu düpedüz yalandı. Artık satır önce "saving..." diyor, sonuç gelince gerçeği söylüyor; başaramayan kayıt cihazda kuyruğa giriyor ve bağlantı dönünce kendiliğinden gönderiliyor, seansın gerçek tarihiyle. İki: şifreni unutursan hesabın sonsuza dek kilitliydi. Artık "forgot your password?" var; maildeki link yeni şifre sayfasına düşüyor. Üç: seansların veritabanına yazılıyor ama hiçbir yerde görünmüyordu — yazılan ama okunmayan veri, ölü veridir. Artık sayfanın altında "your workouts" var: girişliysen hesabındaki, değilsen bu cihazdaki son seansların, satır satır.
 
+## Aşama 18 — Yayın: kapı açıldı
+
+On dokuz aşamanın sonuncusu tek kelimeyle geldi: "yayınla".
+
+Bugüne kadar personal trainer sitede saklı bir sayfaydı: menüde yok, Google'a kapalı, sadece adresi bilen girer. Bugün üç kilit açıldı. Menü: dizinin ve öneri sayfasının kenar çubuğuna "personal trainer" linki kondu, artık siteye giren herkes onu görüyor. Google: noindex kalktı, sitemap'e girdi, canonical ve paylaşım kartı eklendi — arayan bulacak. Ve kapının önüne bir cümle: ilk seansından önce, kamera izni istenmeden, ürün sana açıkça söylüyor — "kameran bu cihazda okunur, hiçbir video yüklenmez, kaydedilmez" — sen "got it - start" demeden kamera açılmıyor. KVKK'nın istediği de, zaten doğrusu da bu. Motor 0'dan 18'e tamam: link listesi olarak doğan site, artık seni izleyip sayan, puanlayan, düzelten ve hatırlayan bir ürün.
+
 ## Yol haritası (19 aşama, 0–18)
 
 Her aşama tek başına çekilebilir gerçek bir adım — biri bitince küçük bir "oldu" anı, bir reels. Sıra kabaca **görmek → anlamak → saymak → düzeltmek → ürünleştirmek** diye ilerliyor.

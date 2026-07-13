@@ -14,7 +14,11 @@
   <meta name="theme-color" content="#FFBDD4">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <meta name="apple-mobile-web-app-title" content="gymgyme">
-  <meta name="robots" content="noindex">
+  <link rel="canonical" href="https://gymgyme.damlahelloworld.com/coach.html">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="gymgyme personal trainer - your camera reads your form, on your device">
+  <meta property="og:description" content="It counts your reps, scores every rep and corrects your form in 3d - fully in your browser. The video never leaves your device.">
+  <meta property="og:url" content="https://gymgyme.damlahelloworld.com/coach.html">
 </head>
 <body>
 
@@ -55,6 +59,11 @@
 
 <button id="start" class="startbtn">start camera</button>
 <button id="stop" class="startbtn" hidden>stop</button>
+
+<div class="consent" id="consent" hidden>
+  <p>quick note before your first session: the personal trainer reads your body through your camera, entirely on this device. no video is uploaded, recorded or stored - ever. if you sign in, only your workout numbers (reps, scores, dates) are saved to your account. details: <a href="gizlilik.html">your data</a>.</p>
+  <button id="consentGo" class="startbtn">got it - start</button>
+</div>
 <p class="status" id="status" role="status" aria-live="polite"></p>
 
 <div class="stage" id="stage" hidden>

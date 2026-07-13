@@ -568,7 +568,22 @@ moveSel.addEventListener("change", () => {
 // "hazırım": molayı erken bitir, sıradaki sete geç.
 skipRestBtn.addEventListener("click", () => { if (engine) engine.skipRest(); });
 
-startBtn.addEventListener("click", start);
+// ilk kullanım onayı (KVKK): kamera izninden ÖNCE bir kez, açık cümlelerle.
+// localStorage yoksa her seferinde gösterilir — kimse habersiz kamera açmaz.
+const consentEl = $("consent"), consentGo = $("consentGo");
+const CONSENT_KEY = "gg_consent_v1";
+function consentGiven() {
+  try { return localStorage.getItem(CONSENT_KEY) === "yes"; } catch (_) { return false; }
+}
+startBtn.addEventListener("click", () => {
+  if (!consentGiven()) { consentEl.hidden = false; consentGo.focus(); return; }
+  start();
+});
+consentGo.addEventListener("click", () => {
+  try { localStorage.setItem(CONSENT_KEY, "yes"); } catch (_) { /* yine başlar, bir daha sorulur */ }
+  consentEl.hidden = true;
+  start();
+});
 stopBtn.addEventListener("click", stop);
 window.addEventListener("resize", () => { if (running) sizeCanvas(); });
 
