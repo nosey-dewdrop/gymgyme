@@ -97,6 +97,15 @@ struct Reading {
   // ── Aşama 9: form ──
   std::string formCue;       // bu karede ihlal edilen kuralın düzeltme cümlesi ("" = form temiz)
   int lastRepFormIssues = 0; // son tekrarda ihlal edilen FARKLI kural sayısı
+  // ── Aşama 13: setler ve dinlenme ──
+  int currentSet = 1;        // kaçıncı settesin (1..totalSets)
+  int totalSets = 1;         // planlanan set sayısı
+  int repsInSet = 0;         // bu sette şu ana kadar sayılan tam tekrar
+  int targetReps = 0;        // set başı hedef (0 = plan yok, sonsuz say)
+  bool setTick = false;      // SADECE bir set hedefe ulaştığı karede true
+  bool resting = false;      // set arası dinlenme sürüyor mu (tekrar sayılmaz)
+  double restRemaining = 0;  // dinlenmede kalan saniye (0 = dinlenmede değil)
+  bool workoutComplete = false; // son setin hedefi de doldu — antrenman bitti
   std::string message;       // insana dönük kısa mesaj (kadraj/ışık uyarısı vb.)
 };
 
@@ -113,7 +122,16 @@ class Engine {
   void setMove(const MoveSpec& spec) { spec_ = spec; reset(); }
   const MoveSpec& move() const { return spec_; }
 
-  // yumuşatma ve faz durumunu sıfırla (hareket/oturum değişince).
+  // ── Aşama 13: antrenman planı. targetReps>0 verilince motor setleri sayar:
+  // hedefe ulaşınca set biter, restSec saniye dinlenme başlar (motor zaman-
+  // farkında olduğu için geri sayımı KENDİ tutar), sonra sıradaki sete geçilir.
+  // targetReps=0 planı kapatır (bugünkü gibi sonsuz say). Plan hareket değişince
+  // korunur, sadece ilerleme (set/tekrar/dinlenme) sıfırlanır.
+  void setPlan(int targetReps, int totalSets, double restSeconds);
+  // dinlenmeyi erken bitir (kullanıcı "hazırım" derse) — sıradaki sete geç.
+  void skipRest();
+
+  // yumuşatma ve faz durumunu sıfırla (hareket/oturum değişince). plan korunur.
   void reset();
 
   // bir kare işle: 33 nokta ver, okuma al. timestampMs = kare zamanı (milisaniye,
@@ -150,6 +168,16 @@ class Engine {
   double scoreSum_ = 0;
   unsigned violMask_ = 0;      // bu tekrar penceresinde ihlal edilen kuralların bitleri
   int lastFormIssues_ = 0;
+  // ── Aşama 13: set/dinlenme planı (config, reset'te KORUNUR) ──
+  int targetReps_ = 0;         // set başı hedef (0 = plan yok)
+  int totalSets_ = 1;
+  double restSec_ = 60.0;
+  // ── ilerleme (reset'te sıfırlanır) ──
+  int currentSet_ = 1;
+  int repsInSet_ = 0;
+  bool resting_ = false;
+  double restEndT_ = 0;        // dinlenmenin biteceği motor-zamanı (ms)
+  bool workoutDone_ = false;
 };
 
 }  // namespace coach

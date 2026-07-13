@@ -11,6 +11,16 @@
 .move-row label { font-size: 12px; opacity: 0.7; margin-right: 8px; }
 #moveSel { font-family: inherit; font-size: 16px; font-weight: bold; color: #33000E; background: #F7A9C4; border: none; border-radius: 0; padding: 4px 10px; cursor: pointer; }
 
+/* plan satırı - opsiyonel set/tekrar/mola. aynı ham dil: küçük sayı alanları,
+   pembe zemin, border yok, cümle gibi akar. */
+.plan-row { margin: 4px 0 2px; font-size: 13px; line-height: 1.9; }
+.plan-lead { opacity: 0.7; margin-right: 6px; }
+.plan-num { font-family: inherit; font-size: 15px; font-weight: bold; color: #33000E; background: #F7A9C4; border: none; border-radius: 0; width: 46px; padding: 3px 6px; text-align: center; margin: 0 3px; -moz-appearance: textfield; }
+.plan-num::-webkit-outer-spin-button, .plan-num::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.plan-row label { opacity: 0.7; margin-right: 2px; }
+.plan-x { opacity: 0.55; margin: 0 3px; }
+.plan-hint { display: block; font-size: 11px; opacity: 0.55; margin-top: 2px; }
+
 .startbtn { font-family: inherit; font-size: 22px; font-weight: bold; color: #33000E; background: none; cursor: pointer; padding: 0; margin: 6px 12px 6px 0; }
 .startbtn:disabled { opacity: 0.5; cursor: default; }
 .status { margin: 8px 0; min-height: 20px; }
@@ -29,6 +39,18 @@
 .half-note { font-size: 12px; color: #7a0a24; min-height: 16px; margin-bottom: 2px; }
 .score-line { font-size: 13px; min-height: 18px; margin-bottom: 6px; }
 .score-line .big { font-weight: bold; color: #A61B42; }
+
+/* set ilerlemesi - sayaç üstünde küçük bir satır: "set 1 of 3 · 2 of 8" */
+.set-line { font-size: 13px; font-weight: bold; color: #7a0a24; margin: 2px 0 4px; }
+.set-line[hidden] { display: none; }
+
+/* dinlenme - sayacın yerini alan sakin blok + geri sayım + "hazırım". kutu yok. */
+.rest[hidden] { display: none; }
+.rest { margin: 6px 0 10px; }
+.rest-word { font-size: 20px; opacity: 0.7; }
+.rest-count { font-size: 72px; font-weight: bold; color: #A61B42; line-height: 1; letter-spacing: -0.02em; }
+.rest-sub { font-size: 13px; opacity: 0.75; margin: 2px 0 8px; }
+.restbtn { font-family: inherit; font-size: 18px; font-weight: bold; color: #33000E; background: none; border: none; cursor: pointer; padding: 0; }
 
 .phase-word { font-size: 34px; font-weight: bold; letter-spacing: -0.01em; line-height: 1.1; }
 .sub { font-size: 13px; opacity: 0.85; margin-top: 2px; }

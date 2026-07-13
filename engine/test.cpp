@@ -369,6 +369,79 @@ int main() {
     check(cued, "hip sag rule evaluates from the shoulder hip knee line");
   }
 
+  // ── Aşama 13: setler ve dinlenme — hedefe ulaşınca set biter, mola başlar,
+  // mola bitince sıradaki set, son set sonrası antrenman tamamlanır ──
+  {
+    Engine e(builtinMove("squat"));
+    e.setPlan(2, 2, 60.0);        // set başı 2 tekrar, 2 set, 60 sn mola
+    Reading r;
+    double t = 0;
+    auto rep = [&](Engine& en) {  // bir tam tekrar (dip + üst), zaman ilerler
+      Reading rr;
+      for (int i = 0; i < 10; i++) { t += 100; rr = en.update(pose(true), t); }
+      for (int i = 0; i < 12; i++) { t += 100; rr = en.update(pose(false), t); }
+      return rr;
+    };
+    for (int i = 0; i < 6; i++) { t += 100; r = e.update(pose(false), t); }
+    check(r.currentSet == 1 && r.repsInSet == 0 && r.targetReps == 2, "plan starts at set 1, target 2");
+
+    r = rep(e);
+    check(r.reps == 1 && r.repsInSet == 1 && !r.resting, "first rep fills the set, no rest yet");
+    bool setDone = false;
+    for (int i = 0; i < 10; i++) { t += 100; r = e.update(pose(true), t); }
+    for (int i = 0; i < 12; i++) { t += 100; r = e.update(pose(false), t); setDone |= r.setTick; }
+    check(setDone, "setTick fires when the set target is reached");
+    check(r.resting && r.restRemaining > 55.0, "reaching the target starts the rest countdown");
+    check(r.currentSet == 1, "still on set 1 label until the rest ends");
+
+    // dinlenme sırasında yapılan tekrar sıradaki setin hanesine YAZILMAZ
+    int repsBefore = r.reps;
+    r = rep(e);
+    check(r.reps == repsBefore && r.resting, "reps during rest do not count");
+
+    e.skipRest();
+    r = e.update(pose(false), (t += 100));
+    check(!r.resting && r.currentSet == 2 && r.repsInSet == 0, "skipRest advances to the next set");
+
+    // son set: hedefe ulaşınca antrenman biter, mola YOK
+    rep(e);
+    r = rep(e);
+    check(r.workoutComplete && !r.resting, "finishing the last set completes the workout, no rest");
+    int repsAtEnd = r.reps;
+    r = rep(e);
+    check(r.reps == repsAtEnd, "no reps count after the workout is complete");
+
+    // reset ilerlemeyi sıfırlar ama planı korur
+    e.reset();
+    r = e.update(pose(false), (t += 100));
+    check(r.currentSet == 1 && r.repsInSet == 0 && r.targetReps == 2 && !r.workoutComplete,
+          "reset clears set progress but keeps the plan");
+  }
+
+  // ── Aşama 13: dinlenme SÜRESI dolunca otomatik sıradaki sete geçilir ──
+  {
+    Engine e(builtinMove("squat"));
+    e.setPlan(1, 3, 1.0);         // 1 tekrar/set, 3 set, 1 sn mola
+    Reading r;
+    double t = 0;
+    for (int i = 0; i < 6; i++) { t += 100; r = e.update(pose(false), t); }
+    for (int i = 0; i < 10; i++) { t += 100; r = e.update(pose(true), t); }
+    for (int i = 0; i < 12; i++) { t += 100; r = e.update(pose(false), t); }
+    check(r.resting && r.currentSet == 1, "one-rep set enters rest");
+    // molanın süresini geçecek kadar zaman ilerlet (üstte dur)
+    for (int i = 0; i < 15; i++) { t += 100; r = e.update(pose(false), t); }
+    check(!r.resting && r.currentSet == 2, "rest auto-expires into the next set after its seconds");
+  }
+
+  // ── Aşama 13: plansız (targetReps=0) davranış bugünküyle aynı — sonsuz say ──
+  {
+    Engine e(builtinMove("squat"));
+    Reading r;
+    check(builtinMove("squat").name == "squat", "");   // (no-op anchor)
+    for (int i = 0; i < 6; i++) r = e.update(pose(false));
+    check(r.targetReps == 0 && r.currentSet == 1 && !r.workoutComplete, "no plan = endless counting, never completes");
+  }
+
   std::printf(failed ? "\n%d test FAILED\n" : "\nall tests passed\n", failed);
   return failed ? 1 : 0;
 }

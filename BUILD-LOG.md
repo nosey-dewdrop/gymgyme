@@ -190,6 +190,20 @@ On dört yeni test — her hareketin kendi döngüsü, press'in bükülü başla
 
 **Sırada:** ürünleştirme bandı — hareketi gymgyme dizininden seçip koça bağlamak, set & dinlenme akışı, seans özeti.
 
+## Aşama 13 — Bir tekrardan bir antrenmana
+
+Şimdiye kadar motor tek bir şeyi çok iyi yapıyordu: tekrar say. Ama kimse "tekrar" yapmaz — insan "3 set, arada dinlen" yapar. Bugün motor tek tekrarı bırakıp bütün bir antrenmanı tutmayı öğrendi: kaç tekrarlık set, kaç set, aralarda kaç saniye mola.
+
+En sevdiğim karar şu oldu: mola geri sayımını JS'e değil MOTORA koydum. Motor zaten saate kavuşmuştu (kalite skoru için her kareye zaman damgası veriyorum), o yüzden molanın süresini de o sayabilir. Bunun güzel yan etkisi: mola sırasında kameradan çıkıp su içsen bile saat işlemeye devam ediyor — çünkü geri sayım "seni göremiyorum" kontrolünden ÖNCE, en başta dönüyor. Mantık motorda, JS sadece kalan saniyeyi büyük pembe bir sayıya yazıyor. Kural hep aynı: analiz C++'ta, tarayıcı sadece tutkal.
+
+İnce ama önemli bir kural: mola sırasında yaptığın hareket sıradaki setin hanesine yazılmaz. Dinlenirken kolunu esnetsen, bir yarım squat yapsan sayaç oynamaz — set arası settir. Faz makinesi çalışmaya devam ediyor (pozisyonunu kaybetmesin diye) ama tekrar ekleme adımı molada kapalı. Son set de dolunca antrenman "tamamlandı" oluyor, mola yok, üç notalı bir zil çalıyor ve sayfa "workout complete — 24 reps in 3 sets" diyor.
+
+Plan tamamen opsiyonel. Tekrar sayısını 0 bırakırsan hiçbir şey değişmiyor, sayfa dünküyle birebir aynı: serbest say, hiç bitme. Plan verdiğinde ise sayacın üstünde küçük bir satır beliriyor — "set 2 of 3 · 5 of 12" — ve set bitince sayacın yeri sakin bir dinlenme bloğuna bırakıyor: "rest", büyük geri sayım, "i'm ready" ile erken çıkış. Set biterken iki notalı bir "tık", antrenman biterken üç notalı bir zil; kulağın da nerede olduğunu bilsin.
+
+On yedi yeni test — planın 1. setten başlaması, hedefe ulaşınca molanın açılması, mola sırasındaki tekrarların sayılmaması, "hazırım"ın sıradaki sete geçmesi, molanın süresi dolunca kendiliğinden ilerlemesi, son setin antrenmanı bitirmesi, reset'in ilerlemeyi silip planı koruması, ve plansız modun hâlâ sonsuz sayması. Yetmiş test, hepsi geçiyor.
+
+**Sırada:** seans özeti — antrenman bitince kaç tekrar, ortalama derinlik/skor, kaç temiz set; stitchu ruhunda yapılandırılmış küçük bir rapor.
+
 ## Yol haritası (19 aşama, 0–18)
 
 Her aşama tek başına çekilebilir gerçek bir adım — biri bitince küçük bir "oldu" anı, bir reels. Sıra kabaca **görmek → anlamak → saymak → düzeltmek → ürünleştirmek** diye ilerliyor.
@@ -216,7 +230,7 @@ Her aşama tek başına çekilebilir gerçek bir adım — biri bitince küçük
 **Ürünleştirmek**
 - **11 · Kütüphaneye bağla** — gymgyme'deki hareketi seç → o harekete özel koç modu açılsın. Dizin ile motor birleşir.
 - **12 · Hareket kural verisi** — moves verisine açı eşikleri + talimat alanları; yeni hareket = veri eklemek, kod değil. Genişleyen sistem. *(bitti — motor tarafı; dizin verisine bağlama 11 ile birlikte)*
-- **13 · Set & dinlenme akışı** — "3 set x 12", set arası dinlenme sayacı, sesli yönlendirme. Tek tekrardan tam antrenmana.
+- **13 · Set & dinlenme akışı** — "3 set x 12", set arası dinlenme sayacı, sesli yönlendirme. Tek tekrardan tam antrenmana. *(bitti — mola geri sayımı motorda, plan opsiyonel)*
 - **14 · Seans özeti** — kaç tekrar, ortalama derinlik, form skoru; bölge bölge küçük rapor. Yapılandırılmış çıktı (stitchu ruhu).
 - **15 · "Programım"a bağla** — seansı gymgyme planlayıcısına işle, "en son ne zaman yaptın" güncellensin. Motor ürünün geri kalanıyla konuşsun.
 - **16 · Ton & erişilebilirlik** — VOICE diline uygun, suçlamasız cümleler; sesli sayım; düşük görme/renk körü uyumu. Soğuk bir makine değil.

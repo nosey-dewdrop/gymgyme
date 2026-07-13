@@ -19,10 +19,19 @@ const canvas = $("overlay");
 const ctx = canvas.getContext("2d");
 const readEl = $("read");
 const repCountEl = $("repCount");
+const repRowEl = repCountEl.parentElement;
 const halfNoteEl = $("halfNote");
 const scoreLineEl = $("scoreLine");
 const phaseWord = $("phaseWord");
 const subEl = $("sub");
+const setLineEl = $("setLine");
+const restEl = $("rest");
+const restCountEl = $("restCount");
+const restSubEl = $("restSub");
+const skipRestBtn = $("skipRest");
+const planReps = $("planReps");
+const planSets = $("planSets");
+const planRest = $("planRest");
 const depthFill = $("depthFill");
 const confFill = $("confFill");
 const framingFill = $("framingFill");
@@ -33,6 +42,17 @@ const privateNote = $("private");
 
 const LM = 33;                 // MediaPipe pose nokta sayısı
 const FLOATS = LM * 4;         // her nokta [x, y, z, visibility]
+
+// plan giriş alanlarını oku, motora ver. reps=0 → plan yok (serbest say).
+// motora setPlan çağrısı ilerlemeyi sıfırlar, o yüzden başlarken ve plan
+// alanları değişince çağrılır.
+function applyPlan() {
+  if (!engine) return;
+  const reps = Math.max(0, Math.min(99, parseInt(planReps.value, 10) || 0));
+  const sets = Math.max(1, Math.min(20, parseInt(planSets.value, 10) || 1));
+  const rest = Math.max(0, Math.min(600, parseInt(planRest.value, 10) || 0));
+  engine.setPlan(reps, sets, rest);
+}
 
 // hareketlerin insana dönük dili. hangi eklemin izlendiği, fazların ve gidişin
 // kelimeleri — motorun id'leriyle (engine/coach_engine.cpp kütüphanesi) birebir.
@@ -118,6 +138,7 @@ async function start() {
   try {
     if (!poseLandmarker) await loadPose();
     if (!engine) await loadEngine();
+    applyPlan();                               // plan alanlarını motora ver
     setStatus("asking for the camera...");
     const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } });
     video.srcObject = stream;
@@ -143,6 +164,12 @@ function stop() {
   video.srcObject = null;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   if (engine) engine.reset();
+  restEl.hidden = true;
+  setLineEl.hidden = true;
+  repRowEl.style.display = "";
+  phaseWord.style.display = "";
+  subEl.style.display = "";
+  wasComplete = false;
   stage.hidden = true;
   stopBtn.hidden = true;
   startBtn.disabled = false;
@@ -195,10 +222,56 @@ function halfBuzz() {
   beep(220, 0.18, 0.07);                     // pes "bzz": o sayılmadı
   if (navigator.vibrate) navigator.vibrate([50, 40, 50]);
 }
+function setChime() {
+  beep(660, 0.14, 0.08);                     // iki notalı "set bitti" sesi
+  setTimeout(() => beep(990, 0.18, 0.08), 130);
+  if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
+}
+function doneChime() {
+  beep(523, 0.16, 0.08);                     // üç notalı "antrenman bitti"
+  setTimeout(() => beep(659, 0.16, 0.08), 150);
+  setTimeout(() => beep(784, 0.26, 0.08), 300);
+  if (navigator.vibrate) navigator.vibrate([50, 60, 50, 60, 90]);
+}
 
 let cueUntil = 0;   // takip sürerken gelen koç mesajı (örn. "yarım kaldı") kısa süre ekranda kalsın
+let wasComplete = false;   // antrenman-bitti sesini bir kez çalmak için
+
+// planlı akışın görünümü: set satırı, dinlenme bloğu, bitti hali. serbest modda
+// (targetReps=0) hiçbiri görünmez, sayfa bugünküyle aynı kalır.
+function renderPlan(r) {
+  if (r.setTick && !r.workoutComplete) setChime();
+  if (r.workoutComplete && !wasComplete) doneChime();
+  wasComplete = r.workoutComplete;
+
+  const planned = r.targetReps > 0;
+  restEl.hidden = !r.resting;
+
+  // dinlenme sırasında canlı okumaları sustur; dinlenme bloğu sahnede.
+  const live = !r.resting;
+  repRowEl.style.display = live ? "" : "none";
+  phaseWord.style.display = live ? "" : "none";
+  subEl.style.display = live ? "" : "none";
+
+  if (r.resting) {
+    restCountEl.textContent = Math.ceil(r.restRemaining);
+    restSubEl.textContent = "set " + (r.currentSet + 1) + " of " + r.totalSets + " coming up";
+  }
+
+  if (!planned) { setLineEl.hidden = true; return; }
+  setLineEl.hidden = false;
+  if (r.workoutComplete) {
+    setLineEl.textContent = "workout complete - " + r.reps + " reps in " + r.totalSets + " sets";
+  } else if (r.resting) {
+    setLineEl.textContent = "set " + r.currentSet + " of " + r.totalSets + " done";
+  } else {
+    setLineEl.textContent = "set " + r.currentSet + " of " + r.totalSets +
+      "   ·   " + r.repsInSet + " of " + r.targetReps;
+  }
+}
 
 function render(r) {
+  renderPlan(r);
   phaseWord.textContent = phraseFor(r);
   repCountEl.textContent = r.reps;
   if (r.repTick) repTick();
@@ -310,13 +383,26 @@ moveSel.addEventListener("change", () => {
   move = MOVES[moveSel.value] || MOVES.squat;
   if (engine) {
     engine.setMove(moveSel.value);
+    applyPlan();                     // hareket değişince plan yeniden uygulanır (ilerleme sıfırlanır)
     buildAngleRows();
     repCountEl.textContent = "0";
     halfNoteEl.textContent = "";
     scoreLineEl.textContent = "";
     msgEl.textContent = "";
+    setLineEl.hidden = true;
+    restEl.hidden = true;
+    wasComplete = false;
   }
 });
+
+// plan alanları değişince motora anında yansı (ilerlemeyi sıfırlar).
+[planReps, planSets, planRest].forEach((el) => el.addEventListener("change", () => {
+  applyPlan();
+  wasComplete = false;
+}));
+
+// "hazırım": molayı erken bitir, sıradaki sete geç.
+skipRestBtn.addEventListener("click", () => { if (engine) engine.skipRest(); });
 
 startBtn.addEventListener("click", start);
 stopBtn.addEventListener("click", stop);

@@ -35,6 +35,16 @@
   </select>
 </div>
 
+<div class="plan-row">
+  <span class="plan-lead">a plan, if you like:</span>
+  <input id="planReps" class="plan-num" type="number" min="0" max="99" inputmode="numeric" value="0"><label for="planReps">reps</label>
+  <span class="plan-x">in</span>
+  <input id="planSets" class="plan-num" type="number" min="1" max="20" inputmode="numeric" value="3"><label for="planSets">sets</label>
+  <span class="plan-x">resting</span>
+  <input id="planRest" class="plan-num" type="number" min="0" max="600" step="5" inputmode="numeric" value="45"><label for="planRest">s between</label>
+  <span class="plan-hint">leave reps at 0 to just count freely.</span>
+</div>
+
 <button id="start" class="startbtn">start camera</button>
 <button id="stop" class="startbtn" hidden>stop</button>
 <p class="status" id="status"></p>
@@ -45,11 +55,19 @@
 </div>
 
 <div class="read" id="read" hidden>
+  <div class="set-line" id="setLine" hidden></div>
   <div class="rep-row"><span class="rep-count" id="repCount">0</span><span class="rep-label">reps</span></div>
   <div class="half-note" id="halfNote"></div>
   <div class="score-line" id="scoreLine"></div>
   <div class="phase-word" id="phaseWord">-</div>
   <div class="sub" id="sub"></div>
+
+  <div class="rest" id="rest" hidden>
+    <div class="rest-word">rest</div>
+    <div class="rest-count" id="restCount">45</div>
+    <div class="rest-sub" id="restSub">next set coming up</div>
+    <button id="skipRest" class="restbtn">i'm ready</button>
+  </div>
 
   <div class="meter">
     <div class="meter-label">depth</div>
@@ -71,7 +89,7 @@
 
 <p class="private" id="private" hidden>the pose and all the math run inside your browser. the camera image never leaves this device - there is no upload and nothing is stored.</p>
 
-<p class="wip">the coach watches six moves (squat, push-up, lunge, glute bridge, sit-up, press), counts full reps with a tick, calls out half reps that did not count, scores every rep from depth, tempo and control, and corrects your form in 3d - knees out, chest up, hips in line. sets and rest flow are next.</p>
+<p class="wip">the coach watches six moves (squat, push-up, lunge, glute bridge, sit-up, press), counts full reps with a tick, calls out half reps that did not count, scores every rep from depth, tempo and control, and corrects your form in 3d - knees out, chest up, hips in line. set a plan and it counts your sets, rests you between them and rings when the workout is done. a full session summary is next.</p>
 
 <script type="module" src="js/coach.js"></script>
 

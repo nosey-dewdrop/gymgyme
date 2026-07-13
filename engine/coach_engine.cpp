@@ -131,6 +131,31 @@ void Engine::reset() {
   scoreSum_ = 0;
   violMask_ = 0;
   lastFormIssues_ = 0;
+  // plan config (targetReps_/totalSets_/restSec_) KORUNUR; sadece ilerleme sıfırlanır.
+  currentSet_ = 1;
+  repsInSet_ = 0;
+  resting_ = false;
+  restEndT_ = 0;
+  workoutDone_ = false;
+}
+
+void Engine::setPlan(int targetReps, int totalSets, double restSeconds) {
+  targetReps_ = std::max(0, targetReps);
+  totalSets_ = std::max(1, totalSets);
+  restSec_ = std::max(0.0, restSeconds);
+  // yeni plan = yeni antrenman: ilerlemeyi sıfırla, ama yumuşatma/faz durmasın.
+  currentSet_ = 1;
+  repsInSet_ = 0;
+  resting_ = false;
+  restEndT_ = 0;
+  workoutDone_ = false;
+}
+
+void Engine::skipRest() {
+  if (!resting_) return;
+  resting_ = false;
+  currentSet_++;
+  repsInSet_ = 0;
 }
 
 static double clamp01(double v) { return std::max(0.0, std::min(1.0, v)); }
@@ -145,6 +170,14 @@ Reading Engine::update(const std::vector<Landmark>& p,
   double t = timestampMs;
   if (t < 0) { fakeT_ += 1000.0 / 30.0; t = fakeT_; }   // saat verilmediyse ~30fps varsay
 
+  // ── Aşama 13: dinlenme geri sayımı. Motor zaman-farkında olduğu için süreyi
+  // KENDİ tutar — dinlenirken vücut kadrajda olmasa da (mola verip çıkabilirsin)
+  // saat ilerlesin diye bu, "seni göremiyorum" dönüşünden ÖNCE. Süre dolunca
+  // sıradaki sete otomatik geçilir. ──
+  if (resting_) {
+    if (t >= restEndT_) { resting_ = false; currentSet_++; repsInSet_ = 0; }
+  }
+
   Reading r;
   r.phase = phaseTop_ ? Phase::Top : Phase::Bottom;
   r.reps = reps_;
@@ -152,6 +185,13 @@ Reading Engine::update(const std::vector<Landmark>& p,
   r.lastRepScore = lastScore_;
   r.lastRepSeconds = lastRepSec_;
   r.avgRepScore = reps_ > 0 ? (int)std::lround(scoreSum_ / reps_) : -1;
+  r.currentSet = currentSet_;
+  r.totalSets = totalSets_;
+  r.repsInSet = repsInSet_;
+  r.targetReps = targetReps_;
+  r.resting = resting_;
+  r.restRemaining = resting_ ? std::max(0.0, (restEndT_ - t) / 1000.0) : 0.0;
+  r.workoutComplete = workoutDone_;
 
   if (p.size() < 33) { r.message = "i cannot see you yet"; return r; }
 
@@ -269,12 +309,35 @@ Reading Engine::update(const std::vector<Landmark>& p,
   // ── Aşama 7: sayma — dipten üste TAM dönüş = bir tekrar. Bottom'a ancak alt
   // eşiği geçerek girilebildiği için Bottom→Top geçişi her zaman tam bir
   // döngüdür; yarım inişler fazı hiç değiştirmez, dolayısıyla sayılmaz. ──
+  // dinlenirken ya da antrenman bittiğinde faz izlenmeye devam eder ama tekrar
+  // SAYILMAZ — mola sırasında yaptığın hareket sıradaki setin hanesine yazılmaz.
+  const bool countingPaused = resting_ || workoutDone_;
   if (phaseTop_) {
     if (smooth_ < spec_.bottomAngle) phaseTop_ = false;
   } else if (smooth_ > spec_.topAngle) {
     phaseTop_ = true;
+    if (countingPaused) {
+      // sayma durdu: pencereyi sessizce kapat, puanlama yapma.
+      inRep_ = false; repMinA_ = 1e9; violMask_ = 0;
+    } else {
     reps_++;
     r.repTick = true;
+
+    // ── Aşama 13: set ilerlemesi. Hedefli planda tekrar bu setin hanesine
+    // yazılır; hedefe ulaşınca set biter (setTick), son set değilse dinlenme
+    // başlar, son setse antrenman tamamlanır. ──
+    if (targetReps_ > 0) {
+      repsInSet_++;
+      if (repsInSet_ >= targetReps_) {
+        r.setTick = true;
+        if (currentSet_ >= totalSets_) {
+          workoutDone_ = true;
+        } else {
+          resting_ = true;
+          restEndT_ = t + restSec_ * 1000.0;
+        }
+      }
+    }
 
     // tekrar bitti → puanla. Üç bileşen: derinlik (yarısı), tempo, kontrol.
     // Kontrol = iniş serbest düşüş olmasın (eksantrik faz çıkışa göre çok kısaysa
@@ -298,6 +361,7 @@ Reading Engine::update(const std::vector<Landmark>& p,
       inRep_ = false;
       repMinA_ = 1e9;
     }
+    }  // ── countingPaused değilse ── (Aşama 13)
   }
   r.phase = phaseTop_ ? Phase::Top : Phase::Bottom;
 
@@ -330,6 +394,12 @@ Reading Engine::update(const std::vector<Landmark>& p,
   r.lastRepSeconds = lastRepSec_;
   r.avgRepScore = reps_ > 0 ? (int)std::lround(scoreSum_ / reps_) : -1;
   r.lastRepFormIssues = lastFormIssues_;
+  // set alanları bu karede değişmiş olabilir (setTick dinlenmeyi başlatır) → tazele.
+  r.currentSet = currentSet_;
+  r.repsInSet = repsInSet_;
+  r.resting = resting_;
+  r.restRemaining = resting_ ? std::max(0.0, (restEndT_ - t) / 1000.0) : 0.0;
+  r.workoutComplete = workoutDone_;
   return r;
 }
 

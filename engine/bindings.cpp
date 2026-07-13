@@ -33,6 +33,10 @@ struct JsReading {
   int avgRepScore;
   std::string formCue;
   int lastRepFormIssues;
+  int currentSet, totalSets, repsInSet, targetReps;
+  bool setTick, resting;
+  double restRemaining;
+  bool workoutComplete;
   std::string message;
 };
 
@@ -79,6 +83,14 @@ static JsReading toJs(const coach::Reading& r) {
   j.avgRepScore = r.avgRepScore;
   j.formCue = r.formCue;
   j.lastRepFormIssues = r.lastRepFormIssues;
+  j.currentSet = r.currentSet;
+  j.totalSets = r.totalSets;
+  j.repsInSet = r.repsInSet;
+  j.targetReps = r.targetReps;
+  j.setTick = r.setTick;
+  j.resting = r.resting;
+  j.restRemaining = r.restRemaining;
+  j.workoutComplete = r.workoutComplete;
   j.message = r.message;
   return j;
 }
@@ -90,6 +102,11 @@ class WebEngine {
 
   void setMove(std::string move) { engine_.setMove(coach::builtinMove(move)); }
   void reset() { engine_.reset(); }
+  // Aşama 13: set/dinlenme planı. targetReps=0 → plan yok (sonsuz say).
+  void setPlan(int targetReps, int totalSets, double restSeconds) {
+    engine_.setPlan(targetReps, totalSets, restSeconds);
+  }
+  void skipRest() { engine_.skipRest(); }
 
   // HIZLI yol: heap'teki float buffer'lardan oku (count = float adedi, 33*4=132).
   // ptr = ekran noktaları (kadraj/çizim uzayı), worldPtr = MediaPipe dünya
@@ -159,12 +176,22 @@ EMSCRIPTEN_BINDINGS(coach) {
       .field("avgRepScore", &JsReading::avgRepScore)
       .field("formCue", &JsReading::formCue)
       .field("lastRepFormIssues", &JsReading::lastRepFormIssues)
+      .field("currentSet", &JsReading::currentSet)
+      .field("totalSets", &JsReading::totalSets)
+      .field("repsInSet", &JsReading::repsInSet)
+      .field("targetReps", &JsReading::targetReps)
+      .field("setTick", &JsReading::setTick)
+      .field("resting", &JsReading::resting)
+      .field("restRemaining", &JsReading::restRemaining)
+      .field("workoutComplete", &JsReading::workoutComplete)
       .field("message", &JsReading::message);
 
   class_<WebEngine>("Engine")
       .constructor<std::string>()
       .function("setMove", &WebEngine::setMove)
       .function("reset", &WebEngine::reset)
+      .function("setPlan", &WebEngine::setPlan)
+      .function("skipRest", &WebEngine::skipRest)
       .function("updatePtr", &WebEngine::updatePtr)
       .function("update", &WebEngine::update);
 }
