@@ -208,7 +208,8 @@ function render(r) {
     subEl.textContent =
       "knee " + Math.round(r.smoothAngle) + "°   ·   moving " + r.motion + "   ·   phase " + r.phase +
       (r.view !== "unknown" ? "   ·   view " + r.view : "");
-    if (r.message) { msgEl.textContent = r.message; cueUntil = performance.now() + 1800; }
+    const cue = r.message || r.formCue;      // yarım uyarısı > form düzeltmesi
+    if (cue) { msgEl.textContent = cue; cueUntil = performance.now() + 1800; }
     else if (performance.now() > cueUntil) msgEl.textContent = "";
   } else {
     subEl.textContent = "";

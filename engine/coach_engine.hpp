@@ -26,6 +26,25 @@ struct JointRef {
   int a = 0, b = 0, c = 0;
 };
 
+enum class Phase { Top, Bottom };            // durum makinesi
+enum class Motion { Down, Up, Hold };        // yumuşatılmış sinyalin yönü
+enum class View { Unknown, Front, Side };    // kamera vücudu nereden görüyor (3B veri varsa)
+
+// form kuralı çeşitleri. Kural = VERİ: hangi ölçüm, hangi eşik, hangi görüşte
+// anlamlı, ihlalde ne söylenir. Yeni kural türü kod ister ama yeni hareketin
+// kuralları sadece veri.
+enum class RuleKind {
+  TorsoLean,    // gövde dikeyden param dereceden fazla eğilmesin ("sırt düz")
+  KneeValgus,   // dizler bilek genişliğinin param katından fazla İÇE çökmesin (önden)
+};
+
+struct FormRule {
+  RuleKind kind = RuleKind::TorsoLean;
+  double param = 0;          // eşik: derece (TorsoLean) ya da oran (KneeValgus)
+  View view = View::Unknown; // sadece bu görüşte değerlendir (Unknown = her görüşte)
+  std::string cue;           // insana dönük düzeltme cümlesi
+};
+
 // bir hareketin motoru nasıl okuyacağının VERİSİ. yeni hareket = yeni MoveSpec,
 // kod değil (Aşama 12'de bu dışarıdan veriyle beslenecek).
 struct MoveSpec {
@@ -40,6 +59,7 @@ struct MoveSpec {
   double halfRepDepth = 0.35;   // iniş bu derinliği (0..1) geçip de dibe ulaşmazsa "yarım" sayılır
   double goodRepSecMin = 1.2;   // bundan hızlı tekrar = momentum/sıçrama, tempo puanı düşer
   double goodRepSecMax = 8.0;   // bundan yavaşı da tam puan almaz (takılma/duraksama)
+  std::vector<FormRule> rules;  // form kuralları (Aşama 9) — hepsi veri
 };
 
 // altı büyük eklem açısı (gösterim + ileri aşamalar). -1 = okunamadı.
@@ -48,10 +68,6 @@ struct JointAngles {
   double leftHip = -1, rightHip = -1;
   double leftElbow = -1, rightElbow = -1;
 };
-
-enum class Phase { Top, Bottom };            // durum makinesi
-enum class Motion { Down, Up, Hold };        // yumuşatılmış sinyalin yönü
-enum class View { Unknown, Front, Side };    // kamera vücudu nereden görüyor (3B veri varsa)
 
 // motorun bir kareye verdiği tam cevap.
 struct Reading {
@@ -75,6 +91,9 @@ struct Reading {
   int lastRepScore = -1;     // son tekrarın puanı 0..100 (-1 = henüz tekrar yok)
   double lastRepSeconds = 0; // son tekrarın süresi
   int avgRepScore = -1;      // oturum ortalaması 0..100
+  // ── Aşama 9: form ──
+  std::string formCue;       // bu karede ihlal edilen kuralın düzeltme cümlesi ("" = form temiz)
+  int lastRepFormIssues = 0; // son tekrarda ihlal edilen FARKLI kural sayısı
   std::string message;       // insana dönük kısa mesaj (kadraj/ışık uyarısı vb.)
 };
 
@@ -126,6 +145,8 @@ class Engine {
   int lastScore_ = -1;
   double lastRepSec_ = 0;
   double scoreSum_ = 0;
+  unsigned violMask_ = 0;      // bu tekrar penceresinde ihlal edilen kuralların bitleri
+  int lastFormIssues_ = 0;
 };
 
 }  // namespace coach

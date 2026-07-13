@@ -150,6 +150,28 @@ Testin güzeli şu oldu: sentetik bir poz kurdum — ekranda dümdüz bacak, dü
 
 **Sırada:** koçun koç olduğu yer — form kuralları: "sırtın düz", "dizler dışarı". Kural = veri, görüş yönüne göre seçilir.
 
+---
+
+## Aşama 9 — Koçun koç olduğu yer
+
+Saymak bir makinenin işi; **düzeltmek** koçun işi. Bu aşamada motor ilk kez formuna karıştı: "göğsünü dik tut", "dizlerini dışarı it".
+
+İki kuralla başladım, ikisi de squat'ın en bilinen iki hatası. Biri **öne devrilme**: gövde (omuz-kalça hattı) dikeyden 55 dereceden fazla eğilirse sırt tehlikeye giriyor — "keep your chest up". Öbürü **diz çökmesi** (valgus): dipteyken dizler bileklerin genişliğine göre içe kaçarsa — "push your knees out". İkisi de 3B dünya koordinatlarından ölçülüyor; dünkü 3B işi bugünün temeli oldu.
+
+Ama asıl mesele kuralların NE olduğu değil, NASIL durduğu. Üç tasarım kararı:
+
+Bir: **kural = veri.** Motorda "squat'ın sırt kuralı" diye bir fonksiyon yok; MoveSpec'in içinde bir kural listesi var — ölçüm türü, eşik, mesaj. Push-up eklerken "kalça sarkmasın" kuralı kod değil, tabloya bir satır olacak.
+
+İki: **kural, görüş yönünü biliyor.** Diz çökmesi ancak önden görünür — kameraya yan duran birinde o ölçüm anlamsız çıkar ve motor saçmalar. Dünkü "önden mi yandan mı" tespiti bugün müşterisini buldu: her kural hangi görüşte anlamlıysa yalnız o görüşte değerlendiriliyor. Yanlış açıdan yargılamayan koç.
+
+Üç: **form puana işliyor.** Uyarı anlık ekranda beliriyor (yarım tekrar uyarısıyla aynı satır, o öncelikli), ama iş orada bitmiyor: tekrar boyunca ihlal edilen her farklı kural o tekrarın puanından 12 götürüyor. "10 tekrar yaptın" ile "10 tekrarın 6'sında dizlerin içerdeydi" arasındaki fark artık sayıda görünüyor.
+
+Ve dürüstlük ilkesi burada da geçerli: 3B veri yoksa form hiç yargılanmıyor. Emin olmadan akıl vermek, yanlış akıl vermektir.
+
+Testler: temiz tekrar sessiz ve cezasız, valgus cue + 1 ihlal + düşük puan, devrik gövde sırt uyarısı, yan görüşte valgus kuralına hiç bakılmıyor. Otuz dokuz test, hepsi geçiyor.
+
+**Sırada:** motoru tek hareketten kurtarmak — hareket kütüphanesi: push-up, lunge, glute bridge, sit-up, press. Hepsi veri.
+
 ## Yol haritası (19 aşama, 0–18)
 
 Her aşama tek başına çekilebilir gerçek bir adım — biri bitince küçük bir "oldu" anı, bir reels. Sıra kabaca **görmek → anlamak → saymak → düzeltmek → ürünleştirmek** diye ilerliyor.
@@ -170,7 +192,7 @@ Her aşama tek başına çekilebilir gerçek bir adım — biri bitince küçük
 - **8 · Yanlış tekrarı reddet** — yarım/eksik hareketi sayma (derinlik eşiği), "yarım kaldı" de. Saymak kolay, doğru saymak zor. *(bitti)*
 
 **Düzeltmek**
-- **9 · Form kuralları (squat)** — diz-parmak hizası, sırt açısı → "biraz daha in", "sırtın düz". Koç burada koç oluyor.
+- **9 · Form kuralları (squat)** — diz-parmak hizası, sırt açısı → "biraz daha in", "sırtın düz". Koç burada koç oluyor. *(bitti)*
 - **10 · İkinci hareket** — push-up ya da lunge ekle; kural setini genelleştir (her hareket = bir eşikler tablosu). Tek harekete gömülü kalmasın.
 
 **Ürünleştirmek**

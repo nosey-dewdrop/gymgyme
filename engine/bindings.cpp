@@ -31,6 +31,8 @@ struct JsReading {
   int lastRepScore;
   double lastRepSeconds;
   int avgRepScore;
+  std::string formCue;
+  int lastRepFormIssues;
   std::string message;
 };
 
@@ -75,6 +77,8 @@ static JsReading toJs(const coach::Reading& r) {
   j.lastRepScore = r.lastRepScore;
   j.lastRepSeconds = r.lastRepSeconds;
   j.avgRepScore = r.avgRepScore;
+  j.formCue = r.formCue;
+  j.lastRepFormIssues = r.lastRepFormIssues;
   j.message = r.message;
   return j;
 }
@@ -153,6 +157,8 @@ EMSCRIPTEN_BINDINGS(coach) {
       .field("lastRepScore", &JsReading::lastRepScore)
       .field("lastRepSeconds", &JsReading::lastRepSeconds)
       .field("avgRepScore", &JsReading::avgRepScore)
+      .field("formCue", &JsReading::formCue)
+      .field("lastRepFormIssues", &JsReading::lastRepFormIssues)
       .field("message", &JsReading::message);
 
   class_<WebEngine>("Engine")

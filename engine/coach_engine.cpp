@@ -42,6 +42,12 @@ MoveSpec builtinMove(const std::string& name) {
     s.emaAlpha = 0.4;
     s.minVisibility = 0.5;
     s.minFraming = 0.75;
+    // form kuralları: veri. gövde dikeyden 55°'den fazla eğilmesin (her görüşte);
+    // dizler bilek genişliğinin %72'sinden fazla içe çökmesin (sadece önden okunur).
+    s.rules = {
+      {RuleKind::TorsoLean, 55.0, View::Unknown, "keep your chest up - back straighter"},
+      {RuleKind::KneeValgus, 0.72, View::Front, "push your knees out"},
+    };
     return s;
   }
   // bilinmeyen isim → güvenli varsayılan (squat).
@@ -66,6 +72,8 @@ void Engine::reset() {
   lastScore_ = -1;
   lastRepSec_ = 0;
   scoreSum_ = 0;
+  violMask_ = 0;
+  lastFormIssues_ = 0;
 }
 
 static double clamp01(double v) { return std::max(0.0, std::min(1.0, v)); }
@@ -164,6 +172,35 @@ Reading Engine::update(const std::vector<Landmark>& p,
   }
   if (inRep_ && smooth_ < repMinA_) { repMinA_ = smooth_; repMinT_ = t; }
 
+  // ── Aşama 9: form kuralları — hareketin anlamlı bölümünde (derinlik > 0.4),
+  // sadece 3B veri varken değerlendirilir: emin olmadan form yargılanmaz.
+  // Görüşe bağlı kural yanlış açıdan hiç bakılmaz (valgus yandan görünmez). ──
+  if (hasWorld && r.depth > 0.4) {
+    for (unsigned i = 0; i < spec_.rules.size() && i < 32; i++) {
+      const FormRule& rule = spec_.rules[i];
+      if (rule.view != View::Unknown && rule.view != r.view) continue;
+      bool bad = false;
+      if (rule.kind == RuleKind::TorsoLean) {
+        double tx = (world[L_SHO].x + world[R_SHO].x) / 2.0 - (world[L_HIP].x + world[R_HIP].x) / 2.0;
+        double ty = (world[L_SHO].y + world[R_SHO].y) / 2.0 - (world[L_HIP].y + world[R_HIP].y) / 2.0;
+        double tz = (world[L_SHO].z + world[R_SHO].z) / 2.0 - (world[L_HIP].z + world[R_HIP].z) / 2.0;
+        double m = std::sqrt(tx * tx + ty * ty + tz * tz);
+        if (m > 1e-6) {
+          double lean = std::acos(std::min(1.0, std::fabs(ty) / m)) * 180.0 / M_PI;
+          bad = lean > rule.param;
+        }
+      } else if (rule.kind == RuleKind::KneeValgus) {
+        double knees  = std::fabs(world[L_KNE].x - world[R_KNE].x);
+        double ankles = std::fabs(world[L_ANK].x - world[R_ANK].x);
+        if (ankles > 1e-3) bad = knees < rule.param * ankles;
+      }
+      if (bad) {
+        if (r.formCue.empty()) r.formCue = rule.cue;
+        if (inRep_) violMask_ |= (1u << i);
+      }
+    }
+  }
+
   // ── Aşama 6: durum makinesi (histerezis) ──
   // ── Aşama 7: sayma — dipten üste TAM dönüş = bir tekrar. Bottom'a ancak alt
   // eşiği geçerek girilebildiği için Bottom→Top geçişi her zaman tam bir
@@ -188,6 +225,10 @@ Reading Engine::update(const std::vector<Landmark>& p,
       else if (durSec > spec_.goodRepSecMax) tempoS = clamp01(spec_.goodRepSecMax / durSec);
       double controlS = ascSec <= 0.05 ? 1.0 : clamp01(descSec / (0.4 * ascSec));
       lastScore_ = (int)std::lround(100.0 * (0.5 * depthS + 0.3 * tempoS + 0.2 * controlS));
+      // form ihlali puandan düşer: farklı kural başına 12 puan.
+      lastFormIssues_ = __builtin_popcount(violMask_);
+      lastScore_ = std::max(0, lastScore_ - 12 * lastFormIssues_);
+      violMask_ = 0;
       lastRepSec_ = durSec;
       scoreSum_ += lastScore_;
       inRep_ = false;
@@ -216,6 +257,7 @@ Reading Engine::update(const std::vector<Landmark>& p,
     excursionMin_ = 1e9;
     inRep_ = false;              // yarım iniş skorlanmaz, pencereyi kapat
     repMinA_ = 1e9;
+    violMask_ = 0;
   }
 
   r.reps = reps_;
@@ -223,6 +265,7 @@ Reading Engine::update(const std::vector<Landmark>& p,
   r.lastRepScore = lastScore_;
   r.lastRepSeconds = lastRepSec_;
   r.avgRepScore = reps_ > 0 ? (int)std::lround(scoreSum_ / reps_) : -1;
+  r.lastRepFormIssues = lastFormIssues_;
   return r;
 }
 

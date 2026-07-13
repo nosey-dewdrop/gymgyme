@@ -70,6 +70,23 @@ static std::vector<Landmark> worldPoseSide() {
   return p;
 }
 
+// dipte VALGUS: bükülü diz pozu ama dizler içe çökmüş (bilek genişliğinin %25'i).
+static std::vector<Landmark> worldPoseValgus() {
+  std::vector<Landmark> p = worldPose(true);
+  auto set = [&](int i, double x, double y, double z) { p[i].x = x; p[i].y = y; p[i].z = z; };
+  set(25, -0.03, 0.25, -0.35); set(26, 0.03, 0.25, -0.35);   // dizler içerde
+  set(27, -0.12, 0.50, 0);     set(28, 0.12, 0.50, 0);       // bilekler geniş
+  return p;
+}
+
+// dipte ÖNE EĞİLME: bükülü diz + gövde dikeyden ~77° devrik.
+static std::vector<Landmark> worldPoseLean() {
+  std::vector<Landmark> p = worldPose(true);
+  auto set = [&](int i, double x, double y, double z) { p[i].x = x; p[i].y = y; p[i].z = z; };
+  set(11, -0.18, -0.10, -0.45); set(12, 0.18, -0.10, -0.45);  // omuzlar öne düşmüş
+  return p;
+}
+
 int main() {
   // ── açı geometrisi ──
   {
@@ -220,6 +237,49 @@ int main() {
     Engine s(builtinMove("squat"));
     Reading rs = s.update(pose(false), worldPoseSide(), 33);
     check(rs.view == View::Side, "side stance is detected from depth spread");
+  }
+
+  // ── Aşama 9: form kuralları — temiz tekrar sessiz, bozuk form konuşur ve puan kırar ──
+  {
+    // temiz tekrar
+    Engine c(builtinMove("squat"));
+    Reading r;
+    double t = 0;
+    auto step = [&](Engine& e, const std::vector<Landmark>& w) { t += 100; return e.update(pose(false), w, t); };
+    bool anyCue = false;
+    for (int i = 0; i < 6; i++) r = step(c, worldPose(false));
+    for (int i = 0; i < 10; i++) { r = step(c, worldPose(true)); anyCue |= !r.formCue.empty(); }
+    for (int i = 0; i < 12; i++) r = step(c, worldPose(false));
+    int cleanScore = r.lastRepScore;
+    check(!anyCue, "clean depth raises no cue");
+    check(r.lastRepFormIssues == 0, "clean rep has zero form issues");
+
+    // valgus'lu tekrar: cue + puan cezası
+    Engine v(builtinMove("squat"));
+    bool cued = false;
+    for (int i = 0; i < 6; i++) r = step(v, worldPose(false));
+    for (int i = 0; i < 10; i++) { r = step(v, worldPoseValgus()); cued |= (r.formCue == "push your knees out"); }
+    for (int i = 0; i < 12; i++) r = step(v, worldPose(false));
+    check(cued, "knee valgus raises the knees-out cue");
+    check(r.lastRepFormIssues == 1, "valgus rep records one form issue");
+    check(r.lastRepScore < cleanScore, "form issue costs score");
+
+    // öne eğilme: sırt uyarısı
+    Engine l(builtinMove("squat"));
+    cued = false;
+    for (int i = 0; i < 6; i++) r = step(l, worldPose(false));
+    for (int i = 0; i < 10; i++) { r = step(l, worldPoseLean()); cued |= (r.formCue == "keep your chest up - back straighter"); }
+    check(cued, "torso lean raises the chest-up cue");
+
+    // valgus yandan görünmez: yan görüşte kural hiç bakılmaz
+    Engine sv(builtinMove("squat"));
+    std::vector<Landmark> sideValgus = worldPoseValgus();
+    // omuz/kalça hattını derinliğe çevir -> view side
+    sideValgus[11] = {0, -0.50, -0.18, 1}; sideValgus[12] = {0, -0.50, 0.18, 1};
+    sideValgus[23] = {0, 0.00, -0.10, 1};  sideValgus[24] = {0, 0.00, 0.10, 1};
+    cued = false;
+    for (int i = 0; i < 10; i++) { t += 100; r = sv.update(pose(false), sideValgus, t); cued |= (r.formCue == "push your knees out"); }
+    check(!cued, "valgus rule is not judged from the side view");
   }
 
   std::printf(failed ? "\n%d test FAILED\n" : "\nall tests passed\n", failed);
