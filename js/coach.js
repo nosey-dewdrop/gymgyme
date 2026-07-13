@@ -62,12 +62,20 @@ function applyPlan() {
 // hareketlerin insana dönük dili. hangi eklemin izlendiği, fazların ve gidişin
 // kelimeleri — motorun id'leriyle (engine/coach_engine.cpp kütüphanesi) birebir.
 const MOVES = {
-  squat:       { joint: "knee",  top: "standing", bottom: "deep",   down: "going down",  up: "coming up" },
-  pushup:      { joint: "elbow", top: "up",       bottom: "down",   down: "going down",  up: "pushing up" },
-  lunge:       { joint: "knee",  top: "standing", bottom: "low",    down: "stepping down", up: "coming up" },
-  glutebridge: { joint: "hip",   top: "bridged",  bottom: "down",   down: "lowering",    up: "lifting" },
-  situp:       { joint: "hip",   top: "lying",    bottom: "up",     down: "sitting up",  up: "lying back" },
-  press:       { joint: "elbow", top: "locked",   bottom: "racked", down: "lowering",    up: "pressing" },
+  squat:          { joint: "knee",     top: "standing",  bottom: "deep",     down: "going down",    up: "coming up" },
+  sumosquat:      { joint: "knee",     top: "standing",  bottom: "deep",     down: "going down",    up: "coming up" },
+  sidelunge:      { joint: "knee",     top: "standing",  bottom: "low",      down: "sitting side",  up: "coming up" },
+  pushup:         { joint: "elbow",    top: "up",        bottom: "down",     down: "going down",    up: "pushing up" },
+  kneelingpushup: { joint: "elbow",    top: "up",        bottom: "down",     down: "going down",    up: "pushing up" },
+  lunge:          { joint: "knee",     top: "standing",  bottom: "low",      down: "stepping down", up: "coming up" },
+  glutebridge:    { joint: "hip",      top: "bridged",   bottom: "down",     down: "lowering",      up: "lifting" },
+  situp:          { joint: "hip",      top: "lying",     bottom: "up",       down: "sitting up",    up: "lying back" },
+  press:          { joint: "elbow",    top: "locked",    bottom: "racked",   down: "lowering",      up: "pressing" },
+  kickback:       { joint: "hip",      top: "extended",  bottom: "folded",   down: "folding back",  up: "kicking back" },
+  birddog:        { joint: "hip",      top: "extended",  bottom: "folded",   down: "coming back",   up: "reaching out" },
+  calfraise:      { joint: "ankle",    top: "on toes",   bottom: "flat",     down: "lowering",      up: "rising" },
+  jumpingjack:    { joint: "shoulder", top: "arms up",   bottom: "arms down", down: "coming down",  up: "jumping" },
+  armraise:       { joint: "shoulder", top: "raised",    bottom: "down",     down: "lowering",      up: "raising" },
 };
 let move = MOVES.squat;
 

@@ -10,7 +10,8 @@ namespace coach {
 // MediaPipe Pose landmark indeksleri.
 enum {
   L_SHO = 11, R_SHO = 12, L_ELB = 13, R_ELB = 14, L_WRI = 15, R_WRI = 16,
-  L_HIP = 23, R_HIP = 24, L_KNE = 25, R_KNE = 26, L_ANK = 27, R_ANK = 28
+  L_HIP = 23, R_HIP = 24, L_KNE = 25, R_KNE = 26, L_ANK = 27, R_ANK = 28,
+  L_FT = 31, R_FT = 32   // ayak ucu (calf raise: ayak bileği açısı ister)
 };
 
 // B köşesindeki açı (A-B-C), derece. Tam 3B: ekran verisinde z=0 gelir ve bu
@@ -41,7 +42,7 @@ static double angleAt(const std::vector<Landmark>& p, const JointRef& j) {
 // Bottom→Top (bükülüden açığa) geçişinde sayılır — press'te ilk açış 1. tekrardır.
 MoveSpec builtinMove(const std::string& name) {
   MoveSpec s;
-  s.emaAlpha = 0.4;
+  s.emaAlpha = 0.5;        // 0.4'tü: Damla "hassas değil" dedi — ham sinyali daha çabuk izle
   s.minVisibility = 0.5;
   s.minFraming = 0.75;
 
@@ -97,6 +98,94 @@ MoveSpec builtinMove(const std::string& name) {
     s.goodRepSecMin = 0.8;
     s.framingPoints = {L_SHO, R_SHO, L_ELB, R_ELB, L_WRI, R_WRI};
     s.framingCue = "i need your arms and shoulders in the frame";
+    return s;
+  }
+
+  if (name == "sumosquat") {
+    s.name = "sumosquat";
+    s.primaryLeft  = {L_HIP, L_KNE, L_ANK};
+    s.primaryRight = {R_HIP, R_KNE, R_ANK};
+    s.bottomAngle = 110.0;
+    s.topAngle = 155.0;
+    s.rules = {{RuleKind::TorsoLean, 40.0, View::Unknown, "stay tall - sumo keeps the chest up"}};
+    return s;
+  }
+  if (name == "sidelunge") {
+    s.name = "sidelunge";
+    s.primaryLeft  = {L_HIP, L_KNE, L_ANK};   // bükülen bacak (netse o izlenir)
+    s.primaryRight = {R_HIP, R_KNE, R_ANK};
+    s.bottomAngle = 105.0;
+    s.topAngle = 160.0;
+    s.rules = {{RuleKind::TorsoLean, 45.0, View::Unknown, "chest up as you sit into the side"}};
+    return s;
+  }
+  if (name == "kneelingpushup") {
+    s.name = "kneelingpushup";
+    s.primaryLeft  = {L_SHO, L_ELB, L_WRI};
+    s.primaryRight = {R_SHO, R_ELB, R_WRI};
+    s.bottomAngle = 95.0;
+    s.topAngle = 150.0;
+    s.goodRepSecMin = 1.0;
+    s.framingPoints = {L_SHO, R_SHO, L_ELB, R_ELB, L_WRI, R_WRI, L_HIP, R_HIP};
+    s.framingCue = "i need your arms and torso in the frame - your legs can stay out";
+    s.rules = {{RuleKind::HipSag, 150.0, View::Unknown, "keep your body in one line - hips up"}};
+    return s;
+  }
+  if (name == "kickback") {
+    s.name = "kickback";                       // emeklemede bacağı geriye uzat
+    s.primaryLeft  = {L_SHO, L_HIP, L_KNE};    // kalça açısı açılınca sayar
+    s.primaryRight = {R_SHO, R_HIP, R_KNE};
+    s.bottomAngle = 110.0;                     // emekleme: kalça bükülü
+    s.topAngle = 155.0;                        // uzatılmış bacak
+    s.goodRepSecMin = 0.8;
+    s.framingPoints = {L_SHO, R_SHO, L_HIP, R_HIP, L_KNE, R_KNE};
+    s.framingCue = "on all fours, side-on so i can see your torso and legs";
+    return s;
+  }
+  if (name == "birddog") {
+    s.name = "birddog";                        // kickback ile aynı geometri, farklı dil
+    s.primaryLeft  = {L_SHO, L_HIP, L_KNE};
+    s.primaryRight = {R_SHO, R_HIP, R_KNE};
+    s.bottomAngle = 110.0;
+    s.topAngle = 155.0;
+    s.goodRepSecMin = 1.0;
+    s.framingPoints = {L_SHO, R_SHO, L_HIP, R_HIP, L_KNE, R_KNE};
+    s.framingCue = "on all fours, side-on so i can see your torso and legs";
+    return s;
+  }
+  if (name == "calfraise") {
+    s.name = "calfraise";                      // parmak ucuna yüksel
+    s.primaryLeft  = {L_KNE, L_ANK, L_FT};     // ayak bileği açısı: diz-bilek-ayak ucu
+    s.primaryRight = {R_KNE, R_ANK, R_FT};
+    s.bottomAngle = 125.0;                     // taban yerde
+    s.topAngle = 145.0;                        // parmak ucunda (açı açılır)
+    s.emaAlpha = 0.35;                         // dar açı aralığı: biraz daha sakin izle
+    s.goodRepSecMin = 0.8;
+    s.framingPoints = {L_KNE, R_KNE, L_ANK, R_ANK, L_FT, R_FT};
+    s.framingCue = "i need your knees, ankles and feet - point the camera lower";
+    return s;
+  }
+  if (name == "jumpingjack") {
+    s.name = "jumpingjack";
+    s.primaryLeft  = {L_HIP, L_SHO, L_ELB};    // omuz açısı: kol yanda ~20°, tepede ~160°
+    s.primaryRight = {R_HIP, R_SHO, R_ELB};
+    s.bottomAngle = 40.0;                      // kollar aşağıda
+    s.topAngle = 140.0;                        // kollar tepede — orada sayar
+    s.goodRepSecMin = 0.35;                    // hızlı bir hareket, ceza yeme
+    s.goodRepSecMax = 3.0;
+    s.framingPoints = {L_SHO, R_SHO, L_ELB, R_ELB, L_HIP, R_HIP};
+    s.framingCue = "i need your arms and torso in the frame";
+    return s;
+  }
+  if (name == "armraise") {
+    s.name = "armraise";                       // kol öne/yana yukarı (fizyo klasiği)
+    s.primaryLeft  = {L_HIP, L_SHO, L_ELB};
+    s.primaryRight = {R_HIP, R_SHO, R_ELB};
+    s.bottomAngle = 40.0;
+    s.topAngle = 150.0;
+    s.goodRepSecMin = 1.0;
+    s.framingPoints = {L_SHO, R_SHO, L_ELB, R_ELB, L_HIP, R_HIP};
+    s.framingCue = "i need your arms and torso in the frame";
     return s;
   }
 
@@ -352,7 +441,7 @@ Reading Engine::update(const std::vector<Landmark>& p,
         for (int i = 0; i < kRatioN; i++) {
           if (!ratioUsable_[i] || !have[i] || bodyRatio_[i] < 1e-6) continue;
           tested++;
-          if (std::fabs(ratios[i] - bodyRatio_[i]) / bodyRatio_[i] > 0.35) bad++;
+          if (std::fabs(ratios[i] - bodyRatio_[i]) / bodyRatio_[i] > 0.30) bad++;
         }
         if (tested >= 2 && bad * 3 >= tested * 2) {
           r.tracking = false;
@@ -368,7 +457,7 @@ Reading Engine::update(const std::vector<Landmark>& p,
 
   // ── Aşama 4: yumuşatma (EMA) + ince takip: tek karelik dev sıçrama (iskeletin
   // eşyaya/başkasına ışınlanması) yutulur; iki kare sürerse gerçek kabul edilir. ──
-  const bool spike = haveSmooth_ && std::fabs(raw - smooth_) > 60.0;
+  const bool spike = haveSmooth_ && std::fabs(raw - smooth_) > 50.0;
   if (spike && !spikeHold_) {
     spikeHold_ = true;                 // bu kareyi yut: yumuşatılmış açı yerinde kalır
   } else {

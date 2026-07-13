@@ -495,8 +495,8 @@ int main() {
     for (int i = 0; i < 10; i++) r = e.update(pose(true), worldPose(true), (t += 33));
     for (int i = 0; i < 12; i++) r = e.update(pose(false), worldPose(false), (t += 33));
     check(r.reps == 0, "no reps are counted while calibrating");
-    // öğrenme tamamlanır
-    for (int i = 0; i < 30; i++) r = e.update(pose(false), worldPose(false), (t += 33));
+    // öğrenme tamamlanır (60 kare)
+    for (int i = 0; i < 45; i++) r = e.update(pose(false), worldPose(false), (t += 33));
     check(!r.calibrating, "calibration completes after enough frames");
     // kalibre olduktan sonra normal döngü sayılır (bükülme oranları bozmaz)
     for (int i = 0; i < 10; i++) r = e.update(pose(true), worldPose(true), (t += 33));
@@ -513,6 +513,49 @@ int main() {
     Reading r2;
     for (int i = 0; i < 6; i++) r2 = e2.update(pose(false), shrunk, 33.0 * (i + 1));
     check(r2.tracking, "without calibration the same read is accepted");
+  }
+
+  // ── yeni hareketler: kickback bükülü başlar, jumping jack omuzdan sayar,
+  // calf raise ayak bileğinden okur — hepsi saf veri, motor kodu aynı ──
+  {
+    Engine kb(builtinMove("kickback"));
+    Reading r;
+    for (int i = 0; i < 6; i++) r = kb.update(poseHips(false));   // emekleme: kalça bükülü
+    check(r.phase == Phase::Bottom, "kickback: folded hip reads bottom");
+    for (int i = 0; i < 12; i++) r = kb.update(poseHips(true));   // bacak uzadı
+    check(r.reps == 1, "kickback: counts on the extension");
+
+    // jumping jack: omuz açısı (kalça-omuz-dirsek). kol aşağıda ~15°, tepede ~165°.
+    auto poseJack = [](bool up) {
+      std::vector<Landmark> p(33);
+      auto set = [&](int i, double x, double y) { p[i].x = x; p[i].y = y; p[i].z = 0; p[i].visibility = 1; };
+      set(11, 0.45, 0.30); set(12, 0.55, 0.30);   // omuzlar
+      set(23, 0.46, 0.60); set(24, 0.54, 0.60);   // kalçalar (omuzun altında)
+      if (up) { set(13, 0.44, 0.05); set(14, 0.56, 0.05); }   // dirsek tepede -> geniş açı
+      else    { set(13, 0.46, 0.55); set(14, 0.54, 0.55); }   // dirsek kalçaya yakın -> dar açı
+      return p;
+    };
+    Engine jj(builtinMove("jumpingjack"));
+    for (int i = 0; i < 6; i++) r = jj.update(poseJack(false));
+    check(r.phase == Phase::Bottom, "jumping jack: arms down reads bottom");
+    for (int i = 0; i < 12; i++) r = jj.update(poseJack(true));
+    check(r.reps == 1, "jumping jack: counts at the top");
+
+    // calf raise: diz-bilek-ayak ucu. tabanda ~120°, parmak ucunda ~150°.
+    auto poseCalf = [](bool up) {
+      std::vector<Landmark> p(33);
+      auto set = [&](int i, double x, double y) { p[i].x = x; p[i].y = y; p[i].z = 0; p[i].visibility = 1; };
+      set(25, 0.48, 0.40); set(26, 0.58, 0.40);   // dizler
+      set(27, 0.50, 0.80); set(28, 0.60, 0.80);   // bilekler
+      if (up) { set(31, 0.54, 0.94); set(32, 0.64, 0.94); }   // yükselmiş: açı açık
+      else    { set(31, 0.62, 0.86); set(32, 0.72, 0.86); }   // taban: açı dar
+      return p;
+    };
+    Engine cr(builtinMove("calfraise"));
+    for (int i = 0; i < 8; i++) r = cr.update(poseCalf(false));
+    check(r.tracking && r.phase == Phase::Bottom, "calf raise: flat foot reads bottom");
+    for (int i = 0; i < 14; i++) r = cr.update(poseCalf(true));
+    check(r.reps == 1, "calf raise: counts on the rise");
   }
 
   // ── hareket bazında kadraj: push-up bacaksız çalışır, cümlesi kolu ister ──

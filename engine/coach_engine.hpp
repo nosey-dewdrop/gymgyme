@@ -184,7 +184,7 @@ class Engine {
   // ince takip: tek karelik dev sıçrama (ışınlanma) yutulur, süreni kabul edilir
   bool spikeHold_ = false;
   // kalibrasyon durumu (setCalibration açar; ilerleme reset'te sıfırlanır)
-  static constexpr int kCalibFrames = 45;   // ~1.5 sn @30fps
+  static constexpr int kCalibFrames = 60;   // ~2 sn @30fps (Damla: daha sağlam öğrensin)
   static constexpr int kRatioN = 5;         // uyluk, baldır, üst kol, ön kol, omuz genişliği
   bool calibOn_ = false;
   bool calibrated_ = false;
