@@ -37,8 +37,11 @@ function render() {
     del.textContent = "delete my synced workouts";
     del.onclick = async () => {
       if (!window.confirm("delete every workout synced to your account? this cannot be undone.")) return;
+      del.disabled = true;
       const { error } = await sb.from("gg_coach_sessions").delete().eq("user_id", user.id);
+      del.disabled = false;
       del.textContent = error ? "could not delete - try again" : "deleted.";
+      if (!error) window.dispatchEvent(new Event("gg-sessions-changed"));
     };
     bar.append(who, out, del);
     return;
@@ -64,11 +67,31 @@ function mkLoggedOut() {
   priv.innerHTML = "we store only your workout numbers — reps, scores, dates — tied to your account. never your camera or video. " +
     '<a href="gizlilik.html">how we handle your data</a>.';
 
+  const forgot = document.createElement("button");
+  forgot.className = "auth-link";
+  forgot.textContent = "forgot your password?";
+
   signIn.onclick = () => doAuth("in", email.value, pass.value, msg);
   signUp.onclick = () => doAuth("up", email.value, pass.value, msg);
+  forgot.onclick = () => doReset(email.value, msg);
 
-  wrap.append(lead, email, pass, signIn, signUp, msg, priv);
+  wrap.append(lead, email, pass, signIn, signUp, forgot, msg, priv);
   return wrap;
+}
+
+// şifre sıfırlama: maildeki link reset-password.html'e düşer, orada yeni şifre.
+async function doReset(email, msg) {
+  if (!email) { msg.textContent = "type your email above, then hit forgot again."; return; }
+  msg.textContent = "sending a reset link...";
+  try {
+    const { error } = await sb.auth.resetPasswordForEmail(email, {
+      redirectTo: new URL("reset-password.html", location.href).href
+    });
+    if (error) throw error;
+    msg.textContent = "reset link sent - check your inbox.";
+  } catch (e) {
+    msg.textContent = mapErr(e && e.message ? e.message : String(e));
+  }
 }
 
 function mkInput(type, name, ph) {
