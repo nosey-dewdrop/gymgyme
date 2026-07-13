@@ -25,14 +25,14 @@
 #cam { transform: scaleX(-1); }                    /* ayna hissi - antrenman doğal olsun */
 #overlay { position: absolute; inset: 0; transform: scaleX(-1); }
 
-/* hareket seçici + plan - beyaz kartın içinde yumuşak pembe alanlar */
+/* hareket seçici + plan - beyaz kartın içinde beyaz kutular, ince pembe kenar */
 .move-row { margin: 2px 0 8px; }
 .move-row label { font-size: 12px; opacity: 0.7; margin-right: 8px; }
-#moveSel { font-family: inherit; font-size: 16px; font-weight: bold; color: #33000E; background: #FFE3EE; border: none; border-radius: 10px; padding: 6px 12px; cursor: pointer; }
+#moveSel { font-family: inherit; font-size: 16px; font-weight: bold; color: #33000E; background: #fff; border: 1px solid #FFC7DB; border-radius: 12px; padding: 6px 12px; cursor: pointer; }
 
 .plan-row { margin: 4px 0 2px; font-size: 13px; line-height: 2.1; }
 .plan-lead { opacity: 0.7; margin-right: 6px; }
-.plan-num { font-family: inherit; font-size: 15px; font-weight: bold; color: #33000E; background: #FFE3EE; border: none; border-radius: 10px; width: 48px; padding: 5px 6px; text-align: center; margin: 0 3px; -moz-appearance: textfield; }
+.plan-num { font-family: inherit; font-size: 15px; font-weight: bold; color: #33000E; background: #fff; border: 1px solid #FFC7DB; border-radius: 12px; width: 48px; padding: 5px 6px; text-align: center; margin: 0 3px; -moz-appearance: textfield; }
 .plan-num::-webkit-outer-spin-button, .plan-num::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .plan-row label { opacity: 0.7; margin-right: 2px; }
 .plan-x { opacity: 0.55; margin: 0 3px; }
@@ -41,11 +41,11 @@
 #startWrap[hidden] { display: none; }
 .status { margin: 8px 0; min-height: 20px; max-width: 560px; }
 
-/* hesap barı - beyaz kartta, girişler yumuşak pembe */
+/* hesap barı - beyaz kartta, girişler beyaz + ince pembe kenar */
 .authbar { font-size: 13px; }
 .auth-who { opacity: 0.8; margin-right: 10px; }
 .auth-lead { opacity: 0.75; margin: 0 0 6px; }
-.auth-in { font-family: inherit; font-size: 15px; color: #33000E; background: #FFE3EE; border: none; border-radius: 10px; padding: 8px 10px; margin: 0 6px 6px 0; width: 200px; max-width: 60%; }
+.auth-in { font-family: inherit; font-size: 15px; color: #33000E; background: #fff; border: 1px solid #FFC7DB; border-radius: 12px; padding: 8px 10px; margin: 0 6px 6px 0; width: 200px; max-width: 60%; }
 .auth-in::placeholder { color: #7a0a24; opacity: 0.6; }
 .auth-btn, .auth-link { font-family: inherit; font-size: 14px; font-weight: bold; color: #A61B42; background: none; border: none; cursor: pointer; padding: 6px 0; margin-right: 14px; }
 .auth-msg { min-height: 16px; color: #7a0a24; margin: 4px 0 0; }

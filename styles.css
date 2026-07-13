@@ -92,25 +92,27 @@ input, select, button, textarea {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 13px;
   border: none;
+  border-radius: 12px;
   outline: none;
   padding: 8px 10px;
-  background: #FFC7DB;
+  background: #fff;
   color: #33000E;
   resize: vertical;
 }
 textarea::placeholder { color: #7A2647; }
-textarea:focus { background: #FFBBD3; }
+textarea:focus { background: #FFE3EE; }
 input, select, button {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 13px;
   border: none;
+  border-radius: 12px;
   outline: none;
   padding: 8px 10px;
-  background: #FFC7DB;
+  background: #fff;
   color: #33000E;
 }
 input::placeholder { color: #7A2647; }
-input:focus, select:focus { background: #FFBBD3; }
+input:focus, select:focus { background: #FFE3EE; }
 button { background: #8E0038; color: #FFDCE9; font-weight: bold; cursor: pointer; width: fit-content; padding: 8px 18px; }
 button:hover { background: #6E0030; }
 #form-msg { font-size: 12px; }
