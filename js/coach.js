@@ -69,6 +69,10 @@ const MOVES = {
 };
 let move = MOVES.squat;
 
+// derin bağlantı: coach.html?move=squat → o hareketle açıl (11).
+const wantMove = new URLSearchParams(location.search).get("move");
+if (wantMove && MOVES[wantMove]) { moveSel.value = wantMove; move = MOVES[wantMove]; }
+
 let poseLandmarker = null;
 let motorMod = null;           // wasm modülü (_malloc / HEAPF32 için)
 let engine = null;             // C++ motor örneği
@@ -143,6 +147,7 @@ async function start() {
     if (!engine) await loadEngine();
     applyPlan();                               // plan alanlarını motora ver
     summaryEl.hidden = true;                   // yeni seans, eski özet gitsin
+    sessionLogged = false;                     // yeni seans yeniden kaydedilebilir
     setStatus("asking for the camera...");
     // ön kamera, esnek çözünürlük — telefon dikey de verse motor kadraja uyar.
     const stream = await navigator.mediaDevices.getUserMedia({
@@ -278,11 +283,32 @@ function renderPlan(r) {
   }
 }
 
+// seansı gymgyme'ye işle (15): geçmişe yaz + takvimde bugünü işaretle. aynı
+// origin, aynı localStorage — dizindeki "programım" takvimi bugünü yanar.
+const SESS_KEY = "hl_coach_sessions", DAYS_KEY = "hl_days";
+function isoToday() {
+  const d = new Date();
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+}
+let sessionLogged = false;
+function logSession(s) {
+  if (sessionLogged || !s || s.reps === 0) return;
+  sessionLogged = true;
+  try {
+    const list = JSON.parse(localStorage.getItem(SESS_KEY)) || [];
+    list.push({ move: moveSel.value, reps: s.reps, sets: s.setsCompleted, avg: s.avgScore, date: isoToday(), t: Date.now() });
+    localStorage.setItem(SESS_KEY, JSON.stringify(list.slice(-50)));
+    const days = JSON.parse(localStorage.getItem(DAYS_KEY)) || [];
+    if (!days.includes(isoToday())) { days.push(isoToday()); localStorage.setItem(DAYS_KEY, JSON.stringify(days)); }
+  } catch (_) { /* localStorage yoksa seans yine görünür, sadece kaydedilmez */ }
+}
+
 // seans özeti: motordan al, sıcak cümlelere çevir. reps=0 ise gösterme.
 function showSummary() {
   if (!engine) return;
   const s = engine.summary();
   if (!s || s.reps === 0) { summaryEl.hidden = true; return; }
+  logSession(s);
   const mins = Math.floor(s.durationSec / 60), secs = Math.round(s.durationSec % 60);
   const time = mins > 0 ? mins + " min " + secs + "s" : secs + "s";
   const lines = [];
@@ -290,6 +316,7 @@ function showSummary() {
   if (s.avgScore >= 0) lines.push("they averaged " + s.avgScore + " out of 100, your best was " + s.bestScore + ".");
   if (s.cleanReps > 0) lines.push(s.cleanReps + " came with clean form.");
   if (s.halfReps > 0) lines.push(s.halfReps + " did not count - go all the way down next time.");
+  if (sessionLogged) lines.push("saved - today is now a workout day on your gymgyme calendar.");
   sumTitle.textContent = s.workoutComplete ? "that's a workout" : "nice work";
   sumBody.innerHTML = "";
   lines.forEach((l) => { const d = document.createElement("div"); d.textContent = l; sumBody.appendChild(d); });

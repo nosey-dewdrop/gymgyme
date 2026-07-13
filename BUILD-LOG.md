@@ -224,6 +224,14 @@ Erişilebilirlik: sayaç, form ipuçları, set satırı ve mola geri sayımı ar
 
 Mobil & performans: kamera artık sabit 640x480 istemiyor, ön kamerayı esnek çözünürlükle istiyor — telefon dikey verirse motor kadraja uyuyor. Ve sekme arkaya atılınca ağır pose işini atlıyoruz; kamera açık kalıyor ama telefon ısınmıyor, pil yanmıyor. Çoğu insan bunu telefonla yapacak; o yüzden bu pas lüks değil.
 
+## Aşama 11 & 15 — Koç yalnız bir sayfa değil artık
+
+Koç şimdiye kadar ada gibiydi: açarsın, çalışırsın, kaparsın, iz kalmaz. İki bağ attım.
+
+Derin bağlantı (11): coach.html artık `?move=squat` gibi bir adresle açılıyor ve o hareketi seçili getiriyor. Böylece ileride her yerden ("şu hareketi çalıştır" düğmesi, program, mail) koça doğrudan o hareketle girilebilir. Dizindeki linkleri koç hareketlerine otomatik eşlemeyi bilerek YAPMADIM — "Duvarda Yüz Nefesi" bir squat değil; uydurma eşleme kötü bir "coach me" düğmesi demek. O bağ, hareketlerin gerçek meta verisi olduğunda kurulur, tahminle değil.
+
+Seansı gymgyme'ye işlemek (15): antrenman bitince seans localStorage'a yazılıyor ve bugün gymgyme takviminde bir "antrenman günü" olarak yanıyor — koç ile dizin aynı origin, aynı hafıza. "Programım"a gidince bugünün dolu olduğunu görüyorsun. Özette küçük bir satır da bunu söylüyor: "saved - today is now a workout day". Koç artık ürünün geri kalanıyla konuşuyor.
+
 ## Yol haritası (19 aşama, 0–18)
 
 Her aşama tek başına çekilebilir gerçek bir adım — biri bitince küçük bir "oldu" anı, bir reels. Sıra kabaca **görmek → anlamak → saymak → düzeltmek → ürünleştirmek** diye ilerliyor.
@@ -248,11 +256,11 @@ Her aşama tek başına çekilebilir gerçek bir adım — biri bitince küçük
 - **10 · İkinci hareket** — push-up ya da lunge ekle; kural setini genelleştir (her hareket = bir eşikler tablosu). Tek harekete gömülü kalmasın. *(bitti — altı hareketle)*
 
 **Ürünleştirmek**
-- **11 · Kütüphaneye bağla** — gymgyme'deki hareketi seç → o harekete özel koç modu açılsın. Dizin ile motor birleşir.
+- **11 · Kütüphaneye bağla** — gymgyme'deki hareketi seç → o harekete özel koç modu açılsın. Dizin ile motor birleşir. *(bitti — ?move= derin bağlantı; link→hareket otomatik eşleme bilerek yapılmadı, gerçek meta veri ister)*
 - **12 · Hareket kural verisi** — moves verisine açı eşikleri + talimat alanları; yeni hareket = veri eklemek, kod değil. Genişleyen sistem. *(bitti — motor tarafı; dizin verisine bağlama 11 ile birlikte)*
 - **13 · Set & dinlenme akışı** — "3 set x 12", set arası dinlenme sayacı, sesli yönlendirme. Tek tekrardan tam antrenmana. *(bitti — mola geri sayımı motorda, plan opsiyonel)*
 - **14 · Seans özeti** — kaç tekrar, ortalama derinlik, form skoru; bölge bölge küçük rapor. Yapılandırılmış çıktı (stitchu ruhu). *(bitti — motorda summary(), sıcak dilde kart)*
-- **15 · "Programım"a bağla** — seansı gymgyme planlayıcısına işle, "en son ne zaman yaptın" güncellensin. Motor ürünün geri kalanıyla konuşsun.
+- **15 · "Programım"a bağla** — seansı gymgyme planlayıcısına işle, "en son ne zaman yaptın" güncellensin. Motor ürünün geri kalanıyla konuşsun. *(bitti — seans localStorage'a + bugün takvimde antrenman günü olarak yanar)*
 - **16 · Ton & erişilebilirlik** — VOICE diline uygun, suçlamasız cümleler; sesli sayım; düşük görme/renk körü uyumu. Soğuk bir makine değil. *(bitti — aria-live, klavye odağı, reduced-motion)*
 - **17 · Mobil & performans** — telefon kamerası, dikey çerçeve, lite model/GPU, düşük pil. Çoğu insan telefonla antrenman yapacak. *(bitti — ön kamera esnek çözünürlük, sekme arkada pose durur)*
 - **18 · Yayına aç** — menüye ekle, ilk kullanım onboarding'i, gizlilik/consent metni (cihazda çalışır, kayıt yok — KVKK temiz). Artık herkese açık.
