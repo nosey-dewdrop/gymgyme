@@ -89,6 +89,7 @@
 .fps { font-size: 11px; opacity: 0.55; margin-top: 10px; }
 .msg { margin: 6px 0; min-height: 18px; color: #7a0a24; }
 
+.safety { font-size: 12px; color: #7a0a24; opacity: 0.85; margin: 6px 0 2px; max-width: 560px; }
 .private { font-size: 12px; opacity: 0.75; margin-top: 4px; max-width: 560px; }
 .wip { font-size: 12px; opacity: 0.75; margin-top: 22px; max-width: 560px; }
 
