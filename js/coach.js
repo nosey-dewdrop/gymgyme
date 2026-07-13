@@ -569,6 +569,16 @@ moveSel.addEventListener("change", () => {
 // "hazırım": molayı erken bitir, sıradaki sete geç.
 skipRestBtn.addEventListener("click", () => { if (engine) engine.skipRest(); });
 
+// mecburi ayar adımı: hareket + plan seçilip "continue" denmeden kamera bölümü
+// hiç görünmez. her sayfa açılışında adım yeniden yaşanır.
+const readyBtn = $("ready"), startWrap = $("startWrap");
+readyBtn.addEventListener("click", () => {
+  applyPlan();
+  startWrap.hidden = false;
+  readyBtn.textContent = "session set - change anything anytime";
+  startBtn.focus();
+});
+
 // ilk kullanım onayı (KVKK): kamera izninden ÖNCE bir kez, açık cümlelerle.
 // localStorage yoksa her seferinde gösterilir — kimse habersiz kamera açmaz.
 const consentEl = $("consent"), consentGo = $("consentGo");

@@ -28,41 +28,48 @@
   <a href="index.html">back to the directory</a>
 </aside>
 
-<h1>personal trainer</h1>
-<p class="tag">stand back so your whole body fits the frame, then press start. your device does the seeing and the thinking - no server ever gets the video.</p>
+<h1 class="pt-title">🎀 personal trainer ✨</h1>
 
-<p class="safety">go at your own pace and warm up first. stop if anything hurts. your personal trainer reads your form to help you move better - it is not medical advice, and it does not replace a doctor.</p>
-
-<div id="authbar" class="authbar"></div>
-
-<div class="move-row">
-  <label for="moveSel">move</label>
-  <select id="moveSel">
-    <option value="squat">squat</option>
-    <option value="pushup">push-up</option>
-    <option value="lunge">lunge</option>
-    <option value="glutebridge">glute bridge</option>
-    <option value="situp">sit-up</option>
-    <option value="press">press</option>
-  </select>
+<div class="card intro">
+  <p class="intro-big">meet the engine.</p>
+  <p>your camera reads 33 points of your body and our own c++ engine turns them into reps, scores and form cues - all inside your browser. no video ever leaves your device. first it learns YOUR body, then it locks onto you.</p>
+  <p class="intro-steps">1. set your session · 2. start the camera · 3. train - it counts, scores and corrects</p>
 </div>
 
-<div class="plan-row">
-  <span class="plan-lead">a plan, if you like:</span>
-  <input id="planReps" class="plan-num" type="number" min="0" max="99" inputmode="numeric" value="0" aria-label="reps per set"><label for="planReps">reps</label>
-  <span class="plan-x">in</span>
-  <input id="planSets" class="plan-num" type="number" min="1" max="20" inputmode="numeric" value="3" aria-label="number of sets"><label for="planSets">sets</label>
-  <span class="plan-x">resting</span>
-  <input id="planRest" class="plan-num" type="number" min="0" max="600" step="5" inputmode="numeric" value="45" aria-label="rest seconds between sets"><label for="planRest">s between</label>
-  <span class="plan-hint">leave reps at 0 to just count freely.</span>
+<div class="card">
+  <p class="card-title">step 1 - your session</p>
+  <div class="move-row">
+    <label for="moveSel">move</label>
+    <select id="moveSel">
+      <option value="squat">squat</option>
+      <option value="pushup">push-up</option>
+      <option value="lunge">lunge</option>
+      <option value="glutebridge">glute bridge</option>
+      <option value="situp">sit-up</option>
+      <option value="press">press</option>
+    </select>
+  </div>
+  <div class="plan-row">
+    <span class="plan-lead">a plan, if you like:</span>
+    <input id="planReps" class="plan-num" type="number" min="0" max="99" inputmode="numeric" value="0" aria-label="reps per set"><label for="planReps">reps</label>
+    <span class="plan-x">in</span>
+    <input id="planSets" class="plan-num" type="number" min="1" max="20" inputmode="numeric" value="3" aria-label="number of sets"><label for="planSets">sets</label>
+    <span class="plan-x">resting</span>
+    <input id="planRest" class="plan-num" type="number" min="0" max="600" step="5" inputmode="numeric" value="45" aria-label="rest seconds between sets"><label for="planRest">s between</label>
+    <span class="plan-hint">leave reps at 0 to just count freely.</span>
+  </div>
+  <button id="ready" class="mainbtn">that's my session - continue</button>
 </div>
 
-<button id="start" class="startbtn">start camera</button>
-<button id="stop" class="startbtn" hidden>stop</button>
+<div id="startWrap" hidden>
+  <p class="safety">go at your own pace and warm up first. stop if anything hurts. your personal trainer reads your form to help you move better - it is not medical advice, and it does not replace a doctor.</p>
+  <button id="start" class="mainbtn">start camera</button>
+  <button id="stop" class="mainbtn soft" hidden>stop</button>
 
-<div class="consent" id="consent" hidden>
-  <p>quick note before your first session: the personal trainer reads your body through your camera, entirely on this device. no video is uploaded, recorded or stored - ever. if you sign in, only your workout numbers (reps, scores, dates) are saved to your account. details: <a href="gizlilik.html">your data</a>.</p>
-  <button id="consentGo" class="startbtn">got it - start</button>
+  <div class="card consent" id="consent" hidden>
+    <p>quick note before your first session: the personal trainer reads your body through your camera, entirely on this device. no video is uploaded, recorded or stored - ever. if you sign in, only your workout numbers (reps, scores, dates) are saved to your account. details: <a href="gizlilik.html">your data</a>.</p>
+    <button id="consentGo" class="mainbtn">got it - start</button>
+  </div>
 </div>
 <p class="status" id="status" role="status" aria-live="polite"></p>
 
@@ -71,7 +78,7 @@
   <canvas id="overlay"></canvas>
 </div>
 
-<div class="read" id="read" hidden>
+<div class="read card" id="read" hidden>
   <div class="set-line" id="setLine" aria-live="polite" hidden></div>
   <div class="rep-row"><span class="rep-count" id="repCount" aria-live="polite" aria-label="reps">0</span><span class="rep-label">reps</span></div>
   <div class="half-note" id="halfNote" aria-live="polite"></div>
@@ -104,14 +111,19 @@
   <div class="msg" id="msg" aria-live="polite"></div>
 </div>
 
-<div class="summary" id="summary" role="region" aria-label="session summary" hidden>
+<div class="summary card" id="summary" role="region" aria-label="session summary" hidden>
   <div class="summary-title" id="sumTitle">that's a workout</div>
   <div class="summary-body" id="sumBody"></div>
 </div>
 
-<div class="history" id="history" role="region" aria-label="your workouts" hidden>
+<div class="history card" id="history" role="region" aria-label="your workouts" hidden>
   <div class="history-title">your workouts</div>
   <div class="history-list" id="histList"></div>
+</div>
+
+<div class="card">
+  <p class="card-title">your account</p>
+  <div id="authbar" class="authbar"></div>
 </div>
 
 <p class="private" id="private" hidden>the pose and all the math run inside your browser. the camera image never leaves this device - there is no upload. if you are signed in, only your workout numbers (never the video) are saved to your account. <a href="gizlilik.html">your data</a>.</p>
