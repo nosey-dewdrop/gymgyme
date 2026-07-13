@@ -10,6 +10,7 @@ import { PoseLandmarker, FilesetResolver, DrawingUtils } from "../vendor/mediapi
 
 const $ = (id) => document.getElementById(id);
 const statusEl = $("status");
+const moveSel = $("moveSel");
 const startBtn = $("start");
 const stopBtn = $("stop");
 const stage = $("stage");
@@ -32,6 +33,18 @@ const privateNote = $("private");
 
 const LM = 33;                 // MediaPipe pose nokta sayısı
 const FLOATS = LM * 4;         // her nokta [x, y, z, visibility]
+
+// hareketlerin insana dönük dili. hangi eklemin izlendiği, fazların ve gidişin
+// kelimeleri — motorun id'leriyle (engine/coach_engine.cpp kütüphanesi) birebir.
+const MOVES = {
+  squat:       { joint: "knee",  top: "standing", bottom: "deep",   down: "going down",  up: "coming up" },
+  pushup:      { joint: "elbow", top: "up",       bottom: "down",   down: "going down",  up: "pushing up" },
+  lunge:       { joint: "knee",  top: "standing", bottom: "low",    down: "stepping down", up: "coming up" },
+  glutebridge: { joint: "hip",   top: "bridged",  bottom: "down",   down: "lowering",    up: "lifting" },
+  situp:       { joint: "hip",   top: "lying",    bottom: "up",     down: "sitting up",  up: "lying back" },
+  press:       { joint: "elbow", top: "locked",   bottom: "racked", down: "lowering",    up: "pressing" },
+};
+let move = MOVES.squat;
 
 let poseLandmarker = null;
 let motorMod = null;           // wasm modülü (_malloc / HEAPF32 için)
@@ -67,7 +80,7 @@ async function loadEngine() {
   try {
     const { default: createMotor } = await import("../engine/motor.js");
     motorMod = await createMotor();
-    engine = new motorMod.Engine("squat");
+    engine = new motorMod.Engine(moveSel.value);
     bufPtr = motorMod._malloc(FLOATS * 4);        // 4 byte/float
     worldBufPtr = motorMod._malloc(FLOATS * 4);
     buildAngleRows();
@@ -80,7 +93,7 @@ async function loadEngine() {
 // açı panelini bir kez kur; sonra her kare sadece değerleri (textContent) güncelle.
 function buildAngleRows() {
   const defs = [
-    ["tracked knee", "tracked"],
+    ["tracked " + move.joint, "tracked"],
     ["left knee / right", "knee"],
     ["left hip / right", "hip"],
     ["left elbow / right", "elbow"],
@@ -142,14 +155,14 @@ function sizeCanvas() {
   aspect = canvas.width / canvas.height;
 }
 
-// motorun fazı + yönünü tek bir insana dönük kelimeye çevir.
+// motorun fazı + yönünü, SEÇİLİ hareketin insana dönük kelimesine çevir.
 function phraseFor(r) {
   if (!r.tracking) return "...";
   const mid = r.depth > 0.12 && r.depth < 0.9;
-  if (r.motion === "down" && mid) return "going down";
-  if (r.motion === "up" && mid) return "coming up";
-  if (r.phase === "bottom") return "deep";
-  return "standing";
+  if (r.motion === "down" && mid) return move.down;
+  if (r.motion === "up" && mid) return move.up;
+  if (r.phase === "bottom") return move.bottom;
+  return move.top;
 }
 
 const deg = (v) => (v >= 0 ? Math.round(v) + "°" : "–");
@@ -206,7 +219,7 @@ function render(r) {
 
   if (r.tracking) {
     subEl.textContent =
-      "knee " + Math.round(r.smoothAngle) + "°   ·   moving " + r.motion + "   ·   phase " + r.phase +
+      move.joint + " " + Math.round(r.smoothAngle) + "°   ·   moving " + r.motion + "   ·   phase " + r.phase +
       (r.view !== "unknown" ? "   ·   view " + r.view : "");
     const cue = r.message || r.formCue;      // yarım uyarısı > form düzeltmesi
     if (cue) { msgEl.textContent = cue; cueUntil = performance.now() + 1800; }
@@ -291,6 +304,19 @@ function loop() {
   }
   requestAnimationFrame(loop);
 }
+
+// hareket değişimi: motor sıfırdan başlar (setMove reset'i içerir), sayaç ekranı temizlenir.
+moveSel.addEventListener("change", () => {
+  move = MOVES[moveSel.value] || MOVES.squat;
+  if (engine) {
+    engine.setMove(moveSel.value);
+    buildAngleRows();
+    repCountEl.textContent = "0";
+    halfNoteEl.textContent = "";
+    scoreLineEl.textContent = "";
+    msgEl.textContent = "";
+  }
+});
 
 startBtn.addEventListener("click", start);
 stopBtn.addEventListener("click", stop);

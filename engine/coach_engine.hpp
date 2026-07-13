@@ -36,6 +36,7 @@ enum class View { Unknown, Front, Side };    // kamera vücudu nereden görüyor
 enum class RuleKind {
   TorsoLean,    // gövde dikeyden param dereceden fazla eğilmesin ("sırt düz")
   KneeValgus,   // dizler bilek genişliğinin param katından fazla İÇE çökmesin (önden)
+  HipSag,       // omuz-kalça-diz hattı param derecenin altına kırılmasın (plank/push-up)
 };
 
 struct FormRule {
@@ -55,7 +56,9 @@ struct MoveSpec {
   double topAngle = 155.0;      // bu açının üstü = "üstte"
   double emaAlpha = 0.4;        // yumuşatma katsayısı (0..1, küçük = daha sakin)
   double minVisibility = 0.5;   // bu güvenin altındaki okuma reddedilir
-  double minFraming = 0.75;     // gövde+bacak noktalarının en az bu kadarı kadrajda olmalı
+  double minFraming = 0.75;     // izlenen noktaların en az bu kadarı kadrajda olmalı
+  std::vector<int> framingPoints;  // bu hareket için kadrajda olması GEREKEN noktalar
+                                   // (boşsa gövde+bacak varsayılanı kullanılır)
   double halfRepDepth = 0.35;   // iniş bu derinliği (0..1) geçip de dibe ulaşmazsa "yarım" sayılır
   double goodRepSecMin = 1.2;   // bundan hızlı tekrar = momentum/sıçrama, tempo puanı düşer
   double goodRepSecMax = 8.0;   // bundan yavaşı da tam puan almaz (takılma/duraksama)

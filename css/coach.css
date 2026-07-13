@@ -6,6 +6,11 @@
 #cam { transform: scaleX(-1); }                    /* ayna hissi - antrenman doğal olsun */
 #overlay { position: absolute; inset: 0; transform: scaleX(-1); }
 
+/* hareket seçici - pembe blok, keskin köşe, border yok */
+.move-row { margin: 12px 0 4px; }
+.move-row label { font-size: 12px; opacity: 0.7; margin-right: 8px; }
+#moveSel { font-family: inherit; font-size: 16px; font-weight: bold; color: #33000E; background: #F7A9C4; border: none; border-radius: 0; padding: 4px 10px; cursor: pointer; }
+
 .startbtn { font-family: inherit; font-size: 22px; font-weight: bold; color: #33000E; background: none; cursor: pointer; padding: 0; margin: 6px 12px 6px 0; }
 .startbtn:disabled { opacity: 0.5; cursor: default; }
 .status { margin: 8px 0; min-height: 20px; }

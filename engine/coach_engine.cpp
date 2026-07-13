@@ -31,27 +31,84 @@ static double angleAt(const std::vector<Landmark>& p, const JointRef& j) {
   return angleDeg(p[j.a], p[j.b], p[j.c]);
 }
 
+// HAREKET KÜTÜPHANESİ. Her hareket = bir MoveSpec verisi: hangi eklem zinciri
+// izlenir, hangi açı "dipte" hangi açı "üstte" demektir, hangi noktalar kadrajda
+// olmalı, hangi form kuralları geçerli. Motor kodu HİÇBİR hareketi tanımıyor —
+// yeni hareket eklemek bu tabloya satır eklemek.
+//
+// Sayma yönü kendiliğinden iki tip hareketi de kapsıyor: squat gibi "bük-aç"
+// hareketlerde de, press/köprü gibi "açarak çalışılan" hareketlerde de tekrar
+// Bottom→Top (bükülüden açığa) geçişinde sayılır — press'te ilk açış 1. tekrardır.
 MoveSpec builtinMove(const std::string& name) {
   MoveSpec s;
-  if (name == "squat") {
-    s.name = "squat";
-    s.primaryLeft  = {L_HIP, L_KNE, L_ANK};   // diz = kalça-diz-ayakbileği
-    s.primaryRight = {R_HIP, R_KNE, R_ANK};
-    s.bottomAngle = 110.0;
-    s.topAngle = 155.0;
-    s.emaAlpha = 0.4;
-    s.minVisibility = 0.5;
-    s.minFraming = 0.75;
-    // form kuralları: veri. gövde dikeyden 55°'den fazla eğilmesin (her görüşte);
-    // dizler bilek genişliğinin %72'sinden fazla içe çökmesin (sadece önden okunur).
-    s.rules = {
-      {RuleKind::TorsoLean, 55.0, View::Unknown, "keep your chest up - back straighter"},
-      {RuleKind::KneeValgus, 0.72, View::Front, "push your knees out"},
-    };
+  s.emaAlpha = 0.4;
+  s.minVisibility = 0.5;
+  s.minFraming = 0.75;
+
+  if (name == "pushup") {
+    s.name = "pushup";
+    s.primaryLeft  = {L_SHO, L_ELB, L_WRI};   // dirsek = omuz-dirsek-bilek
+    s.primaryRight = {R_SHO, R_ELB, R_WRI};
+    s.bottomAngle = 95.0;
+    s.topAngle = 150.0;
+    s.goodRepSecMin = 1.0;
+    s.framingPoints = {L_SHO, R_SHO, L_ELB, R_ELB, L_WRI, R_WRI, L_HIP, R_HIP};
+    s.rules = {{RuleKind::HipSag, 160.0, View::Unknown, "keep your body in one line - hips up"}};
     return s;
   }
-  // bilinmeyen isim → güvenli varsayılan (squat).
-  return builtinMove("squat");
+  if (name == "lunge") {
+    s.name = "lunge";
+    s.primaryLeft  = {L_HIP, L_KNE, L_ANK};   // öndeki diz (hangisi netse o izlenir)
+    s.primaryRight = {R_HIP, R_KNE, R_ANK};
+    s.bottomAngle = 100.0;
+    s.topAngle = 160.0;
+    s.rules = {{RuleKind::TorsoLean, 40.0, View::Unknown, "stay upright - chest tall"}};
+    return s;
+  }
+  if (name == "glutebridge") {
+    s.name = "glutebridge";
+    s.primaryLeft  = {L_SHO, L_HIP, L_KNE};   // kalça açısı: omuz-kalça-diz
+    s.primaryRight = {R_SHO, R_HIP, R_KNE};
+    s.bottomAngle = 140.0;   // yerde, kalça bükülü
+    s.topAngle = 165.0;      // köprü: gövde-bacak tek çizgi
+    s.goodRepSecMin = 1.0;
+    s.framingPoints = {L_SHO, R_SHO, L_HIP, R_HIP, L_KNE, R_KNE};
+    return s;
+  }
+  if (name == "situp") {
+    s.name = "situp";
+    s.primaryLeft  = {L_SHO, L_HIP, L_KNE};
+    s.primaryRight = {R_SHO, R_HIP, R_KNE};
+    s.bottomAngle = 85.0;    // doğrulmuş (kalça kapalı)
+    s.topAngle = 130.0;      // yerde (kalça açık)
+    s.goodRepSecMin = 1.0;
+    s.framingPoints = {L_SHO, R_SHO, L_HIP, R_HIP, L_KNE, R_KNE};
+    return s;
+  }
+  if (name == "press") {
+    s.name = "press";
+    s.primaryLeft  = {L_SHO, L_ELB, L_WRI};
+    s.primaryRight = {R_SHO, R_ELB, R_WRI};
+    s.bottomAngle = 100.0;   // raf: dirsek bükülü
+    s.topAngle = 150.0;      // kilit: kol açık
+    s.goodRepSecMin = 0.8;
+    s.framingPoints = {L_SHO, R_SHO, L_ELB, R_ELB, L_WRI, R_WRI};
+    return s;
+  }
+
+  // squat — varsayılan; bilinmeyen isim de güvenle buraya düşer.
+  s.name = "squat";
+  s.primaryLeft  = {L_HIP, L_KNE, L_ANK};   // diz = kalça-diz-ayakbileği
+  s.primaryRight = {R_HIP, R_KNE, R_ANK};
+  s.bottomAngle = 110.0;
+  s.topAngle = 155.0;
+  // form kuralları: veri. gövde dikeyden 55°'den fazla eğilmesin (her görüşte);
+  // dizler bilek genişliğinin %72'sinden fazla içe çökmesin (sadece önden okunur).
+  s.rules = {
+    {RuleKind::TorsoLean, 55.0, View::Unknown, "keep your chest up - back straighter"},
+    {RuleKind::KneeValgus, 0.72, View::Front, "push your knees out"},
+  };
+  return s;
 }
 
 void Engine::reset() {
@@ -103,11 +160,13 @@ Reading Engine::update(const std::vector<Landmark>& p,
   const bool hasWorld = world.size() >= 33;
   const std::vector<Landmark>& g = hasWorld ? world : p;
 
-  // ── Aşama 5: kadraj doluluğu — gövde+bacak noktalarının kaçı görünüyor ──
-  const int core[] = {L_SHO, R_SHO, L_HIP, R_HIP, L_KNE, R_KNE, L_ANK, R_ANK};
+  // ── Aşama 5: kadraj doluluğu — bu hareketin İZLEDİĞİ noktaların kaçı görünüyor
+  // (squat bacak ister, push-up kol ister; liste MoveSpec verisinden gelir) ──
+  static const std::vector<int> kDefaultCore = {L_SHO, R_SHO, L_HIP, R_HIP, L_KNE, R_KNE, L_ANK, R_ANK};
+  const std::vector<int>& corePts = spec_.framingPoints.empty() ? kDefaultCore : spec_.framingPoints;
   int seen = 0;
-  for (int idx : core) if (p[idx].visibility >= 0.5) seen++;
-  r.framing = seen / 8.0;
+  for (int idx : corePts) if (p[idx].visibility >= 0.5) seen++;
+  r.framing = (double)seen / (double)corePts.size();
 
   // kamera vücudu nereden görüyor: omuz+kalça hattı ekran düzleminde mi (önden)
   // yoksa derinlik ekseninde mi (yandan) yayılmış — form kuralları buna bakacak.
@@ -138,7 +197,7 @@ Reading Engine::update(const std::vector<Landmark>& p,
   r.confidence = bestVis;
 
   if (r.framing < spec_.minFraming) { r.message = "step back so your whole body fits the frame"; return r; }
-  if (bestVis < spec_.minVisibility || raw < 0.0) { r.message = "i lost your legs - check the light and the frame"; return r; }
+  if (bestVis < spec_.minVisibility || raw < 0.0) { r.message = "i lost the joints i am watching - check the light and the frame"; return r; }
   r.tracking = true;
   r.rawAngle = raw;
 
@@ -193,6 +252,11 @@ Reading Engine::update(const std::vector<Landmark>& p,
         double knees  = std::fabs(world[L_KNE].x - world[R_KNE].x);
         double ankles = std::fabs(world[L_ANK].x - world[R_ANK].x);
         if (ankles > 1e-3) bad = knees < rule.param * ankles;
+      } else if (rule.kind == RuleKind::HipSag) {
+        double hl = angleAt(g, {L_SHO, L_HIP, L_KNE});
+        double hr = angleAt(g, {R_SHO, R_HIP, R_KNE});
+        double h = std::max(hl, hr);   // iki taraftan iyi olanı; ikisi de kırıksa kırık
+        bad = h > 0.0 && h < rule.param;
       }
       if (bad) {
         if (r.formCue.empty()) r.formCue = rule.cue;

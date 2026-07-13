@@ -172,6 +172,24 @@ Testler: temiz tekrar sessiz ve cezasız, valgus cue + 1 ihlal + düşük puan, 
 
 **Sırada:** motoru tek hareketten kurtarmak — hareket kütüphanesi: push-up, lunge, glute bridge, sit-up, press. Hepsi veri.
 
+---
+
+## Hareket kütüphanesi — bir motor, altı hareket
+
+Bugüne kadar her şeyi squat üstünden anlattım. Sınav günü bugündü: "hareket = veri" iddiası doğruysa, yeni hareket eklerken motora DOKUNMAMAM lazım. Dokunmadım. Motor artık altı hareket izliyor — squat, push-up, lunge, glute bridge, sit-up, press — ve sayma/yarım/puan/form zincirinin TEK SATIRI değişmedi.
+
+Her hareket bir veri satırı: hangi eklem zinciri izlenecek (squat dize bakar, push-up dirseğe, köprü kalçaya), hangi açı "dip" hangi açı "üst" demek, hangi noktalar kadrajda olmalı, hangi form kuralları geçerli, makul tempo ne. Kadraj bile hareketin verisi oldu: squat bacak ister, push-up kol ister — push-up modunda bacaklarını gösterip kollarını saklarsan motor dürüstçe "seni göremiyorum" diyor.
+
+Beklemediğim bir hediye çıktı: faz makinesi tekrarı "bükülüden açığa dönüş" olarak saydığı için, iki zıt hareket ailesi kendiliğinden aynı makinede çalıştı. Squat gibi "in-kalk" hareketlerde de, press gibi bükülü BAŞLAYAN hareketlerde de (raftan kilide ilk açış = 1. tekrar) sayaç doğru. Bunu tasarlarken fark etmemiştim; veri modeli doğru olunca kod kendini genelledi.
+
+Push-up'a ilk yeni form kuralı da geldi: kalça hattı. Omuz-kalça-diz çizgisi kırılırsa — kalça sarkarsa — "keep your body in one line". Kural türü motorda bir kez yazıldı; artık plank de eklesek aynı türü kullanacak, sadece eşiği farklı olacak.
+
+Sayfada artık bir hareket seçici var (pembe, köşesiz, gymgyme dilinde) ve bütün kelimeler hareketle birlikte değişiyor: squat'ta "standing/deep", press'te "racked/locked", sit-up'ta "lying/up". Koç hangi hareketi izlediğini biliyor ve onun dilinden konuşuyor.
+
+On dört yeni test — her hareketin kendi döngüsü, press'in bükülü başlangıcı, push-up kadrajının kol istemesi, kalça kuralı. Elli üç test, hepsi geçiyor.
+
+**Sırada:** ürünleştirme bandı — hareketi gymgyme dizininden seçip koça bağlamak, set & dinlenme akışı, seans özeti.
+
 ## Yol haritası (19 aşama, 0–18)
 
 Her aşama tek başına çekilebilir gerçek bir adım — biri bitince küçük bir "oldu" anı, bir reels. Sıra kabaca **görmek → anlamak → saymak → düzeltmek → ürünleştirmek** diye ilerliyor.
@@ -193,11 +211,11 @@ Her aşama tek başına çekilebilir gerçek bir adım — biri bitince küçük
 
 **Düzeltmek**
 - **9 · Form kuralları (squat)** — diz-parmak hizası, sırt açısı → "biraz daha in", "sırtın düz". Koç burada koç oluyor. *(bitti)*
-- **10 · İkinci hareket** — push-up ya da lunge ekle; kural setini genelleştir (her hareket = bir eşikler tablosu). Tek harekete gömülü kalmasın.
+- **10 · İkinci hareket** — push-up ya da lunge ekle; kural setini genelleştir (her hareket = bir eşikler tablosu). Tek harekete gömülü kalmasın. *(bitti — altı hareketle)*
 
 **Ürünleştirmek**
 - **11 · Kütüphaneye bağla** — gymgyme'deki hareketi seç → o harekete özel koç modu açılsın. Dizin ile motor birleşir.
-- **12 · Hareket kural verisi** — moves verisine açı eşikleri + talimat alanları; yeni hareket = veri eklemek, kod değil. Genişleyen sistem.
+- **12 · Hareket kural verisi** — moves verisine açı eşikleri + talimat alanları; yeni hareket = veri eklemek, kod değil. Genişleyen sistem. *(bitti — motor tarafı; dizin verisine bağlama 11 ile birlikte)*
 - **13 · Set & dinlenme akışı** — "3 set x 12", set arası dinlenme sayacı, sesli yönlendirme. Tek tekrardan tam antrenmana.
 - **14 · Seans özeti** — kaç tekrar, ortalama derinlik, form skoru; bölge bölge küçük rapor. Yapılandırılmış çıktı (stitchu ruhu).
 - **15 · "Programım"a bağla** — seansı gymgyme planlayıcısına işle, "en son ne zaman yaptın" güncellensin. Motor ürünün geri kalanıyla konuşsun.

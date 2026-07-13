@@ -23,6 +23,18 @@
 <h1>coach</h1>
 <p class="tag">stand back so your whole body fits the frame, then press start. your device does the seeing and the thinking - no server ever gets the video.</p>
 
+<div class="move-row">
+  <label for="moveSel">move</label>
+  <select id="moveSel">
+    <option value="squat">squat</option>
+    <option value="pushup">push-up</option>
+    <option value="lunge">lunge</option>
+    <option value="glutebridge">glute bridge</option>
+    <option value="situp">sit-up</option>
+    <option value="press">press</option>
+  </select>
+</div>
+
 <button id="start" class="startbtn">start camera</button>
 <button id="stop" class="startbtn" hidden>stop</button>
 <p class="status" id="status"></p>
@@ -40,7 +52,7 @@
   <div class="sub" id="sub"></div>
 
   <div class="meter">
-    <div class="meter-label">squat depth</div>
+    <div class="meter-label">depth</div>
     <div class="bar"><div class="bar-fill" id="depthFill"></div></div>
   </div>
   <div class="meter">
@@ -59,7 +71,7 @@
 
 <p class="private" id="private" hidden>the pose and all the math run inside your browser. the camera image never leaves this device - there is no upload and nothing is stored.</p>
 
-<p class="wip">right now the coach can see you, read your joint angles, smooth the signal, gate on confidence, and tell whether you are standing or squatting. counting reps is the next step.</p>
+<p class="wip">the coach watches six moves (squat, push-up, lunge, glute bridge, sit-up, press), counts full reps with a tick, calls out half reps that did not count, scores every rep from depth, tempo and control, and corrects your form in 3d - knees out, chest up, hips in line. sets and rest flow are next.</p>
 
 <script type="module" src="js/coach.js"></script>
 

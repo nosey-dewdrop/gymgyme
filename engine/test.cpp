@@ -87,6 +87,38 @@ static std::vector<Landmark> worldPoseLean() {
   return p;
 }
 
+// KOL pozu (push-up / press): dirsek düz (~180°) ya da bükülü (~90°).
+static std::vector<Landmark> poseArms(bool bent) {
+  std::vector<Landmark> p(33);
+  auto set = [&](int i, double x, double y) { p[i].x = x; p[i].y = y; p[i].z = 0; p[i].visibility = 1; };
+  set(11, 0.45, 0.30); set(12, 0.55, 0.30);   // omuzlar
+  set(13, 0.45, 0.50); set(14, 0.55, 0.50);   // dirsekler
+  set(23, 0.45, 0.62); set(24, 0.55, 0.62);   // kalçalar (push-up kadrajı için)
+  if (!bent) { set(15, 0.45, 0.70); set(16, 0.55, 0.70); }   // bilek dirseğin altında -> ~180°
+  else       { set(15, 0.65, 0.50); set(16, 0.75, 0.50); }   // bilek yanda -> ~90°
+  return p;
+}
+
+// KALÇA pozu (glute bridge / sit-up): kalça açık (~180°, gövde-bacak düz)
+// ya da kapalı (crunch, ~70°).
+static std::vector<Landmark> poseHips(bool open) {
+  std::vector<Landmark> p(33);
+  auto set = [&](int i, double x, double y) { p[i].x = x; p[i].y = y; p[i].z = 0; p[i].visibility = 1; };
+  set(11, 0.30, 0.58); set(12, 0.30, 0.62);   // omuzlar
+  set(23, 0.50, 0.58); set(24, 0.50, 0.62);   // kalçalar
+  if (open) { set(25, 0.70, 0.58); set(26, 0.70, 0.62); }        // diz uzakta -> ~180°
+  else      { set(25, 0.432, 0.412); set(26, 0.432, 0.452); }    // diz yukarıda -> ~70°
+  return p;
+}
+
+// köprü ARASI kalça: ~123° (köprünün alt eşiği 140'ın altında, dip sayılır).
+static std::vector<Landmark> poseHipsMid() {
+  std::vector<Landmark> p = poseHips(true);
+  auto set = [&](int i, double x, double y) { p[i].x = x; p[i].y = y; };
+  set(25, 0.60, 0.43); set(26, 0.60, 0.47);
+  return p;
+}
+
 int main() {
   // ── açı geometrisi ──
   {
@@ -280,6 +312,61 @@ int main() {
     cued = false;
     for (int i = 0; i < 10; i++) { t += 100; r = sv.update(pose(false), sideValgus, t); cued |= (r.formCue == "push your knees out"); }
     check(!cued, "valgus rule is not judged from the side view");
+  }
+
+  // ── hareket kütüphanesi: aynı motor, farklı veri ──
+  {
+    check(builtinMove("pushup").name == "pushup", "pushup spec exists");
+    check(builtinMove("nonsense").name == "squat", "unknown move falls back to squat");
+
+    // push-up: dirsek zincirinden sayar
+    Engine pu(builtinMove("pushup"));
+    Reading r;
+    for (int i = 0; i < 6; i++) r = pu.update(poseArms(false));
+    check(r.tracking && r.phase == Phase::Top, "pushup: straight arms read top");
+    for (int i = 0; i < 10; i++) r = pu.update(poseArms(true));
+    check(r.phase == Phase::Bottom, "pushup: bent arms read bottom");
+    for (int i = 0; i < 12; i++) r = pu.update(poseArms(false));
+    check(r.reps == 1, "pushup: full cycle counts on the same machine");
+
+    // push-up kadrajı kol ister: bacak pozu (kollar görünmez) takip edilmez
+    Engine puf(builtinMove("pushup"));
+    Reading rf = puf.update(pose(false));
+    check(!rf.tracking, "pushup framing needs the arms, legs alone fail");
+
+    // press: bükülü başlar (raf) — ilk kilitte 1. tekrar
+    Engine pr(builtinMove("press"));
+    for (int i = 0; i < 6; i++) r = pr.update(poseArms(true));
+    check(r.phase == Phase::Bottom && r.reps == 0, "press: racked start reads bottom");
+    for (int i = 0; i < 12; i++) r = pr.update(poseArms(false));
+    check(r.reps == 1, "press: counts on lockout from a bent start");
+
+    // glute bridge: kalça açısından, uzama yönünde
+    Engine gb(builtinMove("glutebridge"));
+    for (int i = 0; i < 6; i++) r = gb.update(poseHipsMid());   // yerde: ~123° < 140
+    check(r.phase == Phase::Bottom, "bridge: on the floor reads bottom");
+    for (int i = 0; i < 12; i++) r = gb.update(poseHips(true)); // köprü: ~180°
+    check(r.reps == 1, "bridge: full extension counts a rep");
+
+    // sit-up: kalça kapanınca dip, geri yatınca tekrar
+    Engine su(builtinMove("situp"));
+    for (int i = 0; i < 6; i++) r = su.update(poseHips(true));  // yerde ~180°
+    check(r.phase == Phase::Top, "situp: lying flat reads top");
+    for (int i = 0; i < 10; i++) r = su.update(poseHips(false)); // crunch ~70°
+    check(r.phase == Phase::Bottom, "situp: crunch reads bottom");
+    for (int i = 0; i < 12; i++) r = su.update(poseHips(true));
+    check(r.reps == 1, "situp: counts on the way back down");
+
+    // hip sag kuralı (push-up'ın kuralı) değerlendiriliyor mu — squat spec'ine takıp
+    // dipteki doğal kalça kırılmasıyla tetikliyoruz (evaluator testi)
+    MoveSpec hs = builtinMove("squat");
+    hs.rules = {{RuleKind::HipSag, 160.0, View::Unknown, "keep your body in one line - hips up"}};
+    Engine he(hs);
+    bool cued = false;
+    double t2 = 0;
+    for (int i = 0; i < 6; i++) { t2 += 100; he.update(pose(false), worldPose(false), t2); }
+    for (int i = 0; i < 10; i++) { t2 += 100; Reading rr = he.update(pose(false), worldPose(true), t2); cued |= (rr.formCue == "keep your body in one line - hips up"); }
+    check(cued, "hip sag rule evaluates from the shoulder hip knee line");
   }
 
   std::printf(failed ? "\n%d test FAILED\n" : "\nall tests passed\n", failed);
