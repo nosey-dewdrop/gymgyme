@@ -20,8 +20,8 @@ The "slop -> engine" upgrade: an on-device camera coach that watches home workou
 - Page: `coach.html` (unlinked, robots noindex until proven). 19-stage roadmap + narrative devlog in `BUILD-LOG.md` (Damla voices it for reels; each step is its own commit).
 - Security: mediapipe + model vendored under `vendor/` (no runtime cdn), tight CSP + Permissions-Policy (`vercel.json` + meta). Perf: landmarks pass by pointer through the wasm heap.
 
-Roadmap (0-18): DONE 0 see, 1 scene polish, 2-3 angles, 4 smoothing, 5 gates, 6 phase machine. NEXT 7 rep counting, 8 reject shallow, 9 form rules, 10 second move, 11 wire to library, 12 move-rule data, 13 sets/rest, 14 session summary, 15 into my-program, 16 tone/a11y, 17 mobile/perf, 18 launch (nav + onboarding + consent line).
-OPEN: Damla felt it thin vs stitchu; option on the table = go deep past stage 6 in one big push (counting + rep-quality + form biomechanics + full move library + 3D depth).
+Roadmap (0-18): DONE 0 see, 1 scene polish, 2-3 angles, 4 smoothing, 5 gates, 6 phase machine, 7 rep counting, 8 reject shallow, 9 form rules, 10 second move, 12 move-rule data (engine side), 13 sets/rest, 14 session summary, 16 tone/a11y, 17 mobile/perf. LEFT (need Damla's product/design call): 11 wire to directory moves, 15 into my-program, 18 launch (nav + onboarding + consent line).
+DONE the whole engineering band: engine holds a full workout (sets, timed rest, completion), produces a session summary, is accessible (aria-live, reduced-motion) and mobile/battery aware. 76 native tests. What's left is product wiring + launch, which touches the directory model and Damla's design.
 
 ## Launch (first users - Damla owns content/outreach)
 Suggested channels when live: r/xxfitness + r/bodyweightfitness (helpful-tool framing, not promo), Turkish fitness Instagram/TikTok ("Ankara'da yetişkin balesi yok diye yaptık" story), ekşi sözlük (evde spor başlıkları), Bilkent groups. The pitch is the mission: free forever, no ads, no accounts, everyone adds. The "contributors (thank you!)" wall is the growth loop: people come back to see their name.
