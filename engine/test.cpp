@@ -44,6 +44,32 @@ static std::vector<Landmark> poseSlight() {
   return p;
 }
 
+// DÜNYA pozu (metrik 3B). bentTowardCamera=true: diz KAMERAYA doğru bükülü —
+// ekran düzleminde düz görünür (perspektif kısalması), gerçekte ~70°.
+static std::vector<Landmark> worldPose(bool bentTowardCamera) {
+  std::vector<Landmark> p(33);
+  auto set = [&](int i, double x, double y, double z) { p[i].x = x; p[i].y = y; p[i].z = z; p[i].visibility = 1; };
+  set(11, -0.18, -0.50, 0); set(12, 0.18, -0.50, 0);   // omuzlar (x'te yayılmış = önden)
+  set(23, -0.10,  0.00, 0); set(24, 0.10,  0.00, 0);   // kalçalar
+  if (!bentTowardCamera) {
+    set(25, -0.10, 0.40, 0);  set(26, 0.10, 0.40, 0);  // dizler
+    set(27, -0.10, 0.80, 0);  set(28, 0.10, 0.80, 0);  // bilekler: düz ~180°
+  } else {
+    set(25, -0.10, 0.25, -0.35); set(26, 0.10, 0.25, -0.35);  // dizler kameraya doğru
+    set(27, -0.10, 0.50, 0);     set(28, 0.10, 0.50, 0);      // ~70° gerçek büküm
+  }
+  return p;
+}
+
+// YAN duruş dünya pozu: omuz/kalça hattı derinlik ekseninde yayılmış.
+static std::vector<Landmark> worldPoseSide() {
+  std::vector<Landmark> p = worldPose(false);
+  auto set = [&](int i, double x, double y, double z) { p[i].x = x; p[i].y = y; p[i].z = z; };
+  set(11, 0, -0.50, -0.18); set(12, 0, -0.50, 0.18);
+  set(23, 0,  0.00, -0.10); set(24, 0,  0.00, 0.10);
+  return p;
+}
+
 int main() {
   // ── açı geometrisi ──
   {
@@ -168,6 +194,32 @@ int main() {
     e.reset();
     r = e.update(pose(false));
     check(r.lastRepScore == -1, "reset clears the score");
+  }
+
+  // ── 3B: kameraya doğru bükülme 2B'de kaybolur, dünya verisiyle görülür ──
+  {
+    // sadece ekran verisi: bükülü diz "düz" görünür, motor üstte sanır
+    Engine flat(builtinMove("squat"));
+    Reading rf;
+    for (int i = 0; i < 10; i++) rf = flat.update(pose(false));   // ekranda hep düz
+    check(rf.phase == Phase::Top, "2d only: camera-facing bend is invisible");
+
+    // dünya verisiyle: aynı ekran görüntüsü, ama motor gerçek 3B açıyı ölçer
+    Engine e(builtinMove("squat"));
+    Reading r;
+    double t = 0;
+    for (int i = 0; i < 6; i++) { t += 100; r = e.update(pose(false), worldPose(false), t); }
+    check(r.phase == Phase::Top && r.view == View::Front, "3d: straight pose reads top, front view");
+    for (int i = 0; i < 10; i++) { t += 100; r = e.update(pose(false), worldPose(true), t); }
+    check(r.phase == Phase::Bottom, "3d: camera-facing bend is caught as deep");
+    check(r.angles.leftKnee < 90.0, "3d knee angle is the real one, not the flattened one");
+    for (int i = 0; i < 12; i++) { t += 100; r = e.update(pose(false), worldPose(false), t); }
+    check(r.reps == 1, "3d rep counts through the same machine");
+
+    // yan duruş tespiti
+    Engine s(builtinMove("squat"));
+    Reading rs = s.update(pose(false), worldPoseSide(), 33);
+    check(rs.view == View::Side, "side stance is detected from depth spread");
   }
 
   std::printf(failed ? "\n%d test FAILED\n" : "\nall tests passed\n", failed);

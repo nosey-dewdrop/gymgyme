@@ -13,14 +13,16 @@ enum {
   L_HIP = 23, R_HIP = 24, L_KNE = 25, R_KNE = 26, L_ANK = 27, R_ANK = 28
 };
 
-// B köşesindeki açı (A-B-C), derece. Görüntü düzleminde (x,y).
+// B köşesindeki açı (A-B-C), derece. Tam 3B: ekran verisinde z=0 gelir ve bu
+// 2B'ye indirgenir; dünya verisinde z gerçek derinliktir ve kameraya doğru
+// bükülmeler (2B'de "düz" görünen) doğru ölçülür.
 static double angleDeg(const Landmark& A, const Landmark& B, const Landmark& C) {
-  double v1x = A.x - B.x, v1y = A.y - B.y;
-  double v2x = C.x - B.x, v2y = C.y - B.y;
-  double m1 = std::sqrt(v1x * v1x + v1y * v1y);
-  double m2 = std::sqrt(v2x * v2x + v2y * v2y);
+  double v1x = A.x - B.x, v1y = A.y - B.y, v1z = A.z - B.z;
+  double v2x = C.x - B.x, v2y = C.y - B.y, v2z = C.z - B.z;
+  double m1 = std::sqrt(v1x * v1x + v1y * v1y + v1z * v1z);
+  double m2 = std::sqrt(v2x * v2x + v2y * v2y + v2z * v2z);
   if (m1 < 1e-6 || m2 < 1e-6) return -1.0;
-  double c = (v1x * v2x + v1y * v2y) / (m1 * m2);
+  double c = (v1x * v2x + v1y * v2y + v1z * v2z) / (m1 * m2);
   c = std::max(-1.0, std::min(1.0, c));
   return std::acos(c) * 180.0 / M_PI;
 }
@@ -69,6 +71,12 @@ void Engine::reset() {
 static double clamp01(double v) { return std::max(0.0, std::min(1.0, v)); }
 
 Reading Engine::update(const std::vector<Landmark>& p, double timestampMs) {
+  static const std::vector<Landmark> kNoWorld;
+  return update(p, kNoWorld, timestampMs);
+}
+
+Reading Engine::update(const std::vector<Landmark>& p,
+                       const std::vector<Landmark>& world, double timestampMs) {
   double t = timestampMs;
   if (t < 0) { fakeT_ += 1000.0 / 30.0; t = fakeT_; }   // saat verilmediyse ~30fps varsay
 
@@ -82,19 +90,32 @@ Reading Engine::update(const std::vector<Landmark>& p, double timestampMs) {
 
   if (p.size() < 33) { r.message = "i cannot see you yet"; return r; }
 
+  // ── 3B kaynak seçimi: kadraj/görünürlük EKRAN verisinden (kamera ne görüyor),
+  // açı geometrisi varsa DÜNYA verisinden (vücut gerçekte nasıl duruyor). ──
+  const bool hasWorld = world.size() >= 33;
+  const std::vector<Landmark>& g = hasWorld ? world : p;
+
   // ── Aşama 5: kadraj doluluğu — gövde+bacak noktalarının kaçı görünüyor ──
   const int core[] = {L_SHO, R_SHO, L_HIP, R_HIP, L_KNE, R_KNE, L_ANK, R_ANK};
   int seen = 0;
   for (int idx : core) if (p[idx].visibility >= 0.5) seen++;
   r.framing = seen / 8.0;
 
+  // kamera vücudu nereden görüyor: omuz+kalça hattı ekran düzleminde mi (önden)
+  // yoksa derinlik ekseninde mi (yandan) yayılmış — form kuralları buna bakacak.
+  if (hasWorld) {
+    double dx = std::fabs(world[L_SHO].x - world[R_SHO].x) + std::fabs(world[L_HIP].x - world[R_HIP].x);
+    double dz = std::fabs(world[L_SHO].z - world[R_SHO].z) + std::fabs(world[L_HIP].z - world[R_HIP].z);
+    r.view = dx >= dz ? View::Front : View::Side;
+  }
+
   // altı ham açı (gösterim).
-  r.angles.leftKnee   = angleAt(p, {L_HIP, L_KNE, L_ANK});
-  r.angles.rightKnee  = angleAt(p, {R_HIP, R_KNE, R_ANK});
-  r.angles.leftHip    = angleAt(p, {L_SHO, L_HIP, L_KNE});
-  r.angles.rightHip   = angleAt(p, {R_SHO, R_HIP, R_KNE});
-  r.angles.leftElbow  = angleAt(p, {L_SHO, L_ELB, L_WRI});
-  r.angles.rightElbow = angleAt(p, {R_SHO, R_ELB, R_WRI});
+  r.angles.leftKnee   = angleAt(g, {L_HIP, L_KNE, L_ANK});
+  r.angles.rightKnee  = angleAt(g, {R_HIP, R_KNE, R_ANK});
+  r.angles.leftHip    = angleAt(g, {L_SHO, L_HIP, L_KNE});
+  r.angles.rightHip   = angleAt(g, {R_SHO, R_HIP, R_KNE});
+  r.angles.leftElbow  = angleAt(g, {L_SHO, L_ELB, L_WRI});
+  r.angles.rightElbow = angleAt(g, {R_SHO, R_ELB, R_WRI});
 
   // ── Aşama 5: güven kapısı — takip edilen zinciri iki taraftan kontrol et,
   // hangisi daha net görünüyorsa onu kullan; zayıfsa hiç okuma yapma. ──
@@ -104,8 +125,8 @@ Reading Engine::update(const std::vector<Landmark>& p, double timestampMs) {
   double visL = chainVis(spec_.primaryLeft);
   double visR = chainVis(spec_.primaryRight);
   double raw, bestVis;
-  if (visL >= visR) { raw = angleAt(p, spec_.primaryLeft);  bestVis = visL; }
-  else              { raw = angleAt(p, spec_.primaryRight); bestVis = visR; }
+  if (visL >= visR) { raw = angleAt(g, spec_.primaryLeft);  bestVis = visL; }
+  else              { raw = angleAt(g, spec_.primaryRight); bestVis = visR; }
   r.confidence = bestVis;
 
   if (r.framing < spec_.minFraming) { r.message = "step back so your whole body fits the frame"; return r; }

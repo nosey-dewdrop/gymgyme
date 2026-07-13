@@ -134,6 +134,22 @@ Ekranda sayacın altında küçük bir satır: son tekrarın puanı, süresi, ot
 
 **Sırada:** motorun gözüne üçüncü boyut — MediaPipe'ın dünya koordinatları ile açıları 3B ölçmek, kamera açısından bağımsızlaşmak.
 
+---
+
+## 3B — düzlükten kurtulmak
+
+Motorun baştan beri bilinen bir kör noktası vardı: açıları ekran düzleminde, iki boyutta ölçüyordu. Çoğu zaman sorun değil — ama vücut kameraya DOĞRU bükülünce perspektif o bükülmeyi yutuyor. Dizini kameraya doğru kırdığında ekranda bacak neredeyse düz görünür; 2B motor "ayaktasın" der, sen çömelmişsindir. Aşama 2'de bunu bilerek ertelemiştim ("derinlik tahmini gürültülü, sağlam olan basit olandı"); bugün borç kapandı.
+
+Çözümün anahtarı MediaPipe'ın zaten verdiği ama kullanmadığımız bir şeydi: **dünya koordinatları.** Model her kare iki takım nokta üretiyor: ekrandaki yerleri (piksel uzayı) ve vücudun kalça merkezli, metre cinsinden 3B konumu. İkincisi kamera perspektifinden bağımsız — diz kameraya da bükülse yana da bükülse, metrik uzayda açı aynı açı.
+
+Motor artık iki buffer alıyor ve işi ikiye bölüyor: **kadraj ve görünürlük ekran verisinden** (çünkü "kadraja sığıyor musun" sorusu kameranın gördüğüyle ilgili), **açı geometrisi dünya verisinden** (çünkü "dizin kaç derece" sorusu gerçek vücutla ilgili). Açı matematiği üç boyuta çıktı; dünya verisi yoksa motor eskisi gibi 2B'ye düşüyor — API kırılmadı, testlerin eski yarısı hâlâ aynı kodu sınıyor.
+
+Bunun bir hediyesi de oldu: motor artık **nereden izlendiğini biliyor.** Omuz ve kalça hattı ekran düzleminde mi yayılmış, derinlik ekseninde mi — önden mi duruyorsun, yandan mı. Şimdilik ekranda küçük bir "view front/side" yazısı; ama asıl müşterisi bir sonraki aşama: form kuralları. Çünkü "dizler içe çöküyor" ancak önden görünür, "sırt açısı" en iyi yandan okunur — koç hangi kuralı ne zaman uygulayacağını artık seçebilecek.
+
+Testin güzeli şu oldu: sentetik bir poz kurdum — ekranda dümdüz bacak, dünya verisinde kameraya 70 derece bükülü diz. 2B motor gerçekten kanıyor ("ayakta" diyor), 3B motor yakalıyor ve aynı faz makinesi/sayaç zinciri hiç değişmeden çalışıyor. Otuz iki test, hepsi geçiyor.
+
+**Sırada:** koçun koç olduğu yer — form kuralları: "sırtın düz", "dizler dışarı". Kural = veri, görüş yönüne göre seçilir.
+
 ## Yol haritası (19 aşama, 0–18)
 
 Her aşama tek başına çekilebilir gerçek bir adım — biri bitince küçük bir "oldu" anı, bir reels. Sıra kabaca **görmek → anlamak → saymak → düzeltmek → ürünleştirmek** diye ilerliyor.

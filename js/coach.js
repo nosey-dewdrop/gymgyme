@@ -36,7 +36,8 @@ const FLOATS = LM * 4;         // her nokta [x, y, z, visibility]
 let poseLandmarker = null;
 let motorMod = null;           // wasm modülü (_malloc / HEAPF32 için)
 let engine = null;             // C++ motor örneği
-let bufPtr = 0;                // heap'te ayrılmış landmark buffer'ı
+let bufPtr = 0;                // heap'te ayrılmış landmark buffer'ı (ekran)
+let worldBufPtr = 0;           // ... ve dünya koordinatları (metrik 3B) için ikincisi
 let running = false;
 let lastVideoTime = -1;
 let drawer = null;
@@ -68,6 +69,7 @@ async function loadEngine() {
     motorMod = await createMotor();
     engine = new motorMod.Engine("squat");
     bufPtr = motorMod._malloc(FLOATS * 4);        // 4 byte/float
+    worldBufPtr = motorMod._malloc(FLOATS * 4);
     buildAngleRows();
     readEl.hidden = false;
   } catch (e) {
@@ -204,7 +206,8 @@ function render(r) {
 
   if (r.tracking) {
     subEl.textContent =
-      "knee " + Math.round(r.smoothAngle) + "°   ·   moving " + r.motion + "   ·   phase " + r.phase;
+      "knee " + Math.round(r.smoothAngle) + "°   ·   moving " + r.motion + "   ·   phase " + r.phase +
+      (r.view !== "unknown" ? "   ·   view " + r.view : "");
     if (r.message) { msgEl.textContent = r.message; cueUntil = performance.now() + 1800; }
     else if (performance.now() > cueUntil) msgEl.textContent = "";
   } else {
@@ -242,7 +245,9 @@ function loop() {
       if (engine) {
         // landmark'ları wasm heap'ine yaz (x aspect ile ölçekli ki açı bozulmasın),
         // sonra motora pointer geç. HEAPF32'yi her kare tazeliyoruz (bellek büyürse
-        // eski görünüm geçersiz olabilir).
+        // eski görünüm geçersiz olabilir). İkinci buffer: MediaPipe'ın DÜNYA
+        // koordinatları (metrik 3B) — motor açıları onlardan ölçer, kameraya
+        // dönük bükülmeler kaybolmaz.
         const heap = motorMod.HEAPF32;
         const base = bufPtr >> 2;
         const count = Math.min(lm.length, LM);
@@ -250,10 +255,23 @@ function loop() {
           const p = lm[i];
           heap[base + i * 4]     = p.x * aspect;
           heap[base + i * 4 + 1] = p.y;
-          heap[base + i * 4 + 2] = p.z ?? 0;
+          heap[base + i * 4 + 2] = 0;
           heap[base + i * 4 + 3] = p.visibility ?? 1;
         }
-        const r = engine.updatePtr(bufPtr, count * 4, performance.now());
+        const wl = result.worldLandmarks && result.worldLandmarks[0];
+        let wcount = 0;
+        if (wl) {
+          const wbase = worldBufPtr >> 2;
+          wcount = Math.min(wl.length, LM);
+          for (let i = 0; i < wcount; i++) {
+            const p = wl[i];
+            heap[wbase + i * 4]     = p.x;
+            heap[wbase + i * 4 + 1] = p.y;
+            heap[wbase + i * 4 + 2] = p.z ?? 0;
+            heap[wbase + i * 4 + 3] = p.visibility ?? 1;
+          }
+        }
+        const r = engine.updatePtr(bufPtr, count * 4, worldBufPtr, wcount * 4, performance.now());
         if (r.tracking) skeletonColor = r.phase === "bottom" ? "#A61B42" : "#33000E";
         render(r);
       }

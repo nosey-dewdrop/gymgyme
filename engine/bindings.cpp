@@ -22,7 +22,7 @@ using namespace emscripten;
 struct JsReading {
   bool tracking;
   double confidence, framing, rawAngle, smoothAngle, depth;
-  std::string phase, motion;
+  std::string phase, motion, view;
   double leftKnee, rightKnee, leftHip, rightHip, leftElbow, rightElbow;
   int reps;
   bool repTick;
@@ -44,6 +44,13 @@ static std::string motionStr(coach::Motion m) {
     default:                  return "hold";
   }
 }
+static std::string viewStr(coach::View v) {
+  switch (v) {
+    case coach::View::Front: return "front";
+    case coach::View::Side:  return "side";
+    default:                 return "unknown";
+  }
+}
 static JsReading toJs(const coach::Reading& r) {
   JsReading j;
   j.tracking = r.tracking;
@@ -54,6 +61,7 @@ static JsReading toJs(const coach::Reading& r) {
   j.depth = r.depth;
   j.phase = phaseStr(r.phase);
   j.motion = motionStr(r.motion);
+  j.view = viewStr(r.view);
   j.leftKnee = r.angles.leftKnee;
   j.rightKnee = r.angles.rightKnee;
   j.leftHip = r.angles.leftHip;
@@ -79,19 +87,28 @@ class WebEngine {
   void setMove(std::string move) { engine_.setMove(coach::builtinMove(move)); }
   void reset() { engine_.reset(); }
 
-  // HIZLI yol: heap'teki float buffer'dan oku (count = float adedi, 33*4=132).
+  // HIZLI yol: heap'teki float buffer'lardan oku (count = float adedi, 33*4=132).
+  // ptr = ekran noktaları (kadraj/çizim uzayı), worldPtr = MediaPipe dünya
+  // noktaları (metrik 3B; worldCount 0 ise yok sayılır ve motor 2B'ye düşer).
   // tMs = kare zamanı (performance.now()); tempo/kalite ölçümü için.
-  JsReading updatePtr(std::uintptr_t ptr, unsigned count, double tMs) {
-    const float* buf = reinterpret_cast<const float*>(ptr);
-    unsigned n = count / 4;
-    std::vector<coach::Landmark> pts(n);
-    for (unsigned i = 0; i < n; i++) {
-      pts[i].x = buf[i * 4];
-      pts[i].y = buf[i * 4 + 1];
-      pts[i].z = buf[i * 4 + 2];
-      pts[i].visibility = buf[i * 4 + 3];
-    }
-    return toJs(engine_.update(pts, tMs));
+  JsReading updatePtr(std::uintptr_t ptr, unsigned count,
+                      std::uintptr_t worldPtr, unsigned worldCount, double tMs) {
+    auto readBuf = [](std::uintptr_t bp, unsigned c) {
+      const float* buf = reinterpret_cast<const float*>(bp);
+      unsigned n = c / 4;
+      std::vector<coach::Landmark> pts(n);
+      for (unsigned i = 0; i < n; i++) {
+        pts[i].x = buf[i * 4];
+        pts[i].y = buf[i * 4 + 1];
+        pts[i].z = buf[i * 4 + 2];
+        pts[i].visibility = buf[i * 4 + 3];
+      }
+      return pts;
+    };
+    std::vector<coach::Landmark> pts = readBuf(ptr, count);
+    std::vector<coach::Landmark> wpts;
+    if (worldPtr && worldCount) wpts = readBuf(worldPtr, worldCount);
+    return toJs(engine_.update(pts, wpts, tMs));
   }
 
   // yedek yol: JS dizisini eleman eleman oku.
@@ -122,6 +139,7 @@ EMSCRIPTEN_BINDINGS(coach) {
       .field("depth", &JsReading::depth)
       .field("phase", &JsReading::phase)
       .field("motion", &JsReading::motion)
+      .field("view", &JsReading::view)
       .field("leftKnee", &JsReading::leftKnee)
       .field("rightKnee", &JsReading::rightKnee)
       .field("leftHip", &JsReading::leftHip)

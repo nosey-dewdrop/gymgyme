@@ -51,6 +51,7 @@ struct JointAngles {
 
 enum class Phase { Top, Bottom };            // durum makinesi
 enum class Motion { Down, Up, Hold };        // yumuşatılmış sinyalin yönü
+enum class View { Unknown, Front, Side };    // kamera vücudu nereden görüyor (3B veri varsa)
 
 // motorun bir kareye verdiği tam cevap.
 struct Reading {
@@ -62,6 +63,7 @@ struct Reading {
   double depth = 0;          // 0 (üstte) .. 1 (dipte)
   Phase phase = Phase::Top;
   Motion motion = Motion::Hold;
+  View view = View::Unknown;
   JointAngles angles;
   // ── Aşama 7: sayma ──
   int reps = 0;              // bu oturumda sayılan TAM tekrar
@@ -96,6 +98,13 @@ class Engine {
   // herhangi bir monotonik saat); verilmezse motor kendi sahte saatini ilerletir
   // (kare başına ~33 ms) — tempo/kalite ölçümü zaman ister.
   Reading update(const std::vector<Landmark>& landmarks, double timestampMs = -1.0);
+
+  // 3B yol: screen = ekran koordinatları (kadraj + görünürlük için),
+  // world = MediaPipe'ın metrik dünya koordinatları (açı geometrisi için).
+  // world doluysa açılar 3B ölçülür — kameraya dönük bükülme (perspektif
+  // kısalması) 2B'de kaybolur, 3B'de kaybolmaz. world boşsa 2B'ye düşer.
+  Reading update(const std::vector<Landmark>& screen,
+                 const std::vector<Landmark>& world, double timestampMs);
 
  private:
   MoveSpec spec_;
