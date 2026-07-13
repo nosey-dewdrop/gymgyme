@@ -36,3 +36,19 @@ create policy gg_sessions_insert on public.gg_coach_sessions
 drop policy if exists gg_sessions_delete on public.gg_coach_sessions;
 create policy gg_sessions_delete on public.gg_coach_sessions
   for delete using (auth.uid() = user_id);
+
+-- ── hesabımı sil ────────────────────────────────────────────────────────────
+-- kullanıcı kendi hesabını uygulama içinden tamamen silebilsin (KVKK).
+-- security definer: auth.users'a normalde kimse dokunamaz; bu fonksiyon yalnız
+-- çağıranın KENDİ satırını siler, seanslar cascade ile birlikte gider.
+create or replace function public.delete_me()
+returns void
+language sql
+security definer
+set search_path = ''
+as $$
+  delete from auth.users where id = auth.uid();
+$$;
+
+revoke execute on function public.delete_me() from public, anon;
+grant execute on function public.delete_me() to authenticated;

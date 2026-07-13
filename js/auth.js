@@ -43,7 +43,22 @@ function render() {
       del.textContent = error ? "could not delete - try again" : "deleted.";
       if (!error) window.dispatchEvent(new Event("gg-sessions-changed"));
     };
-    bar.append(who, out, del);
+    // hesabın tamamı: delete_me rpc (security definer) kendi auth satırını siler,
+    // seanslar cascade ile gider. geri dönüşü yok, o yüzden çift onay.
+    const kill = document.createElement("button");
+    kill.className = "auth-link";
+    kill.textContent = "delete my account";
+    kill.onclick = async () => {
+      if (!window.confirm("delete your WHOLE account and every synced workout? this cannot be undone.")) return;
+      if (!window.confirm("last check: your account and its data will be gone for good. delete?")) return;
+      kill.disabled = true;
+      const { error } = await sb.rpc("delete_me");
+      kill.disabled = false;
+      if (error) { kill.textContent = "could not delete - try again"; return; }
+      window.dispatchEvent(new Event("gg-sessions-changed"));
+      await sb.auth.signOut();
+    };
+    bar.append(who, out, del, kill);
     return;
   }
   bar.appendChild(mkLoggedOut());
