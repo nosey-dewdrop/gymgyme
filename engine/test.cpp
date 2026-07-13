@@ -442,6 +442,34 @@ int main() {
     check(r.targetReps == 0 && r.currentSet == 1 && !r.workoutComplete, "no plan = endless counting, never completes");
   }
 
+  // ── Aşama 14: seans özeti ──
+  {
+    Engine e(builtinMove("squat"));
+    e.setPlan(2, 2, 60.0);
+    double t = 0;
+    auto rep = [&](Engine& en) {
+      Reading rr;
+      for (int i = 0; i < 10; i++) { t += 100; rr = en.update(pose(true), t); }
+      for (int i = 0; i < 12; i++) { t += 100; rr = en.update(pose(false), t); }
+      return rr;
+    };
+    for (int i = 0; i < 6; i++) { t += 100; e.update(pose(false), t); }
+    check(e.summary().reps == 0 && e.summary().avgScore == -1, "empty summary before any rep");
+
+    rep(e); rep(e);                 // 1. set + mola
+    e.skipRest();
+    rep(e); rep(e);                 // 2. set → tamamlandı
+    Summary s = e.summary();
+    check(s.reps == 4, "summary counts every rep");
+    check(s.workoutComplete && s.setsCompleted == 2, "summary marks a completed workout");
+    check(s.avgScore >= 0 && s.bestScore >= s.avgScore, "summary has avg and best");
+    check(s.cleanReps == 4, "clean reps counted (no 3d = no form issue)");
+    check(s.durationSec > 0, "summary has a session duration");
+
+    e.reset();
+    check(e.summary().reps == 0 && e.summary().bestScore == -1, "reset clears the summary");
+  }
+
   std::printf(failed ? "\n%d test FAILED\n" : "\nall tests passed\n", failed);
   return failed ? 1 : 0;
 }

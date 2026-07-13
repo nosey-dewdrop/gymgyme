@@ -40,6 +40,21 @@ struct JsReading {
   std::string message;
 };
 
+// Aşama 14: seans özeti (düz nesne).
+struct JsSummary {
+  int reps, halfReps, setsCompleted, totalSets, avgScore, bestScore, cleanReps;
+  double durationSec;
+  bool workoutComplete;
+};
+static JsSummary toJsSummary(const coach::Summary& s) {
+  JsSummary j;
+  j.reps = s.reps; j.halfReps = s.halfReps;
+  j.setsCompleted = s.setsCompleted; j.totalSets = s.totalSets;
+  j.avgScore = s.avgScore; j.bestScore = s.bestScore; j.cleanReps = s.cleanReps;
+  j.durationSec = s.durationSec; j.workoutComplete = s.workoutComplete;
+  return j;
+}
+
 static std::string phaseStr(coach::Phase p) {
   return p == coach::Phase::Bottom ? "bottom" : "top";
 }
@@ -107,6 +122,7 @@ class WebEngine {
     engine_.setPlan(targetReps, totalSets, restSeconds);
   }
   void skipRest() { engine_.skipRest(); }
+  JsSummary summary() { return toJsSummary(engine_.summary()); }
 
   // HIZLI yol: heap'teki float buffer'lardan oku (count = float adedi, 33*4=132).
   // ptr = ekran noktaları (kadraj/çizim uzayı), worldPtr = MediaPipe dünya
@@ -186,12 +202,24 @@ EMSCRIPTEN_BINDINGS(coach) {
       .field("workoutComplete", &JsReading::workoutComplete)
       .field("message", &JsReading::message);
 
+  value_object<JsSummary>("Summary")
+      .field("reps", &JsSummary::reps)
+      .field("halfReps", &JsSummary::halfReps)
+      .field("setsCompleted", &JsSummary::setsCompleted)
+      .field("totalSets", &JsSummary::totalSets)
+      .field("avgScore", &JsSummary::avgScore)
+      .field("bestScore", &JsSummary::bestScore)
+      .field("cleanReps", &JsSummary::cleanReps)
+      .field("durationSec", &JsSummary::durationSec)
+      .field("workoutComplete", &JsSummary::workoutComplete);
+
   class_<WebEngine>("Engine")
       .constructor<std::string>()
       .function("setMove", &WebEngine::setMove)
       .function("reset", &WebEngine::reset)
       .function("setPlan", &WebEngine::setPlan)
       .function("skipRest", &WebEngine::skipRest)
+      .function("summary", &WebEngine::summary)
       .function("updatePtr", &WebEngine::updatePtr)
       .function("update", &WebEngine::update);
 }

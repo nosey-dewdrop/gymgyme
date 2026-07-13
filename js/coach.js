@@ -32,6 +32,9 @@ const skipRestBtn = $("skipRest");
 const planReps = $("planReps");
 const planSets = $("planSets");
 const planRest = $("planRest");
+const summaryEl = $("summary");
+const sumTitle = $("sumTitle");
+const sumBody = $("sumBody");
 const depthFill = $("depthFill");
 const confFill = $("confFill");
 const framingFill = $("framingFill");
@@ -139,6 +142,7 @@ async function start() {
     if (!poseLandmarker) await loadPose();
     if (!engine) await loadEngine();
     applyPlan();                               // plan alanlarını motora ver
+    summaryEl.hidden = true;                   // yeni seans, eski özet gitsin
     setStatus("asking for the camera...");
     const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } });
     video.srcObject = stream;
@@ -163,6 +167,7 @@ function stop() {
   if (s) s.getTracks().forEach((t) => t.stop());
   video.srcObject = null;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  showSummary();                 // reset'ten ÖNCE: özet bu seansın verisinden
   if (engine) engine.reset();
   restEl.hidden = true;
   setLineEl.hidden = true;
@@ -241,7 +246,7 @@ let wasComplete = false;   // antrenman-bitti sesini bir kez çalmak için
 // (targetReps=0) hiçbiri görünmez, sayfa bugünküyle aynı kalır.
 function renderPlan(r) {
   if (r.setTick && !r.workoutComplete) setChime();
-  if (r.workoutComplete && !wasComplete) doneChime();
+  if (r.workoutComplete && !wasComplete) { doneChime(); showSummary(); }
   wasComplete = r.workoutComplete;
 
   const planned = r.targetReps > 0;
@@ -268,6 +273,24 @@ function renderPlan(r) {
     setLineEl.textContent = "set " + r.currentSet + " of " + r.totalSets +
       "   ·   " + r.repsInSet + " of " + r.targetReps;
   }
+}
+
+// seans özeti: motordan al, sıcak cümlelere çevir. reps=0 ise gösterme.
+function showSummary() {
+  if (!engine) return;
+  const s = engine.summary();
+  if (!s || s.reps === 0) { summaryEl.hidden = true; return; }
+  const mins = Math.floor(s.durationSec / 60), secs = Math.round(s.durationSec % 60);
+  const time = mins > 0 ? mins + " min " + secs + "s" : secs + "s";
+  const lines = [];
+  lines.push(s.reps + " reps" + (s.setsCompleted > 0 ? " across " + s.setsCompleted + " sets" : "") + ", in " + time + ".");
+  if (s.avgScore >= 0) lines.push("they averaged " + s.avgScore + " out of 100, your best was " + s.bestScore + ".");
+  if (s.cleanReps > 0) lines.push(s.cleanReps + " came with clean form.");
+  if (s.halfReps > 0) lines.push(s.halfReps + " did not count - go all the way down next time.");
+  sumTitle.textContent = s.workoutComplete ? "that's a workout" : "nice work";
+  sumBody.innerHTML = "";
+  lines.forEach((l) => { const d = document.createElement("div"); d.textContent = l; sumBody.appendChild(d); });
+  summaryEl.hidden = false;
 }
 
 function render(r) {
@@ -391,6 +414,7 @@ moveSel.addEventListener("change", () => {
     msgEl.textContent = "";
     setLineEl.hidden = true;
     restEl.hidden = true;
+    summaryEl.hidden = true;
     wasComplete = false;
   }
 });

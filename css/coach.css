@@ -52,6 +52,13 @@
 .rest-sub { font-size: 13px; opacity: 0.75; margin: 2px 0 8px; }
 .restbtn { font-family: inherit; font-size: 18px; font-weight: bold; color: #33000E; background: none; border: none; cursor: pointer; padding: 0; }
 
+/* seans özeti - antrenman bitince sıcak, cümle cümle küçük rapor. kutu yok. */
+.summary[hidden] { display: none; }
+.summary { max-width: 560px; margin: 14px 0 6px; }
+.summary-title { font-size: 26px; font-weight: bold; color: #A61B42; letter-spacing: -0.01em; }
+.summary-body { font-size: 15px; line-height: 1.7; margin-top: 4px; }
+.summary-body div { padding: 1px 0; }
+
 .phase-word { font-size: 34px; font-weight: bold; letter-spacing: -0.01em; line-height: 1.1; }
 .sub { font-size: 13px; opacity: 0.85; margin-top: 2px; }
 

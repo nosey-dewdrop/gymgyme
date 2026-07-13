@@ -204,6 +204,18 @@ On yedi yeni test — planın 1. setten başlaması, hedefe ulaşınca molanın 
 
 **Sırada:** seans özeti — antrenman bitince kaç tekrar, ortalama derinlik/skor, kaç temiz set; stitchu ruhunda yapılandırılmış küçük bir rapor.
 
+## Aşama 14 — Seans bitince ne oldu
+
+Bir antrenmanı yapmakla, yaptığını GÖRMEK ayrı şeyler. Motor tekrarları sayıyordu ama iş bitince ekranda "24" yazıp kalıyordu — o an insanın "e, nasıldı?" diye sorduğu an. Bugün motor o soruya cevap veriyor.
+
+Özet yeni bir hesap değil, zaten tuttuğu şeyleri toplaması: kaç tam tekrar, kaç yarım (sayılmayan), ortalama puan, en iyi tekrar, kaç tanesi temiz formla, ve ilk kareden son kareye ne kadar sürdü. Motora bir `summary()` ekledim; oturum boyunca en iyi skoru ve temiz tekrarları biriktiriyor, süreyi ilk/son kare zamanından çıkarıyor. Hepsi C++'ta, test edilebilir; JS sadece sıcak cümlelere çeviriyor: "24 reps across 3 sets, in 4 min 12s. they averaged 88 out of 100, your best was 96. 21 came with clean form."
+
+Küçük ama düşündüğüm bir detay: özet, motor sıfırlanmadan ÖNCE alınmalı. Antrenmanı durdurunca `reset()` her şeyi siliyor — o yüzden "stop"ta önce özeti ekrana basıp sonra sıfırlıyorum. Antrenman kendi bitince (son set dolunca) özet zaten üç notalı zille birlikte beliriyor.
+
+Altı yeni test, yetmiş altı test hepsi geçiyor. Motor artık bir tekrarı değil, bütün bir seansı anlatabiliyor.
+
+**Sırada:** bu özeti gymgyme "programım"a işlemek — "en son ne zaman yaptın" güncellensin, seans geçmişe düşsün.
+
 ## Yol haritası (19 aşama, 0–18)
 
 Her aşama tek başına çekilebilir gerçek bir adım — biri bitince küçük bir "oldu" anı, bir reels. Sıra kabaca **görmek → anlamak → saymak → düzeltmek → ürünleştirmek** diye ilerliyor.
@@ -231,7 +243,7 @@ Her aşama tek başına çekilebilir gerçek bir adım — biri bitince küçük
 - **11 · Kütüphaneye bağla** — gymgyme'deki hareketi seç → o harekete özel koç modu açılsın. Dizin ile motor birleşir.
 - **12 · Hareket kural verisi** — moves verisine açı eşikleri + talimat alanları; yeni hareket = veri eklemek, kod değil. Genişleyen sistem. *(bitti — motor tarafı; dizin verisine bağlama 11 ile birlikte)*
 - **13 · Set & dinlenme akışı** — "3 set x 12", set arası dinlenme sayacı, sesli yönlendirme. Tek tekrardan tam antrenmana. *(bitti — mola geri sayımı motorda, plan opsiyonel)*
-- **14 · Seans özeti** — kaç tekrar, ortalama derinlik, form skoru; bölge bölge küçük rapor. Yapılandırılmış çıktı (stitchu ruhu).
+- **14 · Seans özeti** — kaç tekrar, ortalama derinlik, form skoru; bölge bölge küçük rapor. Yapılandırılmış çıktı (stitchu ruhu). *(bitti — motorda summary(), sıcak dilde kart)*
 - **15 · "Programım"a bağla** — seansı gymgyme planlayıcısına işle, "en son ne zaman yaptın" güncellensin. Motor ürünün geri kalanıyla konuşsun.
 - **16 · Ton & erişilebilirlik** — VOICE diline uygun, suçlamasız cümleler; sesli sayım; düşük görme/renk körü uyumu. Soğuk bir makine değil.
 - **17 · Mobil & performans** — telefon kamerası, dikey çerçeve, lite model/GPU, düşük pil. Çoğu insan telefonla antrenman yapacak.

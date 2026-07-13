@@ -109,6 +109,21 @@ struct Reading {
   std::string message;       // insana dönük kısa mesaj (kadraj/ışık uyarısı vb.)
 };
 
+// ── Aşama 14: seans özeti — antrenman bitince (ya da durunca) yapılandırılmış
+// küçük bir rapor. Motor zaten her tekrarı sayıyor/puanlıyor; özet bunları
+// oturum boyunca biriktirir. Ekranda değil, VERİDE: sonra "programım"a da işlenir.
+struct Summary {
+  int reps = 0;             // toplam tam tekrar
+  int halfReps = 0;         // sayılmayan yarımlar
+  int setsCompleted = 0;    // tamamlanan set (plan yoksa 0)
+  int totalSets = 1;        // planlanan set
+  int avgScore = -1;        // ortalama tekrar puanı 0..100 (-1 = tekrar yok)
+  int bestScore = -1;       // en iyi tekrar puanı
+  int cleanReps = 0;        // form sorunu olmayan tekrar sayısı
+  double durationSec = 0;   // ilk kareden son kareye seans süresi
+  bool workoutComplete = false;
+};
+
 // hazır hareket kütüphanesi. bilinmeyen isim → squat döner.
 MoveSpec builtinMove(const std::string& name);
 
@@ -130,6 +145,9 @@ class Engine {
   void setPlan(int targetReps, int totalSets, double restSeconds);
   // dinlenmeyi erken bitir (kullanıcı "hazırım" derse) — sıradaki sete geç.
   void skipRest();
+
+  // Aşama 14: oturumun o ana kadarki özeti.
+  Summary summary() const;
 
   // yumuşatma ve faz durumunu sıfırla (hareket/oturum değişince). plan korunur.
   void reset();
@@ -178,6 +196,11 @@ class Engine {
   bool resting_ = false;
   double restEndT_ = 0;        // dinlenmenin biteceği motor-zamanı (ms)
   bool workoutDone_ = false;
+  // Aşama 14: özet birikimi
+  int bestScore_ = -1;
+  int cleanReps_ = 0;          // form sorunu olmayan tekrar
+  double startT_ = -1;         // ilk kare zamanı
+  double lastT_ = 0;           // son kare zamanı
 };
 
 }  // namespace coach

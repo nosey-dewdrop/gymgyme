@@ -137,6 +137,25 @@ void Engine::reset() {
   resting_ = false;
   restEndT_ = 0;
   workoutDone_ = false;
+  bestScore_ = -1;
+  cleanReps_ = 0;
+  startT_ = -1;
+  lastT_ = 0;
+}
+
+Summary Engine::summary() const {
+  Summary s;
+  s.reps = reps_;
+  s.halfReps = halfReps_;
+  s.totalSets = totalSets_;
+  s.avgScore = reps_ > 0 ? (int)std::lround(scoreSum_ / reps_) : -1;
+  s.bestScore = bestScore_;
+  s.cleanReps = cleanReps_;
+  s.workoutComplete = workoutDone_;
+  s.durationSec = startT_ >= 0 ? std::max(0.0, (lastT_ - startT_) / 1000.0) : 0.0;
+  if (targetReps_ > 0)
+    s.setsCompleted = workoutDone_ ? totalSets_ : (currentSet_ - 1 + (resting_ ? 1 : 0));
+  return s;
 }
 
 void Engine::setPlan(int targetReps, int totalSets, double restSeconds) {
@@ -169,6 +188,8 @@ Reading Engine::update(const std::vector<Landmark>& p,
                        const std::vector<Landmark>& world, double timestampMs) {
   double t = timestampMs;
   if (t < 0) { fakeT_ += 1000.0 / 30.0; t = fakeT_; }   // saat verilmediyse ~30fps varsay
+  if (startT_ < 0) startT_ = t;                          // seans süresi için (Aşama 14)
+  lastT_ = t;
 
   // ── Aşama 13: dinlenme geri sayımı. Motor zaman-farkında olduğu için süreyi
   // KENDİ tutar — dinlenirken vücut kadrajda olmasa da (mola verip çıkabilirsin)
@@ -358,6 +379,8 @@ Reading Engine::update(const std::vector<Landmark>& p,
       violMask_ = 0;
       lastRepSec_ = durSec;
       scoreSum_ += lastScore_;
+      if (lastScore_ > bestScore_) bestScore_ = lastScore_;   // Aşama 14
+      if (lastFormIssues_ == 0) cleanReps_++;
       inRep_ = false;
       repMinA_ = 1e9;
     }
