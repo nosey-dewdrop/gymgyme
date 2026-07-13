@@ -216,6 +216,14 @@ Altı yeni test, yetmiş altı test hepsi geçiyor. Motor artık bir tekrarı de
 
 **Sırada:** bu özeti gymgyme "programım"a işlemek — "en son ne zaman yaptın" güncellensin, seans geçmişe düşsün.
 
+## Aşama 16 & 17 — Herkese ve her telefona
+
+İki sessiz ama şart olan pas: erişilebilirlik ve mobil/performans.
+
+Erişilebilirlik: sayaç, form ipuçları, set satırı ve mola geri sayımı artık `aria-live` — ekran okuyucu her tekrarı, her uyarıyı sesli duyuruyor. Plan alanlarına etiket, butonlara görünür klavye odağı, hareket hassasiyeti olanlar için `prefers-reduced-motion`'da sayaç zıplaması ve bar animasyonu kapanıyor. Koç gözle görmeyen için de çalışıyor.
+
+Mobil & performans: kamera artık sabit 640x480 istemiyor, ön kamerayı esnek çözünürlükle istiyor — telefon dikey verirse motor kadraja uyuyor. Ve sekme arkaya atılınca ağır pose işini atlıyoruz; kamera açık kalıyor ama telefon ısınmıyor, pil yanmıyor. Çoğu insan bunu telefonla yapacak; o yüzden bu pas lüks değil.
+
 ## Yol haritası (19 aşama, 0–18)
 
 Her aşama tek başına çekilebilir gerçek bir adım — biri bitince küçük bir "oldu" anı, bir reels. Sıra kabaca **görmek → anlamak → saymak → düzeltmek → ürünleştirmek** diye ilerliyor.
@@ -245,8 +253,8 @@ Her aşama tek başına çekilebilir gerçek bir adım — biri bitince küçük
 - **13 · Set & dinlenme akışı** — "3 set x 12", set arası dinlenme sayacı, sesli yönlendirme. Tek tekrardan tam antrenmana. *(bitti — mola geri sayımı motorda, plan opsiyonel)*
 - **14 · Seans özeti** — kaç tekrar, ortalama derinlik, form skoru; bölge bölge küçük rapor. Yapılandırılmış çıktı (stitchu ruhu). *(bitti — motorda summary(), sıcak dilde kart)*
 - **15 · "Programım"a bağla** — seansı gymgyme planlayıcısına işle, "en son ne zaman yaptın" güncellensin. Motor ürünün geri kalanıyla konuşsun.
-- **16 · Ton & erişilebilirlik** — VOICE diline uygun, suçlamasız cümleler; sesli sayım; düşük görme/renk körü uyumu. Soğuk bir makine değil.
-- **17 · Mobil & performans** — telefon kamerası, dikey çerçeve, lite model/GPU, düşük pil. Çoğu insan telefonla antrenman yapacak.
+- **16 · Ton & erişilebilirlik** — VOICE diline uygun, suçlamasız cümleler; sesli sayım; düşük görme/renk körü uyumu. Soğuk bir makine değil. *(bitti — aria-live, klavye odağı, reduced-motion)*
+- **17 · Mobil & performans** — telefon kamerası, dikey çerçeve, lite model/GPU, düşük pil. Çoğu insan telefonla antrenman yapacak. *(bitti — ön kamera esnek çözünürlük, sekme arkada pose durur)*
 - **18 · Yayına aç** — menüye ekle, ilk kullanım onboarding'i, gizlilik/consent metni (cihazda çalışır, kayıt yok — KVKK temiz). Artık herkese açık.
 
 Büyük ve çok oturumluk iş — acele yok. Bittiğinde gymgyme "linklere bak"tan "seni izleyip çalıştıran koç"a dönüşmüş olacak: aynı site, bambaşka bir kalp.

@@ -79,3 +79,12 @@
 
 .private { font-size: 12px; opacity: 0.75; margin-top: 4px; max-width: 560px; }
 .wip { font-size: 12px; opacity: 0.75; margin-top: 22px; max-width: 560px; }
+
+/* erişilebilirlik: klavyeyle gezene görünür odak; hareket hassasiyeti olana sakin. */
+#moveSel:focus-visible, .startbtn:focus-visible, .restbtn:focus-visible, .plan-num:focus-visible {
+  outline: 2px solid #33000E; outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rep-count.ticked { animation: none; }
+  .bar-fill { transition: none; }
+}

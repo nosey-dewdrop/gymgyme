@@ -144,7 +144,10 @@ async function start() {
     applyPlan();                               // plan alanlarını motora ver
     summaryEl.hidden = true;                   // yeni seans, eski özet gitsin
     setStatus("asking for the camera...");
-    const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } });
+    // ön kamera, esnek çözünürlük — telefon dikey de verse motor kadraja uyar.
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } }
+    });
     video.srcObject = stream;
     await video.play();
     stage.hidden = false;
@@ -341,6 +344,8 @@ function render(r) {
 
 function loop() {
   if (!running) return;
+  // sekme arkadayken ağır pose işini atla — pil ve ısı için. kamera açık kalır.
+  if (document.hidden) { requestAnimationFrame(loop); return; }
   if (video.currentTime !== lastVideoTime && video.readyState >= 2) {
     lastVideoTime = video.currentTime;
     if (canvas.width !== (video.videoWidth || canvas.width)) sizeCanvas();
