@@ -6,7 +6,7 @@
 .pt-title { font-size: clamp(40px, 7vw, 76px); letter-spacing: -0.02em; line-height: 1.05; margin: 6px 0 2px; }
 
 /* beyaz yumuşak kart - sayfanın yapı taşı */
-.card { background: #fff; border-radius: 18px; padding: 16px 20px; max-width: 560px; margin: 14px 0; box-shadow: 0 2px 12px rgba(51, 0, 14, 0.07); }
+.card { background: #fff; border-radius: 18px; padding: 14px 18px; max-width: 560px; margin: 10px 0; box-shadow: 0 2px 12px rgba(51, 0, 14, 0.07); }
 .card-title { font-size: 13px; font-weight: bold; color: #A61B42; margin: 0 0 8px; }
 
 /* onboarding: işte motorumuz */
@@ -30,6 +30,8 @@
 .move-row label { font-size: 12px; opacity: 0.7; margin-right: 8px; }
 #moveSel { font-family: inherit; font-size: 16px; font-weight: bold; color: #33000E; background: #fff; border: none; box-shadow: 0 1px 5px rgba(51, 0, 14, 0.12); border-radius: 12px; padding: 6px 12px; cursor: pointer; }
 
+.prog-list { margin: 2px 0 8px; }
+.prog-item { font-size: 14px; line-height: 1.9; }
 .plan-row { margin: 4px 0 2px; font-size: 13px; line-height: 2.1; }
 .plan-lead { opacity: 0.7; margin-right: 6px; }
 .plan-num { font-family: inherit; font-size: 15px; font-weight: bold; color: #33000E; background: #fff; border: none; box-shadow: 0 1px 5px rgba(51, 0, 14, 0.12); border-radius: 12px; width: 48px; padding: 5px 6px; text-align: center; margin: 0 3px; -moz-appearance: textfield; }

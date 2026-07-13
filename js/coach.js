@@ -48,15 +48,48 @@ const privateNote = $("private");
 const LM = 33;                 // MediaPipe pose nokta sayısı
 const FLOATS = LM * 4;         // her nokta [x, y, z, visibility]
 
-// plan giriş alanlarını oku, motora ver. reps=0 → plan yok (serbest say).
-// motora setPlan çağrısı ilerlemeyi sıfırlar, o yüzden başlarken ve plan
-// alanları değişince çağrılır.
-function applyPlan() {
-  if (!engine) return;
+// ── program: hareket KUYRUĞU (Damla: seans değil program). cihazda saklanır,
+// kamera sırayla oynatır — biten hareket kaydedilir, sıradaki 5 sn geri sayımla gelir. ──
+const PROG_KEY = "gg_program";
+const progListEl = $("progList"), addMoveBtn = $("addMove");
+const introCard = $("intro"), progCard = $("progCard"), backProg = $("backProg");
+let program = { items: [], rest: 45 };
+try {
+  const p = JSON.parse(localStorage.getItem(PROG_KEY));
+  if (p && Array.isArray(p.items)) program = { items: p.items, rest: p.rest ?? 45 };
+} catch (_) { /* kayıt yoksa boş programla başlanır */ }
+let progIdx = 0;
+let switching = false;     // hareketler arası geri sayım — motor o karelerde dinlenir
+let doneSummaries = [];    // her hareketin özeti; sonda toplanıp tek özet gösterilir
+
+function saveProgram() { try { localStorage.setItem(PROG_KEY, JSON.stringify(program)); } catch (_) {} }
+function moveLabel(v) { const o = [...moveSel.options].find((x) => x.value === v); return o ? o.textContent : v; }
+function readPlanInputs() {
   const reps = Math.max(0, Math.min(99, parseInt(planReps.value, 10) || 0));
   const sets = Math.max(1, Math.min(20, parseInt(planSets.value, 10) || 1));
-  const rest = Math.max(0, Math.min(600, parseInt(planRest.value, 10) || 0));
-  engine.setPlan(reps, sets, rest);
+  return { move: moveSel.value, reps, sets };
+}
+function readRestInput() { return Math.max(0, Math.min(600, parseInt(planRest.value, 10) || 0)); }
+function renderProgram() {
+  progListEl.innerHTML = "";
+  program.items.forEach((it, i) => {
+    const d = document.createElement("div");
+    d.className = "prog-item";
+    d.textContent = (i + 1) + ". " + moveLabel(it.move) + " - " +
+      (it.reps > 0 ? it.reps + " reps × " + it.sets + " sets" : "free count");
+    const rm = document.createElement("button");
+    rm.type = "button"; rm.className = "mini"; rm.textContent = "remove";
+    rm.onclick = () => { program.items.splice(i, 1); saveProgram(); renderProgram(); };
+    d.append("  "); d.appendChild(rm);
+    progListEl.appendChild(d);
+  });
+}
+
+// sıradaki hareketin planını motora ver (setPlan ilerlemeyi sıfırlar).
+function applyPlan() {
+  if (!engine) return;
+  const it = program.items[progIdx] || readPlanInputs();
+  engine.setPlan(it.reps, it.sets, program.rest);
 }
 
 // hareketlerin insana dönük dili. hangi eklemin izlendiği, fazların ve gidişin
@@ -151,14 +184,41 @@ function buildAngleRows() {
   }
 }
 
+// kuyruğun i. hareketini yükle: motor sıfırdan o hareketle başlar, ekran temizlenir.
+function loadItem(i) {
+  progIdx = i;
+  const it = program.items[i];
+  moveSel.value = it.move;
+  move = MOVES[it.move] || MOVES.squat;
+  if (engine) { engine.setMove(it.move); applyPlan(); buildAngleRows(); }
+  sessionLogged = false; wasComplete = false;
+  repCountEl.textContent = "0"; halfNoteEl.textContent = ""; scoreLineEl.textContent = ""; msgEl.textContent = "";
+  setLineEl.hidden = true; restEl.hidden = true;
+  setStatus("move " + (i + 1) + " of " + program.items.length + ": " + moveLabel(it.move));
+}
+
+// biten hareketten sıradakine: 5 sn "next up" arası, motor o sırada dinlenir.
+function advanceMove() {
+  switching = true;
+  const next = program.items[progIdx + 1];
+  let n = 5;
+  phaseWord.textContent = "next: " + moveLabel(next.move);
+  subEl.textContent = "get in position - starting in " + n + "...";
+  const iv = setInterval(() => {
+    if (!running) { clearInterval(iv); switching = false; return; }
+    n--;
+    if (n <= 0) { clearInterval(iv); loadItem(progIdx + 1); switching = false; }
+    else subEl.textContent = "get in position - starting in " + n + "...";
+  }, 1000);
+}
+
 async function start() {
   startBtn.disabled = true;
   try {
     if (!poseLandmarker) await loadPose();
     if (!engine) await loadEngine();
-    applyPlan();                               // plan alanlarını motora ver
+    doneSummaries = [];
     summaryEl.hidden = true;                   // yeni seans, eski özet gitsin
-    sessionLogged = false;                     // yeni seans yeniden kaydedilebilir
     syncState = "none"; syncLineDiv = null;    // senkron satırı da sıfırdan
     setStatus("asking for the camera...");
     // ön kamera, esnek çözünürlük — telefon dikey de verse motor kadraja uyar.
@@ -171,7 +231,9 @@ async function start() {
     privateNote.hidden = false;
     stopBtn.hidden = false;
     sizeCanvas();
-    setStatus("i can see you. stand back so your whole body fits.");
+    loadItem(0);
+    setStatus("i can see you - move 1 of " + program.items.length + ": " +
+      moveLabel(program.items[0].move) + ". stand back so your whole body fits.");
     running = true;
     frames = 0; fps = 0; fpsClock = performance.now();
     requestAnimationFrame(loop);
@@ -183,10 +245,16 @@ async function start() {
 
 function stop() {
   running = false;
+  switching = false;
   const s = video.srcObject;
   if (s) s.getTracks().forEach((t) => t.stop());
   video.srcObject = null;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // yarıda durdurulan hareketin sayılmış tekrarları da kaybolmasın
+  if (engine && !sessionLogged) {
+    const cur = engine.summary();
+    if (cur && cur.reps > 0) { doneSummaries.push({ move: moveSel.value, s: cur }); logSession(cur); }
+  }
   showSummary();                 // reset'ten ÖNCE: özet bu seansın verisinden
   if (engine) engine.reset();
   restEl.hidden = true;
@@ -266,7 +334,14 @@ let wasComplete = false;   // antrenman-bitti sesini bir kez çalmak için
 // (targetReps=0) hiçbiri görünmez, sayfa bugünküyle aynı kalır.
 function renderPlan(r) {
   if (r.setTick && !r.workoutComplete) setChime();
-  if (r.workoutComplete && !wasComplete) { doneChime(); showSummary(); }
+  if (r.workoutComplete && !wasComplete) {
+    doneChime();
+    wasComplete = true;
+    const s = engine ? engine.summary() : null;
+    if (s && s.reps > 0) { doneSummaries.push({ move: moveSel.value, s }); logSession(s); }
+    if (progIdx < program.items.length - 1) { advanceMove(); return; }  // sıradaki hareket
+    showSummary();
+  }
   wasComplete = r.workoutComplete;
 
   const planned = r.targetReps > 0;
@@ -370,28 +445,35 @@ function logSession(s) {
   });
 }
 
-// seans özeti: motordan al, sıcak cümlelere çevir. reps=0 ise gösterme.
+// program özeti: biten HER hareketin özeti doneSummaries'te birikir (kayıt da
+// hareket başına yapıldı) — burada toplanıp tek sıcak özet gösterilir.
 function showSummary() {
-  if (!engine) return;
-  const s = engine.summary();
-  if (!s || s.reps === 0) { summaryEl.hidden = true; return; }
-  logSession(s);
-  const mins = Math.floor(s.durationSec / 60), secs = Math.round(s.durationSec % 60);
+  if (!doneSummaries.length) { summaryEl.hidden = true; return; }
+  let reps = 0, sets = 0, half = 0, clean = 0, dur = 0, wsum = 0, wn = 0, best = -1, complete = true;
+  const perMove = [];
+  for (const d of doneSummaries) {
+    const s = d.s;
+    reps += s.reps; sets += s.setsCompleted; half += s.halfReps; clean += s.cleanReps; dur += s.durationSec;
+    if (s.avgScore >= 0) { wsum += s.avgScore * s.reps; wn += s.reps; }
+    if (s.bestScore > best) best = s.bestScore;
+    complete = complete && s.workoutComplete;
+    perMove.push(moveLabel(d.move) + " - " + s.reps + " reps" + (s.avgScore >= 0 ? ", avg " + s.avgScore : ""));
+  }
+  const mins = Math.floor(dur / 60), secs = Math.round(dur % 60);
   const time = mins > 0 ? mins + " min " + secs + "s" : secs + "s";
   const lines = [];
-  lines.push(s.reps + " reps" + (s.setsCompleted > 0 ? " across " + s.setsCompleted + " sets" : "") + ", in " + time + ".");
-  if (s.avgScore >= 0) lines.push("they averaged " + s.avgScore + " out of 100, your best was " + s.bestScore + ".");
-  if (s.cleanReps > 0) lines.push(s.cleanReps + " came with clean form.");
-  if (s.halfReps > 0) lines.push(s.halfReps + " did not count - go all the way down next time.");
-  sumTitle.textContent = s.workoutComplete ? "that's a workout" : "nice work";
+  lines.push(reps + " reps" + (sets > 0 ? " across " + sets + " sets" : "") + ", in " + time + ".");
+  if (doneSummaries.length > 1) perMove.forEach((l) => lines.push(l));
+  if (wn > 0) lines.push("they averaged " + Math.round(wsum / wn) + " out of 100, your best was " + best + ".");
+  if (clean > 0) lines.push(clean + " came with clean form.");
+  if (half > 0) lines.push(half + " did not count - go all the way down next time.");
+  sumTitle.textContent = complete && doneSummaries.length === program.items.length ? "that's a workout" : "nice work";
   sumBody.innerHTML = "";
   lines.forEach((l) => { const d = document.createElement("div"); d.textContent = l; sumBody.appendChild(d); });
-  if (sessionLogged) {
-    // senkron satırı ayrı bir div: insert'in sonucu gelince yerinde güncellenir.
-    syncLineDiv = document.createElement("div");
-    syncLineDiv.textContent = syncText();
-    sumBody.appendChild(syncLineDiv);
-  }
+  // senkron satırı ayrı bir div: insert'in sonucu gelince yerinde güncellenir.
+  syncLineDiv = document.createElement("div");
+  syncLineDiv.textContent = syncText();
+  sumBody.appendChild(syncLineDiv);
   summaryEl.hidden = false;
 }
 
@@ -442,6 +524,7 @@ async function loadHistory() {
 
 function render(r) {
   renderPlan(r);
+  if (switching) return;   // hareket-arası geri sayım yazısını bu karenin geri kalanı ezmesin
   phaseWord.textContent = phraseFor(r);
   repCountEl.textContent = r.reps;
   if (r.repTick) repTick();
@@ -501,7 +584,7 @@ function loop() {
     if (result && result.landmarks && result.landmarks.length) {
       const lm = result.landmarks[0];
 
-      if (engine) {
+      if (engine && !switching) {
         // landmark'ları wasm heap'ine yaz (x aspect ile ölçekli ki açı bozulmasın),
         // sonra motora pointer geç. HEAPF32'yi her kare tazeliyoruz (bellek büyürse
         // eski görünüm geçersiz olabilir). İkinci buffer: MediaPipe'ın DÜNYA
@@ -550,42 +633,37 @@ function loop() {
   requestAnimationFrame(loop);
 }
 
-// hareket değişimi: motor sıfırdan başlar (setMove reset'i içerir), sayaç ekranı temizlenir.
-moveSel.addEventListener("change", () => {
-  move = MOVES[moveSel.value] || MOVES.squat;
-  if (engine) {
-    engine.setMove(moveSel.value);
-    applyPlan();                     // hareket değişince plan yeniden uygulanır (ilerleme sıfırlanır)
-    buildAngleRows();
-    repCountEl.textContent = "0";
-    halfNoteEl.textContent = "";
-    scoreLineEl.textContent = "";
-    msgEl.textContent = "";
-    setLineEl.hidden = true;
-    restEl.hidden = true;
-    summaryEl.hidden = true;
-    wasComplete = false;
-  }
-});
+// seçici artık aday hareketi tutar (programa "add" ile girer); motorunkini kuyruk yönetir.
+moveSel.addEventListener("change", () => { move = MOVES[moveSel.value] || MOVES.squat; });
 
-// plan alanları değişince motora anında yansı (ilerlemeyi sıfırlar).
-[planReps, planSets, planRest].forEach((el) => el.addEventListener("change", () => {
-  applyPlan();
-  wasComplete = false;
-}));
+// dinlenme süresi programın ortak ayarı — değişince kaydedilir.
+planRest.addEventListener("change", () => { program.rest = readRestInput(); saveProgram(); });
 
 // "hazırım": molayı erken bitir, sıradaki sete geç.
 skipRestBtn.addEventListener("click", () => { if (engine) engine.skipRest(); });
 
-// mecburi ayar adımı: hareket + plan seçilip "continue" denmeden kamera bölümü
-// hiç görünmez. her sayfa açılışında adım yeniden yaşanır.
+// ── sihirbaz: 1. program kur → next → 2. kamera. geri dönüş her an var. ──
 const readyBtn = $("ready"), startWrap = $("startWrap");
+addMoveBtn.addEventListener("click", () => {
+  program.items.push(readPlanInputs());
+  program.rest = readRestInput();
+  saveProgram(); renderProgram();
+});
 readyBtn.addEventListener("click", () => {
-  applyPlan();
+  if (!program.items.length) program.items.push(readPlanInputs());  // tek hareket de bir programdır
+  program.rest = readRestInput();
+  saveProgram(); renderProgram();
+  introCard.hidden = true; progCard.hidden = true;
   startWrap.hidden = false;
-  readyBtn.textContent = "session set - change anything anytime";
   startBtn.focus();
 });
+backProg.addEventListener("click", () => {
+  if (running) stop();
+  startWrap.hidden = true;
+  introCard.hidden = false; progCard.hidden = false;
+});
+planRest.value = program.rest;
+renderProgram();
 
 // ilk kullanım onayı (KVKK): kamera izninden ÖNCE bir kez, açık cümlelerle.
 // localStorage yoksa her seferinde gösterilir — kimse habersiz kamera açmaz.
