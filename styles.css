@@ -30,15 +30,14 @@ h2 { font-size: 24px; text-transform: lowercase; margin: 22px 0 6px; }
 .small { font-size: 12px; opacity: 0.75; margin-bottom: 8px; }
 .loading { margin-top: 30px; }
 
-/* top bar - brand far left, links far right, floating straight on the pink (no white strip) */
-.topbar { width: 100vw; margin: -44px 0 12px calc(50% - 50vw); padding: 16px 24px 0; display: flex; align-items: baseline; justify-content: space-between; gap: 10px 16px; flex-wrap: wrap; }
+/* top bar - one clean header row: brand left, three equal links right, thin rule under it */
+.topbar { width: 100vw; margin: -44px 0 20px calc(50% - 50vw); padding: 14px 24px 12px; display: flex; align-items: center; justify-content: space-between; gap: 6px 20px; flex-wrap: wrap; border-bottom: 1px solid rgba(142, 0, 56, 0.18); }
 .topbar a, .topbar a:visited { text-decoration: none; }
-.topbar a:hover { text-decoration: underline; }
+.topbar a:hover { color: #6E0030; }
 .topbar .brand, .topbar .brand:visited { margin: 0; font-size: 20px; font-weight: bold; color: #33000E; }
-.topnav { display: flex; align-items: baseline; gap: 22px; flex-wrap: wrap; }
+.topnav { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
 .topnav a, .topnav a:visited { font-weight: bold; font-size: 14px; color: #8E0038; }
 .topnav a.suggest-big { font-size: 14px; }
-.topnav .stat { font-size: 12px; opacity: 0.7; }
 
 /* hero - the engine comes first: big type straight on the pink, no box */
 .hero { padding: 8px 0 0; margin-bottom: 16px; }
@@ -49,6 +48,7 @@ h2 { font-size: 24px; text-transform: lowercase; margin: 22px 0 6px; }
 .herobtn:hover { background: #6E0030; }
 .hero-sub { font-size: 12px; opacity: 0.7; margin-top: 4px; }
 .dir-tag { margin: 0 0 8px; }
+.dir-tag .stat { font-weight: bold; opacity: 0.9; }
 
 /* first visit: onboarding is the page - directory chrome steps aside */
 body.fresh #nav, body.fresh .dir-tag { display: none; }
