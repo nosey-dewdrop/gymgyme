@@ -98,9 +98,35 @@
       d.append(name, x);
       panel.appendChild(d);
     });
+    // playlist kaydet (Damla'nin metaforu: my moves = begenilen sarkilar,
+    // playlist = onlardan kurdugun isimli set; trainer'da chip olarak cikar).
+    const plRow = document.createElement("p");
+    plRow.className = "plrow";
+    const plName = document.createElement("input");
+    plName.placeholder = "name this playlist...";
+    plName.maxLength = 30;
+    const plBtn = document.createElement("button");
+    plBtn.type = "button"; plBtn.textContent = "save \u2661";
+    plBtn.title = "save these liked moves as a playlist";
+    plBtn.addEventListener("click", () => {
+      const name = plName.value.trim();
+      if (!name) { plName.focus(); return; }
+      let lists = [];
+      try { lists = JSON.parse(localStorage.getItem("gg_playlists")) || []; } catch (_) {}
+      lists = lists.filter((x) => x.name !== name);
+      lists.push({ name, moves: getKept() });
+      try { localStorage.setItem("gg_playlists", JSON.stringify(lists)); } catch (_) {}
+      window.dispatchEvent(new Event("gg-playlists-changed"));
+      plName.value = "";
+      plBtn.textContent = "saved!";
+      setTimeout(() => { plBtn.textContent = "save \u2661"; }, 1400);
+    });
+    plRow.append(plName, plBtn);
+    panel.appendChild(plRow);
+
     const foot = document.createElement("p");
     foot.className = "kfoot";
-    foot.innerHTML = 'build tonight\'s set list with these on the <a href="coach.html">personal trainer</a>.';
+    foot.innerHTML = 'saved playlists show up as chips on the <a href="coach.html">personal trainer</a> sign.';
     panel.appendChild(foot);
   }
   renderKept();

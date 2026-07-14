@@ -46,129 +46,119 @@
   <div class="awning"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
   <div class="now">BACKSTAGE · WHERE THE SHOW IS BUILT</div>
   <h1>✨ personal trainer 🎀 - build tonight's set list</h1>
-  <p>line up your moves in order. the camera plays them one by one - counts each with a tick, rests you between sets, then calls the next act. the engine is c++ in your browser; the video never leaves your device.</p>
+  <p>line up your moves in order. the camera plays them one by one - counts each with a tick, rests you between sets, then calls the next act. reps 0 means count freely until you take a bow.</p>
+  <div class="pickband">
+    <div class="plbl">PROGRAMS · TAP ONE AND THE SET LIST PRINTS ITSELF</div>
+    <span id="progBtns"></span>
+    <div class="plbl plbl-gap">OR SEARCH A MOVE - IT ADDS STRAIGHT TO THE RECEIPT</div>
+    <span class="tsw"><input id="trainSearch" placeholder="search a move to add..." autocomplete="off"><span class="tmag">🔍</span><div class="tsuggest" id="trainSuggest"></div></span>
+  </div>
   <div class="bulbs b-bot"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
 </section>
 
-<div class="coach-main">
-<div class="setup">
-<div class="card" id="progCard">
-  <p class="card-title">build tonight's set list</p>
-  <p class="prog-lead">tap a program and the receipt prints itself, or add moves one by one. your set list lives on the pink receipt - drag it anywhere, cross a line to cut it.</p>
-  <div class="preset-row" id="progPresets"></div>
-  <div class="move-row">
-    <label for="moveSel">add</label>
-    <select id="moveSel">
-      <option value="squat">squat</option>
-      <option value="sumosquat">sumo squat</option>
-      <option value="lunge">lunge</option>
-      <option value="sidelunge">side lunge</option>
-      <option value="pushup">push-up</option>
-      <option value="kneelingpushup">kneeling push-up</option>
-      <option value="glutebridge">glute bridge</option>
-      <option value="situp">sit-up</option>
-      <option value="press">press</option>
-      <option value="kickback">glute kickback</option>
-      <option value="birddog">bird dog</option>
-      <option value="calfraise">calf raise</option>
-      <option value="jumpingjack">jumping jack</option>
-      <option value="armraise">arm raise</option>
-    </select>
-  </div>
-  <div class="plan-row">
-    <input id="planReps" class="plan-num" type="number" min="0" max="99" inputmode="numeric" value="10" aria-label="reps per set"><label for="planReps">reps</label>
-    <span class="plan-x">in</span>
-    <input id="planSets" class="plan-num" type="number" min="1" max="20" inputmode="numeric" value="3" aria-label="number of sets"><label for="planSets">sets</label>
-    <button id="addMove" class="mainbtn soft" type="button">+ add to workout</button>
-    <span class="plan-hint">reps 0 = count freely (ends when you press stop).</span>
-  </div>
-  <div class="plan-row">
-    <span class="plan-lead">rest</span>
-    <input id="planRest" class="plan-num" type="number" min="0" max="600" step="5" inputmode="numeric" value="45" aria-label="rest seconds between sets"><label for="planRest">s between sets and moves</label>
-  </div>
-  <button id="ready" class="mainbtn">start the workout</button>
+<!-- gorunmez durum tutuculari: motor/plan mantigi bunlari okur; kurulum artik tabelada -->
+<div hidden aria-hidden="true">
+  <div id="intro"></div>
+  <div id="progCard"></div>
+  <select id="moveSel">
+    <option value="squat">squat</option>
+    <option value="sumosquat">sumo squat</option>
+    <option value="lunge">lunge</option>
+    <option value="sidelunge">side lunge</option>
+    <option value="pushup">push-up</option>
+    <option value="kneelingpushup">kneeling push-up</option>
+    <option value="glutebridge">glute bridge</option>
+    <option value="situp">sit-up</option>
+    <option value="press">press</option>
+    <option value="kickback">glute kickback</option>
+    <option value="birddog">bird dog</option>
+    <option value="calfraise">calf raise</option>
+    <option value="jumpingjack">jumping jack</option>
+    <option value="armraise">arm raise</option>
+  </select>
+  <input id="planReps" type="number" value="10">
+  <input id="planSets" type="number" value="3">
+  <input id="planRest" type="number" value="45">
+  <button id="addMove" type="button"></button>
 </div>
 
-<div class="card consent" id="consent" hidden>
-  <p>quick note before your first session: the personal trainer reads your body through your camera, entirely on this device. no video is uploaded, recorded or stored - ever. if you sign in, only your workout numbers (reps, scores, dates) are saved to your account. details: <a href="gizlilik.html">your data</a>.</p>
-  <button id="consentGo" class="mainbtn">got it - start the workout</button>
-</div>
-
-<div id="startWrap" hidden>
-  <p class="safety">go at your own pace and warm up first. stop if anything hurts. your personal trainer reads your form to help you move better - it is not medical advice, and it does not replace a doctor.</p>
-  <button id="stop" class="mainbtn soft" hidden>stop</button>
-  <button id="backProg" class="mini" type="button">back to your program</button>
-</div>
-<p class="status" id="status" role="status" aria-live="polite"></p>
-</div><!-- /setup -->
-
-<div class="live">
-<div class="card intro" id="intro">
-  <p class="intro-big">meet the engine.</p>
-  <p>your camera reads 33 points of your body and our own c++ engine turns them into reps, scores and form cues - all inside your browser. no video ever leaves your device. first it learns YOUR body, then it locks onto you.</p>
-  <p class="intro-steps">build your workout · start the camera · it plays every move, counts and scores each rep</p>
-</div>
-<p class="wip" id="wip-moves">the trainer watches fourteen moves - squats and lunges, push-ups on toes or knees, bridge, sit-up, press, kickback, bird dog, calf raise, jumping jack, arm raise. it counts full reps with a tick, calls out the half reps that did not count, and scores every rep from depth, tempo and control.</p>
-<div class="stage" id="stage" hidden>
-  <video id="cam" autoplay playsinline muted></video>
-  <canvas id="overlay"></canvas>
-  <div class="awning"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-  <div class="bulbs b-left"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-  <div class="bulbs b-right"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-  <div class="bulbs b-bot"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-</div>
-
-<div class="read card" id="read" hidden>
-  <div class="set-line" id="setLine" aria-live="polite" hidden></div>
-  <div class="rep-row"><span class="rep-count" id="repCount" aria-live="polite" aria-label="reps">0</span><span class="rep-label">reps</span></div>
-  <div class="half-note" id="halfNote" aria-live="polite"></div>
-  <div class="score-line" id="scoreLine"></div>
-  <div class="rep-comment" id="repComment" aria-live="polite"></div>
-  <div class="phase-word" id="phaseWord">-</div>
-  <div class="sub" id="sub"></div>
-
-  <div class="rest" id="rest" hidden>
-    <div class="rest-word">rest</div>
-    <div class="rest-count" id="restCount" aria-live="polite" aria-label="rest seconds remaining">45</div>
-    <div class="rest-sub" id="restSub">next set coming up</div>
-    <button id="skipRest" class="restbtn">i'm ready</button>
+<div class="stagefloor">
+  <div class="camstage" id="camstage">
+    <span class="cam">📸</span>
+    <b>the stage goes here</b>
+    <span>your camera opens in this spot and never leaves the building.<br>it learns YOUR body first, then locks onto you.</span>
+    <button id="ready" class="stagestart">▸ start the show</button>
   </div>
 
-  <div class="meter">
-    <div class="meter-label">depth</div>
-    <div class="bar"><div class="bar-fill" id="depthFill"></div></div>
-  </div>
-  <div class="meter">
-    <div class="meter-label">tracking confidence</div>
-    <div class="bar conf"><div class="bar-fill" id="confFill"></div></div>
-  </div>
-  <div class="meter">
-    <div class="meter-label">body in frame</div>
-    <div class="bar conf"><div class="bar-fill" id="framingFill"></div></div>
+  <div class="card consent" id="consent" hidden>
+    <p>quick note before your first session: the personal trainer reads your body through your camera, entirely on this device. no video is uploaded, recorded or stored - ever. if you sign in, only your workout numbers (reps, scores, dates) are saved to your account. details: <a href="gizlilik.html">your data</a>.</p>
+    <button id="consentGo" class="mainbtn">got it - start the workout</button>
   </div>
 
-  <div class="angles" id="angles"></div>
-  <div class="fps" id="fps"></div>
-  <div class="msg" id="msg" aria-live="polite"></div>
-</div>
+  <div class="stage" id="stage" hidden>
+    <video id="cam" autoplay playsinline muted></video>
+    <canvas id="overlay"></canvas>
+  </div>
 
-<div class="summary card" id="summary" role="region" aria-label="session summary" hidden>
-  <div class="summary-title" id="sumTitle">that's a workout</div>
-  <div class="summary-body" id="sumBody"></div>
-</div>
-</div><!-- /live -->
-</div><!-- /coach-main -->
+  <div id="startWrap" hidden>
+    <p class="safety">go at your own pace and warm up first. stop if anything hurts. your personal trainer reads your form to help you move better - it is not medical advice, and it does not replace a doctor.</p>
+    <button id="stop" class="mainbtn soft" hidden>stop</button>
+    <button id="backProg" class="mini" type="button">back to the stage</button>
+  </div>
+  <p class="status" id="status" role="status" aria-live="polite"></p>
 
-<div class="receipt" id="setReceipt" hidden>
-  <button class="rclose" id="rclose" type="button" aria-label="close the set list">×</button>
-  <div class="rhead"><b>GYMGYME</b><br>tonight's set list<br><span class="rdrag">drag me anywhere</span></div>
-  <div class="rrule"></div>
-  <div id="progList"></div>
-  <div class="rrule"></div>
-  <div class="rtotal"><span>TOTAL REPS</span><span id="rtot">0</span></div>
-  <p class="rnote">tap a line to cross it off. no refunds, only rest days.</p>
-</div>
-<button class="receipt-tab" id="rtab" type="button" hidden>🧾 your set list</button>
+  <div class="read card" id="read" hidden>
+    <div class="set-line" id="setLine" aria-live="polite" hidden></div>
+    <div class="rep-row"><span class="rep-count" id="repCount" aria-live="polite" aria-label="reps">0</span><span class="rep-label">reps</span></div>
+    <div class="half-note" id="halfNote" aria-live="polite"></div>
+    <div class="score-line" id="scoreLine"></div>
+    <div class="rep-comment" id="repComment" aria-live="polite"></div>
+    <div class="phase-word" id="phaseWord">-</div>
+    <div class="sub" id="sub"></div>
+
+    <div class="rest" id="rest" hidden>
+      <div class="rest-word">rest</div>
+      <div class="rest-count" id="restCount" aria-live="polite" aria-label="rest seconds remaining">45</div>
+      <div class="rest-sub" id="restSub">next set coming up</div>
+      <button id="skipRest" class="restbtn">i'm ready</button>
+    </div>
+
+    <div class="meter">
+      <div class="meter-label">depth</div>
+      <div class="bar"><div class="bar-fill" id="depthFill"></div></div>
+    </div>
+    <div class="meter">
+      <div class="meter-label">tracking confidence</div>
+      <div class="bar conf"><div class="bar-fill" id="confFill"></div></div>
+    </div>
+    <div class="meter">
+      <div class="meter-label">body in frame</div>
+      <div class="bar conf"><div class="bar-fill" id="framingFill"></div></div>
+    </div>
+
+    <div class="angles" id="angles"></div>
+    <div class="fps" id="fps"></div>
+    <div class="msg" id="msg" aria-live="polite"></div>
+  </div>
+
+  <div class="summary card" id="summary" role="region" aria-label="session summary" hidden>
+    <div class="summary-title" id="sumTitle">that's a workout</div>
+    <div class="summary-body" id="sumBody"></div>
+  </div>
+
+  <div class="receipt" id="setReceipt" hidden>
+    <button class="rclose" id="rclose" type="button" aria-label="close the set list">×</button>
+    <div class="rhead"><b>GYMGYME</b><br>tonight's set list<br><span class="rdrag">drag me anywhere</span></div>
+    <div class="rrule"></div>
+    <div id="progList"></div>
+    <div class="rrule"></div>
+    <div class="rtotal"><span>TOTAL REPS</span><span id="rtot">0</span></div>
+    <p class="rnote">tap a line to cross it off. no refunds, only rest days.</p>
+  </div>
+  <button class="receipt-tab" id="rtab" type="button" hidden>🧾 your set list</button>
+</div><!-- /stagefloor -->
+
+
 
 <div class="coach-foot">
 <div class="history card" id="history" role="region" aria-label="your workouts" hidden>

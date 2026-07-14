@@ -164,18 +164,76 @@ const PRESETS = {
   "quiet apartment set": ["squat", "glutebridge", "birddog", "situp"],
   "wake the neighbors": ["jumpingjack", "squat", "pushup", "kickback"],
 };
-const presetRow = $("progPresets");
-if (presetRow) {
+// chipler tabelanin icinde (mockup birebir): hazir programlar + SENIN playlistlerin.
+// playlist = my moves'tan kaydedilen isimli set (gg_playlists, cihazda).
+const PLAYLIST_KEY = "gg_playlists";
+function getPlaylists() {
+  try { return JSON.parse(localStorage.getItem(PLAYLIST_KEY)) || []; } catch (_) { return []; }
+}
+// motorun izleyebildigi hareketler: gorunmez select'teki 14 etiket -> anahtar
+const ENGINE_BY_NAME = {};
+for (const o of moveSel.options) ENGINE_BY_NAME[o.textContent.trim().toLowerCase()] = o.value;
+function printItems(items) {
+  program.items = items;
+  saveProgram(); renderProgram();
+}
+function renderChips() {
+  const wrap = $("progBtns");
+  if (!wrap) return;
+  wrap.innerHTML = "";
   for (const [name, moves] of Object.entries(PRESETS)) {
     const b = document.createElement("button");
-    b.type = "button"; b.className = "presetbtn"; b.textContent = name;
-    b.onclick = () => {
-      const { reps, sets } = readPlanInputs();
-      program.items = moves.map((m) => ({ move: m, reps: reps || 10, sets: sets || 3 }));
-      saveProgram(); renderProgram();
-    };
-    presetRow.appendChild(b);
+    b.type = "button"; b.textContent = name;
+    b.onclick = () => printItems(moves.map((m) => ({ move: m, reps: 10, sets: 3 })));
+    wrap.appendChild(b);
   }
+  for (const pl of getPlaylists()) {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "plchip"; b.textContent = "\u2661 " + pl.name;
+    b.onclick = () => {
+      const coachable = [], skipped = [];
+      for (const m of pl.moves || []) {
+        const key = ENGINE_BY_NAME[String(m).trim().toLowerCase()];
+        if (key) coachable.push({ move: key, reps: 10, sets: 3 });
+        else skipped.push(m);
+      }
+      printItems(coachable);
+      if (skipped.length) setStatus("left off the receipt (camera can't watch these yet): " + skipped.join(", "));
+    };
+    wrap.appendChild(b);
+  }
+}
+renderChips();
+window.addEventListener("gg-playlists-changed", renderChips);
+window.addEventListener("storage", renderChips);
+
+// arama: SECILI programin ustune ek hareket - fise direkt basar (mockup birebir).
+// durustluk siniri: sadece motorun izleyebildigi hareketler onerilir.
+const trainSearch = $("trainSearch"), trainSuggest = $("trainSuggest");
+if (trainSearch && trainSuggest) {
+  trainSearch.addEventListener("input", () => {
+    const v = trainSearch.value.trim().toLowerCase();
+    trainSuggest.innerHTML = "";
+    if (v) {
+      for (const o of [...moveSel.options].filter((o) => o.textContent.toLowerCase().includes(v)).slice(0, 7)) {
+        const d = document.createElement("div");
+        d.className = "tr";
+        const nm = document.createElement("span"); nm.textContent = o.textContent;
+        const sm = document.createElement("small"); sm.textContent = "add";
+        d.append(nm, sm);
+        d.addEventListener("click", () => {
+          program.items.push({ move: o.value, reps: 10, sets: 3 });
+          saveProgram(); renderProgram();
+          trainSearch.value = ""; trainSuggest.classList.remove("open");
+        });
+        trainSuggest.appendChild(d);
+      }
+    }
+    trainSuggest.classList.toggle("open", trainSuggest.children.length > 0);
+  });
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".tsw")) trainSuggest.classList.remove("open");
+  });
 }
 
 // sıradaki hareketin planını motora ver (setPlan ilerlemeyi sıfırlar).
@@ -238,7 +296,8 @@ async function loadPose() {
       delegate: "GPU"
     },
     runningMode: "VIDEO",
-    numPoses: 2   // Faz 2: kadraja ikinci kişi girerse motor KİMİ izleyeceğini kendi seçer
+    numPoses: 2,   // Faz 2: kadraja ikinci kişi girerse motor KİMİ izleyeceğini kendi seçer
+    outputSegmentationMasks: true   // "iskelet degil vucut": siluet isiltisi icin
   });
   drawer = new DrawingUtils(ctx);
   // ── görsel ağ katmanı (Damla "ekle", 15 tem): yüz 478 nokta + el 21'er nokta.
@@ -333,6 +392,7 @@ function advanceMove() {
 async function start() {
   // kurulum çekilir, kamera sahnesi açılır (video ortada kocaman gelir)
   introCard.hidden = true; progCard.hidden = true; consentEl.hidden = true;
+  if (camstageEl) camstageEl.hidden = true;
   startWrap.hidden = false;
   try {
     if (!poseLandmarker) await loadPose();
@@ -364,6 +424,7 @@ async function start() {
     document.body.classList.remove("running");
     startWrap.hidden = true;
     introCard.hidden = false; progCard.hidden = false;   // kurulum geri gelsin, tekrar denesin
+    if (camstageEl) camstageEl.hidden = false;
   }
 }
 
@@ -394,6 +455,7 @@ function stop() {
   // kurulum geri gelsin: özet üstte, altında yeni workout kurabilir
   startWrap.hidden = true;
   introCard.hidden = false; progCard.hidden = false;
+  if (camstageEl) camstageEl.hidden = false;
   setStatus("stopped. the camera is off.");
   renderProgram();   // vurgu söner, satır kesme geri açılır
 }
@@ -415,6 +477,28 @@ function phraseFor(r) {
 }
 
 const deg = (v) => (v >= 0 ? Math.round(v) + "°" : "–");
+
+// ── "iskelet değil vücut" (Damla, 15 tem): poz modelinin siluet maskesi vücudun
+// GERÇEK konturunu verir — omuz, kol, bel kavisleri. İskeletin altına yumuşak
+// vişne ışıltısı olarak çizilir; motoru hiç ilgilendirmez, çizilemezse atlanır. ──
+let silCanvas = null, silCtx = null;
+function drawSilhouette(mask) {
+  try {
+    const src = mask.canvas || null;
+    if (!src) return;
+    if (!silCanvas) { silCanvas = document.createElement("canvas"); silCtx = silCanvas.getContext("2d"); }
+    if (silCanvas.width !== canvas.width || silCanvas.height !== canvas.height) {
+      silCanvas.width = canvas.width; silCanvas.height = canvas.height;
+    }
+    silCtx.clearRect(0, 0, silCanvas.width, silCanvas.height);
+    silCtx.drawImage(src, 0, 0, silCanvas.width, silCanvas.height);
+    silCtx.globalCompositeOperation = "source-in";
+    silCtx.fillStyle = "rgba(166, 27, 66, 0.18)";
+    silCtx.fillRect(0, 0, silCanvas.width, silCanvas.height);
+    silCtx.globalCompositeOperation = "source-over";
+    ctx.drawImage(silCanvas, 0, 0);
+  } catch (_) { /* siluet süs — düşerse iskelet ve sayaç yaşar */ }
+}
 
 // ── CGI hissi (Damla, 15 tem): iskelet düz 2D değil, derinlik-kodlu çizilir.
 // Dedektör her noktanın z'sini zaten tahmin ediyor; yakın uzuv KALIN ve DOLGUN,
@@ -767,6 +851,11 @@ function loop() {
     const result = poseLandmarker.detectForVideo(video, performance.now());
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    if (result && result.segmentationMasks && result.segmentationMasks.length) {
+      drawSilhouette(result.segmentationMasks[0]);
+      for (const m of result.segmentationMasks) { try { m.close(); } catch (_) {} }
+    }
+
     let skeletonColor = "#33000E";
     if (result && result.landmarks && result.landmarks.length) {
       let drawLm = result.landmarks[0];   // motor yoksa ham ilk poz çizilir
@@ -889,6 +978,11 @@ skipRestBtn.addEventListener("click", () => { if (engine) engine.skipRest(); });
 // ── akış: workout kur → "start the workout" (TEK buton) → ilk sefer izin → kamera.
 // ara "start camera" ekranı YOK; en az bir hareket olmadan kamera açılmaz. ──
 const readyBtn = $("ready"), startWrap = $("startWrap");
+const camstageEl = $("camstage");
+if (camstageEl) camstageEl.addEventListener("click", (e) => {
+  if (e.target.id === "ready") return;   // buton kendi dinleyicisiyle başlatır
+  beginWorkout();
+});
 const consentEl = $("consent"), consentGo = $("consentGo");
 const CONSENT_KEY = "gg_consent_v1";
 function consentGiven() {
@@ -899,7 +993,11 @@ function beginWorkout() {
   if (!program.items.length) program.items.push(readPlanInputs());
   program.rest = readRestInput();
   saveProgram(); renderProgram();
-  if (!consentGiven()) { introCard.hidden = true; progCard.hidden = true; consentEl.hidden = false; consentGo.focus(); return; }
+  if (!consentGiven()) {
+    introCard.hidden = true; progCard.hidden = true;
+    if (camstageEl) camstageEl.hidden = true;
+    consentEl.hidden = false; consentGo.focus(); return;
+  }
   start();
 }
 addMoveBtn.addEventListener("click", () => {
@@ -917,6 +1015,7 @@ backProg.addEventListener("click", () => {
   if (running) stop();
   startWrap.hidden = true; consentEl.hidden = true;
   introCard.hidden = false; progCard.hidden = false;
+  if (camstageEl) camstageEl.hidden = false;
 });
 planRest.value = program.rest;
 renderProgram();
