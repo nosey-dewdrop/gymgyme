@@ -585,11 +585,12 @@ int main() {
     r = e.updateBest(one, oneW, (t += 33));
     check(r.pickedPose == 0, "multi-person: single candidate falls through");
 
-    // SERT KİLİT: kadrajda SADECE yabancı — motor ona geçmek yerine bekler
+    // SERT KİLİT: kadrajda SADECE yabancı — tek adayda veto yok (gercek kamera
+    // dersi) ama motorun ic kalibrasyon kapisi yabanciyi yine de IZLEMEZ.
     std::vector<std::vector<Landmark>> onlyStranger = {strangerS};
     std::vector<std::vector<Landmark>> onlyStrangerW = {strangerW};
     for (int i = 0; i < 5; i++) r = e.updateBest(onlyStranger, onlyStrangerW, (t += 33));
-    check(r.pickedPose == -1 && !r.tracking, "hard lock: a lone stranger is never coached");
+    check(r.pickedPose == -1 && !r.tracking, "hard lock: a clearly different lone body is never coached");
     // vücut dönünce takip kaldığı yerden devam eder
     r = e.updateBest(one, oneW, (t += 33));
     check(r.pickedPose == 0 && r.tracking, "hard lock: tracking resumes when the body returns");

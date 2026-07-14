@@ -1,7 +1,7 @@
 // gymgyme service worker: ana ekrana kurulan personal trainer offline da açılsın.
 // kamera + motor zaten cihazda çalışıyor; burada sadece dosyaları önbelleğe alıyoruz.
 // vendor/ ya da engine/ değişirse CACHE sürümünü artır — eski önbellek silinir.
-const CACHE = "gg-pwa-v30";  // v30: github.io test kanali + gorunur surum etiketi
+const CACHE = "gg-pwa-v31";  // v31: gercek kamera fix - tek kiside veto gevsedi, motor sesi videonun ustunde
 
 const CORE = [
   "coach.html",

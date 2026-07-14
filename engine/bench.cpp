@@ -389,8 +389,8 @@ static int runTwoPerson() {
   std::vector<Landmark> strangerS, strangerW;
   bodyFromTheta(170.0, strangerS, strangerW);
   for (auto& p : strangerS) if (p.visibility > 0) p.x += 0.30;
-  for (int i : {25, 26}) strangerW[i].y *= 0.65;   // uyluk kısa
-  for (int i : {27, 28}) strangerW[i].y *= 0.70;   // baldır kısa
+  for (int i : {25, 26}) strangerW[i].y *= 0.58;   // uyluk bariz kısa (%42)
+  for (int i : {27, 28}) strangerW[i].y *= 0.60;   // baldır bariz kısa
   const int enterAt = 240;   // kalibrasyon (ilk ~2 sn) çoktan bitmiş
 
   auto run = [&](bool best) {

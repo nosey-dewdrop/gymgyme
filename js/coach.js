@@ -520,6 +520,30 @@ function phraseFor(r) {
 
 const deg = (v) => (v >= 0 ? Math.round(v) + "°" : "–");
 
+// ── motorun sesi VİDEONUN ÜSTÜNE (15 tem, Damla: "uyarmıyor bile"): neden
+// saymadığını artık sahnede görürsün — mesajlar alttaki panelde saklanmaz. ──
+function drawBanner(text) {
+  if (!text) return;
+  const W = canvas.width;
+  ctx.save();
+  let size = Math.max(16, Math.round(W / 28));
+  ctx.font = "bold " + size + "px Arial";
+  while (ctx.measureText(text).width > W - 60 && size > 12) {
+    size -= 2;
+    ctx.font = "bold " + size + "px Arial";
+  }
+  const tw = ctx.measureText(text).width;
+  const pad = 14, h = size + pad * 1.4, x = (W - tw) / 2 - pad, y = 18;
+  ctx.fillStyle = "rgba(110, 0, 48, 0.82)";
+  ctx.beginPath();
+  ctx.roundRect(x, y, tw + pad * 2, h, 12);
+  ctx.fill();
+  ctx.fillStyle = "#FFDCE9";
+  ctx.textBaseline = "middle";
+  ctx.fillText(text, x + pad, y + h / 2 + 1);
+  ctx.restore();
+}
+
 // ── "iskelet değil vücut" (Damla, 15 tem): poz modelinin siluet maskesi vücudun
 // GERÇEK konturunu verir — omuz, kol, bel kavisleri. İskeletin altına yumuşak
 // vişne ışıltısı olarak çizilir; motoru hiç ilgilendirmez, çizilemezse atlanır. ──
@@ -899,6 +923,10 @@ function loop() {
     }
 
     let skeletonColor = "#33000E";
+    let stageBanner = "";
+    if (!result || !result.landmarks || !result.landmarks.length) {
+      stageBanner = "i can't see anyone - step back and check your light";
+    }
     if (result && result.landmarks && result.landmarks.length) {
       let drawLm = result.landmarks[0];   // motor yoksa ham ilk poz çizilir
       let rawPicked = result.landmarks[0];   // derinlik (z) kaynağı: hep ham dedektör
@@ -937,6 +965,11 @@ function loop() {
           }
         }
         const r = engine.updateMultiPtr(bufPtr, FLOATS, n, worldBufPtr, FLOATS, wn, performance.now());
+        // sahne bandı: kalibrasyon ilerlemesi > görememe sebebi > form uyarısı
+        if (r.calibrating) stageBanner = "learning your body... " + Math.round(r.calibProgress * 100) + "%";
+        else if (!r.tracking && r.message) stageBanner = r.message;
+        else if (r.formCue) stageBanner = r.formCue;
+        else stageBanner = "";
         const picked = Math.max(0, Math.min(r.pickedPose || 0, result.landmarks.length - 1));
         drawLm = result.landmarks[picked];
         rawPicked = result.landmarks[picked];
@@ -964,6 +997,7 @@ function loop() {
 
       // derinlik (z) her zaman ham dedektörden okunur — yumuşatılmış pozda z sıfırlı
       drawSkeleton3D(drawLm, rawPicked, skeletonColor);
+      drawBanner(stageBanner);
 
       // ── ağ katmanı: yüz mesh'i (kavisli dudak, kaş — gerçek "ağ") + parmaklar.
       // her 2 karede bir koşar, aradaki karede son sonuç çizilir (fps koruması). ──
@@ -996,6 +1030,8 @@ function loop() {
         }
       }
     }
+
+    if ((!result || !result.landmarks || !result.landmarks.length) && stageBanner) drawBanner(stageBanner);
 
     frames++;
     const now = performance.now();

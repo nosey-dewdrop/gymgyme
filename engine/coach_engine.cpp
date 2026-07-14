@@ -473,9 +473,31 @@ Reading Engine::updateBest(const std::vector<std::vector<Landmark>>& screens,
   static const std::vector<Landmark> kEmpty;
   if (screens.empty()) return update(kEmpty, kEmpty, timestampMs);
 
+  // ── TEK ADAY = VETO YOK (15 Tem gercek-kamera dersi): kadrajda tek kisi
+  // varken oran vetosu GERCEK gurultude sahibini de reddedebiliyor (derin
+  // squat'ta uyluk orani sapar). Tek adayda motorun icindeki savas-testli
+  // kalibrasyon kapisi (2/3 oran, %30 tolerans) yeterli koruma. Veto yalniz
+  // COK adayli karede "kimi izleyecegim" secimi icin devrededir. ──
+  if (screens.size() == 1) {
+    const std::vector<Landmark>& w = worlds.empty() ? kEmpty : worlds[0];
+    // bariz farkli vucut (%35+ en kotu oran) yine reddedilir; onun altindaki
+    // benzerlikte sahibine oncelik — benzer oranli iki insani oranla ayirmak
+    // fiziken mumkun degil, o is zaman tutarliligina kalir.
+    double mis = screens[0].size() >= 33 ? ratioMismatch(screens[0], w) : -1.0;
+    if (mis >= 0.0 && mis > 0.35) {
+      Reading r = update(kEmpty, kEmpty, timestampMs);
+      r.pickedPose = -1;
+      r.message = "i only coach the body i learned - step back in when you are ready";
+      return r;
+    }
+    Reading r = update(screens[0], w, timestampMs);
+    r.pickedPose = 0;
+    return r;
+  }
+
   // ── SERT KİLİT (Damla, 14 Tem): motor tek kişilik — kalibre ettiği vücut
   // dışında KİMSEYİ koçlamaz. Aday önce elemeden geçer: (a) kalibre orana
-  // ölçülebilir ve %20'den fazla uymayan vücut DİSKALİFİYE (ceza değil, veto),
+  // ölçülebilir ve %25'ten fazla uymayan vücut DİSKALİFİYE (ceza değil, veto),
   // (b) az önce izlediğimiz vücuttan ekranın öbür ucuna ışınlanan aday da öyle.
   // Hiç aday kalmazsa motor yabancıya geçmek yerine BEKLER. ──
   int best = -1;
