@@ -158,6 +158,20 @@ int main() {
     check(r.phase == Phase::Top, "standing again = phase top");
   }
 
+  // ── One Euro filtre: sabit girdiye yakınsar, reset hafızayı siler ──
+  {
+    Engine e(builtinMove("squat"));   // varsayılan yol One Euro
+    Reading r;
+    for (int i = 0; i < 30; i++) r = e.update(pose(false));
+    check(std::fabs(r.smoothAngle - r.rawAngle) < 1.0, "one euro converges on a still pose");
+
+    // reset sonrası filtre eski açıyı HATIRLAMAMALI: bükük pozla ilk okuma
+    // düz bacağın (~180) değil bükük bacağın (~90) yanında başlamalı.
+    e.reset();
+    r = e.update(pose(true));
+    check(r.smoothAngle < 120.0, "reset clears the one euro memory");
+  }
+
   // ── histerezis: tek eşik olsaydı sınırda titrerdi; iki eşik sağlam olmalı ──
   {
     Engine e(builtinMove("squat"));
@@ -426,7 +440,9 @@ int main() {
     double t = 0;
     for (int i = 0; i < 6; i++) { t += 100; r = e.update(pose(false), t); }
     for (int i = 0; i < 10; i++) { t += 100; r = e.update(pose(true), t); }
-    for (int i = 0; i < 12; i++) { t += 100; r = e.update(pose(false), t); }
+    // yukarı dön ve tekrarın SAYILDIĞI karede dur — kontrol filtrenin yakınsama
+    // hızına bağlı olmasın (One Euro EMA'dan bir kare önce varabiliyor).
+    for (int i = 0; i < 20 && !r.repTick; i++) { t += 100; r = e.update(pose(false), t); }
     check(r.resting && r.currentSet == 1, "one-rep set enters rest");
     // molanın süresini geçecek kadar zaman ilerlet (üstte dur)
     for (int i = 0; i < 15; i++) { t += 100; r = e.update(pose(false), t); }

@@ -55,6 +55,16 @@ struct MoveSpec {
   double bottomAngle = 110.0;   // bu açının altı = "dipte"
   double topAngle = 155.0;      // bu açının üstü = "üstte"
   double emaAlpha = 0.4;        // yumuşatma katsayısı (0..1, küçük = daha sakin)
+  // ── One Euro filtre (varsayılan yol). EMA'nın açmazı: tek katsayı hem duruşta
+  // sakin hem harekette hızlı olamaz. One Euro kesim frekansını HIZA göre ayarlar:
+  // duruşta minCutoff'a iner (titreme ezilir), hızlanınca beta ile açılır (gecikme
+  // yok). useOneEuro=false eski EMA yoluna döner (ölçüm karşılaştırması için).
+  bool useOneEuro = true;
+  double euroMinCutoff = 2.5;   // Hz — duruştaki taban kesim (küçük = daha sakin duruş)
+  double euroBeta = 0.005;      // hız başına kesim artışı (büyük = hızlı harekete daha çevik)
+                                // 2.5/0.005: bench sweep ile seçildi (jitter+rmse+GECİKME+yanlış sayım,
+                                // 3 gürültü seviyesi toplamı; elle değil ölçümle — bench.sh sweep)
+  double euroDCutoff = 1.0;     // hız sinyalinin kendi alçak geçireni
   double minVisibility = 0.5;   // bu güvenin altındaki okuma reddedilir
   double minFraming = 0.75;     // izlenen noktaların en az bu kadarı kadrajda olmalı
   std::vector<int> framingPoints;  // bu hareket için kadrajda olması GEREKEN noktalar
@@ -178,10 +188,15 @@ class Engine {
                  const std::vector<Landmark>& world, double timestampMs);
 
  private:
+  double euroApply(double x, double tMs);   // One Euro adımı (durumu aşağıda)
+
   MoveSpec spec_;
   double smooth_ = -1;
   double prevSmooth_ = -1;
   bool haveSmooth_ = false;
+  // One Euro durumu (reset'te sıfırlanır)
+  bool euroInit_ = false;
+  double euroX_ = 0, euroDx_ = 0, euroLastT_ = -1;
   // ince takip: tek karelik dev sıçrama (ışınlanma) yutulur, süreni kabul edilir
   bool spikeHold_ = false;
   // kalibrasyon durumu (setCalibration açar; ilerleme reset'te sıfırlanır)

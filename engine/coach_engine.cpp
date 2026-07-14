@@ -211,11 +211,34 @@ void Engine::setCalibration(bool on) {
   for (auto& v : calibSamples_) v.clear();
 }
 
+// ── One Euro (Casiez ve ark. 2012): hıza uyarlanan alçak geçiren. dt gerçek kare
+// aralığından gelir — motor zaten zaman-farkında, filtre de öyle olmalı: 30fps'te
+// de 60fps'te de aynı derece/saniye davranışı verir (EMA bunu veremezdi).
+double Engine::euroApply(double x, double tMs) {
+  double dt = (euroLastT_ >= 0 && tMs > euroLastT_) ? (tMs - euroLastT_) / 1000.0 : (1.0 / 30.0);
+  dt = std::min(dt, 0.25);   // uzun kopmada dev dt filtreyi "kapatmasın"
+  euroLastT_ = tMs;
+  if (!euroInit_) { euroX_ = x; euroDx_ = 0; euroInit_ = true; return x; }
+  auto alpha = [](double cutoff, double dt) {
+    double tau = 1.0 / (2.0 * M_PI * cutoff);
+    return 1.0 / (1.0 + tau / dt);
+  };
+  double dx = (x - euroX_) / dt;
+  double aD = alpha(spec_.euroDCutoff, dt);
+  euroDx_ = aD * dx + (1.0 - aD) * euroDx_;
+  double cutoff = spec_.euroMinCutoff + spec_.euroBeta * std::fabs(euroDx_);
+  double a = alpha(cutoff, dt);
+  euroX_ = a * x + (1.0 - a) * euroX_;
+  return euroX_;
+}
+
 void Engine::reset() {
   smooth_ = -1.0;
   prevSmooth_ = -1.0;
   haveSmooth_ = false;
   spikeHold_ = false;
+  euroInit_ = false;
+  euroX_ = 0; euroDx_ = 0; euroLastT_ = -1;
   // kalibrasyon: açık/kapalı ayarı KORUNUR, öğrenilen vücut yeniden öğrenilir
   calibrated_ = false;
   calibCount_ = 0;
@@ -455,15 +478,20 @@ Reading Engine::update(const std::vector<Landmark>& p,
     }
   }
 
-  // ── Aşama 4: yumuşatma (EMA) + ince takip: tek karelik dev sıçrama (iskeletin
-  // eşyaya/başkasına ışınlanması) yutulur; iki kare sürerse gerçek kabul edilir. ──
+  // ── Aşama 4: yumuşatma + ince takip: tek karelik dev sıçrama (iskeletin
+  // eşyaya/başkasına ışınlanması) yutulur; iki kare sürerse gerçek kabul edilir.
+  // Filtre varsayılanı One Euro (açı uzayında, hıza uyarlı); EMA yolu ölçüm
+  // karşılaştırması için duruyor. ──
   const bool spike = haveSmooth_ && std::fabs(raw - smooth_) > 50.0;
   if (spike && !spikeHold_) {
     spikeHold_ = true;                 // bu kareyi yut: yumuşatılmış açı yerinde kalır
   } else {
     spikeHold_ = false;
-    if (!haveSmooth_) { smooth_ = raw; haveSmooth_ = true; }
-    else              { smooth_ = spec_.emaAlpha * raw + (1.0 - spec_.emaAlpha) * smooth_; }
+    if (spec_.useOneEuro) {
+      smooth_ = euroApply(raw, t);
+      haveSmooth_ = true;
+    } else if (!haveSmooth_) { smooth_ = raw; haveSmooth_ = true; }
+    else { smooth_ = spec_.emaAlpha * raw + (1.0 - spec_.emaAlpha) * smooth_; }
   }
   r.smoothAngle = smooth_;
 
