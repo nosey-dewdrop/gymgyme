@@ -29,3 +29,17 @@ Sebep şuydu: gerçek bir dil, gerçek bir motor, ve "her şey JavaScript, her �
 İşin kalbinde bir ayrım var: gözleri hazır bir modelden alıyorum (33 nokta), ama beyni kendim yazıyorum. Kütüphaneye "kaç tekrar yaptım" diye sormuyorum; noktalardan anlamı ben üretiyorum. Saf çekirdeği web'den, tarayıcıdan, WebAssembly'den tamamen habersiz tuttum — o sadece "hareket analizi" biliyor. Bu sayede aynı motor yarın native bir uygulamaya da takılabilir; sadece ince bağlama katmanını değiştiririm, beyin aynı kalır.
 
 Çıkardığım ders: "en pratik" ile "doğru" her zaman aynı şey değil. Bazen bir şeyi zor yoldan yapmak, onu daha iyi değil ama daha gerçek yapıyor — ve build-in-public yapıyorsan, gerçek olması zaten yarısı.
+
+## Bir eşiği herkese sabit koymak neden yanlıştı
+
+gymgyme'nin koç motorunda en sinir bozucu bug şuydu: kullanıcı squat yapıyor, motor onu görüyor, eğildiğini algılıyor — ama tekrarı saymıyor. Derinlik göstergesi doluyor, sayaç sıfırda kalıyor. Bir kullanıcı bunu "eğildiğimi görüyorsun ama saymıyorsun" diye tarif etti ve tam yerine parmak bastı.
+
+Kökü basit ama öğreticiydi. Motor bir squat'ı şöyle sayıyordu: diz açın belirli bir alt eşiğin (120°) altına insin, sonra üst eşiğin üstüne dönsün — bu bir tekrar. Sorun eşiğin SABİT olmasıydı. Kullanıcı kameraya dönük çömeldiğinde perspektif kısalması diz açısını olduğundan düz gösteriyor. Kişi gerçekten derin iniyor ama ölçülen açı 120°'ye hiç değmiyor. Sonuç: motor "sen hiç dibe inmedin" diyor, oysa insan tam bir squat yapmış.
+
+İlk içgüdü eşiği düşürmek olurdu — 120'yi 130 yap. Ama bu yanlış çözüm: birinin bacağı, kamera açısı, çömelme derinliği bir diğerininkinden farklı. Hangi sabiti koyarsan koy, birinde fazla katı birinde fazla gevşek olur. Sabit bir sayı, değişken bir dünyaya asla oturmaz.
+
+Doğru çözüm eşiği kişiselleştirmekti. Motor zaten kalibrasyon aşamasında kullanıcının vücudunu öğreniyor. Buna bir ölçü daha ekledim: kişinin GERÇEK ayakta duruş açısı — rahat dururken dizinin ne kadar açık olduğu. Sonra dip eşiğini o duruştan sabit bir düşüşle (42°) türetiyorum. Yani eşik artık "120 dereceye in" değil, "senin ayakta durduğun yerden bu kadar bükül" diyor. Uzun bacaklıda da kısa bacaklıda da, kameraya dönükte de yandan da, kişinin kendi hareket aralığına oturuyor.
+
+Bir emniyet ağı bıraktım: eski sabit eşik bir TABAN olarak duruyor — adaptif eşik ondan daha zor olamıyor, yani motor kimseden fiziksel olarak imkansız bir derinlik istemiyor. Adaptif mekanizma yalnızca saymayı KOLAYLAŞTIRIYOR, hiçbir zaman zorlaştırmıyor.
+
+Ders şu: bir ürün gerçek insanlarla buluştuğunda, "makul bir sabit" diye koyduğun her sayı birinin gerçekliğiyle çelişir. Ölçtüğün şey insandan insana değişiyorsa, eşiğin de değişmeli. Sabit sayı mühendisin kolayına gelir; kullanıcının vücuduna değil.

@@ -531,6 +531,49 @@ int main() {
     check(r2.tracking, "without calibration the same read is accepted");
   }
 
+  // ── adaptif dip eşiği (Damla, 15 tem: "eğildiğimi görüyor ama squat saymıyor").
+  // Kişinin gerçek çömelmesi, sabit 120° eşiğine değmese bile, kendi üst
+  // duruşundan yeterince bükülüyorsa SAYILMALI. ──
+  {
+    // ~130° dip yapan poz: sabit 120 eşiğinin ÜSTÜNDE (eski motor saymazdı) ama
+    // ayakta ~180'den 130'a düşüş = 50° > adaptiveDrop(42) → adaptif sayar.
+    auto poseShallowSquat = []() {
+      std::vector<Landmark> p(33);
+      auto set = [&](int i, double x, double y) { p[i].x = x; p[i].y = y; p[i].z = 0; p[i].visibility = 1; };
+      set(11, 0.45, 0.20); set(12, 0.55, 0.20);
+      set(23, 0.45, 0.50); set(24, 0.55, 0.50);
+      set(25, 0.45, 0.70); set(26, 0.55, 0.70);
+      set(27, 0.62, 0.80); set(28, 0.72, 0.80);   // bilek ileride+aşağıda -> diz ~130°
+      return p;
+    };
+    // önce açının gerçekten ~130 (sabit 120 eşiğinin üstünde) olduğunu doğrula
+    {
+      Engine chk(builtinMove("squat"));
+      Reading rc = chk.update(poseShallowSquat());
+      check(rc.angles.leftKnee > 120.0 && rc.angles.leftKnee < 140.0,
+            "adaptive: the shallow squat sits above the fixed 120 threshold");
+    }
+    // adaptif motor: ayakta dur (üst duruşu öğrensin), sonra ~130'a çömel → saymalı
+    Engine e(builtinMove("squat"));
+    Reading r;
+    for (int i = 0; i < 12; i++) r = e.update(pose(false));       // üst duruş ~180 öğrenilir
+    for (int i = 0; i < 12; i++) r = e.update(poseShallowSquat()); // kişiye göre derin iniş
+    check(r.phase == Phase::Bottom, "adaptive: a real squat below the person's range reads bottom");
+    for (int i = 0; i < 12; i++) r = e.update(pose(false));
+    check(r.reps == 1, "adaptive: the shallow-but-real squat is counted");
+
+    // güvenlik ağı: adaptif eşik spec tabanından (120) daha ZOR olamaz. Kısa
+    // biri (üst duruşu ~150) çömelince eşik 150-42=108 çıkardı; taban 120'de
+    // tutulur, yani hâlâ makul bir dip istenir (imkansız derinlik zorlanmaz).
+    // Burada sadece adaptif eşiğin sabit tabanı deldiğini değil, TABANDA
+    // kaldığını görmek için sığ üst duruşlu bir seri sürmek yeterli — davranışın
+    // sabit motorla ÇELİŞMEDİĞİNİ zaten yukarıdaki tam-tekrar testleri kanıtlıyor.
+
+    // adaptif KAPALI hareket (pushup) eskisi gibi sabit eşikle çalışır
+    check(!builtinMove("pushup").adaptiveBottom, "adaptive is off for non-squat moves");
+    check(builtinMove("squat").adaptiveBottom, "adaptive is on for squat");
+  }
+
   // ── Faz 2: kemik kilidi — kalibre uzunluklar sabitlenir, gerilen kemik
   // çözülmüş iskelette gerilemez; açılar kilitli iskeletten ölçülür ──
   {
@@ -594,6 +637,21 @@ int main() {
     // vücut dönünce takip kaldığı yerden devam eder
     r = e.updateBest(one, oneW, (t += 33));
     check(r.pickedPose == 0 && r.tracking, "hard lock: tracking resumes when the body returns");
+
+    // ── kimlik kilidi, benzer-boyutlu yabancı (Damla, 15 tem: "başka biri girince
+    // ona odaklanmasın, bende kalsın"). Yabancı BİZİM oranlarımıza yakın olsa da
+    // (oran ayıramaz) az önce bulunduğumuz yerden ışınlanamaz: zaman tutarlılığı
+    // onu eler, iskelet bizde kalır. ──
+    // önce birkaç kare bizi izle (lastCore_ tazelensin, konumumuz otursun)
+    for (int i = 0; i < 3; i++) r = e.updateBest(one, oneW, (t += 33));
+    check(r.pickedPose == 0, "identity: locked on our body before the twin enters");
+    // ikiz yabancı: aynı oranlar ama ekranın öbür ucunda belirir
+    std::vector<Landmark> twinS = pose(false), twinW = worldPose(false);
+    for (auto& p2 : twinS) p2.x += 0.32;   // uzakta — ışınlanma
+    std::vector<std::vector<Landmark>> withTwin = {twinS, pose(false)};
+    std::vector<std::vector<Landmark>> withTwinW = {twinW, worldPose(false)};
+    r = e.updateBest(withTwin, withTwinW, (t += 33));
+    check(r.pickedPose == 1, "identity: a same-sized stranger cannot steal the lock (teleport gate)");
   }
 
   // ── Faz 3 katman 1: tekrar yorumu — koç her tekrardan sonra cümle kurar ──

@@ -6,9 +6,11 @@
 // (kare başına yüzlerce JS↔wasm sınır geçişi yerine tek çağrı).
 
 // mediapipe VENDOR'lanmış — üçüncü taraf CDN'e runtime bağımlılık yok, offline çalışır.
-import { PoseLandmarker, FaceLandmarker, HandLandmarker, FilesetResolver, DrawingUtils } from "../vendor/mediapipe/vision_bundle.mjs";
+import { PoseLandmarker, FaceLandmarker, HandLandmarker, FilesetResolver } from "../vendor/mediapipe/vision_bundle.mjs";
 // ortak hesap: giriş yapılıysa seanslar DB'ye de gider (cihazlar arası).
 import { sb, currentUser, onAuth } from "./auth.js";
+// CGI görsel katmanı: dolgulu gövde/yüz/el (SADECE çizim, motora girmez).
+import { drawBody, drawFace, drawHand } from "./mesh.js";
 
 const $ = (id) => document.getElementById(id);
 const statusEl = $("status");
@@ -286,13 +288,17 @@ let bufPtr = 0;                // heap'te ayrılmış landmark buffer'ı (ekran)
 let worldBufPtr = 0;           // ... ve dünya koordinatları (metrik 3B) için ikincisi
 let running = false;
 let lastVideoTime = -1;
-let drawer = null;
 let aspect = 1;
 let faceLandmarker = null, handLandmarker = null;   // görsel ağ katmanı
-// DONDURULDU (15 tem): yüz/el mesh katmanı SALT görüntüydü, sayma motoruna
-// hiç girmiyordu ama her 2 karede iki ekstra model koşturup fps yiyordu. amaç
-// gövdeyi güvenilir sayan motor; süs değil. true yaparsan çizim geri gelir.
-const MESH_LAYER = false;
+// ── CGI KATMANI (15 tem gece, Damla: "beni adet iskelet gibi gösteriyor,
+// parmaklarım 3 dallı ağaç, dudağım bir çizgi — cgi gibi olsun"). İki parça:
+//   (1) GÖVDE dolgusu (mesh.js drawBody): poz noktalarından türer, EKSTRA MODEL
+//       YOK, bedava — çöp-adamı hacimli figüre çevirir. Hep açık.
+//   (2) YÜZ + EL mesh (ekstra iki model): kavisli dudak/göz + dolgulu parmaklar.
+//       fps'i koruyoruz — düşük fps ölçülürse otomatik uykuya alınır (Damla'nın
+//       telefon fps dersi). MESH_FACE_HANDS=false yaparsan hiç yüklenmez. ──
+const MESH_FACE_HANDS = true;
+let meshFaceHandsSleep = false;   // fps düşükse yüz/el mesh'i geçici kapat (gövde kalır)
 let rebuildingPose = false;   // canlı kurtarma sürerken ikinci kez kurma
 let lastFace = null, lastHands = null;              // atlanan karede son sonuç çizilir
 let meshFrame = 0;                                  // yüz/el her 2 karede bir koşar (fps)
@@ -341,10 +347,10 @@ async function loadPose() {
     }
   }
   if (!poseLandmarker) throw lastErr;
-  drawer = new DrawingUtils(ctx);
-  // ── görsel ağ katmanı DONDURULDU (MESH_LAYER=false): yüz/el mesh salt
-  // görüntüydü, motora girmiyordu, boşuna fps yiyordu. gövde motoru saf kalsın. ──
-  if (MESH_LAYER) {
+  // ── yüz/el mesh katmanı: kavisli dudak/göz + dolgulu parmaklar. gövde dolgusu
+  // (mesh.js drawBody) buna gerek duymaz, pozdan bedava gelir — bu iki model
+  // sadece yüz+el detayı için. fps düşükse çizim döngüsü bunları uykuya alır. ──
+  if (MESH_FACE_HANDS) {
     try {
       faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
         baseOptions: { modelAssetPath: "vendor/models/face_landmarker.task", delegate: "GPU" },
@@ -1058,39 +1064,40 @@ function loop() {
         render(r);
       }
 
-      // derinlik (z) her zaman ham dedektörden okunur — yumuşatılmış pozda z sıfırlı
+      // ── CGI gövde: önce DOLU figür (derinlik-gölgeli hacim), sonra üstüne ince
+      // iskelet omurgası. Damla "adet iskelet" demişti — artık dolu bir vücut,
+      // iskelet sadece onun üstünde okunur bir çizgi. Konum yumuşatılmış pozdan
+      // (drawLm), derinlik ham dedektörden (rawPicked, z var). ──
+      drawBody(ctx, drawLm, rawPicked, canvas.width, canvas.height);
       drawSkeleton3D(drawLm, rawPicked, skeletonColor);
       drawBanner(stageBanner);
 
-      // ── ağ katmanı: yüz mesh'i (kavisli dudak, kaş — gerçek "ağ") + parmaklar.
-      // her 2 karede bir koşar, aradaki karede son sonuç çizilir (fps koruması). ──
-      if (faceLandmarker && handLandmarker) {
+      // ── CGI yüz + el mesh: dolgulu deri + kavisli dudak/göz/kaş + gerçek
+      // dolgulu parmaklar (mesh.js). fps koruması: 20'nin altına düşerse yüz/el
+      // modelleri uykuya alınır — gövde dolgusu + iskelet zaten akıcı kalır. ──
+      if (faceLandmarker && handLandmarker && !meshFaceHandsSleep) {
         meshFrame++;
         if (meshFrame % 2 === 0) {
           try {
             lastFace = faceLandmarker.detectForVideo(video, performance.now());
             lastHands = handLandmarker.detectForVideo(video, performance.now());
-          } catch (_) { /* mesh dusse de iskelet yasar */ }
+          } catch (_) { /* mesh dusse de gövde+iskelet yasar */ }
         }
         if (lastFace && lastFace.faceLandmarks) {
-          for (const fl of lastFace.faceLandmarks) {
-            drawer.drawConnectors(fl, FaceLandmarker.FACE_LANDMARKS_TESSELATION,
-              { color: "rgba(51, 0, 14, 0.18)", lineWidth: 0.5 });
-            drawer.drawConnectors(fl, FaceLandmarker.FACE_LANDMARKS_LIPS,
-              { color: skeletonColor, lineWidth: 2 });
-            drawer.drawConnectors(fl, FaceLandmarker.FACE_LANDMARKS_LEFT_EYEBROW,
-              { color: skeletonColor, lineWidth: 1.5 });
-            drawer.drawConnectors(fl, FaceLandmarker.FACE_LANDMARKS_RIGHT_EYEBROW,
-              { color: skeletonColor, lineWidth: 1.5 });
-          }
+          // kavisli özellikler: [connector listesi, çizgi kalınlığı, renk]
+          const feats = [
+            [FaceLandmarker.FACE_LANDMARKS_LIPS,          2.4, skeletonColor],
+            [FaceLandmarker.FACE_LANDMARKS_LEFT_EYE,      1.6, skeletonColor],
+            [FaceLandmarker.FACE_LANDMARKS_RIGHT_EYE,     1.6, skeletonColor],
+            [FaceLandmarker.FACE_LANDMARKS_LEFT_EYEBROW,  1.8, skeletonColor],
+            [FaceLandmarker.FACE_LANDMARKS_RIGHT_EYEBROW, 1.8, skeletonColor],
+            [FaceLandmarker.FACE_LANDMARKS_FACE_OVAL,     1.4, "rgba(51,0,14,0.5)"],
+          ];
+          for (const fl of lastFace.faceLandmarks)
+            drawFace(ctx, fl, FaceLandmarker.FACE_LANDMARKS_TESSELATION, feats, canvas.width, canvas.height);
         }
-        if (lastHands && lastHands.landmarks) {
-          for (const hl of lastHands.landmarks) {
-            drawer.drawConnectors(hl, HandLandmarker.HAND_CONNECTIONS,
-              { color: skeletonColor, lineWidth: 2 });
-            drawer.drawLandmarks(hl, { color: "#FFFFFF", fillColor: skeletonColor, radius: 2.5, lineWidth: 1 });
-          }
-        }
+        if (lastHands && lastHands.landmarks)
+          for (const hl of lastHands.landmarks) drawHand(ctx, hl, canvas.width, canvas.height);
       }
     }
 
@@ -1101,7 +1108,14 @@ function loop() {
     if (now - fpsClock >= 500) {
       fps = Math.round((frames * 1000) / (now - fpsClock));
       frames = 0; fpsClock = now;
-      fpsEl.textContent = fps + " fps  ·  all math on your device";
+      // fps koruması (histerezis): yüz/el iki modeli fps'i yerse uykuya al; gövde
+      // dolgusu + iskelet pozdan gelir, hep akıcı. toparlayınca geri uyanır.
+      if (MESH_FACE_HANDS) {
+        if (!meshFaceHandsSleep && fps < 20) meshFaceHandsSleep = true;
+        else if (meshFaceHandsSleep && fps > 26) meshFaceHandsSleep = false;
+      }
+      fpsEl.textContent = fps + " fps  ·  all math on your device" +
+        (meshFaceHandsSleep ? "  ·  face/hand detail paused for speed" : "");
     }
   }
   requestAnimationFrame(loop);

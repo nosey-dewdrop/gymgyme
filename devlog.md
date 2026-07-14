@@ -56,3 +56,17 @@ IG için hook'lu 30-60 sn reel scriptleri. İlk cümle KANCA. Damla seslendirir.
 
 **Görsel:** "no backend" üstü çizili → "accounts + db"; yanında "video: still on your device only".
 **Format:** reel / carousel
+
+## Reel — "beni çöp adam gibi çiziyordu"
+
+**Hook (ilk 2 sn):** "AI koçum beni bir çöp adam gibi çiziyordu. Parmaklarım 3 dallı bir ağaçtı, dudağım tek bir çizgi. Bu gece onu düzelttim."
+
+**Anlatı (~45 sn):** Bir kamera koçu yapıyorum, kameran seni görüp squat'ını sayıyor. Ama ekranda seni gösterişi berbattı: ince çizgilerden bir iskelet. İnsan öyle değil ki — dudağın kavisli, parmakların dolgun, vücudun hacimli. O yüzden çizim katmanını baştan yazdım. Artık uzuvların kas gibi kalın kapsüller, derinliğe göre gölgeli — yakın olan aydınlık ve dolgun, uzak olan koyu. Yüzün 468 noktalı dolu bir ağ, kavisli dudağın üstüne mürekkeple çiziliyor. Ellerin gerçek eller: avuç + dolgulu parmaklar. Ama bir kural: bu katman SADECE görüntü, sayma motoruna hiç dokunmuyor. Ve telefonu yormasın diye: fps düşerse yüz/el detayı otomatik uykuya geçiyor, vücut hep akıcı kalıyor.
+
+---
+
+## Reel — "eğildiğimi görüyordu ama saymıyordu"
+
+**Hook (ilk 2 sn):** "Squat yapıyorum, koç eğildiğimi görüyor — ama saymıyor. En sinir bozucu bug bu."
+
+**Anlatı (~40 sn):** Motorun squat'ı sayma şekli sabit bir eşiğe bağlıydı: diz açın 120 dereceye inecek. Ama kameraya dönük çömeldiğinde perspektif diz açını olduğundan düz gösteriyor — sen derin iniyorsun, ekrandaki açı 120'ye hiç değmiyor, sayaç sıfır. Derinlik barı doluyor ama tekrar gelmiyor. Çözüm: eşiği herkese sabit koymayı bıraktım. Motor artık senin GERÇEK ayakta duruşunu öğreniyor, dip eşiğini o duruştan 42 derece aşağı koyuyor. Yani "sen ne kadar bükülürsen senin squat'ın o" diyor. Sabit eşik de bir taban olarak kalıyor, kimseden imkansız derinlik istemesin. Test ettim: eski eşiğin üstünde kalan gerçek bir squat artık sayılıyor.

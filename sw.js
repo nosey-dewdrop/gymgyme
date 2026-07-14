@@ -1,7 +1,7 @@
 // gymgyme service worker: ana ekrana kurulan personal trainer offline da açılsın.
 // kamera + motor zaten cihazda çalışıyor; burada sadece dosyaları önbelleğe alıyoruz.
 // vendor/ ya da engine/ değişirse CACHE sürümünü artır — eski önbellek silinir.
-const CACHE = "gg-pwa-v33";  // v33: acilis canli - sahne kutusu isinma modu, hata kutuda konusur
+const CACHE = "gg-pwa-v34";  // v34: cgi mesh (dolgulu govde/yuz/el) + adaptif squat dip esigi
 
 const CORE = [
   "coach.html",
@@ -11,6 +11,7 @@ const CORE = [
   "css/coach.css",
   "css/marquee.css",
   "js/coach.js",
+  "js/mesh.js",
   "js/topbar.js",
   "data/moves-db.js",
   "js/config.js",

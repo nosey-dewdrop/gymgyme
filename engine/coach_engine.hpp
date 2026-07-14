@@ -71,6 +71,15 @@ struct MoveSpec {
                                    // (boşsa gövde+bacak varsayılanı kullanılır)
   double halfRepDepth = 0.20;   // iniş bu derinliği (0..1) geçip de dibe ulaşmazsa "yarım" sayılır
                                 // (0.35'ti — Damla'nın sığ denemeleri sessiz kalıyordu; artık uyarı alır)
+  // ── adaptif dip eşiği (Damla, 15 tem: "eğildiğimi görüyor ama squat saymıyor").
+  // Sabit bottomAngle her vücutta/kamerada tetiklenmez: önden squat'ta world-z
+  // dip açısını olduğundan düz gösterir, kişi derin çömelse de eşiğe hiç değmez.
+  // Çözüm: motor kişinin GERÇEK üst duruşunu (ilk hareketteki en açık açı) ölçer;
+  // dip eşiğini o duruştan adaptiveDrop kadar aşağı koyar. Yani "senin ayakta
+  // durduğun yerden bu kadar bükülürsen = squat". range hareket başına türetilir,
+  // spec sabitine bağlı kalmaz. 0 = kapalı (eski sabit eşik davranışı).
+  bool adaptiveBottom = false;  // squat ailesinde açılır (aşağıda set edilir)
+  double adaptiveDrop = 0.0;    // üst duruştan dip eşiğine düşüş (derece)
   double goodRepSecMin = 1.2;   // bundan hızlı tekrar = momentum/sıçrama, tempo puanı düşer
   double goodRepSecMax = 8.0;   // bundan yavaşı da tam puan almaz (takılma/duraksama)
   std::vector<FormRule> rules;  // form kuralları (Aşama 9) — hepsi veri
@@ -262,6 +271,12 @@ class Engine {
   // ── Faz 2: zaman-farkında ışınlanma kapısı için önceki kare zamanı ──
   double prevFrameT_ = -1;
   bool phaseTop_ = true;
+  // ── adaptif dip eşiği durumu (spec_.adaptiveBottom açıksa). topRest_ = kişinin
+  // gözlenen en açık (rahat/üst) açısı, sürekli güncellenir; bottomLive_/topLive_
+  // = ondan türetilen çalışan eşikler. -1 = henüz öğrenilmedi (spec sabiti kullanılır).
+  double topRest_ = -1.0;
+  double bottomLive_ = -1.0;
+  double topLive_ = -1.0;
   int reps_ = 0;
   int halfReps_ = 0;
   bool inExcursion_ = false;   // üst fazdayken eşiğin altına sarkan bir iniş sürüyor mu

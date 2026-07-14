@@ -335,3 +335,18 @@ hook: "my AI trainer doesn't just count anymore - after every rep it tells you w
 - the teleport gate became exercise-aware: the speed ceiling now derives from each move's own physics (a squat physically can't sweep 90° in one frame, a jumping jack can) - the engine assumes squat physics DURING a squat. first brick of the exercise-prior solver.
 - funny honest moment: the comment engine called my own test rep "a bit rushed" - and it was right, the test was too fast. fixed the test, not the engine.
 - 112 native tests, sw v18. also told github linguist that mediapipe's 5 MB bundle is not my code - the repo now shows what it really is: a C++ engine
+
+## no more stick figure, and the squat that never counted (jul 15, night)
+three complaints from Damla in one message, tackled in her order: mesh, lock, counting.
+
+**"it shows me like a wire stick figure. my fingers are a 3-branched tree. my lips are one line - but they're curved. we're multi-dimensional."** — she's right, the overlay was thin 2D lines. built a real drawing layer (js/mesh.js) that is DRAW-ONLY, never touches the counting math:
+- the body is now VOLUME, not a line: limbs drawn as depth-shaded capsules (muscle thickness), torso as a filled shaded shell, joints as spheres. near surfaces light and thick, far ones dark and thin - a 3D surface, not a wireframe.
+- the face is a filled mesh: 468-point tesselation as shaded skin, then the CURVED features (lips, eyes, brows, oval) inked on top. her lip is a curve now, not a line.
+- the hands are filled: palm polygon + each finger a capsule with rounded knuckles. not a 3-branched tree - a real hand.
+- fps stayed the worry (her phone lesson): the two extra models (face+hand) auto-SLEEP below 20 fps and wake above 26 (hysteresis). the body fill costs nothing - it comes from the pose we already have.
+
+**"it doesn't stay on me - it focuses on whoever walks in."** — the lock was already there; proved it holds against a SAME-SIZED twin (ratios can't tell them apart) - the teleport gate elees anyone who appears where we weren't a frame ago. added the test.
+
+**"i bend, it sees me bend, but it doesn't count the squat."** — the real bug. counting keyed on a FIXED 120° knee threshold. front-facing, perspective flattens the knee angle, so a real deep squat never touches 120 - zero reps, even though the depth bar fills. fix: an ADAPTIVE bottom threshold. the engine learns your actual standing angle, then sets "bottom" at 42° below YOUR rest - so counting keys off your real range, not a constant. the fixed 120 stays as a floor (safety net, never asks impossible depth). proved with a test: a ~130° squat (above the old fixed threshold) now counts.
+
+120 native tests, wasm rebuilt, sw v34.

@@ -64,6 +64,7 @@ MoveSpec builtinMove(const std::string& name) {
     s.primaryRight = {R_HIP, R_KNE, R_ANK};
     s.bottomAngle = 100.0;
     s.topAngle = 160.0;
+    s.adaptiveBottom = true; s.adaptiveDrop = 45.0;   // önden lunge da perspektifle düzleşir
     s.rules = {{RuleKind::TorsoLean, 40.0, View::Unknown, "stay upright - chest tall"}};
     return s;
   }
@@ -107,6 +108,7 @@ MoveSpec builtinMove(const std::string& name) {
     s.primaryRight = {R_HIP, R_KNE, R_ANK};
     s.bottomAngle = 120.0;   // 110'du — kameraya dönük squat açıyı olduğundan düz gösteriyor, gerçek dip sayılsın
     s.topAngle = 155.0;
+    s.adaptiveBottom = true; s.adaptiveDrop = 42.0;   // adaptif dip (squat ile aynı gerekçe)
     s.rules = {{RuleKind::TorsoLean, 40.0, View::Unknown, "stay tall - sumo keeps the chest up"}};
     return s;
   }
@@ -116,6 +118,7 @@ MoveSpec builtinMove(const std::string& name) {
     s.primaryRight = {R_HIP, R_KNE, R_ANK};
     s.bottomAngle = 105.0;
     s.topAngle = 160.0;
+    s.adaptiveBottom = true; s.adaptiveDrop = 42.0;   // önden side lunge da perspektifle düzleşir
     s.rules = {{RuleKind::TorsoLean, 45.0, View::Unknown, "chest up as you sit into the side"}};
     return s;
   }
@@ -195,6 +198,11 @@ MoveSpec builtinMove(const std::string& name) {
   s.primaryRight = {R_HIP, R_KNE, R_ANK};
   s.bottomAngle = 120.0;   // 110'du — kameraya dönük squat açıyı olduğundan düz gösteriyor, gerçek dip sayılsın
   s.topAngle = 155.0;
+  // Damla "eğildiğimi görüyor ama saymıyor": dip eşiği artık kişinin gerçek
+  // ayakta duruşundan 42° bükülme (o kadar çömelirse squat sayılır). Sabit 120
+  // taban güvenlik ağı olarak kalır — adaptif eşik ondan daha derin olmaz.
+  s.adaptiveBottom = true;
+  s.adaptiveDrop = 42.0;
   // form kuralları: veri. gövde dikeyden 55°'den fazla eğilmesin (her görüşte);
   // dizler bilek genişliğinin %72'sinden fazla içe çökmesin (sadece önden okunur).
   s.rules = {
@@ -257,6 +265,7 @@ void Engine::reset() {
   calibCount_ = 0;
   for (auto& v : calibSamples_) v.clear();
   phaseTop_ = true;
+  topRest_ = -1.0; bottomLive_ = -1.0; topLive_ = -1.0;   // adaptif eşik yeniden öğrenilir
   reps_ = 0;
   halfReps_ = 0;
   inExcursion_ = false;
@@ -760,8 +769,36 @@ Reading Engine::update(const std::vector<Landmark>& p,
   }
   r.smoothAngle = smooth_;
 
-  // derinlik: topAngle'da 0, bottomAngle'da 1 (daha derini 1'e kırpılır).
-  r.depth = std::max(0.0, std::min(1.0, (spec_.topAngle - smooth_) / (spec_.topAngle - spec_.bottomAngle)));
+  // ── adaptif dip eşiği (Damla: "eğildiğimi görüyor ama saymıyor"). Çalışan
+  // eşikler varsayılan olarak spec sabitidir; adaptif açıksa kişinin GERÇEK üst
+  // duruşundan türetilir. topRest_ = gözlenen en açık (rahat) açı — dip fazında
+  // DEĞİLKEN güncellenir ki çömelme onu aşağı çekmesin. Dip eşiği o duruştan
+  // adaptiveDrop kadar aşağıda; ama spec.bottomAngle bir TABAN kalır (adaptif
+  // eşik ondan daha derin/katı olamaz — kimse imkansız derinlik zorlanmasın).
+  // Üst eşik de duruşa göre biraz altta tutulur ki çıkış güvenle "üst"e dönsün. ──
+  double bottomTh = spec_.bottomAngle;
+  double topTh = spec_.topAngle;
+  if (spec_.adaptiveBottom) {
+    // üst duruşu yalnız üst fazdayken ve hareket ~durgunken öğren/güncelle:
+    // en açık açının medyanına yakın kalması için yavaş yukarı, hızlı toparlama.
+    if (phaseTop_ && smooth_ > 0) {
+      if (topRest_ < 0 || smooth_ > topRest_) topRest_ = smooth_;             // en açığı yakala
+      else topRest_ = 0.98 * topRest_ + 0.02 * smooth_;                       // yavaşça uyum
+    }
+    if (topRest_ > 0) {
+      double adaptBottom = topRest_ - spec_.adaptiveDrop;
+      // spec sabiti taban: adaptif eşik ondan DAHA YÜKSEK (daha kolay) olabilir,
+      // daha düşük (daha zor) olamaz — güvenlik ağı korunur.
+      bottomLive_ = std::max(spec_.bottomAngle, adaptBottom);
+      // üst eşik: duruşun biraz altı, ama dip eşiğinin belirgin üstünde kalsın.
+      topLive_ = std::max(bottomLive_ + 10.0, topRest_ - spec_.adaptiveDrop * 0.30);
+      bottomTh = bottomLive_;
+      topTh = std::min(spec_.topAngle, topLive_);
+    }
+  }
+
+  // derinlik: üst eşikte 0, dip eşiğinde 1 (daha derini 1'e kırpılır).
+  r.depth = std::max(0.0, std::min(1.0, (topTh - smooth_) / (topTh - bottomTh)));
 
   // yön: yumuşatılmış sinyalin eğimi. diz açısı DÜŞERSE çömeliyoruz.
   if (prevSmooth_ >= 0.0) {
@@ -777,7 +814,7 @@ Reading Engine::update(const std::vector<Landmark>& p,
   // koparsa pencere atılır — eski zamanlarla sahte süre üretmeyelim. ──
   if (inRep_ && lastTrackedT_ >= 0 && t - lastTrackedT_ > 2000.0) inRep_ = false;
   lastTrackedT_ = t;
-  if (!inRep_ && phaseTop_ && smooth_ < spec_.topAngle) {
+  if (!inRep_ && phaseTop_ && smooth_ < topTh) {
     inRep_ = true;
     repStartT_ = t;
     repMinA_ = smooth_;
@@ -828,8 +865,8 @@ Reading Engine::update(const std::vector<Landmark>& p,
   // kalibrasyon sürerken tekrar sayılmaz: motor daha kimin vücudu olduğunu öğreniyor.
   const bool countingPaused = resting_ || workoutDone_ || r.calibrating;
   if (phaseTop_) {
-    if (smooth_ < spec_.bottomAngle) phaseTop_ = false;
-  } else if (smooth_ > spec_.topAngle) {
+    if (smooth_ < bottomTh) phaseTop_ = false;
+  } else if (smooth_ > topTh) {
     phaseTop_ = true;
     if (countingPaused) {
       // sayma durdu: pencereyi sessizce kapat, puanlama yapma.
@@ -861,7 +898,7 @@ Reading Engine::update(const std::vector<Landmark>& p,
       double durSec  = (t - repStartT_) / 1000.0;
       double descSec = (repMinT_ - repStartT_) / 1000.0;
       double ascSec  = (t - repMinT_) / 1000.0;
-      double depthS = clamp01((spec_.topAngle - repMinA_) / (spec_.topAngle - spec_.bottomAngle));
+      double depthS = clamp01((topTh - repMinA_) / (topTh - bottomTh));
       double tempoS = 1.0;
       if (durSec < spec_.goodRepSecMin)      tempoS = clamp01(durSec / spec_.goodRepSecMin);
       else if (durSec > spec_.goodRepSecMax) tempoS = clamp01(spec_.goodRepSecMax / durSec);
@@ -906,10 +943,12 @@ Reading Engine::update(const std::vector<Landmark>& p,
   if (!phaseTop_) {
     inExcursion_ = false;              // gerçek inişe dönüştü, yarım değil
     excursionMin_ = 1e9;
-  } else if (smooth_ < spec_.topAngle) {
+  } else if (smooth_ < topTh) {
     inExcursion_ = true;
     excursionMin_ = std::min(excursionMin_, smooth_);
   } else if (inExcursion_) {           // üste dönüldü ama Bottom hiç görülmedi
+    // yarım-rep eşiği hareketin doğasından (spec sabiti): "anlamlı ama dipsiz
+    // iniş" tanımı kişiye göre kaymasın — adaptif dip yalnız SAYMAYI kolaylaştırır.
     double deepEnough = spec_.topAngle - spec_.halfRepDepth * (spec_.topAngle - spec_.bottomAngle);
     if (excursionMin_ < deepEnough) {
       halfReps_++;
