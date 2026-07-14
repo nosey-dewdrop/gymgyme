@@ -10,6 +10,28 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="css/marquee.css">
+  <style>
+    /* github katki grafigi gibi: gun, o gun ne kadar is yapildiysa o kadar koyu */
+    .viewpick { text-align: center; margin-bottom: 16px; }
+    .viewpick button { font: bold 13px Arial, Helvetica, sans-serif; background: var(--tint-2); color: var(--cherry); border: none; border-radius: 10px; padding: 8px 16px; margin: 0 4px; cursor: pointer; box-shadow: none; }
+    .viewpick button.on { background: var(--cherry); color: var(--on-cherry); }
+    .monthwall .d.lv1 { background: #F3A8C3; color: #6E0030; }
+    .monthwall .d.lv2 { background: #E06895; color: #fff; }
+    .monthwall .d.lv3 { background: #B83368; color: #fff; }
+    .monthwall .d.lv4 { background: var(--cherry); color: var(--on-cherry); font-weight: bold; }
+    .yearwall { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, 12px); gap: 3px; justify-content: center; overflow-x: auto; padding: 4px 0 10px; }
+    .yearwall i { width: 12px; height: 12px; border-radius: 3px; background: var(--tint-2); display: block; }
+    .yearwall i.pad { background: none; }
+    .yearwall i.lv1 { background: #F3A8C3; }
+    .yearwall i.lv2 { background: #E06895; }
+    .yearwall i.lv3 { background: #B83368; }
+    .yearwall i.lv4 { background: var(--cherry); }
+    .ycal { max-width: 820px; margin: 0 auto; }
+    .ylegend { display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 11px; color: var(--ink-soft); }
+    .ylegend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; background: var(--tint-2); }
+    .ylegend .l1 { background: #F3A8C3; } .ylegend .l2 { background: #E06895; }
+    .ylegend .l3 { background: #B83368; } .ylegend .l4 { background: var(--cherry); }
+  </style>
 </head>
 <body>
 <header class="topbar">
@@ -38,7 +60,11 @@
 </section>
 
 <section class="sub-body">
-  <div class="mcal">
+  <div class="viewpick" id="viewPick">
+    <button type="button" data-v="month" class="on">month</button>
+    <button type="button" data-v="year">year</button>
+  </div>
+  <div class="mcal" id="monthView">
     <div class="calhead">
       <button class="calnav" id="wPrev" type="button">‹</button>
       <b id="wLabel">this month</b>
@@ -47,6 +73,16 @@
     <small class="caltotals" id="wTotals"></small>
     <div class="dow"><span>m</span><span>t</span><span>w</span><span>t</span><span>f</span><span>s</span><span>s</span></div>
     <div class="monthwall" id="weekWall"></div>
+  </div>
+  <div class="ycal" id="yearView" hidden>
+    <div class="calhead">
+      <button class="calnav" id="yPrev" type="button">‹</button>
+      <b id="yLabel">2026</b>
+      <button class="calnav" id="yNext" type="button">›</button>
+    </div>
+    <small class="caltotals" id="yTotals"></small>
+    <div class="yearwall" id="yearWall"></div>
+    <small class="ylegend">less <i class="l0"></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i> more</small>
   </div>
   <div class="hist">
     <div class="lbl">PAST PERFORMANCES</div>
@@ -85,6 +121,18 @@
     return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
   }
 
+  // github tarzi yogunluk: o gunun toplam tekrari kac seviye boyar
+  function dayLevel(isoD, days, byDate) {
+    let reps = 0, has = false;
+    for (const s of byDate[isoD] || []) { has = true; reps += (s.reps || 0); }
+    if (days.includes(isoD)) has = true;
+    if (!has) return 0;
+    if (reps > 100) return 4;
+    if (reps > 50) return 3;
+    if (reps > 20) return 2;
+    return 1;
+  }
+
   function render() {
     const days = getDays();
     const sessions = getSessions();
@@ -121,8 +169,9 @@
       const num = document.createElement("span");
       num.textContent = d;
       cell.appendChild(num);
-      if (days.includes(iso(d))) {
-        cell.classList.add("lit");
+      const lv = dayLevel(iso(d), days, byDate);
+      if (lv > 0) {
+        cell.classList.add("lit", "lv" + lv);
         const acts = (byDate[iso(d)] || []).map((s) => s.move).filter(Boolean);
         if (acts.length) {
           const sm = document.createElement("small");
@@ -167,8 +216,79 @@
 
   prev.addEventListener("click", () => { if (mIdx > minIdx) { mIdx--; render(); } });
   next.addEventListener("click", () => { if (mIdx < curIdx) { mIdx++; render(); } });
+
+  // ── yil gorunumu: github katki duvari — 53 hafta × 7 gun, yogunluga gore boya ──
+  const curYear = now.getFullYear();
+  let yIdx = curYear;
+  let minYear = curYear;
+  for (const d of getDays()) {
+    const yy = parseInt(d.slice(0, 4), 10);
+    if (yy && yy < minYear) minYear = yy;
+  }
+  const yWall = document.getElementById("yearWall");
+  const yLabel = document.getElementById("yLabel");
+  const yTotals = document.getElementById("yTotals");
+  const yPrev = document.getElementById("yPrev");
+  const yNext = document.getElementById("yNext");
+
+  function renderYear() {
+    const days = getDays();
+    const sessions = getSessions();
+    const byDate = {};
+    for (const s of sessions) if (s && s.date) (byDate[s.date] = byDate[s.date] || []).push(s);
+    yLabel.textContent = yIdx;
+    yWall.innerHTML = "";
+    const jan1 = new Date(yIdx, 0, 1);
+    const padStart = (jan1.getDay() + 6) % 7;   // pazartesi hizasi
+    for (let b = 0; b < padStart; b++) {
+      const pad = document.createElement("i");
+      pad.className = "pad";
+      yWall.appendChild(pad);
+    }
+    let lit = 0, reps = 0;
+    const d = new Date(yIdx, 0, 1);
+    while (d.getFullYear() === yIdx) {
+      const isoD = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+      const cell = document.createElement("i");
+      const lv = dayLevel(isoD, days, byDate);
+      if (lv > 0) {
+        cell.className = "lv" + lv;
+        lit++;
+        for (const s of byDate[isoD] || []) reps += (s.reps || 0);
+      }
+      let tip = isoD;
+      const dayReps = (byDate[isoD] || []).reduce((a, s) => a + (s.reps || 0), 0);
+      if (dayReps) tip += " · " + dayReps + " reps";
+      else if (lv > 0) tip += " · on stage";
+      cell.title = tip;
+      yWall.appendChild(cell);
+      d.setDate(d.getDate() + 1);
+    }
+    yTotals.textContent = lit
+      ? lit + (lit === 1 ? " night" : " nights") + " on stage in " + yIdx + (reps ? " · " + reps + " reps" : "")
+      : "no shows in " + yIdx + " yet - the stage is patient.";
+    yPrev.disabled = yIdx <= minYear;
+    yNext.disabled = yIdx >= curYear;
+  }
+  yPrev.addEventListener("click", () => { if (yIdx > minYear) { yIdx--; renderYear(); } });
+  yNext.addEventListener("click", () => { if (yIdx < curYear) { yIdx++; renderYear(); } });
+
+  // gorunum secici: ay ↔ yil
+  const monthView = document.getElementById("monthView");
+  const yearView = document.getElementById("yearView");
+  document.getElementById("viewPick").addEventListener("click", (e) => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    document.querySelectorAll("#viewPick button").forEach((x) => x.classList.toggle("on", x === b));
+    const v = b.dataset.v;
+    monthView.hidden = v !== "month";
+    yearView.hidden = v !== "year";
+    if (v === "year") renderYear();
+  });
+
   render();
-  window.addEventListener("storage", render);
+  renderYear();
+  window.addEventListener("storage", () => { render(); renderYear(); });
 })();
 </script>
 <script>
