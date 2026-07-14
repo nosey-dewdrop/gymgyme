@@ -1,7 +1,7 @@
 // gymgyme service worker: ana ekrana kurulan personal trainer offline da açılsın.
 // kamera + motor zaten cihazda çalışıyor; burada sadece dosyaları önbelleğe alıyoruz.
 // vendor/ ya da engine/ değişirse CACHE sürümünü artır — eski önbellek silinir.
-const CACHE = "gg-pwa-v14";  // v14: marquee redesign - tabela, fis set listesi, moves.html + topbar
+const CACHE = "gg-pwa-v15";  // v15: hassas motor faz 1 - one euro filtre + full pose modeli
 
 const CORE = [
   "coach.html",
@@ -21,7 +21,7 @@ const CORE = [
   "vendor/mediapipe/wasm/vision_wasm_internal.wasm",
   "vendor/mediapipe/wasm/vision_wasm_nosimd_internal.js",
   "vendor/mediapipe/wasm/vision_wasm_nosimd_internal.wasm",
-  "vendor/models/pose_landmarker_lite.task",
+  "vendor/models/pose_landmarker_full.task",
   "manifest.webmanifest",
   "icons/icon-192.png",
   "icons/icon-512.png",
