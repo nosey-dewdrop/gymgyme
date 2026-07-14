@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>gymgyme my moves - your liked acts, sorted into programs</title>
-  <meta name="description" content="The moves you liked, in your order. Sort them, name them, save them as playlists - they show up on the personal trainer sign as one-tap programs.">
+  <title>gymgyme my moves - the acts you loved, in your order</title>
+  <meta name="description" content="The moves you loved, in your order. Sort them, name them, save them as programs - they show up on the personal trainer sign as one-tap chips.">
   <meta name="robots" content="noindex">
   <link rel="icon" href="icons/icon-192.png">
   <link rel="manifest" href="manifest.webmanifest">
@@ -52,8 +52,8 @@
 <section class="sub-sign">
   <div class="awning"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
   <div class="now">MY MOVES · YOUR ♥ COLLECTION · SORT THE SET</div>
-  <h1>my moves - liked songs, but sweatier 🤍</h1>
-  <p>everything you ♥'d on the moves list lands here, in your order. sort it, name it, save it as a playlist - saved playlists show up on the personal trainer sign as one-tap programs.</p>
+  <h1>my moves - the acts you ♥'d 🤍</h1>
+  <p>everything you ♥'d on the moves list lands here, in your order. sort it, name it, save it as a program - it lights up on the personal trainer sign, one tap and the set list prints itself.</p>
   <div class="bulbs b-bot"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
 </section>
 
@@ -61,9 +61,9 @@
   <div class="kept-list" id="keptList"></div>
 
   <div class="plmake" id="plMake" hidden>
-    <div class="lbl">SAVE THIS ORDER AS A PLAYLIST</div>
+    <div class="lbl">SAVE THIS ORDER AS A PROGRAM</div>
     <div class="rowline">
-      <input id="plName" placeholder="name this playlist... (leg night, exam week rescue...)" maxlength="30">
+      <input id="plName" placeholder="name this program... (leg night, exam week rescue...)" maxlength="30">
       <button class="mainbtn" id="plSave" type="button">save ♥</button>
     </div>
     <p class="hint">the camera counts the moves it knows; the rest run as timed acts - honestly labeled on the receipt.</p>
@@ -130,7 +130,7 @@
       const lbl = document.createElement("div");
       lbl.className = "lbl";
       lbl.style.cssText = "font-size:11px;font-weight:bold;letter-spacing:.13em;color:var(--cherry);margin-bottom:6px";
-      lbl.textContent = "YOUR PLAYLISTS · CHIPS ON THE TRAINER SIGN";
+      lbl.textContent = "YOUR PROGRAMS · ON THE TRAINER SIGN";
       plList.appendChild(lbl);
     }
     for (const pl of pls) {
