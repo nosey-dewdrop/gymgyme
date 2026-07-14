@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gymgyme - the scoreboard</title>
+<style>
+  :root { --bg:#FFBDD4; --tint:#FFE3EE; --tint2:#FFCEDF; --ink:#33000E; --soft:#7A2647; --cherry:#8E0038; --deep:#6E0030; --on:#FFDCE9; }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+  a{color:var(--cherry);text-decoration:none}
+  .top{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;padding:20px 4vw 14px}
+  .top h1{font-size:28px;letter-spacing:-.02em}
+  .top nav{margin-left:auto;display:flex;gap:18px;font-size:14px}
+  .top nav a{font-weight:bold}
+
+  /* the scoreboard hangs over the hall: deep cherry, glowing numbers */
+  .board{margin:0 auto;width:min(980px,94vw);background:var(--deep);color:var(--on);padding:26px 4vw 30px;text-align:center;box-shadow:8px 8px 0 rgba(142,0,56,.22)}
+  .board .lbl{font-size:11px;font-weight:bold;letter-spacing:.18em;opacity:.75}
+  .board h2{font-size:clamp(26px,3.6vw,44px);letter-spacing:-.02em;margin:6px 0 2px}
+  .pair{display:flex;justify-content:center;gap:7vw;align-items:baseline;margin-top:10px;flex-wrap:wrap}
+  .pair .side .n{font-size:clamp(70px,10vw,140px);font-weight:bold;line-height:.95;letter-spacing:-.04em;font-variant-numeric:tabular-nums;text-shadow:4px 4px 0 rgba(51,0,14,.3)}
+  .pair .side .n.tick{animation:pop .2s ease-out}
+  @keyframes pop{35%{transform:scale(1.07)}}
+  .pair .side small{display:block;font-size:12px;opacity:.85;margin-top:6px;letter-spacing:.08em}
+  .pair .vs{font-size:18px;opacity:.6;align-self:center}
+  .board p{font-size:13.5px;opacity:.9;margin-top:14px;line-height:1.55}
+  .board button{margin-top:14px;font:bold 15px Arial;background:var(--on);color:var(--deep);border:none;border-radius:12px;padding:12px 24px;cursor:pointer;transition:transform .15s}
+  .board button:hover{transform:translateY(-1px)}
+
+  /* fixtures: the directory as league rows, tight */
+  .league{width:min(980px,94vw);margin:26px auto 0}
+  .league .lbl{font-size:11px;font-weight:bold;letter-spacing:.13em;color:var(--cherry);margin-bottom:8px}
+  .fixture{display:grid;grid-template-columns:34px 1fr auto;gap:16px;align-items:baseline;padding:10px 8px;border-bottom:2px solid var(--tint2);transition:background .15s,padding-left .15s}
+  .fixture:hover{background:var(--tint2);padding-left:16px}
+  .fixture .pos{font-size:12px;color:var(--soft);font-variant-numeric:tabular-nums}
+  .fixture b{font-size:17px;letter-spacing:-.01em}
+  .fixture .links{font-size:13px;color:var(--soft);text-align:right}
+  .fixture .links a{border-bottom:2px solid var(--tint2)}
+  .fixture .links a:hover{border-color:var(--cherry)}
+  .foot{width:min(980px,94vw);margin:0 auto;display:flex;gap:4vw;align-items:baseline;flex-wrap:wrap;padding:20px 8px 28px;font-size:13px;color:var(--soft)}
+  .week{font-size:17px;letter-spacing:.05em}
+  .week .lit{color:var(--cherry);font-weight:bold}
+  .week .off{color:#fff}
+  .foot .legal{margin-left:auto;font-size:12px}
+</style>
+</head>
+<body>
+  <div class="top">
+    <h1>gymgyme</h1>
+    <nav><a href="#">personal trainer</a><a href="#">my program</a><a href="#">suggest something!</a></nav>
+  </div>
+
+  <div class="board">
+    <div class="lbl">TONIGHT'S MATCH · YOUR LIVING ROOM ARENA</div>
+    <h2>✨ personal trainer 🎀 counts the whole game</h2>
+    <div class="pair">
+      <div class="side"><span class="n" id="you">0</span><small>YOU · REPS</small></div>
+      <span class="vs">vs</span>
+      <div class="side"><span class="n">0</span><small>EXCUSES · POINTS</small></div>
+    </div>
+    <p>the referee is a c++ engine in your browser: reads 33 points of your body, scores every rep out of 100, corrects your form in 3d. no footage leaves the stadium - it never even exists.</p>
+    <button>step onto the court - open the camera</button>
+  </div>
+
+  <div class="league">
+    <div class="lbl">THE LEAGUE · EVERY TEAM RECOMMENDED BY REAL PEOPLE</div>
+    <a class="fixture" href="#"><span class="pos">01</span><b>wall pilates</b><span class="links">20 min, no talking · stiff-back series · wall angels</span></a>
+    <a class="fixture" href="#"><span class="pos">02</span><b>adult ballet</b><span class="links">chair barre · first position at any age</span></a>
+    <a class="fixture" href="#"><span class="pos">03</span><b>yoga</b><span class="links">morning stretch · for people who hate yoga</span></a>
+    <a class="fixture" href="#"><span class="pos">04</span><b>calisthenics</b><span class="links">your first real push-up · no-bar plan</span></a>
+    <a class="fixture" href="#"><span class="pos">05</span><b>bodyweight</b><span class="links">20-minute apartment · quiet cardio</span></a>
+    <a class="fixture" href="#"><span class="pos">06</span><b>articles</b><span class="links">knees aren't "bad" · protein, no bro science</span></a>
+  </div>
+
+  <div class="foot">
+    <span class="week"><span class="lit">m</span> <span class="off">t</span> <span class="lit">w</span> <span class="off">t</span> <span class="lit">f</span> <span class="off">s</span> <span class="off">s</span> &nbsp;<a href="#" style="font-weight:bold;font-size:13px">my program</a></span>
+    <span>new teams join when you <a href="#" style="font-weight:bold">suggest something!</a></span>
+    <span class="legal">no ads, no tracking, no cookies. · damlahelloworld</span>
+  </div>
+<script>
+  var n=0,el=document.getElementById('you');
+  setInterval(function(){n++;el.textContent=n;el.classList.remove('tick');void el.offsetWidth;el.classList.add('tick')},1500);
+</script>
+</body>
+</html>

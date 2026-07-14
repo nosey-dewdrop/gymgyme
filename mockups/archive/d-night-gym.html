@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gymgyme - the night gym</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #2b0a1c; /* raspberry night, not black */
+    color: #ffd2e6;
+    min-height: 100vh;
+    padding: 56px 5vw 120px;
+  }
+
+  /* the sign above the door */
+  .sign {
+    display: inline-block;
+    border: 4px solid #ff5fa2;
+    padding: 22px 34px 26px;
+    box-shadow: 0 0 0 3px #2b0a1c, 0 0 0 5px #ff5fa2;
+  }
+  .sign h1 {
+    font-size: clamp(48px, 9vw, 110px);
+    line-height: .9;
+    letter-spacing: -.03em;
+    color: #ff5fa2;
+  }
+  .sign .flicker { animation: flick 4.5s infinite; display: inline-block; }
+  @keyframes flick {
+    0%, 91%, 94%, 100% { opacity: 1; }
+    92%, 93% { opacity: .25; }
+  }
+  .sign p { margin-top: 8px; font-size: 15px; color: #ffd2e6; }
+
+  .hours { margin-top: 26px; font-size: 16px; max-width: 54ch; line-height: 1.6; }
+  .hours b { color: #ff5fa2; }
+
+  /* the equipment wall: every category is a labeled station */
+  .stations {
+    margin-top: 70px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 3px; /* hairline grid made of background showing through */
+    background: #ff5fa2;
+    border: 3px solid #ff5fa2;
+  }
+  .station {
+    background: #2b0a1c;
+    padding: 26px 22px 30px;
+    text-decoration: none;
+    color: #ffd2e6;
+    transition: background .18s, color .18s;
+    min-height: 170px;
+    display: flex;
+    flex-direction: column;
+  }
+  .station:hover { background: #ff5fa2; color: #2b0a1c; }
+  .station .tag { font-size: 12px; letter-spacing: .12em; }
+  .station .name { font-size: clamp(24px, 3vw, 36px); font-weight: bold; letter-spacing: -.02em; margin-top: 10px; }
+  .station .line { margin-top: auto; padding-top: 18px; font-size: 13px; }
+  .station.trainer { grid-column: 1 / -1; min-height: 130px; background: #ff5fa2; color: #2b0a1c; }
+  .station.trainer:hover { background: #ffd2e6; }
+
+  .occupancy {
+    margin-top: 70px;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+  .occupancy .big { font-size: clamp(40px, 6vw, 72px); font-weight: bold; color: #ff5fa2; letter-spacing: -.02em; display: block; }
+
+  footer { margin-top: 90px; font-size: 13px; color: #ffb7d9; }
+</style>
+</head>
+<body>
+  <div class="sign">
+    <h1>gymg<span class="flicker">y</span>me</h1>
+    <p>the night gym · open 24/7 · judgment left at the door</p>
+  </div>
+
+  <p class="hours">membership: <b>free, forever</b>. dress code: whatever you slept in. cameras: <b>only yours</b>, and it keeps every pixel on your device. staff: one c++ engine that counts your reps and politely scores them out of 100.</p>
+
+  <div class="stations">
+    <a class="station trainer" href="#">
+      <span class="tag">STATION 0 - STAFF</span>
+      <span class="name">✨ personal trainer 🎀</span>
+      <span class="line">stand in front of your camera, it counts out loud. no upload, no download, no excuses.</span>
+    </a>
+    <a class="station" href="#">
+      <span class="tag">STATION 1</span>
+      <span class="name">wall pilates</span>
+      <span class="line">the wall works the night shift too</span>
+    </a>
+    <a class="station" href="#">
+      <span class="tag">STATION 2</span>
+      <span class="name">adult ballet</span>
+      <span class="line">tendu at 2am, why not</span>
+    </a>
+    <a class="station" href="#">
+      <span class="tag">STATION 3</span>
+      <span class="name">yoga</span>
+      <span class="line">the quiet corner. it's all quiet corners.</span>
+    </a>
+    <a class="station" href="#">
+      <span class="tag">STATION 4</span>
+      <span class="name">calisthenics</span>
+      <span class="line">gravity is included in the membership</span>
+    </a>
+    <a class="station" href="#">
+      <span class="tag">STATION 5</span>
+      <span class="name">bodyweight</span>
+      <span class="line">you brought the equipment. it's you.</span>
+    </a>
+    <a class="station" href="#">
+      <span class="tag">STATION 6 - READING NOOK</span>
+      <span class="name">articles</span>
+      <span class="line">stretching for the brain</span>
+    </a>
+  </div>
+
+  <div class="occupancy">
+    <span class="big" id="occ">1</span>
+    person in the gym right now. it's you. the whole place is yours -
+    <a href="#" style="color:#ff5fa2;">suggest something</a> and leave your mark on the wall.
+  </div>
+
+  <footer>no ads, no tracking, no cookies, no money - just the lights left on for you. · damlahelloworld</footer>
+</body>
+</html>

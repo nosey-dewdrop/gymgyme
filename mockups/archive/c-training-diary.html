@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gymgyme - the training diary</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #fff;
+    color: #222;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 48px 16px 120px;
+  }
+  /* the whole app is one ruled notebook page */
+  .page {
+    width: min(720px, 100%);
+    background:
+      repeating-linear-gradient(#fff 0 35px, #ffd2e6 35px 37px);
+    border-left: 3px solid #ff5fa2;
+    padding: 0 28px 40px 34px;
+    position: relative;
+  }
+  .page > * { line-height: 37px; }
+
+  h1 {
+    font-size: 30px;
+    letter-spacing: -.02em;
+    color: #d81b74;
+    line-height: 74px; /* two ruled lines tall */
+  }
+  .date { font-size: 14px; color: #d81b74; }
+  .intro { font-size: 16px; }
+
+  nav { display: flex; gap: 22px; font-size: 15px; }
+  nav a { color: #d81b74; text-decoration: underline; text-underline-offset: 4px; }
+  nav a:hover { text-decoration-thickness: 3px; }
+
+  /* diary entries = today's plan, one move per ruled line */
+  .entries { margin-top: 37px; list-style: none; }
+  .entries li {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 18px;
+    cursor: pointer;
+    user-select: none;
+    transition: color .15s;
+  }
+  .entries li .box {
+    width: 20px; height: 20px;
+    border: 2.5px solid #d81b74;
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    color: #fff;
+    background: #fff;
+    transition: background .15s;
+  }
+  .entries li.done { color: #b3125e; text-decoration: line-through; text-decoration-color: #ff5fa2; }
+  .entries li.done .box { background: #d81b74; }
+  .entries li .why { margin-left: auto; font-size: 13px; color: #d81b74; text-align: right; }
+
+  .verdict { margin-top: 37px; font-size: 16px; color: #d81b74; min-height: 37px; }
+
+  .margin-note {
+    position: absolute;
+    right: -8px;
+    top: 220px;
+    transform: rotate(3deg);
+    background: #ffe3f0;
+    color: #d81b74;
+    font-size: 13px;
+    padding: 10px 14px;
+    max-width: 180px;
+    line-height: 1.45;
+    box-shadow: 2px 3px 0 #ffb7d9;
+  }
+  @media (max-width: 900px) { .margin-note { display: none; } }
+
+  footer { margin-top: 74px; font-size: 13px; color: #d81b74; }
+
+  /* confetti bits */
+  .bit { position: fixed; width: 8px; height: 8px; pointer-events: none; z-index: 9; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>gymgyme - dear diary, i moved today</h1>
+  <p class="date">tuesday · entry #1 · witness: my camera (it saw nothing, it never uploads)</p>
+  <p class="intro">tick a line when it's done. the diary remembers, your knees remember, nobody else finds out.</p>
+  <nav>
+    <a href="#">home workouts</a>
+    <a href="#">personal trainer</a>
+    <a href="#">my program</a>
+    <a href="#">suggest something!</a>
+  </nav>
+
+  <ul class="entries">
+    <li><span class="box"></span> 10 kneeling push-ups <span class="why">the knees are a feature</span></li>
+    <li><span class="box"></span> 15 squats <span class="why">sitting down, athletically</span></li>
+    <li><span class="box"></span> 20 glute bridges <span class="why">the ceiling gets a show</span></li>
+    <li><span class="box"></span> 30s plank <span class="why">just lie there. tensely.</span></li>
+    <li><span class="box"></span> read one article <span class="why">counts. it counts.</span></li>
+  </ul>
+
+  <p class="verdict" id="verdict"></p>
+
+  <div class="margin-note">note to self: the personal trainer counts these for you and scores every rep out of 100. the diary is for the days you'd rather whisper.</div>
+
+  <footer>no ads, no tracking, no cookies, no money - just a diary that roots for you. · damlahelloworld</footer>
+</div>
+<script>
+  var lines = document.querySelectorAll('.entries li');
+  var verdicts = [
+    "one down. the diary noticed.",
+    "two. your past self is jealous.",
+    "three. this is officially a workout.",
+    "four. who ARE you today?",
+    "all five. that's a workout - go drink water, champion."
+  ];
+  var done = 0;
+  lines.forEach(function (li) {
+    li.addEventListener('click', function () {
+      var was = li.classList.contains('done');
+      li.classList.toggle('done');
+      li.querySelector('.box').textContent = li.classList.contains('done') ? '✓' : '';
+      done += was ? -1 : 1;
+      document.getElementById('verdict').textContent = done > 0 ? verdicts[done - 1] : '';
+      if (!was) burst(li);
+      if (done === 5) bigBurst();
+    });
+  });
+  function burst(li) {
+    var r = li.getBoundingClientRect();
+    spawn(6, r.left + 10, r.top + 10);
+  }
+  function bigBurst() { spawn(40, innerWidth / 2, innerHeight / 3); }
+  function spawn(n, x, y) {
+    var colors = ['#ff5fa2', '#d81b74', '#ffb7d9', '#ffe3f0'];
+    for (var i = 0; i < n; i++) {
+      var b = document.createElement('div');
+      b.className = 'bit';
+      b.style.background = colors[i % colors.length];
+      b.style.left = x + 'px';
+      b.style.top = y + 'px';
+      document.body.appendChild(b);
+      var vx = (i % 7 - 3) * 2.2, vy = -(4 + (i % 5)), px = x, py = y;
+      (function step(b, vx, vy, px, py) {
+        function tick() {
+          vy += 0.35; px += vx; py += vy;
+          b.style.left = px + 'px'; b.style.top = py + 'px';
+          if (py < innerHeight + 20) requestAnimationFrame(tick);
+          else b.remove();
+        }
+        requestAnimationFrame(tick);
+      })(b, vx, vy, px, py);
+    }
+  }
+</script>
+</body>
+</html>

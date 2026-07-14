@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gymgyme - the forecast</title>
+<style>
+  :root { --bg:#FFBDD4; --tint:#FFE3EE; --tint2:#FFCEDF; --ink:#33000E; --soft:#7A2647; --cherry:#8E0038; --deep:#6E0030; --on:#FFDCE9; }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;padding:22px 4vw 40px}
+  a{color:var(--cherry);text-decoration:none}
+  .top{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+  .top h1{font-size:28px;letter-spacing:-.02em}
+  .top .tag{font-size:13px;color:var(--soft)}
+  .top nav{margin-left:auto;display:flex;gap:18px;font-size:14px}
+  .top nav a{font-weight:bold}
+
+  /* today's forecast: the trainer, with an orbiting sun made of a rep counter */
+  .today{display:grid;grid-template-columns:1fr 1.15fr;gap:4vw;align-items:center;background:var(--tint);padding:28px 4vw 32px;box-shadow:10px 10px 0 var(--tint2)}
+  .today .lbl{font-size:11px;font-weight:bold;letter-spacing:.14em;color:var(--cherry)}
+  .today h2{font-size:clamp(30px,4.4vw,54px);letter-spacing:-.025em;line-height:1.03;margin-top:6px}
+  .today p{font-size:14.5px;line-height:1.6;margin-top:12px;max-width:50ch}
+  .today p b{color:var(--cherry)}
+  .today button{margin-top:14px;font:bold 15px Arial;background:var(--cherry);color:var(--on);border:none;border-radius:12px;padding:12px 24px;cursor:pointer;box-shadow:0 4px 0 var(--deep);transition:transform .15s}
+  .today button:hover{transform:translateY(-1px)}
+  /* the meteorologist: damla's photo + the tech in human words */
+  .who{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:start}
+  .who .pics{width:min(200px,44vw)}
+  .who .pics .shot{position:relative;margin-bottom:14px}
+  .who .pics .shot img{width:100%;display:block;box-shadow:7px 7px 0 var(--cherry)}
+  .who .pics .shot:nth-child(1){transform:rotate(-2deg)}
+  .who .pics .shot:nth-child(2){transform:rotate(1.5deg)}
+  .who .pics .shot:nth-child(3){transform:rotate(-1deg)}
+  .who .pics .shot::after{content:"";position:absolute;top:-7px;left:50%;transform:translateX(-50%) rotate(-2deg);width:48px;height:15px;background:rgba(255,255,255,.8)} /* tape */
+  .who .pics figcaption{font-size:11.5px;color:var(--soft);margin-top:4px;line-height:1.5}
+  .how{font-size:12.5px;line-height:1.6}
+  .how .t{font-size:11px;font-weight:bold;letter-spacing:.12em;color:var(--cherry);margin-bottom:6px}
+  .how li{list-style:none;padding:5px 0;border-bottom:1px dashed var(--tint2)}
+  .how li:last-child{border:none}
+  .how b{color:var(--cherry)}
+
+  /* the week ahead: directory as a 6-day outlook, tight equal columns */
+  .outlook{margin-top:22px}
+  .outlook .lbl{font-size:11px;font-weight:bold;letter-spacing:.13em;color:var(--cherry);margin-bottom:10px}
+  .days{display:grid;grid-template-columns:repeat(6,1fr);gap:0}
+  .day{padding:12px 14px 14px;border-left:2px solid var(--tint2);font-size:12.5px;line-height:1.5}
+  .day:first-child{border-left:none}
+  .day .dn{font-size:10.5px;font-weight:bold;letter-spacing:.12em;color:var(--soft)}
+  .day b{display:block;font-size:15.5px;letter-spacing:-.01em;margin:3px 0 2px}
+  .day:hover b{color:var(--cherry)}
+  .day .cast{font-size:11px;color:var(--cherry);font-weight:bold}
+  .day a{display:block;color:var(--soft);margin-top:3px}
+  .day a:hover{color:var(--cherry)}
+  .foot{display:flex;gap:4vw;align-items:baseline;flex-wrap:wrap;margin-top:22px;font-size:13px;color:var(--soft)}
+  .week{font-size:17px;letter-spacing:.05em}
+  .week .lit{color:var(--cherry);font-weight:bold}
+  .week .off{color:#fff}
+  .foot .legal{margin-left:auto;font-size:12px}
+  @media(max-width:900px){.today{grid-template-columns:1fr}.days{grid-template-columns:repeat(2,1fr)}.day{border-left:none;border-top:2px solid var(--tint2)}}
+</style>
+</head>
+<body>
+  <div class="top">
+    <h1>gymgyme</h1>
+    <span class="tag">the living-room weather service · forecast: movement</span>
+    <nav><a href="#">personal trainer</a><a href="#">my program</a><a href="#">suggest something!</a></nav>
+  </div>
+
+  <div class="today">
+    <div>
+      <div class="lbl">TODAY'S FORECAST · 100% CHANCE OF COUNTING</div>
+      <h2>✨ personal trainer 🎀<br>sunny, with scattered squats</h2>
+      <p>conditions at your camera: it reads <b>33 points of your body</b>, counts every rep with a tick, scores each <b>out of 100</b> and corrects your form in 3d. all readings taken <b>on your device</b> - no data fronts moving out, ever.</p>
+      <button>check conditions - open the camera</button>
+    </div>
+    <div class="who">
+      <figure class="pics">
+        <div class="shot"><img src="assets/damla_5289.jpg" alt="damla"></div>
+        <div class="shot"><img src="assets/damla_5275.jpg" alt="damla"></div>
+        <div class="shot"><img src="assets/damla_5263.jpg" alt="damla"></div>
+        <figcaption>damla - cs student. wrote the engine, the site, and this caption.</figcaption>
+      </figure>
+      <div class="how">
+        <div class="t">OKAY BUT HOW · IN HUMAN WORDS</div>
+        <ul>
+          <li><b>is it chatgpt?</b> no. no llm, no api, no server thinking for you. it's geometry: your joints make angles, angles make reps.</li>
+          <li><b>then what sees me?</b> a small open pose model finds 33 points of your body on your device - like motion capture, minus the ping-pong ball suit.</li>
+          <li><b>who counts?</b> our own engine, written in c++ and compiled to webassembly so it runs inside your browser at camera speed.</li>
+          <li><b>why doesn't it upload?</b> there's nothing to upload to - the math happens here. no video ever leaves your device.</li>
+          <li><b>the score?</b> depth, tempo and control of each rep, graded 0-100. honest, never mean.</li>
+          <li><b>so why is it free?</b> that's exactly why. no llm api, no server - i don't have to pay for anything, so you don't have to pay for me.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="outlook">
+    <div class="lbl">THE WEEK AHEAD · CONDITIONS REPORTED BY REAL PEOPLE</div>
+    <div class="days">
+      <div class="day"><span class="dn">MON</span><b>wall pilates</b><span class="cast">mild, wall-adjacent</span><a href="#">20 min, no talking</a><a href="#">stiff-back series</a></div>
+      <div class="day"><span class="dn">TUE</span><b>adult ballet</b><span class="cast">graceful breezes</span><a href="#">chair barre, beginner</a><a href="#">first position, any age</a></div>
+      <div class="day"><span class="dn">WED</span><b>yoga</b><span class="cast">calm, clear mind</span><a href="#">morning stretch</a><a href="#">for people who hate yoga</a></div>
+      <div class="day"><span class="dn">THU</span><b>calisthenics</b><span class="cast">strong gravity front</span><a href="#">your first real push-up</a><a href="#">no-bar plan</a></div>
+      <div class="day"><span class="dn">FRI</span><b>bodyweight</b><span class="cast">indoor conditions ideal</span><a href="#">20-min apartment</a><a href="#">quiet cardio</a></div>
+      <div class="day"><span class="dn">SAT</span><b>articles</b><span class="cast">rest-day drizzle</span><a href="#">knees aren't "bad"</a><a href="#">protein, no bro science</a></div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span class="week"><span class="lit">m</span> <span class="off">t</span> <span class="lit">w</span> <span class="off">t</span> <span class="lit">f</span> <span class="off">s</span> <span class="off">s</span> &nbsp;<a href="#" style="font-weight:bold;font-size:13px">my program</a></span>
+    <span>spotted good weather? <a href="#" style="font-weight:bold">suggest something!</a></span>
+    <span class="legal">no ads, no tracking, no cookies. · damlahelloworld</span>
+  </div>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gymgyme - the recipe</title>
+<style>
+  :root { --bg:#FFBDD4; --tint:#FFE3EE; --tint2:#FFCEDF; --ink:#33000E; --soft:#7A2647; --cherry:#8E0038; --deep:#6E0030; --on:#FFDCE9; }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;padding:22px 4vw 40px}
+  a{color:var(--cherry);text-decoration:none}
+  .top{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+  .top h1{font-size:28px;letter-spacing:-.02em}
+  .top .tag{font-size:13px;color:var(--soft)}
+  .top nav{margin-left:auto;display:flex;gap:18px;font-size:14px}
+  .top nav a{font-weight:bold}
+
+  /* recipe of the day: the trainer. tint page, hard shadow, cookbook layout */
+  .recipe{background:var(--tint);box-shadow:10px 10px 0 var(--tint2);padding:26px 4vw 30px}
+  .recipe .lbl{font-size:11px;font-weight:bold;letter-spacing:.14em;color:var(--cherry)}
+  .recipe h2{font-size:clamp(30px,4.4vw,54px);letter-spacing:-.025em;line-height:1.03;margin-top:6px}
+  .cook{display:grid;grid-template-columns:1fr 1.3fr .8fr;gap:4vw;margin-top:16px}
+  .cook h3{font-size:12px;font-weight:bold;letter-spacing:.1em;color:var(--cherry);margin-bottom:8px}
+  .cook .ing li{list-style:none;font-size:14px;padding:4px 0;border-bottom:1px dashed var(--tint2)}
+  .cook .ing li:last-child{border:none}
+  .cook .steps li{list-style:none;font-size:14px;line-height:1.55;padding:4px 0;counter-increment:st}
+  .cook .steps li::before{content:counter(st) ". ";font-weight:bold;color:var(--cherry)}
+  .cook .yield{text-align:center}
+  .cook .yield .n{font-size:clamp(56px,6.5vw,88px);font-weight:bold;color:var(--cherry);letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums;display:block;text-shadow:4px 4px 0 var(--tint2)}
+  .cook .yield .n.tick{animation:pop .2s ease-out}
+  @keyframes pop{35%{transform:scale(1.08)}}
+  .cook .yield small{display:block;font-size:12px;color:var(--soft);margin-top:8px;line-height:1.5}
+  .cook .yield button{margin-top:14px;font:bold 15px Arial;background:var(--cherry);color:var(--on);border:none;border-radius:12px;padding:12px 22px;cursor:pointer;box-shadow:0 4px 0 var(--deep);transition:transform .15s}
+  .cook .yield button:hover{transform:translateY(-1px)}
+
+  /* the pantry: directory, compact three columns */
+  .pantry{margin-top:20px}
+  .pantry .lbl{font-size:11px;font-weight:bold;letter-spacing:.13em;color:var(--cherry);margin-bottom:8px}
+  .shelf{display:grid;grid-template-columns:repeat(3,1fr);gap:2px 30px}
+  .jar{display:flex;justify-content:space-between;gap:10px;align-items:baseline;padding:7px 0;border-bottom:1px solid var(--tint2);font-size:14px}
+  .jar b{font-weight:bold}
+  .jar:hover b{color:var(--cherry)}
+  .jar small{color:var(--soft);font-size:11.5px;text-align:right}
+  .foot{display:flex;gap:4vw;align-items:baseline;flex-wrap:wrap;margin-top:22px;font-size:13px;color:var(--soft)}
+  .week{font-size:17px;letter-spacing:.05em}
+  .week .lit{color:var(--cherry);font-weight:bold}
+  .week .off{color:#fff}
+  .foot .legal{margin-left:auto;font-size:12px}
+  @media(max-width:900px){.cook{grid-template-columns:1fr}.shelf{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+  <div class="top">
+    <h1>gymgyme</h1>
+    <span class="tag">the home-training cookbook · every recipe serves one: you</span>
+    <nav><a href="#">personal trainer</a><a href="#">my program</a><a href="#">suggest something!</a></nav>
+  </div>
+
+  <div class="recipe">
+    <div class="lbl">RECIPE OF THE DAY · TAKES 15 MINUTES · IMPOSSIBLE TO BURN</div>
+    <h2>✨ personal trainer 🎀 - you, but counted</h2>
+    <div class="cook">
+      <div>
+        <h3>INGREDIENTS</h3>
+        <ul class="ing">
+          <li>1 you, any fitness level</li>
+          <li>1 camera (stays on your device)</li>
+          <li>33 body points, read fresh each frame</li>
+          <li>1 c++ engine, pre-heated in your browser</li>
+          <li>0 uploads - the recipe never leaves the kitchen</li>
+        </ul>
+      </div>
+      <div>
+        <h3>METHOD</h3>
+        <ol class="steps">
+          <li>stand back until your whole body fits the frame.</li>
+          <li>move - it counts every rep with a tick you can hear.</li>
+          <li>each rep gets scored out of 100; half reps get called out, kindly.</li>
+          <li>your form gets fixed in 3d while you go.</li>
+          <li>finish - your day lights up on the calendar. serve warm.</li>
+        </ol>
+      </div>
+      <div class="yield">
+        <h3>YIELD SO FAR</h3>
+        <span class="n" id="n">0</span>
+        <small>reps counted while this page was open. the engine tastes everything.</small>
+        <button>start cooking - open the camera</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="pantry">
+    <div class="lbl">THE PANTRY · STOCKED BY REAL PEOPLE</div>
+    <div class="shelf">
+      <a class="jar" href="#"><b>wall pilates</b><small>20 min, no talking · stiff-back series</small></a>
+      <a class="jar" href="#"><b>adult ballet</b><small>chair barre · first position, any age</small></a>
+      <a class="jar" href="#"><b>yoga</b><small>morning stretch · for people who hate yoga</small></a>
+      <a class="jar" href="#"><b>calisthenics</b><small>first real push-up · no-bar plan</small></a>
+      <a class="jar" href="#"><b>bodyweight</b><small>20-min apartment · quiet cardio</small></a>
+      <a class="jar" href="#"><b>articles</b><small>knees aren't "bad" · protein, no bro science</small></a>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span class="week"><span class="lit">m</span> <span class="off">t</span> <span class="lit">w</span> <span class="off">t</span> <span class="lit">f</span> <span class="off">s</span> <span class="off">s</span> &nbsp;<a href="#" style="font-weight:bold;font-size:13px">my program</a></span>
+    <span>got a family recipe? <a href="#" style="font-weight:bold">suggest something!</a></span>
+    <span class="legal">no ads, no tracking, no cookies (ironic, we know). · damlahelloworld</span>
+  </div>
+<script>
+  var n=0,el=document.getElementById('n');
+  setInterval(function(){n++;el.textContent=n;el.classList.remove('tick');void el.offsetWidth;el.classList.add('tick')},1600);
+</script>
+</body>
+</html>

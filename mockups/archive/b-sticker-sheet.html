@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gymgyme - sticker sheet</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #ffffff;
+    color: #d81b74;
+    min-height: 100vh;
+    padding: 40px 4vw 100px;
+  }
+  header { max-width: 900px; }
+  h1 { font-size: clamp(44px, 8vw, 96px); letter-spacing: -.03em; line-height: .9; }
+  .sub { margin-top: 12px; font-size: 17px; max-width: 52ch; color: #b3125e; }
+
+  /* everything on the page is a die-cut sticker: white shape, pink outline, slight tilt */
+  .sheet {
+    margin-top: 60px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 26px 22px;
+    align-items: flex-start;
+    max-width: 1100px;
+  }
+  .sticker {
+    background: #ffe3f0;
+    color: #d81b74;
+    text-decoration: none;
+    padding: 18px 24px 20px;
+    border: 3px solid #d81b74;
+    border-radius: 18px;
+    box-shadow: 0 3px 0 #d81b74;
+    display: inline-block;
+    transition: transform .18s, box-shadow .18s;
+    position: relative;
+  }
+  .sticker:nth-child(odd)  { transform: rotate(-2.2deg); }
+  .sticker:nth-child(even) { transform: rotate(1.6deg); }
+  .sticker:nth-child(3n)   { transform: rotate(3deg); }
+  .sticker:hover { transform: rotate(0deg) translateY(-4px); box-shadow: 0 7px 0 #d81b74; }
+  .sticker .big { display: block; font-size: clamp(22px, 3vw, 34px); font-weight: bold; letter-spacing: -.02em; }
+  .sticker .tiny { display: block; margin-top: 4px; font-size: 13px; }
+  .sticker.wide { padding: 24px 30px; }
+  .sticker.hero { background: #d81b74; color: #fff; box-shadow: 0 4px 0 #8f0c4b; border-color: #8f0c4b; }
+  .sticker.hero:hover { box-shadow: 0 8px 0 #8f0c4b; }
+
+  /* peel corner on the hero sticker */
+  .sticker.hero::after {
+    content: "";
+    position: absolute;
+    right: -3px; bottom: -3px;
+    width: 0; height: 0;
+    border-style: solid;
+    border-width: 0 0 26px 26px;
+    border-color: transparent transparent #fff transparent;
+    transition: border-width .18s;
+  }
+  .sticker.hero:hover::after { border-width: 0 0 38px 38px; }
+
+  .counts {
+    margin-top: 70px;
+    font-size: 15px;
+    color: #b3125e;
+  }
+  .counts b { font-size: 28px; letter-spacing: -.02em; }
+
+  footer { margin-top: 80px; font-size: 13px; color: #b3125e; }
+</style>
+</head>
+<body>
+  <header>
+    <h1>gymgyme</h1>
+    <p class="sub">a sticker sheet of everything that got someone off the couch. peel one, try it, come back and stick your own.</p>
+  </header>
+
+  <div class="sheet">
+    <a class="sticker hero wide" href="#">
+      <span class="big">✨ personal trainer 🎀</span>
+      <span class="tiny">your camera counts your reps and never snitches</span>
+    </a>
+    <a class="sticker" href="#"><span class="big">wall pilates</span><span class="tiny">the wall is free and always home</span></a>
+    <a class="sticker" href="#"><span class="big">adult ballet</span><span class="tiny">plié like nobody's rendering</span></a>
+    <a class="sticker wide" href="#"><span class="big">yoga</span><span class="tiny">lying on the floor, but make it a discipline</span></a>
+    <a class="sticker" href="#"><span class="big">calisthenics</span><span class="tiny">the floor is your gym membership</span></a>
+    <a class="sticker" href="#"><span class="big">bodyweight</span><span class="tiny">you already own all the equipment</span></a>
+    <a class="sticker wide" href="#"><span class="big">healthy-living articles</span><span class="tiny">reading counts as rest day</span></a>
+    <a class="sticker" href="#"><span class="big">suggest something!</span><span class="tiny">the sheet grows when you do</span></a>
+  </div>
+
+  <p class="counts"><b>0</b> workouts · <b>0</b> articles · numbers are real, which is why they are small. help.</p>
+
+  <footer>no ads, no tracking, no cookies, no money - just stickers and links. · damlahelloworld</footer>
+</body>
+</html>

@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gymgyme - the studio</title>
+<style>
+  :root {
+    --bg:#FFBDD4; --tint:#FFE3EE; --tint2:#FFCEDF; --ink:#33000E; --soft:#7A2647;
+    --cherry:#8E0038; --deep:#6E0030; --on:#FFDCE9;
+    --ease: cubic-bezier(.76,0,.24,1);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%}
+  body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink);overflow:hidden}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit}
+
+  /* ── header floats above every room ── */
+  header{position:fixed;top:0;left:0;right:0;z-index:40;display:flex;align-items:center;gap:26px;padding:20px 4vw;mix-blend-mode:normal}
+  .brand{font-size:24px;font-weight:bold;letter-spacing:-.02em;cursor:pointer}
+  nav{margin-left:auto;display:flex;gap:4px}
+  nav button{font-size:13.5px;font-weight:bold;color:var(--ink);background:none;border:none;padding:9px 14px;border-radius:10px;cursor:pointer;transition:background .2s,color .2s}
+  nav button:hover{background:var(--tint)}
+  nav button.here{background:var(--cherry);color:var(--on)}
+
+  /* ── the wipe: two panels sweep the screen on every page change ── */
+  .wipe,.wipe2{position:fixed;inset:0;z-index:60;transform:translateY(101%);pointer-events:none}
+  .wipe{background:var(--cherry)}
+  .wipe2{background:var(--tint2);z-index:59}
+  .wipe.go{animation:sweep .9s var(--ease)}
+  .wipe2.go{animation:sweep .9s var(--ease) .08s}
+  @keyframes sweep{0%{transform:translateY(101%)}45%,55%{transform:translateY(0)}100%{transform:translateY(-101%)}}
+  .wipe .word{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--on);font-size:clamp(28px,4vw,52px);font-weight:bold;letter-spacing:-.02em;opacity:0}
+  .wipe.go .word{animation:wordIn .9s var(--ease)}
+  @keyframes wordIn{0%,25%{opacity:0;transform:translateY(24px)}45%,55%{opacity:1;transform:none}75%,100%{opacity:0;transform:translateY(-24px)}}
+
+  /* ── rooms ── */
+  .room{position:absolute;inset:0;padding:96px 4vw 40px;display:none;overflow:auto}
+  .room.on{display:block}
+  .room .in{opacity:0;transform:translateY(26px)}
+  .room.on .in{animation:rise .7s var(--ease) forwards}
+  .room.on .in:nth-child(2){animation-delay:.06s}
+  .room.on .in:nth-child(3){animation-delay:.12s}
+  .room.on .in:nth-child(4){animation-delay:.18s}
+  .room.on .in:nth-child(5){animation-delay:.24s}
+  @keyframes rise{to{opacity:1;transform:none}}
+
+  /* ── home ── */
+  #home .stagebox{display:grid;grid-template-columns:1.25fr 1fr;gap:4vw;align-items:center;min-height:calc(100vh - 150px)}
+  #home .k{font-size:11px;font-weight:bold;letter-spacing:.16em;color:var(--cherry)}
+  #home h1{font-size:clamp(44px,6.6vw,96px);letter-spacing:-.035em;line-height:.98;margin-top:10px}
+  #home h1 em{font-style:normal;color:var(--cherry)}
+  #home .sub{font-size:clamp(14.5px,1.7vw,17.5px);line-height:1.65;margin-top:18px;max-width:50ch}
+  #home .sub b{color:var(--cherry)}
+  .cta{display:inline-flex;align-items:center;gap:10px;margin-top:24px;font-size:16px;font-weight:bold;background:var(--cherry);color:var(--on);border:none;border-radius:14px;padding:15px 28px;cursor:pointer;box-shadow:0 5px 0 var(--deep);transition:transform .18s var(--ease),box-shadow .18s}
+  .cta:hover{transform:translateY(-2px);box-shadow:0 8px 0 var(--deep)}
+  .cta:active{transform:translateY(1px);box-shadow:0 3px 0 var(--deep)}
+  .cta .arrow{transition:transform .2s var(--ease)}
+  .cta:hover .arrow{transform:translateX(4px)}
+  .ghost{display:inline-block;margin:24px 0 0 14px;font-size:14px;font-weight:bold;color:var(--cherry);background:none;border:none;cursor:pointer;padding:15px 6px;border-bottom:3px solid var(--tint2);transition:border-color .2s}
+  .ghost:hover{border-color:var(--cherry)}
+
+  /* the living figure: squats forever, its counter breathes with it */
+  .fig{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .fig svg{width:min(240px,50vw)}
+  .squat{animation:squat 1.9s var(--ease) infinite}
+  @keyframes squat{0%,100%{transform:translateY(0)}50%{transform:translateY(20px)}}
+  .fig .shadowline{width:120px;height:10px;border-radius:50%;background:var(--tint2);margin-top:-6px;animation:sh 1.9s var(--ease) infinite}
+  @keyframes sh{0%,100%{transform:scaleX(1)}50%{transform:scaleX(1.35)}}
+  .fig .cnt{margin-top:22px;text-align:center}
+  .fig .cnt .n{font-size:clamp(46px,5vw,68px);font-weight:bold;color:var(--cherry);letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums;display:block}
+  .fig .cnt .n.tick{animation:pop .22s var(--ease)}
+  @keyframes pop{40%{transform:scale(1.12)}}
+  .fig .cnt small{font-size:12px;color:var(--soft);margin-top:6px;display:block}
+
+  /* home footer strip: the rooms of the house, as doors */
+  .doors{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:8px;padding-bottom:10px}
+  .door{background:var(--tint);border:none;border-radius:16px;padding:16px 18px;text-align:left;cursor:pointer;transition:transform .22s var(--ease),background .22s;position:relative;overflow:hidden}
+  .door::after{content:"→";position:absolute;right:16px;bottom:12px;color:var(--cherry);font-weight:bold;transform:translateX(-6px);opacity:0;transition:all .22s var(--ease)}
+  .door:hover{transform:translateY(-4px);background:var(--tint2)}
+  .door:hover::after{opacity:1;transform:none}
+  .door .t{font-size:16px;font-weight:bold;letter-spacing:-.01em}
+  .door small{display:block;font-size:12px;color:var(--soft);margin-top:3px}
+
+  /* ── trainer room ── */
+  #trainer .grid{display:grid;grid-template-columns:1fr 1fr;gap:4vw;align-items:start}
+  #trainer h2{font-size:clamp(34px,4.6vw,64px);letter-spacing:-.03em;line-height:1}
+  #trainer .lead{font-size:15px;line-height:1.65;margin-top:14px;max-width:48ch}
+  #trainer .lead b{color:var(--cherry)}
+  .steps{margin-top:22px;counter-reset:s}
+  .step{display:grid;grid-template-columns:44px 1fr;gap:14px;padding:14px 0;border-top:2px solid var(--tint2);counter-increment:s;transition:padding-left .2s var(--ease)}
+  .step:hover{padding-left:8px}
+  .step::before{content:"0" counter(s);font-size:13px;font-weight:bold;color:var(--cherry);padding-top:2px}
+  .step .t{font-size:16.5px;font-weight:bold;letter-spacing:-.01em}
+  .step p{font-size:13.5px;color:var(--soft);line-height:1.6;margin-top:3px}
+  .polas{position:sticky;top:96px}
+  .pola{position:relative;background:var(--tint);padding:12px 12px 40px;border-radius:6px;box-shadow:0 6px 0 var(--tint2);width:min(300px,70vw);transition:transform .25s var(--ease)}
+  .pola img{width:100%;display:block;border-radius:3px}
+  .pola figcaption{position:absolute;bottom:11px;left:14px;font-size:12px;color:var(--soft)}
+  .pola:nth-child(1){transform:rotate(-2.5deg)}
+  .pola:nth-child(2){transform:rotate(2deg) translateY(-18px) translateX(34px)}
+  .pola:nth-child(3){transform:rotate(-1deg) translateY(-36px) translateX(8px)}
+  .pola:hover{transform:rotate(0) scale(1.04);z-index:3}
+
+  /* ── directory room ── */
+  #directory h2{font-size:clamp(34px,4.6vw,64px);letter-spacing:-.03em}
+  #directory .hint{font-size:13.5px;color:var(--soft);margin-top:8px}
+  .cats{margin-top:22px}
+  .cat{display:grid;grid-template-columns:1fr auto;align-items:baseline;gap:20px;padding:20px 6px;border-top:2px solid var(--tint2);cursor:pointer;transition:background .25s,padding-left .25s var(--ease)}
+  .cat:last-child{border-bottom:2px solid var(--tint2)}
+  .cat:hover{background:var(--tint);padding-left:20px}
+  .cat .name{font-size:clamp(24px,3.2vw,42px);font-weight:bold;letter-spacing:-.02em;transition:color .2s}
+  .cat:hover .name{color:var(--cherry)}
+  .cat .meta{font-size:12.5px;color:var(--soft);text-align:right}
+  .cat .picks{grid-column:1/-1;max-height:0;overflow:hidden;transition:max-height .5s var(--ease);font-size:14px;line-height:2}
+  .cat.open .picks{max-height:130px}
+  .cat .picks a{color:var(--cherry);font-weight:bold;margin-right:22px;border-bottom:2px solid var(--tint2);transition:border-color .2s}
+  .cat .picks a:hover{border-color:var(--cherry)}
+
+  /* ── program room ── */
+  #program h2{font-size:clamp(34px,4.6vw,64px);letter-spacing:-.03em}
+  .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-top:24px;max-width:760px}
+  .cal .d{aspect-ratio:1;border-radius:14px;background:var(--tint);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:13px;color:var(--soft);transition:transform .2s var(--ease)}
+  .cal .d:hover{transform:translateY(-3px)}
+  .cal .d.lit{background:var(--cherry);color:var(--on)}
+  .cal .d.lit b{font-size:17px}
+  #program .note{font-size:13.5px;color:var(--soft);margin-top:18px;max-width:52ch;line-height:1.6}
+
+  /* ── suggest room ── */
+  #suggest h2{font-size:clamp(34px,4.6vw,64px);letter-spacing:-.03em}
+  #suggest .lead{font-size:15px;line-height:1.6;margin-top:10px;max-width:50ch}
+  .field{margin-top:20px;max-width:520px}
+  .field label{display:block;font-size:12px;font-weight:bold;letter-spacing:.08em;color:var(--cherry);margin-bottom:6px}
+  .field input{width:100%;font:15px Arial;color:var(--ink);background:var(--tint);border:none;border-radius:12px;padding:14px 16px;outline:none;transition:background .2s,box-shadow .2s}
+  .field input:focus{background:#fff0;box-shadow:inset 0 0 0 3px var(--cherry);background:var(--tint)}
+  .field input::placeholder{color:var(--soft);opacity:.6}
+
+  .legal{position:fixed;bottom:14px;left:4vw;right:4vw;display:flex;justify-content:space-between;font-size:11.5px;color:var(--soft);pointer-events:none;z-index:30}
+  @media(max-width:860px){
+    #home .stagebox,#trainer .grid{grid-template-columns:1fr}
+    .doors{grid-template-columns:repeat(2,1fr)}
+    .polas{position:static;margin-top:20px}
+    body{overflow:auto}
+    .legal{display:none}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="brand" data-go="home">gymgyme</span>
+  <nav>
+    <button data-go="trainer">personal trainer</button>
+    <button data-go="directory">the directory</button>
+    <button data-go="program">my program</button>
+    <button data-go="suggest">suggest!</button>
+  </nav>
+</header>
+
+<div class="wipe"><span class="word" id="wipeWord"></span></div>
+<div class="wipe2"></div>
+
+<!-- HOME -->
+<section class="room on" id="home">
+  <div class="stagebox">
+    <div>
+      <div class="k in">FREE, FOREVER · EVERYTHING RUNS ON YOUR DEVICE</div>
+      <h1 class="in">a personal trainer<br>lives in <em>your camera</em> now.</h1>
+      <p class="sub in">it reads <b>33 points of your body</b>, counts every rep with a tick you can hear, scores each one <b>out of 100</b> and corrects your form in 3d - and the video <b>never leaves your device</b>.</p>
+      <div class="in">
+        <button class="cta" data-go="trainer">meet the trainer <span class="arrow">→</span></button>
+        <button class="ghost" data-go="directory">or browse the directory</button>
+      </div>
+    </div>
+    <div class="fig in">
+      <svg viewBox="0 0 100 128" fill="none" stroke="#8E0038" stroke-width="5.5" stroke-linecap="round">
+        <g class="squat">
+          <circle cx="50" cy="15" r="9" fill="#8E0038" stroke="none"/>
+          <line x1="50" y1="24" x2="50" y2="53"/>
+          <line x1="50" y1="32" x2="30" y2="45"/><line x1="50" y1="32" x2="70" y2="45"/>
+          <line x1="47" y1="53" x2="38" y2="79"/><line x1="53" y1="53" x2="62" y2="79"/>
+        </g>
+        <line x1="38" y1="79" x2="38" y2="105"/><line x1="62" y1="79" x2="62" y2="105"/>
+        <line x1="38" y1="105" x2="28" y2="105"/><line x1="62" y1="105" x2="72" y2="105"/>
+      </svg>
+      <div class="shadowline"></div>
+      <div class="cnt"><span class="n" id="homeN">0</span><small>reps counted since you arrived · it just likes counting</small></div>
+    </div>
+  </div>
+  <div class="doors in">
+    <button class="door" data-go="trainer"><span class="t">✨ personal trainer 🎀</span><small>the engine, explained like a human</small></button>
+    <button class="door" data-go="directory"><span class="t">the directory</span><small>recommended by real people</small></button>
+    <button class="door" data-go="program"><span class="t">my program</span><small>your week, lighting itself up</small></button>
+    <button class="door" data-go="suggest"><span class="t">suggest something!</span><small>the site grows when you do</small></button>
+  </div>
+</section>
+
+<!-- TRAINER -->
+<section class="room" id="trainer">
+  <div class="grid">
+    <div>
+      <h2 class="in">✨ personal trainer 🎀<br>how it actually works</h2>
+      <p class="lead in">no llm, no api, no server thinking for you. it's geometry: <b>your joints make angles, angles make reps</b>. here is the whole trick, in human words:</p>
+      <div class="steps in">
+        <div class="step"><div><div class="t">your camera finds you</div><p>a small open pose model spots 33 points of your body, on your device - like motion capture, minus the ping-pong ball suit.</p></div></div>
+        <div class="step"><div><div class="t">our engine does the math</div><p>written in c++, compiled to webassembly, running inside your browser at camera speed. it learns YOUR body first, then locks onto you.</p></div></div>
+        <div class="step"><div><div class="t">it counts out loud</div><p>every full rep gets a tick you can hear. half reps get called out, kindly. sets and rests run themselves.</p></div></div>
+        <div class="step"><div><div class="t">every rep gets a grade</div><p>depth, tempo and control, scored 0-100. honest, never mean. your form gets corrected in 3d while you move.</p></div></div>
+        <div class="step"><div><div class="t">nothing is uploaded. ever.</div><p>there's nothing to upload to - the math happens here. that's also why it's free: i don't have to pay for anything, so you don't have to pay for me.</p></div></div>
+      </div>
+      <button class="cta in" style="margin-top:26px">open the camera <span class="arrow">→</span></button>
+    </div>
+    <div class="polas in">
+      <figure class="pola"><img src="assets/damla_5289.jpg" alt="damla"><figcaption>the one who built it</figcaption></figure>
+      <figure class="pola"><img src="assets/damla_5275.jpg" alt="damla"><figcaption>damla · bilkent cs</figcaption></figure>
+      <figure class="pola"><img src="assets/damla_5263.jpg" alt="damla"><figcaption>engine, site, captions: her</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- DIRECTORY -->
+<section class="room" id="directory">
+  <h2 class="in">the directory</h2>
+  <p class="hint in">grown one recommendation at a time - someone sweats to something, it earns its place. click a row to peek inside.</p>
+  <div class="cats in">
+    <div class="cat"><span class="name">wall pilates</span><span class="meta">the wall never judges · 3 picks</span>
+      <div class="picks"><a href="#">20 min, no talking</a><a href="#">the stiff-back series</a><a href="#">wall angels, properly</a></div></div>
+    <div class="cat"><span class="name">adult ballet</span><span class="meta">never too late · 2 picks</span>
+      <div class="picks"><a href="#">chair barre, absolute beginner</a><a href="#">first position at any age</a></div></div>
+    <div class="cat"><span class="name">yoga</span><span class="meta">breathing, on purpose · 2 picks</span>
+      <div class="picks"><a href="#">the morning stretch you'll repeat</a><a href="#">yoga for people who hate yoga</a></div></div>
+    <div class="cat"><span class="name">calisthenics</span><span class="meta">you vs. gravity · 2 picks</span>
+      <div class="picks"><a href="#">your first real push-up</a><a href="#">no-bar beginner plan</a></div></div>
+    <div class="cat"><span class="name">bodyweight</span><span class="meta">equipment: you · 2 picks</span>
+      <div class="picks"><a href="#">the 20-minute apartment workout</a><a href="#">quiet cardio, neighbors safe</a></div></div>
+    <div class="cat"><span class="name">articles</span><span class="meta">rest-day reading · 2 picks</span>
+      <div class="picks"><a href="#">why your knees are not "bad"</a><a href="#">protein without the bro science</a></div></div>
+  </div>
+</section>
+
+<!-- PROGRAM -->
+<section class="room" id="program">
+  <h2 class="in">my program</h2>
+  <div class="cal in">
+    <div class="d lit"><b>m</b><span>squats</span></div>
+    <div class="d"><b>t</b></div>
+    <div class="d lit"><b>w</b><span>push day</span></div>
+    <div class="d"><b>t</b></div>
+    <div class="d lit"><b>f</b><span>full body</span></div>
+    <div class="d"><b>s</b></div>
+    <div class="d"><b>s</b></div>
+  </div>
+  <p class="note in">a day lights up when the trainer sees you finish - no diary homework, no manual ticking. your history syncs to your account if you want it to, and it's yours to export or delete, always.</p>
+</section>
+
+<!-- SUGGEST -->
+<section class="room" id="suggest">
+  <h2 class="in">suggest something!</h2>
+  <p class="lead in">every link on this site was pinned by a real person. found a video, a channel, an article that got you off the couch? hand it over - the site only grows.</p>
+  <div class="field in"><label>THE LINK</label><input placeholder="paste the thing that made you sweat"></div>
+  <div class="field in"><label>WHY IT'S GOOD (ONE LINE IS PLENTY)</label><input placeholder="honest words work best"></div>
+  <button class="cta in" style="margin-top:22px">send it in <span class="arrow">→</span></button>
+</section>
+
+<div class="legal"><span>no ads, no tracking, no cookies - just links and reps.</span><span>damlahelloworld</span></div>
+
+<script>
+  // router with a curtain wipe: cherry panel sweeps, page swaps at the covered moment
+  var current = 'home', busy = false;
+  var wipe = document.querySelector('.wipe'), wipe2 = document.querySelector('.wipe2');
+  var wipeWord = document.getElementById('wipeWord');
+  var names = { home:'gymgyme', trainer:'✨ personal trainer 🎀', directory:'the directory', program:'my program', suggest:'suggest something!' };
+
+  function go(id) {
+    if (busy || id === current) return;
+    busy = true;
+    wipeWord.textContent = names[id];
+    wipe.classList.add('go'); wipe2.classList.add('go');
+    setTimeout(function () {                       // screen fully covered here
+      document.getElementById(current).classList.remove('on');
+      var next = document.getElementById(id);
+      next.classList.add('on');
+      next.scrollTop = 0;
+      document.querySelectorAll('nav button').forEach(function (b) {
+        b.classList.toggle('here', b.dataset.go === id);
+      });
+      current = id;
+    }, 430);
+    setTimeout(function () {
+      wipe.classList.remove('go'); wipe2.classList.remove('go');
+      busy = false;
+    }, 980);
+  }
+  document.querySelectorAll('[data-go]').forEach(function (el) {
+    el.addEventListener('click', function () { go(el.dataset.go); });
+  });
+
+  // directory rows open like drawers
+  document.querySelectorAll('.cat').forEach(function (c) {
+    c.addEventListener('click', function (e) {
+      if (e.target.tagName === 'A') return;
+      c.classList.toggle('open');
+    });
+  });
+
+  // the figure counts its own squats (1.9s cycle, synced to the animation)
+  var n = 0, homeN = document.getElementById('homeN');
+  setInterval(function () {
+    n++;
+    homeN.textContent = n;
+    homeN.classList.remove('tick'); void homeN.offsetWidth; homeN.classList.add('tick');
+  }, 1900);
+</script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gymgyme - home, the floor plan</title>
+<style>
+  :root {
+    --bg: #FFBDD4; --tint: #FFE3EE; --tint-2: #FFCEDF;
+    --ink: #33000E; --ink-soft: #7A2647; --cherry: #8E0038; --cherry-deep: #6E0030;
+    --on-cherry: #FFDCE9;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: Arial, Helvetica, sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; padding: 34px 4vw 90px; }
+
+  /* the home page as a gym floor seen from above - court lines in soft white,
+     everything painted straight on the pink, no cards anywhere */
+  .court { position: relative; max-width: 1200px; margin: 0 auto; }
+  .court::before { content: ""; position: absolute; inset: -14px; border: 3px solid rgba(255,255,255,.65); pointer-events: none; }
+
+  header { display: flex; align-items: baseline; gap: 18px; flex-wrap: wrap; padding: 8px 6px 0; }
+  h1 { font-size: clamp(34px, 5vw, 54px); letter-spacing: -.03em; line-height: .9; }
+  header .sub { font-size: clamp(13px, 1.6vw, 16px); color: var(--ink-soft); max-width: 40ch; }
+  header nav { margin-left: auto; display: flex; gap: 18px; font-size: 15px; align-self: center; }
+  header nav a { color: var(--cherry); font-weight: bold; text-decoration: none; border-bottom: 3px solid transparent; padding-bottom: 2px; transition: border-color .15s; }
+  header nav a:hover { border-color: var(--cherry); }
+
+  /* center court FIRST: the engine is the invention, it gets the whole midfield */
+  .hero { display: grid; grid-template-columns: 1.5fr 1fr; gap: 10px 40px; align-items: center; padding: 40px 6px 42px; border-bottom: 3px solid rgba(255,255,255,.75); margin-top: 22px; position: relative; }
+  .hero::before { content: ""; position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: min(520px, 60%); aspect-ratio: 1; border: 3px solid rgba(255,255,255,.5); border-radius: 50%; pointer-events: none; }
+  .hero > * { position: relative; }
+  .hero .t { font-size: clamp(38px, 6.5vw, 84px); font-weight: bold; letter-spacing: -.03em; line-height: .95; }
+  .hero p { font-size: clamp(14px, 1.9vw, 19px); color: var(--ink); max-width: 44ch; margin-top: 14px; line-height: 1.55; }
+  .hero p b { color: var(--cherry); }
+  .hero .go { margin-top: 18px; font: bold 17px Arial; background: var(--cherry); color: var(--on-cherry); border: none; border-radius: 12px; padding: 14px 28px; cursor: pointer; transition: transform .15s, background .15s; }
+  .hero .go:hover { background: var(--cherry-deep); transform: translateY(-1px); }
+  .hero .live { text-align: right; }
+  .hero .live .n { font-size: clamp(90px, 14vw, 200px); font-weight: bold; color: var(--cherry); line-height: .9; letter-spacing: -.05em; font-variant-numeric: tabular-nums; display: block; }
+  .hero .live .n.tick { animation: pop .2s ease-out; }
+  .hero .live small { font-size: 13px; color: var(--ink-soft); display: block; margin-top: 8px; max-width: 26ch; margin-left: auto; line-height: 1.5; }
+  @media (max-width: 700px) { .hero { grid-template-columns: 1fr; } .hero .live { text-align: left; } .hero .live small { margin-left: 0; } }
+
+  /* lanes: painted floor markings, each lane holds its real links inline - dense */
+  .lanes { margin-top: 30px; }
+  .lane { display: grid; grid-template-columns: minmax(180px, .8fr) 1.6fr; gap: 6px 26px; align-items: baseline; padding: 20px 6px; border-top: 3px dashed rgba(255,255,255,.75); transition: background .15s; }
+  .lane:hover { background: var(--tint-2); }
+  .lane:last-child { border-bottom: 3px dashed rgba(255,255,255,.75); }
+  .lane .cat { font-size: clamp(24px, 3.6vw, 44px); font-weight: bold; letter-spacing: -.02em; line-height: 1; color: var(--ink); text-decoration: none; }
+  .lane .cat:hover { color: var(--cherry); }
+  .lane .cat small { display: block; font-size: 12.5px; font-weight: normal; color: var(--ink-soft); margin-top: 4px; letter-spacing: 0; }
+  .lane .picks { font-size: 15px; line-height: 1.9; }
+  .lane .picks a { color: var(--cherry); text-decoration: none; font-weight: bold; white-space: nowrap; }
+  .lane .picks a:hover { text-decoration: underline; text-underline-offset: 4px; }
+  .lane .picks .sep { color: rgba(255,255,255,.9); margin: 0 .5em; }
+
+  @keyframes pop { 35% { transform: scale(1.1); } }
+  .lanes-label { font-size: 11px; font-weight: bold; letter-spacing: .12em; color: var(--ink-soft); margin: 26px 6px 0; }
+
+  /* sideline: week + contributors painted along the bottom line */
+  .sideline { display: flex; gap: 30px; flex-wrap: wrap; align-items: baseline; margin-top: 36px; padding: 0 6px; }
+  .week { font-size: 20px; letter-spacing: .06em; }
+  .week .lit { color: var(--cherry); font-weight: bold; }
+  .week .off { color: rgba(255,255,255,.95); }
+  .week small { display: block; font-size: 12px; color: var(--ink-soft); letter-spacing: 0; margin-top: 4px; }
+  .thanks { font-size: 13px; color: var(--ink-soft); max-width: 52ch; line-height: 1.6; margin-left: auto; }
+  .thanks a { color: var(--cherry); font-weight: bold; text-decoration: none; }
+  .thanks a:hover { text-decoration: underline; }
+
+  .foot { text-align: center; font-size: 12.5px; color: var(--ink-soft); margin-top: 30px; }
+  @media (max-width: 700px) { .lane { grid-template-columns: 1fr; } .center { aspect-ratio: auto; border-radius: 30px; padding: 24px; } }
+</style>
+</head>
+<body>
+<div class="court">
+  <header>
+    <h1>gymgyme</h1>
+    <p class="sub">a gym floor with no gym around it - everything about training at home, recommended by real people.</p>
+    <nav><a href="#">personal trainer</a><a href="#">my program</a><a href="#">suggest something!</a></nav>
+  </header>
+
+  <div class="lanes">
+    <div class="lane">
+      <a class="cat" href="#">wall pilates<small>the wall never judges</small></a>
+      <p class="picks"><a href="#">20 min, no talking</a><span class="sep">/</span><a href="#">the stiff-back series</a><span class="sep">/</span><a href="#">wall angels, properly</a></p>
+    </div>
+    <div class="lane">
+      <a class="cat" href="#">adult ballet<small>never too late for first position</small></a>
+      <p class="picks"><a href="#">chair barre, absolute beginner</a><span class="sep">/</span><a href="#">first position at any age</a></p>
+    </div>
+    <div class="lane">
+      <a class="cat" href="#">yoga<small>breathing, but on purpose</small></a>
+      <p class="picks"><a href="#">the morning stretch you'll repeat</a><span class="sep">/</span><a href="#">yoga for people who hate yoga</a></p>
+    </div>
+    <div class="lane">
+      <a class="cat" href="#">calisthenics<small>you vs. gravity, best of three</small></a>
+      <p class="picks"><a href="#">your first real push-up</a><span class="sep">/</span><a href="#">no-bar beginner plan</a></p>
+    </div>
+    <div class="lane">
+      <a class="cat" href="#">bodyweight<small>equipment: you</small></a>
+      <p class="picks"><a href="#">the 20-minute apartment workout</a><span class="sep">/</span><a href="#">quiet cardio, neighbors safe</a></p>
+    </div>
+    <div class="lane">
+      <a class="cat" href="#">articles<small>rest-day reading</small></a>
+      <p class="picks"><a href="#">why your knees are not "bad"</a><span class="sep">/</span><a href="#">protein without the bro science</a></p>
+    </div>
+  </div>
+
+  <div class="center">
+    <span class="t">✨ personal trainer 🎀</span>
+    <p>your camera counts your reps out loud, scores every one out of 100 and fixes your form - all on your device, the video goes nowhere.</p>
+    <span class="n" id="n">0</span>
+    <button>open the camera</button>
+  </div>
+
+  <div class="sideline">
+    <div class="week">
+      <span class="lit">m</span> <span class="off">t</span> <span class="lit">w</span> <span class="off">t</span> <span class="lit">f</span> <span class="off">s</span> <span class="off">s</span>
+      <small>your week - a day lights up when the trainer sees you finish. <a href="#" style="color:var(--cherry); font-weight:bold; text-decoration:none;">my program</a></small>
+    </div>
+    <p class="thanks">every link on this floor was recommended by a real person - thank you! add yours and the floor grows: <a href="#">suggest something!</a></p>
+  </div>
+
+  <p class="foot">no ads, no tracking, no cookies - just links and reps. · damlahelloworld</p>
+</div>
+<script>
+  var n = 0, el = document.getElementById('n');
+  setInterval(function () {
+    n++;
+    el.textContent = n;
+    el.classList.remove('tick'); void el.offsetWidth; el.classList.add('tick');
+  }, 1600);
+</script>
+</body>
+</html>

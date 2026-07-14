@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gymgyme - your receipt</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #ff5fa2;
+    color: #fff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 60px 16px 140px;
+  }
+  h1 { font-size: clamp(40px, 8vw, 90px); letter-spacing: -.03em; line-height: .9; text-align: center; }
+  .sub { margin-top: 12px; font-size: 16px; text-align: center; max-width: 46ch; }
+
+  /* the receipt prints itself */
+  .receipt {
+    margin-top: 50px;
+    width: min(440px, 94vw);
+    background: #fff;
+    color: #d81b74;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 14px;
+    padding: 28px 22px 34px;
+    box-shadow: 0 6px 0 rgba(0,0,0,.12);
+    /* torn bottom edge */
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10px),
+      95% 100%, 90% calc(100% - 10px), 85% 100%, 80% calc(100% - 10px),
+      75% 100%, 70% calc(100% - 10px), 65% 100%, 60% calc(100% - 10px),
+      55% 100%, 50% calc(100% - 10px), 45% 100%, 40% calc(100% - 10px),
+      35% 100%, 30% calc(100% - 10px), 25% 100%, 20% calc(100% - 10px),
+      15% 100%, 10% calc(100% - 10px), 5% 100%, 0 calc(100% - 10px));
+  }
+  .receipt .head { text-align: center; margin-bottom: 18px; }
+  .receipt .head b { font-size: 18px; letter-spacing: .08em; }
+  .receipt .line {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 3px 0;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity .25s, transform .25s;
+  }
+  .receipt .line.printed { opacity: 1; transform: none; }
+  .receipt .line .dots { flex: 1; overflow: hidden; white-space: nowrap; opacity: .5; }
+  .receipt .rule { border-top: 2px dashed #ffb7d9; margin: 12px 0; }
+  .receipt .total-line { font-weight: bold; font-size: 17px; display: flex; justify-content: space-between; }
+  .receipt .thanks { text-align: center; margin-top: 16px; font-size: 12px; line-height: 1.6; }
+  .receipt .barcode {
+    margin: 14px auto 0;
+    height: 34px;
+    width: 200px;
+    background: repeating-linear-gradient(90deg, #d81b74 0 2px, #fff 2px 5px, #d81b74 5px 6px, #fff 6px 10px);
+  }
+
+  #again {
+    margin-top: 34px;
+    font: bold 17px Arial, Helvetica, sans-serif;
+    background: #fff;
+    color: #ff5fa2;
+    border: none;
+    padding: 16px 34px;
+    cursor: pointer;
+    transition: transform .15s;
+  }
+  #again:active { transform: scale(.94); }
+  footer { margin-top: 60px; font-size: 13px; text-align: center; }
+</style>
+</head>
+<body>
+  <h1>your receipt</h1>
+  <p class="sub">we rang up everything you get. keep it for your records, the total is easy to remember.</p>
+
+  <div class="receipt" id="receipt">
+    <div class="head">
+      <b>GYMGYME</b><br>
+      open 24/7 · your living room branch<br>
+      cashier: a c++ engine
+    </div>
+    <div class="rule"></div>
+    <!-- lines injected by script -->
+    <div id="lines"></div>
+    <div class="rule"></div>
+    <div class="total-line" style="opacity:0" id="total"><span>TOTAL</span><span>0.00</span></div>
+    <p class="thanks" style="opacity:0" id="thanks">
+      no refunds because there is nothing to refund.<br>
+      your video stayed on your device the whole time.<br>
+      come back tomorrow, the machines miss you.
+    </p>
+    <div class="barcode" style="opacity:0" id="barcode"></div>
+  </div>
+
+  <button id="again">print it again (also free)</button>
+
+  <footer>no ads, no tracking, no cookies, no money - just links and reps. · damlahelloworld</footer>
+
+<script>
+  var ITEMS = [
+    ["personal trainer, live, out loud", "0.00"],
+    ["reps counted (with an audible tick)", "0.00"],
+    ["every rep scored out of 100", "0.00"],
+    ["form corrected in 3d", "0.00"],
+    ["14 moves, more coming", "0.00"],
+    ["wall pilates directory", "0.00"],
+    ["adult ballet directory", "0.00"],
+    ["yoga directory", "0.00"],
+    ["calisthenics directory", "0.00"],
+    ["bodyweight directory", "0.00"],
+    ["healthy-living articles", "0.00"],
+    ["your workout history, synced", "0.00"],
+    ["judgment", "not stocked"],
+    ["ads", "not stocked"],
+    ["your video, uploaded", "never"],
+    ["a trial that expires", "not stocked"]
+  ];
+  var linesEl = document.getElementById('lines');
+
+  function print() {
+    linesEl.innerHTML = '';
+    ['total','thanks','barcode'].forEach(function (id) {
+      document.getElementById(id).style.opacity = 0;
+    });
+    ITEMS.forEach(function (item, i) {
+      var d = document.createElement('div');
+      d.className = 'line';
+      d.innerHTML = '<span>' + item[0] + '</span><span class="dots">............................</span><span>' + item[1] + '</span>';
+      linesEl.appendChild(d);
+      setTimeout(function () { d.classList.add('printed'); }, 220 + i * 170);
+    });
+    var end = 220 + ITEMS.length * 170;
+    setTimeout(function () { document.getElementById('total').style.opacity = 1; }, end + 200);
+    setTimeout(function () { document.getElementById('thanks').style.opacity = 1; }, end + 500);
+    setTimeout(function () { document.getElementById('barcode').style.opacity = 1; }, end + 800);
+  }
+  document.getElementById('again').addEventListener('click', print);
+  print();
+</script>
+</body>
+</html>

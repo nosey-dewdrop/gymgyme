@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gymgyme - moves like a playlist</title>
+<style>
+  :root {
+    --bg: #FFBDD4; --card: #fff; --tint: #FFE3EE; --tint-2: #FFCEDF;
+    --ink: #33000E; --ink-soft: #7A2647; --cherry: #8E0038; --cherry-deep: #6E0030;
+    --on-cherry: #FFDCE9;
+    --sh-1: 0 1px 2px rgba(142,0,56,.06), 0 3px 10px rgba(142,0,56,.07);
+    --sh-2: 0 4px 16px rgba(142,0,56,.10), 0 14px 40px rgba(142,0,56,.09);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: Arial, Helvetica, sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; padding: 18px 18px 96px; }
+
+  .app { max-width: 1150px; margin: 0 auto; display: grid; grid-template-columns: 250px 1fr; gap: 14px; align-items: start; }
+
+  .side { background: var(--card); border-radius: 20px; box-shadow: var(--sh-1); padding: 18px; position: sticky; top: 18px; }
+  .side h1 { font-size: 34px; letter-spacing: -.03em; margin-bottom: 2px; }
+  .side .tag { font-size: 12px; color: var(--ink-soft); margin-bottom: 16px; }
+  .side .sec { font-size: 10.5px; font-weight: bold; letter-spacing: .07em; text-transform: uppercase; color: var(--cherry); margin: 14px 0 6px; }
+  .side a { display: block; font-size: 14.5px; color: var(--ink); text-decoration: none; padding: 5px 0; }
+  .side a:hover { color: var(--cherry); }
+  .side a b { font-weight: bold; }
+  .side a small { color: var(--ink-soft); font-size: 11.5px; margin-left: 6px; }
+
+  .main { background: var(--card); border-radius: 20px; box-shadow: var(--sh-1); padding: 20px 22px; }
+  .head { display: flex; align-items: flex-end; gap: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--tint-2); flex-wrap: wrap; }
+  .cover { width: 108px; height: 108px; border-radius: 16px; background: var(--cherry); color: var(--on-cherry); display: flex; align-items: center; justify-content: center; font-size: 44px; font-weight: bold; flex: none; }
+  .head .t { min-width: 220px; }
+  .head .kind { font-size: 11px; font-weight: bold; letter-spacing: .07em; text-transform: uppercase; color: var(--cherry); }
+  .head h2 { font-size: clamp(28px, 4vw, 44px); letter-spacing: -.02em; line-height: 1.05; margin: 2px 0 6px; }
+  .head p { font-size: 13px; color: var(--ink-soft); }
+  .head .play { margin-left: auto; font: bold 15px Arial; background: var(--cherry); color: var(--on-cherry); border: none; border-radius: 12px; padding: 12px 22px; cursor: pointer; transition: transform .15s, background .15s; }
+  .head .play:hover { background: var(--cherry-deep); transform: translateY(-1px); }
+
+  .cols { display: grid; grid-template-columns: 34px 1fr 110px 90px 70px 34px; gap: 8px; font-size: 10.5px; font-weight: bold; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-soft); padding: 12px 8px 6px; }
+  .track { display: grid; grid-template-columns: 34px 1fr 110px 90px 70px 34px; gap: 8px; align-items: center; padding: 8px; border-radius: 12px; font-size: 14.5px; cursor: pointer; transition: background .12s; }
+  .track:hover { background: var(--tint); }
+  .track.playing { background: var(--tint); }
+  .track .no { color: var(--ink-soft); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+  .track.playing .no { color: var(--cherry); }
+  .track .name b { display: block; }
+  .track .name small { color: var(--ink-soft); font-size: 11.5px; }
+  .track .joint, .track .len { color: var(--ink-soft); font-size: 12.5px; }
+  .track .price { color: var(--cherry); font-weight: bold; font-size: 12.5px; }
+  .track .like { background: none; border: none; cursor: pointer; font-size: 15px; color: var(--tint-2); transition: transform .12s, color .12s; }
+  .track .like:hover { transform: scale(1.25); }
+  .track .like.on { color: var(--cherry); }
+
+  /* now playing bar: the page's heartbeat */
+  .now { position: fixed; left: 0; right: 0; bottom: 0; background: var(--cherry); color: var(--on-cherry); display: flex; align-items: center; gap: 18px; padding: 12px 22px; font-size: 14px; box-shadow: 0 -6px 24px rgba(142,0,56,.25); }
+  .now .np b { display: block; font-size: 15px; }
+  .now .np small { opacity: .8; font-size: 11.5px; }
+  .now .count { margin-left: auto; display: flex; align-items: baseline; gap: 10px; }
+  .now .count .n { font-size: 34px; font-weight: bold; letter-spacing: -.02em; font-variant-numeric: tabular-nums; line-height: 1; }
+  .now .count .n.tick { animation: pop .2s ease-out; }
+  @keyframes pop { 35% { transform: scale(1.15); } }
+  .now .count small { opacity: .85; }
+  .now .total { font-size: 12px; opacity: .85; border-left: 1px solid rgba(255,220,233,.35); padding-left: 18px; }
+
+  @media (max-width: 860px) {
+    .app { grid-template-columns: 1fr; }
+    .side { position: static; }
+    .cols, .track { grid-template-columns: 28px 1fr 70px 34px; }
+    .joint, .len, .cols span:nth-child(3), .cols span:nth-child(4) { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <h1>gymgyme</h1>
+    <p class="tag">every track is free. the label is you.</p>
+    <p class="sec">your library</p>
+    <a href="#"><b>liked moves</b><small id="likedCount">0</small></a>
+    <a href="#"><b>my program</b><small>your queue</small></a>
+    <a href="#"><b>workout history</b><small>synced</small></a>
+    <p class="sec">playlists by the house</p>
+    <a href="#">honest beginner<small>6 moves</small></a>
+    <a href="#">leg day, no gym<small>5 moves</small></a>
+    <a href="#">quiet apartment set<small>no jumps</small></a>
+    <a href="#">the wall sessions<small>pilates</small></a>
+    <p class="sec">the directory</p>
+    <a href="#">wall pilates</a>
+    <a href="#">adult ballet</a>
+    <a href="#">yoga</a>
+    <a href="#">calisthenics</a>
+    <a href="#">articles</a>
+  </aside>
+
+  <main class="main">
+    <div class="head">
+      <div class="cover">14</div>
+      <div class="t">
+        <div class="kind">album · the engine plays it live</div>
+        <h2>everything the trainer knows</h2>
+        <p>14 tracks · total cost 0₺ · performed by you, counted by a c++ engine, video never leaves the studio (your device)</p>
+      </div>
+      <button class="play" id="playAll">▶ play all</button>
+    </div>
+
+    <div class="cols"><span>#</span><span>move</span><span>tracked joint</span><span>a good set</span><span>price</span><span></span></div>
+    <div id="list"></div>
+  </main>
+</div>
+
+<div class="now">
+  <div class="np"><b id="npName">press play</b><small id="npSub">the engine is warmed up and humming</small></div>
+  <div class="count"><span class="n" id="npReps">0</span><small>reps</small></div>
+  <div class="total">queue total: <b>0₺</b> - this column never changes</div>
+</div>
+
+<script>
+  var MOVES = [
+    ["squat", "the classic. sit down, athletically.", "knee", "10 × 3"],
+    ["sumo squat", "wider stance, same honesty", "knee", "10 × 3"],
+    ["lunge", "one leg at a time, like stairs", "knee", "8 × 3"],
+    ["side lunge", "sideways is also a direction", "knee", "8 × 3"],
+    ["push-up", "you vs. the floor, best of three", "elbow", "8 × 3"],
+    ["kneeling push-up", "the knees are a feature", "elbow", "10 × 3"],
+    ["glute bridge", "the ceiling gets a show", "hip", "12 × 3"],
+    ["sit-up", "getting up, repeatedly, on purpose", "hip", "12 × 3"],
+    ["press", "lift the invisible weights", "elbow", "10 × 3"],
+    ["glute kickback", "kick yesterday goodbye", "hip", "10 × 3"],
+    ["bird dog", "yes it's a real name", "hip", "8 × 3"],
+    ["calf raise", "tiptoe like you mean it", "ankle", "15 × 3"],
+    ["jumping jack", "cardio's friendliest face", "shoulder", "20 × 2"],
+    ["arm raise", "reach for the rent you don't pay here", "shoulder", "12 × 3"]
+  ];
+  var list = document.getElementById('list'), liked = 0;
+  MOVES.forEach(function (m, i) {
+    var d = document.createElement('div');
+    d.className = 'track';
+    d.innerHTML = '<span class="no">' + (i + 1) + '</span>' +
+      '<span class="name"><b>' + m[0] + '</b><small>' + m[1] + '</small></span>' +
+      '<span class="joint">' + m[2] + '</span>' +
+      '<span class="len">' + m[3] + '</span>' +
+      '<span class="price">0₺</span>' +
+      '<button class="like" aria-label="like">♥</button>';
+    d.addEventListener('click', function (e) {
+      if (e.target.classList.contains('like')) return;
+      playTrack(d, m);
+    });
+    d.querySelector('.like').addEventListener('click', function () {
+      this.classList.toggle('on');
+      liked += this.classList.contains('on') ? 1 : -1;
+      document.getElementById('likedCount').textContent = liked;
+    });
+    list.appendChild(d);
+  });
+
+  var timer = null;
+  function playTrack(row, m) {
+    document.querySelectorAll('.track.playing').forEach(function (t) { t.classList.remove('playing'); });
+    row.classList.add('playing');
+    document.getElementById('npName').textContent = m[0];
+    document.getElementById('npSub').textContent = 'tracking your ' + m[2] + ' · every rep scored out of 100';
+    var n = 0, el = document.getElementById('npReps');
+    el.textContent = 0;
+    clearInterval(timer);
+    timer = setInterval(function () {
+      n++;
+      el.textContent = n;
+      el.classList.remove('tick'); void el.offsetWidth; el.classList.add('tick');
+    }, 1300);
+  }
+  document.getElementById('playAll').addEventListener('click', function () {
+    playTrack(list.children[0], MOVES[0]);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gymgyme fm - always on air</title>
+<style>
+  :root { --bg:#FFBDD4; --tint:#FFE3EE; --tint2:#FFCEDF; --ink:#33000E; --soft:#7A2647; --cherry:#8E0038; --deep:#6E0030; --on:#FFDCE9; }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;padding:22px 4vw 40px}
+  a{color:var(--cherry);text-decoration:none}
+  .top{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+  .top h1{font-size:28px;letter-spacing:-.02em}
+  .top .onair{font-size:11px;font-weight:bold;letter-spacing:.14em;color:var(--on);background:var(--cherry);padding:5px 10px;border-radius:6px;animation:air 2s steps(1) infinite}
+  @keyframes air{0%,74%{opacity:1}75%,100%{opacity:.55}}
+  .top nav{margin-left:auto;display:flex;gap:18px;font-size:14px}
+  .top nav a{font-weight:bold}
+
+  /* the live broadcast: trainer is the show, waveform bars dance */
+  .studio{margin-top:18px;display:grid;grid-template-columns:1.3fr 1fr;gap:4vw;align-items:center;background:var(--tint);padding:30px 4vw 34px;box-shadow:none}
+  .studio .lbl{font-size:11px;font-weight:bold;letter-spacing:.14em;color:var(--cherry)}
+  .studio h2{font-size:clamp(30px,4.4vw,54px);letter-spacing:-.025em;line-height:1.03;margin-top:6px}
+  .studio p{font-size:14.5px;line-height:1.6;margin-top:12px;max-width:50ch}
+  .studio p b{color:var(--cherry)}
+  .studio button{margin-top:14px;font:bold 15px Arial;background:var(--cherry);color:var(--on);border:none;border-radius:12px;padding:12px 24px;cursor:pointer;box-shadow:8px 8px 0 rgba(142,0,56,.22);transition:transform .15s,background .15s}
+  .studio button:hover{background:var(--deep);transform:translateY(-1px)}
+  .wave{display:flex;align-items:flex-end;gap:5px;height:130px;justify-content:center}
+  .wave i{width:9px;background:var(--cherry);border-radius:4px 4px 0 0;animation:bounce 1.1s ease-in-out infinite}
+  .wave i:nth-child(2n){animation-delay:.15s;opacity:.75}
+  .wave i:nth-child(3n){animation-delay:.3s;opacity:.55}
+  .wave i:nth-child(5n){animation-delay:.45s}
+  @keyframes bounce{0%,100%{height:16%}50%{height:100%}}
+  .ticker-n{text-align:center;margin-top:10px}
+  .ticker-n .n{font-size:clamp(54px,6.5vw,84px);font-weight:bold;color:var(--cherry);letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums}
+  .ticker-n .n.tick{animation:pop .2s ease-out}
+  @keyframes pop{35%{transform:scale(1.08)}}
+  .ticker-n small{display:block;font-size:12px;color:var(--soft);margin-top:6px}
+
+  /* the dial: directory as stations along a frequency band */
+  .dial{margin-top:22px}
+  .dial .lbl{font-size:11px;font-weight:bold;letter-spacing:.13em;color:var(--cherry);margin-bottom:8px}
+  .freq{position:relative;height:5px;background:var(--tint2);margin:16px 2px 8px}
+  .freq i{position:absolute;top:-5px;width:3px;height:15px;background:var(--cherry)}
+  .stations{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
+  .st{font-size:13px;line-height:1.55}
+  .st .khz{font-size:11px;color:var(--soft);letter-spacing:.08em}
+  .st b{display:block;font-size:15px;letter-spacing:-.01em}
+  .st:hover b{color:var(--cherry)}
+  .st a{display:block;color:var(--soft)}
+  .st a:hover{color:var(--cherry)}
+  .foot{display:flex;gap:4vw;align-items:baseline;flex-wrap:wrap;margin-top:24px;font-size:13px;color:var(--soft)}
+  .week{font-size:17px;letter-spacing:.05em}
+  .week .lit{color:var(--cherry);font-weight:bold}
+  .week .off{color:#fff}
+  .foot .legal{margin-left:auto;font-size:12px}
+  @media(max-width:900px){.studio{grid-template-columns:1fr}.stations{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+  <div class="top">
+    <h1>gymgyme fm</h1>
+    <span class="onair">ON AIR</span>
+    <nav><a href="#">personal trainer</a><a href="#">my program</a><a href="#">suggest something!</a></nav>
+  </div>
+
+  <div class="studio">
+    <div>
+      <div class="lbl">LIVE NOW · THE ONLY SHOW WE EVER BROADCAST</div>
+      <h2>✨ personal trainer 🎀<br>counting reps, live from your camera</h2>
+      <p>tune in from your living room: it reads <b>33 points of your body</b>, calls every rep with a tick, scores it <b>out of 100</b> and fixes your form in 3d. broadcast entirely on your device - <b>nothing ever leaves the studio.</b></p>
+      <button>go live - open the camera</button>
+    </div>
+    <div>
+      <div class="wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="ticker-n"><span class="n" id="n">0</span><small>reps counted this broadcast · it never misses a beat</small></div>
+    </div>
+  </div>
+
+  <div class="dial">
+    <div class="lbl">THE DIAL · STATIONS PICKED BY REAL LISTENERS</div>
+    <div class="freq"><i style="left:4%"></i><i style="left:21%"></i><i style="left:38%"></i><i style="left:55%"></i><i style="left:72%"></i><i style="left:89%"></i></div>
+    <div class="stations">
+      <div class="st"><span class="khz">88.1</span><b>wall pilates</b><a href="#">20 min, no talking</a><a href="#">stiff-back series</a></div>
+      <div class="st"><span class="khz">91.5</span><b>adult ballet</b><a href="#">chair barre, beginner</a><a href="#">first position, any age</a></div>
+      <div class="st"><span class="khz">95.0</span><b>yoga</b><a href="#">morning stretch</a><a href="#">for people who hate yoga</a></div>
+      <div class="st"><span class="khz">98.8</span><b>calisthenics</b><a href="#">your first real push-up</a><a href="#">no-bar plan</a></div>
+      <div class="st"><span class="khz">102.3</span><b>bodyweight</b><a href="#">20-min apartment</a><a href="#">quiet cardio</a></div>
+      <div class="st"><span class="khz">106.7</span><b>articles</b><a href="#">knees aren't "bad"</a><a href="#">protein, no bro science</a></div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span class="week"><span class="lit">m</span> <span class="off">t</span> <span class="lit">w</span> <span class="off">t</span> <span class="lit">f</span> <span class="off">s</span> <span class="off">s</span> &nbsp;<a href="#" style="font-weight:bold;font-size:13px">my program</a></span>
+    <span>request a song: <a href="#" style="font-weight:bold">suggest something!</a></span>
+    <span class="legal">no ads, no tracking, no cookies. · damlahelloworld</span>
+  </div>
+<script>
+  var n=0,el=document.getElementById('n');
+  setInterval(function(){n++;el.textContent=n;el.classList.remove('tick');void el.offsetWidth;el.classList.add('tick')},1500);
+</script>
+</body>
+</html>

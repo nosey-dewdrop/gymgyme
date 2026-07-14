@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gymgyme - the pink gym floor</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #ff5fa2;
+    color: #fff;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  /* court markings: the page IS a gym floor seen from above */
+  .floor {
+    position: relative;
+    min-height: 100vh;
+    padding: 48px 5vw 120px;
+  }
+  .floor::before {
+    content: "";
+    position: fixed;
+    inset: 24px;
+    border: 3px solid rgba(255,255,255,.55);
+    pointer-events: none;
+  }
+  .floor::after {
+    content: "";
+    position: fixed;
+    left: 24px; right: 24px; top: 50%;
+    border-top: 3px solid rgba(255,255,255,.35);
+    pointer-events: none;
+  }
+  .center-circle {
+    position: fixed;
+    top: 50%; left: 50%;
+    width: 340px; height: 340px;
+    border: 3px solid rgba(255,255,255,.3);
+    border-radius: 50%;
+    transform: translate(-50%,-50%);
+    pointer-events: none;
+  }
+  header { position: relative; z-index: 2; }
+  h1 {
+    font-size: clamp(64px, 14vw, 190px);
+    line-height: .85;
+    letter-spacing: -.04em;
+    font-weight: bold;
+  }
+  .sub {
+    font-size: clamp(15px, 2vw, 22px);
+    margin-top: 18px;
+    max-width: 46ch;
+  }
+  nav { margin-top: 34px; display: flex; flex-wrap: wrap; gap: 10px 26px; font-size: 17px; position: relative; z-index: 2; }
+  nav a { color: #fff; text-decoration: none; border-bottom: 3px solid transparent; padding-bottom: 2px; transition: border-color .18s; }
+  nav a:hover { border-color: #fff; }
+
+  /* the moves live on the floor as painted lane markings */
+  .lanes { position: relative; z-index: 2; margin-top: 12vh; display: grid; gap: 0; }
+  .lane {
+    display: grid;
+    grid-template-columns: 72px 1fr auto;
+    align-items: baseline;
+    gap: 20px;
+    padding: 26px 8px;
+    border-top: 3px dashed rgba(255,255,255,.45);
+    text-decoration: none;
+    color: #fff;
+    transition: background .18s, padding-left .18s;
+  }
+  .lane:last-child { border-bottom: 3px dashed rgba(255,255,255,.45); }
+  .lane:hover { background: rgba(255,255,255,.12); padding-left: 22px; }
+  .lane .num { font-size: 15px; opacity: .8; }
+  .lane .name { font-size: clamp(26px, 4.5vw, 52px); font-weight: bold; letter-spacing: -.02em; line-height: 1; }
+  .lane .note { font-size: 14px; opacity: .85; text-align: right; max-width: 24ch; }
+
+  /* party trick: a rep counter painted on the floor, counts when you hold the button */
+  .counter-zone {
+    position: relative; z-index: 2;
+    margin-top: 14vh;
+    text-align: center;
+  }
+  .counter-zone p { font-size: 16px; margin-bottom: 14px; opacity: .95; }
+  #reps {
+    font-size: clamp(110px, 22vw, 280px);
+    font-weight: bold;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    display: block;
+    transition: transform .12s;
+  }
+  #reps.pop { transform: scale(1.06); }
+  #hold {
+    margin-top: 22px;
+    font: bold 19px Arial, Helvetica, sans-serif;
+    background: #fff;
+    color: #ff5fa2;
+    border: none;
+    padding: 18px 40px;
+    cursor: pointer;
+    transition: transform .15s;
+    touch-action: manipulation;
+  }
+  #hold:active { transform: scale(.94); }
+  .fineprint {
+    position: relative; z-index: 2;
+    margin-top: 16vh;
+    font-size: 13px;
+    opacity: .85;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+<div class="center-circle"></div>
+<div class="floor">
+  <header>
+    <h1>gymgyme</h1>
+    <p class="sub">a gym floor with no gym around it. free, no ads, no account, forever - people recommend, the important grows.</p>
+    <nav>
+      <a href="#">home workouts</a>
+      <a href="#">personal trainer</a>
+      <a href="#">my program</a>
+      <a href="#">suggest something!</a>
+    </nav>
+  </header>
+
+  <div class="lanes">
+    <a class="lane" href="#"><span class="num">lane 1</span><span class="name">wall pilates</span><span class="note">the wall never judges</span></a>
+    <a class="lane" href="#"><span class="num">lane 2</span><span class="name">adult ballet</span><span class="note">it is never too late for first position</span></a>
+    <a class="lane" href="#"><span class="num">lane 3</span><span class="name">yoga</span><span class="note">breathing, but on purpose</span></a>
+    <a class="lane" href="#"><span class="num">lane 4</span><span class="name">calisthenics</span><span class="note">you vs. gravity, best of three</span></a>
+    <a class="lane" href="#"><span class="num">lane 5</span><span class="name">bodyweight</span><span class="note">equipment: you</span></a>
+  </div>
+
+  <div class="counter-zone">
+    <p>this is what the personal trainer feels like - it counts, you sweat. try the button:</p>
+    <span id="reps">0</span>
+    <button id="hold">do a rep</button>
+    <p style="margin-top:14px; font-size:13px; opacity:.85;">in the real thing your camera does the pressing. the video never leaves your device - it never even learns your name.</p>
+  </div>
+
+  <p class="fineprint">no ads, no tracking, no cookies, no money - just links and reps. · damlahelloworld</p>
+</div>
+<script>
+  var reps = 0, el = document.getElementById('reps');
+  document.getElementById('hold').addEventListener('click', function () {
+    reps++;
+    el.textContent = reps;
+    el.classList.add('pop');
+    setTimeout(function(){ el.classList.remove('pop'); }, 130);
+    if (reps === 10) el.textContent = '10 - that\'s a set';
+    if (reps === 11) el.textContent = '11';
+  });
+</script>
+</body>
+</html>

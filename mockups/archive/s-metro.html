@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gymgyme - the metro map</title>
+<style>
+  :root { --bg:#FFBDD4; --tint:#FFE3EE; --tint2:#FFCEDF; --ink:#33000E; --soft:#7A2647; --cherry:#8E0038; --deep:#6E0030; --on:#FFDCE9; }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;padding:22px 4vw 40px}
+  a{color:var(--cherry);text-decoration:none}
+  .top{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
+  .top h1{font-size:28px;letter-spacing:-.02em}
+  .top .tag{font-size:13px;color:var(--soft)}
+  .top nav{margin-left:auto;display:flex;gap:18px;font-size:14px}
+  .top nav a{font-weight:bold}
+
+  /* central station: the trainer - every line passes through it */
+  .central{margin-top:18px;display:grid;grid-template-columns:1.35fr 1fr;gap:4vw;align-items:center;background:var(--cherry);color:var(--on);padding:30px 4vw 34px;box-shadow:8px 8px 0 rgba(142,0,56,.22)}
+  .central .lbl{font-size:11px;font-weight:bold;letter-spacing:.15em;opacity:.8}
+  .central h2{font-size:clamp(30px,4.4vw,54px);letter-spacing:-.025em;line-height:1.03;margin-top:6px}
+  .central p{font-size:14.5px;line-height:1.6;margin-top:12px;max-width:50ch;opacity:.95}
+  .central button{margin-top:14px;font:bold 15px Arial;background:var(--on);color:var(--cherry);border:none;border-radius:12px;padding:12px 24px;cursor:pointer;transition:transform .15s}
+  .central button:hover{transform:translateY(-1px)}
+  .central .live{text-align:center}
+  .central .live .n{font-size:clamp(64px,8vw,110px);font-weight:bold;line-height:.95;letter-spacing:-.04em;font-variant-numeric:tabular-nums;display:block;text-shadow:4px 4px 0 rgba(51,0,14,.3)}
+  .central .live .n.tick{animation:pop .2s ease-out}
+  @keyframes pop{35%{transform:scale(1.07)}}
+  .central .live small{display:block;font-size:12px;opacity:.85;margin-top:8px}
+
+  /* the lines: each category is a metro line with stations (links) */
+  .map{margin-top:22px}
+  .map .lbl{font-size:11px;font-weight:bold;letter-spacing:.13em;color:var(--cherry);margin-bottom:12px}
+  .line{display:grid;grid-template-columns:150px 1fr;gap:18px;align-items:center;padding:9px 0}
+  .line .name{font-size:15.5px;font-weight:bold;letter-spacing:-.01em;text-align:right}
+  .line .name small{display:block;font-size:11px;font-weight:normal;color:var(--soft)}
+  .track{position:relative;display:flex;align-items:center;gap:0}
+  .track::before{content:"";position:absolute;left:0;right:0;height:5px;background:var(--cherry);opacity:.85;border-radius:3px}
+  .line:nth-child(odd) .track::before{opacity:.55}
+  .stop{position:relative;flex:1;display:flex;flex-direction:column;align-items:flex-start;padding-top:16px;min-width:0}
+  .stop::before{content:"";width:13px;height:13px;border-radius:50%;background:var(--bg);border:4px solid var(--cherry);position:absolute;top:-4px;left:0;transition:transform .15s,background .15s}
+  .stop:hover::before{transform:scale(1.25);background:var(--on)}
+  .stop span{font-size:12.5px;color:var(--ink);line-height:1.35;padding-right:12px}
+  .stop:hover span{color:var(--cherry)}
+  .foot{display:flex;gap:4vw;align-items:baseline;flex-wrap:wrap;margin-top:26px;font-size:13px;color:var(--soft)}
+  .week{font-size:17px;letter-spacing:.05em}
+  .week .lit{color:var(--cherry);font-weight:bold}
+  .week .off{color:#fff}
+  .foot .legal{margin-left:auto;font-size:12px}
+  @media(max-width:800px){.central{grid-template-columns:1fr}.line{grid-template-columns:1fr;gap:4px}.line .name{text-align:left}}
+</style>
+</head>
+<body>
+  <div class="top">
+    <h1>gymgyme</h1>
+    <span class="tag">the home-training metro · all lines run all night</span>
+    <nav><a href="#">personal trainer</a><a href="#">my program</a><a href="#">suggest something!</a></nav>
+  </div>
+
+  <div class="central">
+    <div>
+      <div class="lbl">CENTRAL STATION · EVERY LINE PASSES THROUGH HERE</div>
+      <h2>✨ personal trainer 🎀</h2>
+      <p>the station master watches through your camera: reads 33 points of your body, announces every rep with a tick, scores it out of 100 and fixes your form in 3d. all traffic stays on your device - nothing ever departs.</p>
+      <button>enter the station - open the camera</button>
+    </div>
+    <div class="live"><span class="n" id="n">0</span><small>reps announced since you walked in</small></div>
+  </div>
+
+  <div class="map">
+    <div class="lbl">THE NETWORK · STATIONS ADDED BY REAL RIDERS</div>
+    <div class="line">
+      <div class="name">wall pilates<small>the wall line</small></div>
+      <div class="track">
+        <a class="stop" href="#"><span>20 min, no talking</span></a>
+        <a class="stop" href="#"><span>the stiff-back series</span></a>
+        <a class="stop" href="#"><span>wall angels, properly</span></a>
+      </div>
+    </div>
+    <div class="line">
+      <div class="name">adult ballet<small>the barre line</small></div>
+      <div class="track">
+        <a class="stop" href="#"><span>chair barre, absolute beginner</span></a>
+        <a class="stop" href="#"><span>first position at any age</span></a>
+      </div>
+    </div>
+    <div class="line">
+      <div class="name">yoga<small>the quiet line</small></div>
+      <div class="track">
+        <a class="stop" href="#"><span>the morning stretch you'll repeat</span></a>
+        <a class="stop" href="#"><span>yoga for people who hate yoga</span></a>
+      </div>
+    </div>
+    <div class="line">
+      <div class="name">calisthenics<small>the gravity line</small></div>
+      <div class="track">
+        <a class="stop" href="#"><span>your first real push-up</span></a>
+        <a class="stop" href="#"><span>no-bar beginner plan</span></a>
+      </div>
+    </div>
+    <div class="line">
+      <div class="name">bodyweight<small>the anywhere line</small></div>
+      <div class="track">
+        <a class="stop" href="#"><span>the 20-minute apartment workout</span></a>
+        <a class="stop" href="#"><span>quiet cardio, neighbors safe</span></a>
+      </div>
+    </div>
+    <div class="line">
+      <div class="name">articles<small>the reading line</small></div>
+      <div class="track">
+        <a class="stop" href="#"><span>why your knees are not "bad"</span></a>
+        <a class="stop" href="#"><span>protein without the bro science</span></a>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span class="week"><span class="lit">m</span> <span class="off">t</span> <span class="lit">w</span> <span class="off">t</span> <span class="lit">f</span> <span class="off">s</span> <span class="off">s</span> &nbsp;<a href="#" style="font-weight:bold;font-size:13px">my program</a></span>
+    <span>new stations open when you <a href="#" style="font-weight:bold">suggest something!</a></span>
+    <span class="legal">no ads, no tracking, no cookies. · damlahelloworld</span>
+  </div>
+<script>
+  var n=0,el=document.getElementById('n');
+  setInterval(function(){n++;el.textContent=n;el.classList.remove('tick');void el.offsetWidth;el.classList.add('tick')},1600);
+</script>
+</body>
+</html>

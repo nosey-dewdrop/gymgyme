@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gymgyme - the arcade</title>
+<style>
+  :root { --bg:#FFBDD4; --tint:#FFE3EE; --tint2:#FFCEDF; --ink:#33000E; --soft:#7A2647; --cherry:#8E0038; --deep:#6E0030; --on:#FFDCE9; }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;padding:22px 4vw 40px}
+  a{color:var(--cherry);text-decoration:none}
+  .top{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+  .top h1{font-size:28px;letter-spacing:-.02em}
+  .top .tag{font-size:13px;color:var(--soft)}
+  .top nav{margin-left:auto;display:flex;gap:18px;font-size:14px}
+  .top nav a{font-weight:bold}
+
+  /* the main cabinet: deep cherry machine, hard shadow, insert-coin joke */
+  .cab{background:var(--deep);color:var(--on);padding:28px 4vw 32px;box-shadow:12px 12px 0 var(--tint2);display:grid;grid-template-columns:1.3fr 1fr;gap:4vw;align-items:center}
+  .cab .lbl{font-size:11px;font-weight:bold;letter-spacing:.16em;opacity:.8}
+  .cab h2{font-size:clamp(30px,4.4vw,54px);letter-spacing:-.025em;line-height:1.03;margin-top:6px}
+  .cab p{font-size:14.5px;line-height:1.6;margin-top:12px;max-width:50ch;opacity:.95}
+  .cab .insert{margin-top:12px;font-size:13px;font-weight:bold;letter-spacing:.1em;animation:blink 1.4s steps(1) infinite}
+  @keyframes blink{0%,60%{opacity:1}61%,100%{opacity:.3}}
+  .cab button{margin-top:12px;font:bold 15px Arial;background:var(--on);color:var(--deep);border:none;border-radius:12px;padding:12px 24px;cursor:pointer;box-shadow:0 4px 0 rgba(51,0,14,.5);transition:transform .15s}
+  .cab button:hover{transform:translateY(-1px)}
+  .hiscore{text-align:center}
+  .hiscore .t{font-size:11px;font-weight:bold;letter-spacing:.16em;opacity:.8}
+  .hiscore .n{font-size:clamp(70px,9vw,120px);font-weight:bold;line-height:.95;letter-spacing:-.04em;font-variant-numeric:tabular-nums;display:block;text-shadow:5px 5px 0 rgba(51,0,14,.4)}
+  .hiscore .n.tick{animation:pop .2s ease-out}
+  @keyframes pop{35%{transform:scale(1.07)}}
+  .hiscore small{display:block;font-size:12px;opacity:.85;margin-top:6px}
+
+  /* game select: directory as arcade carpet tiles (tint, hard shadows) */
+  .select{margin-top:22px}
+  .select .lbl{font-size:11px;font-weight:bold;letter-spacing:.13em;color:var(--cherry);margin-bottom:10px}
+  .games{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .game{background:var(--tint);padding:14px 16px;box-shadow:6px 6px 0 var(--tint2);transition:transform .12s,box-shadow .12s}
+  .game:hover{transform:translate(-2px,-2px);box-shadow:8px 8px 0 var(--cherry)}
+  .game .no{font-size:10px;font-weight:bold;letter-spacing:.14em;color:var(--soft)}
+  .game b{display:block;font-size:17px;letter-spacing:-.01em;margin:2px 0 4px}
+  .game a{display:inline-block;font-size:12.5px;color:var(--soft);margin-right:10px}
+  .game a:hover{color:var(--cherry)}
+  .game .diff{font-size:10.5px;color:var(--cherry);font-weight:bold;letter-spacing:.08em}
+  .foot{display:flex;gap:4vw;align-items:baseline;flex-wrap:wrap;margin-top:22px;font-size:13px;color:var(--soft)}
+  .week{font-size:17px;letter-spacing:.05em}
+  .week .lit{color:var(--cherry);font-weight:bold}
+  .week .off{color:#fff}
+  .foot .legal{margin-left:auto;font-size:12px}
+  @media(max-width:900px){.cab{grid-template-columns:1fr}.games{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+  <div class="top">
+    <h1>gymgyme</h1>
+    <span class="tag">the arcade where the game plays along · no coins accepted, ever</span>
+    <nav><a href="#">personal trainer</a><a href="#">my program</a><a href="#">suggest something!</a></nav>
+  </div>
+
+  <div class="cab">
+    <div>
+      <div class="lbl">MAIN CABINET · 1 PLAYER · MOTION CONTROLS: YOU</div>
+      <h2>✨ personal trainer 🎀<br>the rep counting machine</h2>
+      <p>your camera is the controller: it reads 33 points of your body, counts every rep with a tick, scores each one out of 100 and fixes your form in 3d. runs entirely on your device - your gameplay footage doesn't exist anywhere else.</p>
+      <div class="insert">INSERT NOTHING TO PLAY</div>
+      <button>press start - open the camera</button>
+    </div>
+    <div class="hiscore">
+      <div class="t">TODAY'S SCORE</div>
+      <span class="n" id="n">0</span>
+      <small>reps counted on this screen · the machine never sleeps</small>
+    </div>
+  </div>
+
+  <div class="select">
+    <div class="lbl">SELECT YOUR GAME · CABINETS ADDED BY REAL PLAYERS</div>
+    <div class="games">
+      <div class="game"><span class="no">CAB 01</span><b>wall pilates</b><a href="#">20 min, no talking</a><a href="#">stiff-back series</a><div class="diff">DIFFICULTY: GENTLE</div></div>
+      <div class="game"><span class="no">CAB 02</span><b>adult ballet</b><a href="#">chair barre, beginner</a><a href="#">first position, any age</a><div class="diff">DIFFICULTY: GRACEFUL</div></div>
+      <div class="game"><span class="no">CAB 03</span><b>yoga</b><a href="#">morning stretch</a><a href="#">for people who hate yoga</a><div class="diff">DIFFICULTY: CALM</div></div>
+      <div class="game"><span class="no">CAB 04</span><b>calisthenics</b><a href="#">your first real push-up</a><a href="#">no-bar plan</a><div class="diff">BOSS: GRAVITY</div></div>
+      <div class="game"><span class="no">CAB 05</span><b>bodyweight</b><a href="#">20-min apartment</a><a href="#">quiet cardio</a><div class="diff">NO EQUIPMENT DLC</div></div>
+      <div class="game"><span class="no">CAB 06</span><b>articles</b><a href="#">knees aren't "bad"</a><a href="#">protein, no bro science</a><div class="diff">LORE SECTION</div></div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span class="week"><span class="lit">m</span> <span class="off">t</span> <span class="lit">w</span> <span class="off">t</span> <span class="lit">f</span> <span class="off">s</span> <span class="off">s</span> &nbsp;<a href="#" style="font-weight:bold;font-size:13px">my program</a></span>
+    <span>bring your own cabinet: <a href="#" style="font-weight:bold">suggest something!</a></span>
+    <span class="legal">no ads, no tracking, no cookies. · damlahelloworld</span>
+  </div>
+<script>
+  var n=0,el=document.getElementById('n');
+  setInterval(function(){n++;el.textContent=n;el.classList.remove('tick');void el.offsetWidth;el.classList.add('tick')},1500);
+</script>
+</body>
+</html>

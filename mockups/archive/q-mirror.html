@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gymgyme - the studio mirror</title>
+<style>
+  :root { --bg:#FFBDD4; --tint:#FFE3EE; --tint2:#FFCEDF; --ink:#33000E; --soft:#7A2647; --cherry:#8E0038; --deep:#6E0030; --on:#FFDCE9; }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;padding:22px 4vw 40px}
+  a{color:var(--cherry);text-decoration:none}
+  .top{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+  .top h1{font-size:28px;letter-spacing:-.02em}
+  .top nav{margin-left:auto;display:flex;gap:18px;font-size:14px}
+  .top nav a{font-weight:bold}
+
+  /* the studio mirror: a tint pane with a barre line across, skeleton inside */
+  .mirror{position:relative;background:var(--tint);min-height:380px;box-shadow:none;display:grid;grid-template-columns:1fr 1.1fr;align-items:center;padding:30px 4vw;overflow:hidden}
+  .mirror::after{content:"";position:absolute;left:0;right:0;top:58%;height:6px;background:var(--cherry);opacity:.25} /* the barre */
+  .mirror .fig{display:flex;align-items:center;justify-content:center}
+  .mirror svg{height:300px}
+  .squatter{animation:squat 1.8s ease-in-out infinite}
+  @keyframes squat{0%,100%{transform:translateY(0)}50%{transform:translateY(18px)}}
+  .mirror .say{position:relative}
+  .mirror .say .lbl{font-size:11px;font-weight:bold;letter-spacing:.14em;color:var(--cherry)}
+  .mirror h2{font-size:clamp(30px,4.4vw,54px);letter-spacing:-.025em;line-height:1.03;margin-top:6px}
+  .mirror p{font-size:14.5px;line-height:1.6;margin-top:12px;max-width:48ch}
+  .mirror p b{color:var(--cherry)}
+  .count{display:flex;align-items:baseline;gap:12px;margin-top:14px}
+  .count .n{font-size:clamp(58px,7vw,92px);font-weight:bold;color:var(--cherry);letter-spacing:-.04em;line-height:1;font-variant-numeric:tabular-nums;text-shadow:4px 4px 0 var(--tint2)}
+  .count .n.tick{animation:pop .2s ease-out}
+  @keyframes pop{35%{transform:scale(1.09)}}
+  .count small{font-size:12px;color:var(--soft);max-width:20ch;line-height:1.4}
+  .mirror button{margin-top:14px;font:bold 15px Arial;background:var(--cherry);color:var(--on);border:none;border-radius:12px;padding:12px 24px;cursor:pointer;box-shadow:8px 8px 0 rgba(142,0,56,.22);transition:transform .15s,background .15s}
+  .mirror button:hover{background:var(--deep);transform:translateY(-1px)}
+
+  /* taped to the mirror: the directory as small tape-notes, dense row */
+  .notes{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:18px}
+  .note{background:var(--tint2);padding:10px 12px 12px;font-size:12.5px;line-height:1.5;position:relative;transform:rotate(-.8deg);transition:transform .15s;box-shadow:8px 8px 0 rgba(142,0,56,.22)}
+  .note:nth-child(even){transform:rotate(.7deg)}
+  .note:hover{transform:rotate(0) translateY(-2px)}
+  .note::before{content:"";position:absolute;top:-6px;left:50%;transform:translateX(-50%) rotate(-2deg);width:34px;height:12px;background:rgba(255,255,255,.75)} /* tape */
+  .note b{display:block;font-size:14px;letter-spacing:-.01em;margin-bottom:2px}
+  .note a{display:block;color:var(--soft)}
+  .note a:hover{color:var(--cherry)}
+  .foot{display:flex;gap:4vw;align-items:baseline;flex-wrap:wrap;margin-top:20px;font-size:13px;color:var(--soft)}
+  .week{font-size:17px;letter-spacing:.05em}
+  .week .lit{color:var(--cherry);font-weight:bold}
+  .week .off{color:#fff}
+  .foot .legal{margin-left:auto;font-size:12px}
+  @media(max-width:900px){.mirror{grid-template-columns:1fr}.mirror svg{height:190px}.notes{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+  <div class="top">
+    <h1>gymgyme</h1>
+    <nav><a href="#">personal trainer</a><a href="#">my program</a><a href="#">suggest something!</a></nav>
+  </div>
+
+  <div class="mirror">
+    <div class="fig">
+      <svg viewBox="0 0 100 130" fill="none" stroke="#8E0038" stroke-width="5" stroke-linecap="round">
+        <g class="squatter">
+          <circle cx="50" cy="16" r="9" fill="#8E0038" stroke="none"/>
+          <line x1="50" y1="25" x2="50" y2="54"/>
+          <line x1="50" y1="33" x2="30" y2="46"/><line x1="50" y1="33" x2="70" y2="46"/>
+          <line x1="47" y1="54" x2="38" y2="80"/><line x1="53" y1="54" x2="62" y2="80"/>
+        </g>
+        <line x1="38" y1="80" x2="38" y2="106"/><line x1="62" y1="80" x2="62" y2="106"/>
+        <line x1="38" y1="106" x2="28" y2="106"/><line x1="62" y1="106" x2="72" y2="106"/>
+      </svg>
+    </div>
+    <div class="say">
+      <div class="lbl">THE STUDIO MIRROR · IT COUNTS BACK</div>
+      <h2>✨ personal trainer 🎀<br>the mirror that knows your reps</h2>
+      <p>look into your camera: it reads <b>33 points</b> of you, counts each rep with a tick, scores it <b>out of 100</b> and fixes your form in 3d. everything stays on your device - <b>this mirror keeps secrets.</b></p>
+      <div class="count"><span class="n" id="n">0</span><small>reps it counted while you were reading</small></div>
+      <button>step in front of the mirror</button>
+    </div>
+  </div>
+
+  <div class="notes">
+    <div class="note"><b>wall pilates</b><a href="#">20 min, no talking</a><a href="#">stiff-back series</a></div>
+    <div class="note"><b>adult ballet</b><a href="#">chair barre, beginner</a><a href="#">first position, any age</a></div>
+    <div class="note"><b>yoga</b><a href="#">morning stretch</a><a href="#">for people who hate yoga</a></div>
+    <div class="note"><b>calisthenics</b><a href="#">your first real push-up</a><a href="#">no-bar plan</a></div>
+    <div class="note"><b>bodyweight</b><a href="#">20-min apartment</a><a href="#">quiet cardio</a></div>
+    <div class="note"><b>articles</b><a href="#">knees aren't "bad"</a><a href="#">protein, no bro science</a></div>
+  </div>
+
+  <div class="foot">
+    <span class="week"><span class="lit">m</span> <span class="off">t</span> <span class="lit">w</span> <span class="off">t</span> <span class="lit">f</span> <span class="off">s</span> <span class="off">s</span> &nbsp;<a href="#" style="font-weight:bold;font-size:13px">my program</a></span>
+    <span>notes taped by real people - <a href="#" style="font-weight:bold">suggest something!</a></span>
+    <span class="legal">no ads, no tracking, no cookies. · damlahelloworld</span>
+  </div>
+<script>
+  var n=0,el=document.getElementById('n');
+  setInterval(function(){n++;el.textContent=n;el.classList.remove('tick');void el.offsetWidth;el.classList.add('tick')},1800);
+</script>
+</body>
+</html>

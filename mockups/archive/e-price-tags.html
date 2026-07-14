@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gymgyme - everything costs zero</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #ff5fa2;
+    color: #fff;
+    min-height: 100vh;
+    padding: 48px 5vw 120px;
+  }
+  h1 { font-size: clamp(56px, 12vw, 160px); line-height: .85; letter-spacing: -.04em; }
+  .sub { margin-top: 16px; font-size: clamp(15px, 2vw, 21px); max-width: 52ch; }
+
+  /* the market: what this stuff costs out there vs here */
+  .tags { margin-top: 10vh; }
+  .tag-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: baseline;
+    gap: 8px 28px;
+    padding: 30px 8px;
+    border-top: 3px solid rgba(255,255,255,.5);
+    text-decoration: none;
+    color: #fff;
+    transition: background .18s, padding-left .18s;
+  }
+  .tag-row:last-child { border-bottom: 3px solid rgba(255,255,255,.5); }
+  .tag-row:hover { background: rgba(255,255,255,.12); padding-left: 22px; }
+  .tag-row .what { font-size: clamp(24px, 4vw, 46px); font-weight: bold; letter-spacing: -.02em; line-height: 1.05; }
+  .tag-row .what small { display: block; font-size: 14px; font-weight: normal; margin-top: 6px; opacity: .9; }
+  .tag-row .out-there {
+    font-size: clamp(18px, 2.6vw, 30px);
+    text-decoration: line-through;
+    text-decoration-thickness: 4px;
+    opacity: .75;
+    white-space: nowrap;
+  }
+  .tag-row .here {
+    font-size: clamp(34px, 5vw, 64px);
+    font-weight: bold;
+    letter-spacing: -.02em;
+    white-space: nowrap;
+  }
+
+  .total {
+    margin-top: 12vh;
+    text-align: center;
+  }
+  .total p { font-size: 17px; }
+  .total .zero {
+    font-size: clamp(120px, 26vw, 340px);
+    font-weight: bold;
+    line-height: 1;
+    letter-spacing: -.05em;
+    display: block;
+  }
+  .total .forever { font-size: clamp(16px, 2.4vw, 26px); margin-top: 6px; }
+
+  .catch {
+    margin-top: 10vh;
+    max-width: 60ch;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    font-size: 16px;
+    line-height: 1.65;
+  }
+  .catch b { font-size: 22px; display: block; margin-bottom: 8px; }
+
+  footer { margin-top: 12vh; text-align: center; font-size: 13px; opacity: .9; }
+</style>
+</head>
+<body>
+  <h1>the price list</h1>
+  <p class="sub">everything gymgyme does, next to what it costs out there. read it slowly, the right column doesn't change.</p>
+
+  <div class="tags">
+    <a class="tag-row" href="#">
+      <span class="what">a personal trainer<small>out there: a human, ~one hour, watches you, counts, corrects your form</small></span>
+      <span class="out-there">~1500₺/hour</span>
+      <span class="here">0₺</span>
+    </a>
+    <a class="tag-row" href="#">
+      <span class="what">rep counting, out loud<small>ours watches through your camera, counts with a tick you can hear, and scores every rep out of 100</small></span>
+      <span class="out-there">included above</span>
+      <span class="here">0₺</span>
+    </a>
+    <a class="tag-row" href="#">
+      <span class="what">form correction in 3d<small>a c++ engine inside your browser reads your joints and tells you what to fix</small></span>
+      <span class="out-there">~2000₺/month apps</span>
+      <span class="here">0₺</span>
+    </a>
+    <a class="tag-row" href="#">
+      <span class="what">a gym<small>wall pilates, adult ballet, yoga, calisthenics, bodyweight - your living room qualifies</small></span>
+      <span class="out-there">~1200₺/month</span>
+      <span class="here">0₺</span>
+    </a>
+    <a class="tag-row" href="#">
+      <span class="what">your privacy<small>the video never leaves your device. not a discount. a law of physics here.</small></span>
+      <span class="out-there">usually the price</span>
+      <span class="here">not for sale</span>
+    </a>
+  </div>
+
+  <div class="total">
+    <p>your total, today and every day after:</p>
+    <span class="zero">0₺</span>
+    <p class="forever">no ads, no account wall, no trial that expires. forever is the business model.</p>
+  </div>
+
+  <p class="catch">
+    <b>okay, what's the catch?</b>
+    there isn't one. a directory by everyone, for everyone - people recommend, the important grows. the only currency here is you telling someone about it. <a href="#" style="color:#fff;">suggest something!</a>
+  </p>
+
+  <footer>no ads, no tracking, no cookies, no money - just links and reps. · damlahelloworld</footer>
+</body>
+</html>

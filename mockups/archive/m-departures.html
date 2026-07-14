@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gymgyme - now boarding</title>
+<style>
+  :root {
+    --bg: #FFBDD4; --tint: #FFE3EE; --tint-2: #FFCEDF;
+    --ink: #33000E; --ink-soft: #7A2647; --cherry: #8E0038; --cherry-deep: #6E0030;
+    --on-cherry: #FFDCE9;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: Arial, Helvetica, sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
+
+  header { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; padding: 26px 4vw 18px; }
+  h1 { font-size: clamp(40px, 6vw, 72px); letter-spacing: -.03em; line-height: 1; }
+  header .sub { font-size: 14px; color: var(--ink-soft); }
+  header nav { margin-left: auto; display: flex; gap: 18px; font-size: 14.5px; align-self: center; }
+  header nav a { color: var(--cherry); font-weight: bold; text-decoration: none; }
+  header nav a:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+  /* the departures board: full-bleed cherry, edge to edge, zero gaps */
+  .board { background: var(--cherry); color: var(--on-cherry); padding: 18px 4vw 26px; }
+  .board .bhead { display: grid; grid-template-columns: 1.1fr 1.6fr .7fr; gap: 14px; font-size: 11px; font-weight: bold; letter-spacing: .12em; opacity: .75; padding: 8px 0 10px; border-bottom: 2px solid rgba(255,220,233,.3); }
+  .dep { display: grid; grid-template-columns: 1.1fr 1.6fr .7fr; gap: 14px; align-items: baseline; padding: 13px 0; border-bottom: 1px solid rgba(255,220,233,.18); text-decoration: none; color: var(--on-cherry); transition: background .15s, padding-left .15s; }
+  .dep:hover { background: var(--cherry-deep); padding-left: 12px; }
+  .dep .to { font-size: clamp(20px, 2.8vw, 32px); font-weight: bold; letter-spacing: -.01em; }
+  .dep .via { font-size: 14.5px; opacity: .92; line-height: 1.45; }
+  .dep .via small { display: block; font-size: 12px; opacity: .75; }
+  .dep .status { font-size: 13px; font-weight: bold; letter-spacing: .06em; text-align: right; }
+  .dep .status.flip { animation: flip .5s ease; }
+  @keyframes flip { 0% { transform: rotateX(0); } 50% { transform: rotateX(90deg); } 100% { transform: rotateX(0); } }
+
+  /* trainer strip: pink-on-pink band, big words, live counter, no box */
+  .trainer { padding: 34px 4vw; display: flex; align-items: baseline; gap: 26px; flex-wrap: wrap; }
+  .trainer .words { font-size: clamp(22px, 3.4vw, 40px); letter-spacing: -.02em; line-height: 1.15; max-width: 24ch; }
+  .trainer .words a { color: var(--cherry); text-decoration: none; font-weight: bold; }
+  .trainer .words a:hover { text-decoration: underline; text-underline-offset: 6px; }
+  .trainer .live { margin-left: auto; text-align: right; }
+  .trainer .live .n { font-size: clamp(70px, 10vw, 130px); font-weight: bold; color: var(--cherry); line-height: .95; letter-spacing: -.04em; font-variant-numeric: tabular-nums; display: block; }
+  .trainer .live .n.tick { animation: pop .2s ease-out; }
+  @keyframes pop { 35% { transform: scale(1.08); } }
+  .trainer .live small { font-size: 13px; color: var(--ink-soft); }
+
+  /* arrivals: what landed on the board lately - tint band, dense two columns */
+  .arrivals { background: var(--tint); padding: 22px 4vw 30px; }
+  .arrivals .ahead { font-size: 11px; font-weight: bold; letter-spacing: .12em; color: var(--cherry); margin-bottom: 8px; }
+  .arrivals .cols { columns: 2; column-gap: 40px; }
+  .arrivals a { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; font-size: 14.5px; color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--tint-2); break-inside: avoid; }
+  .arrivals a:hover { color: var(--cherry); }
+  .arrivals a small { color: var(--ink-soft); white-space: nowrap; align-self: center; font-size: 12px; }
+
+  .foot { padding: 18px 4vw 30px; font-size: 12.5px; color: var(--ink-soft); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .foot a { color: var(--cherry); font-weight: bold; text-decoration: none; }
+  @media (max-width: 720px) {
+    .board .bhead { display: none; }
+    .dep { grid-template-columns: 1fr; gap: 2px; }
+    .dep .status { text-align: left; }
+    .arrivals .cols { columns: 1; }
+  }
+</style>
+</head>
+<body>
+  <header>
+    <h1>gymgyme</h1>
+    <span class="sub">departures from your living room · all destinations, no fares</span>
+    <nav><a href="#">personal trainer</a><a href="#">my program</a><a href="#">suggest something!</a></nav>
+  </header>
+
+  <div class="board">
+    <div class="bhead"><span>DESTINATION</span><span>VIA</span><span>STATUS</span></div>
+    <a class="dep" href="#">
+      <span class="to">wall pilates</span>
+      <span class="via">20 min, no talking · the stiff-back series · wall angels, properly<small>recommended by 3 people who actually did it</small></span>
+      <span class="status">NOW BOARDING</span>
+    </a>
+    <a class="dep" href="#">
+      <span class="to">adult ballet</span>
+      <span class="via">chair barre for absolute beginners · first position at any age<small>never too late, the barre is a chair</small></span>
+      <span class="status">ON TIME</span>
+    </a>
+    <a class="dep" href="#">
+      <span class="to">yoga</span>
+      <span class="via">the morning stretch you'll repeat · yoga for people who hate yoga<small>quiet corner, always open</small></span>
+      <span class="status">ON TIME</span>
+    </a>
+    <a class="dep" href="#">
+      <span class="to">calisthenics</span>
+      <span class="via">your first real push-up · no-bar beginner plan<small>you vs. gravity, best of three</small></span>
+      <span class="status">GATE OPEN</span>
+    </a>
+    <a class="dep" href="#">
+      <span class="to">bodyweight</span>
+      <span class="via">the 20-minute apartment workout · quiet cardio, neighbors safe<small>equipment: you</small></span>
+      <span class="status">NOW BOARDING</span>
+    </a>
+    <a class="dep" href="#">
+      <span class="to">healthy-living articles</span>
+      <span class="via">why your knees are not "bad" · protein without the bro science<small>rest-day reading</small></span>
+      <span class="status">ALWAYS OPEN</span>
+    </a>
+  </div>
+
+  <div class="trainer">
+    <p class="words">every flight comes with a crew: the <a href="#">✨ personal trainer 🎀</a> counts your reps through your camera, scores each out of 100 and fixes your form - the video never leaves your device.</p>
+    <div class="live">
+      <span class="n" id="n">0</span>
+      <small>reps counted since you opened this page. it just really likes counting.</small>
+    </div>
+  </div>
+
+  <div class="arrivals">
+    <div class="ahead">FRESH ARRIVALS · PINNED BY REAL PEOPLE</div>
+    <div class="cols">
+      <a href="#">20 min wall pilates, no talking <small>video · wall pilates</small></a>
+      <a href="#">your first real push-up, honest roadmap <small>guide · calisthenics</small></a>
+      <a href="#">chair barre, absolute beginner <small>video · ballet</small></a>
+      <a href="#">quiet cardio, downstairs neighbors safe <small>video · bodyweight</small></a>
+      <a href="#">breathing, but on purpose <small>article · yoga</small></a>
+      <a href="#">why your knees are not "bad" <small>article · reading</small></a>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span>no ads, no tracking, no cookies - the board asks for nothing back. · damlahelloworld</span>
+    <span>your recommendation is a new departure: <a href="#">suggest something!</a></span>
+  </div>
+
+<script>
+  var n = 0, el = document.getElementById('n');
+  setInterval(function () {
+    n++;
+    el.textContent = n;
+    el.classList.remove('tick'); void el.offsetWidth; el.classList.add('tick');
+  }, 1700);
+
+  // the board is alive: statuses flip like split-flap displays
+  var statuses = ['NOW BOARDING', 'ON TIME', 'GATE OPEN', 'ALWAYS OPEN'];
+  var els = document.querySelectorAll('.dep .status');
+  setInterval(function () {
+    var el = els[Math.floor((n * 7) % els.length)];
+    el.classList.remove('flip'); void el.offsetWidth; el.classList.add('flip');
+    setTimeout(function () { el.textContent = statuses[(statuses.indexOf(el.textContent) + 1) % statuses.length]; }, 250);
+  }, 3400);
+</script>
+</body>
+</html>

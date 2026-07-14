@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gymgyme - the noticeboard</title>
+<style>
+  :root {
+    --bg: #FFBDD4; --card: #fff; --tint: #FFE3EE; --tint-2: #FFCEDF;
+    --ink: #33000E; --ink-soft: #7A2647; --cherry: #8E0038; --cherry-deep: #6E0030;
+    --on-cherry: #FFDCE9;
+    --sh-1: 0 1px 2px rgba(142,0,56,.06), 0 3px 10px rgba(142,0,56,.07);
+    --sh-2: 0 4px 16px rgba(142,0,56,.10), 0 14px 40px rgba(142,0,56,.09);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: Arial, Helvetica, sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; padding: 16px 16px 50px; }
+  .wrap { max-width: 1200px; margin: 0 auto; }
+
+  header { display: flex; align-items: baseline; flex-wrap: wrap; gap: 14px; padding: 6px 4px 14px; }
+  h1 { font-size: clamp(36px, 5.5vw, 58px); letter-spacing: -.03em; }
+  header p { font-size: 13.5px; color: var(--ink-soft); max-width: 46ch; }
+  header nav { margin-left: auto; display: flex; gap: 16px; font-size: 14px; align-self: center; }
+  header nav a { color: var(--cherry); font-weight: bold; text-decoration: none; }
+  header nav a:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+  /* the board: pinned notes, tight masonry, every note is real content */
+  .board { columns: 3; column-gap: 14px; }
+  .note { background: var(--card); border-radius: 18px; box-shadow: var(--sh-1); padding: 16px 18px; margin-bottom: 14px; break-inside: avoid; transition: box-shadow .2s, transform .2s; }
+  .note:hover { box-shadow: var(--sh-2); transform: translateY(-2px); }
+  .note.pinned { transform: rotate(-.7deg); }
+  .note.pinned:nth-of-type(even) { transform: rotate(.6deg); }
+  .note.pinned:hover { transform: rotate(0deg) translateY(-2px); }
+  .k { font-size: 10.5px; font-weight: bold; letter-spacing: .07em; text-transform: uppercase; color: var(--cherry); margin-bottom: 8px; display: flex; justify-content: space-between; }
+  .k .count { color: var(--ink-soft); text-transform: none; letter-spacing: 0; }
+
+  .note a.row { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; color: var(--ink); text-decoration: none; padding: 5px 0; border-bottom: 1px solid var(--tint); }
+  .note a.row:last-child { border-bottom: none; }
+  .note a.row:hover { color: var(--cherry); }
+  .note a.row small { color: var(--ink-soft); font-size: 11px; white-space: nowrap; align-self: center; }
+
+  .note.door { background: var(--cherry); color: var(--on-cherry); }
+  .note.door .k { color: var(--on-cherry); opacity: .85; }
+  .note.door h2 { font-size: 24px; letter-spacing: -.01em; line-height: 1.15; margin-bottom: 6px; }
+  .note.door p { font-size: 13px; line-height: 1.55; }
+  .note.door .n { font-size: 46px; font-weight: bold; letter-spacing: -.02em; line-height: 1.1; font-variant-numeric: tabular-nums; display: inline-block; }
+  .note.door .n.tick { animation: pop .2s ease-out; }
+  @keyframes pop { 35% { transform: scale(1.12); } }
+  .note.door button { margin-top: 10px; font: bold 14px Arial; background: var(--card); color: var(--cherry); border: none; border-radius: 12px; padding: 10px 16px; cursor: pointer; transition: transform .15s; }
+  .note.door button:hover { transform: translateY(-1px); }
+
+  .note.week .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 4px; }
+  .note.week .d { aspect-ratio: 1; border-radius: 8px; background: var(--tint); display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--ink-soft); }
+  .note.week .d.lit { background: var(--cherry); color: var(--on-cherry); font-weight: bold; }
+  .note.week p { font-size: 12px; color: var(--ink-soft); margin-top: 8px; line-height: 1.5; }
+
+  .note.thanks p { font-size: 12.5px; line-height: 1.7; color: var(--ink-soft); }
+  .note.thanks b { color: var(--ink); font-weight: bold; }
+
+  .note.house p { font-size: 13.5px; line-height: 1.6; }
+  .note.house p + p { margin-top: 6px; }
+
+  .foot { text-align: center; font-size: 12.5px; color: var(--ink-soft); margin-top: 10px; }
+  @media (max-width: 980px) { .board { columns: 2; } }
+  @media (max-width: 620px) { .board { columns: 1; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>gymgyme</h1>
+    <p>the neighborhood noticeboard for training at home. everyone pins what worked, the important grows - free, no ads, no account, forever.</p>
+    <nav><a href="#">personal trainer</a><a href="#">my program</a><a href="#">suggest something!</a></nav>
+  </header>
+
+  <div class="board">
+    <div class="note door">
+      <div class="k">the house special</div>
+      <h2>✨ personal trainer 🎀</h2>
+      <p>your camera counts your reps out loud, scores each one out of 100 and fixes your form - a c++ engine in your browser. the video never leaves your device.</p>
+      <p style="margin-top:10px;"><span class="n" id="reps">0</span> <span style="font-size:12px; opacity:.85;">reps counted while you read this</span></p>
+      <button>open the camera</button>
+    </div>
+
+    <div class="note pinned">
+      <div class="k">wall pilates <span class="count">pinned by 3 people</span></div>
+      <a class="row" href="#">20 min wall pilates, no talking <small>video</small></a>
+      <a class="row" href="#">the wall series for stiff backs <small>channel</small></a>
+      <a class="row" href="#">wall angels, explained properly <small>article</small></a>
+    </div>
+
+    <div class="note week">
+      <div class="k">my program · this week</div>
+      <div class="days">
+        <span class="d lit">m</span><span class="d">t</span><span class="d lit">w</span>
+        <span class="d">t</span><span class="d lit">f</span><span class="d">s</span><span class="d">s</span>
+      </div>
+      <p>three lit days so far. the calendar lights itself when the trainer sees you finish - no diary-keeping homework.</p>
+    </div>
+
+    <div class="note pinned">
+      <div class="k">adult ballet <span class="count">growing</span></div>
+      <a class="row" href="#">absolute beginner barre, chair edition <small>video</small></a>
+      <a class="row" href="#">first position at 30, 40, whenever <small>article</small></a>
+    </div>
+
+    <div class="note house">
+      <div class="k">house rules</div>
+      <p>everything here is free. not freemium, not trial - free like a public bench.</p>
+      <p>nobody watches you: no ads, no tracking, no cookies. the only camera is yours and it reports to no one.</p>
+    </div>
+
+    <div class="note pinned">
+      <div class="k">yoga <span class="count">quiet corner</span></div>
+      <a class="row" href="#">morning stretch you'll actually repeat <small>video</small></a>
+      <a class="row" href="#">breathing, but on purpose <small>article</small></a>
+      <a class="row" href="#">yoga for people who hate yoga <small>channel</small></a>
+    </div>
+
+    <div class="note pinned">
+      <div class="k">calisthenics <span class="count">you vs. gravity</span></div>
+      <a class="row" href="#">your first real push-up, honest roadmap <small>guide</small></a>
+      <a class="row" href="#">no-bar beginner plan <small>plan</small></a>
+    </div>
+
+    <div class="note thanks">
+      <div class="k">contributors · thank you!</div>
+      <p>every link above was pinned by a real person. <b>suggest something</b> and your corner of the board appears here - the board only grows.</p>
+    </div>
+
+    <div class="note pinned">
+      <div class="k">bodyweight <span class="count">equipment: you</span></div>
+      <a class="row" href="#">the 20-minute apartment workout <small>video</small></a>
+      <a class="row" href="#">quiet cardio, downstairs neighbors safe <small>video</small></a>
+    </div>
+
+    <div class="note pinned">
+      <div class="k">healthy-living articles <span class="count">rest-day reading</span></div>
+      <a class="row" href="#">why your knees are not "bad" <small>article</small></a>
+      <a class="row" href="#">protein without the bro science <small>article</small></a>
+    </div>
+  </div>
+
+  <p class="foot">no ads, no tracking, no cookies, no money - just links and reps. · damlahelloworld</p>
+</div>
+<script>
+  var n = 0, el = document.getElementById('reps');
+  setInterval(function () {
+    n++;
+    el.textContent = n;
+    el.classList.remove('tick'); void el.offsetWidth; el.classList.add('tick');
+  }, 1600);
+</script>
+</body>
+</html>

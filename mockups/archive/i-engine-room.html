@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gymgyme - the engine room</title>
+<style>
+  :root {
+    --bg: #FFBDD4; --card: #fff; --tint: #FFE3EE; --tint-2: #FFCEDF;
+    --ink: #33000E; --ink-soft: #7A2647; --cherry: #8E0038; --cherry-deep: #6E0030;
+    --on-cherry: #FFDCE9;
+    --sh-1: 0 1px 2px rgba(142,0,56,.06), 0 3px 10px rgba(142,0,56,.07);
+    --sh-2: 0 4px 16px rgba(142,0,56,.10), 0 14px 40px rgba(142,0,56,.09);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: Arial, Helvetica, sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; padding: 20px; }
+
+  .wrap { max-width: 1180px; margin: 0 auto; }
+  header { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; margin-bottom: 14px; }
+  header h1 { font-size: clamp(34px, 5vw, 54px); letter-spacing: -.03em; }
+  header .sub { font-size: 14px; color: var(--ink-soft); }
+  header nav { margin-left: auto; display: flex; gap: 16px; font-size: 14px; }
+  header nav a { color: var(--cherry); font-weight: bold; text-decoration: none; }
+  header nav a:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+  /* the room: a tight board of instruments, all of them doing something */
+  .board { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 150px; gap: 12px; }
+  .cell { background: var(--card); border-radius: 20px; box-shadow: var(--sh-1); padding: 14px 16px; overflow: hidden; position: relative; transition: box-shadow .2s; }
+  .cell:hover { box-shadow: var(--sh-2); }
+  .label { font-size: 10.5px; font-weight: bold; letter-spacing: .07em; text-transform: uppercase; color: var(--cherry); }
+
+  /* the athlete: an svg stick figure squatting forever */
+  .athlete { grid-row: span 2; grid-column: span 2; display: flex; flex-direction: column; }
+  .athlete .scene { flex: 1; display: flex; align-items: center; justify-content: center; gap: 30px; }
+  .athlete svg { height: 86%; }
+  .athlete .readout { text-align: left; }
+  .athlete .readout .n { font-size: 72px; font-weight: bold; color: var(--cherry); line-height: 1; letter-spacing: -.03em; font-variant-numeric: tabular-nums; display: block; }
+  .athlete .readout .n.tick { animation: pop .2s ease-out; }
+  @keyframes pop { 35% { transform: scale(1.12); } }
+  .athlete .readout small { font-size: 12px; color: var(--ink-soft); display: block; margin-top: 6px; line-height: 1.5; }
+  .squatter { animation: squat 1.8s ease-in-out infinite; transform-origin: 50px 78px; }
+  @keyframes squat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(16px); } }
+  .thigh-l { animation: thighL 1.8s ease-in-out infinite; transform-origin: 42px 52px; }
+  .thigh-r { animation: thighR 1.8s ease-in-out infinite; transform-origin: 58px 52px; }
+  @keyframes thighL { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-38deg); } }
+  @keyframes thighR { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(38deg); } }
+  .depth-cell .bar { height: 10px; background: var(--tint); border-radius: 6px; margin-top: 12px; overflow: hidden; }
+  .depth-cell .fill { height: 100%; width: 20%; background: var(--cherry); border-radius: 6px; animation: depth 1.8s ease-in-out infinite; }
+  @keyframes depth { 0%, 100% { width: 12%; } 50% { width: 96%; } }
+  .depth-cell .word { font-size: 22px; font-weight: bold; margin-top: 10px; color: var(--cherry); }
+
+  .score-cell .score { font-size: 54px; font-weight: bold; color: var(--cherry); letter-spacing: -.02em; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .score-cell small { font-size: 11.5px; color: var(--ink-soft); }
+
+  .price-cell { background: var(--cherry); color: var(--on-cherry); }
+  .price-cell .label { color: var(--on-cherry); opacity: .85; }
+  .price-cell .zero { font-size: 56px; font-weight: bold; letter-spacing: -.03em; line-height: 1.05; }
+  .price-cell small { font-size: 11.5px; line-height: 1.45; display: block; margin-top: 4px; }
+
+  .moves-cell { grid-column: span 2; }
+  .moves-cell .belt { display: flex; gap: 8px; margin-top: 10px; overflow: hidden; }
+  .moves-cell .belt-inner { display: flex; gap: 8px; animation: belt 22s linear infinite; }
+  @keyframes belt { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  .chipm { flex: none; background: var(--tint); color: var(--cherry); font-size: 13px; font-weight: bold; padding: 8px 14px; border-radius: 12px; }
+  .moves-cell small { font-size: 11.5px; color: var(--ink-soft); display: block; margin-top: 10px; }
+
+  .privacy-cell .big { font-size: 26px; font-weight: bold; color: var(--cherry); margin-top: 8px; letter-spacing: -.01em; }
+  .privacy-cell small { font-size: 11.5px; color: var(--ink-soft); line-height: 1.5; display: block; margin-top: 4px; }
+
+  .dir-cell { grid-column: span 2; }
+  .dir-cell .rows { margin-top: 8px; column-count: 2; column-gap: 18px; }
+  .dir-cell a { display: flex; justify-content: space-between; font-size: 13.5px; color: var(--ink); text-decoration: none; padding: 4.5px 0; border-bottom: 1px solid var(--tint); break-inside: avoid; }
+  .dir-cell a:hover { color: var(--cherry); }
+  .dir-cell a i { font-style: normal; font-size: 11px; color: var(--ink-soft); }
+
+  .cta-cell { display: flex; flex-direction: column; }
+  .cta-cell p { font-size: 12.5px; color: var(--ink-soft); line-height: 1.5; margin-top: 6px; }
+  .cta-cell button { margin-top: auto; font: bold 14px Arial; background: var(--cherry); color: var(--on-cherry); border: none; border-radius: 12px; padding: 10px 14px; cursor: pointer; transition: transform .15s, background .15s; }
+  .cta-cell button:hover { background: var(--cherry-deep); transform: translateY(-1px); }
+
+  .foot { text-align: center; font-size: 12.5px; color: var(--ink-soft); margin-top: 16px; }
+  @media (max-width: 980px) { .board { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .board { grid-template-columns: 1fr; grid-auto-rows: auto; } .athlete { grid-column: span 1; } .moves-cell, .dir-cell { grid-column: span 1; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>gymgyme</h1>
+    <span class="sub">the engine room · everything below is running right now, on your device, for free</span>
+    <nav><a href="#">personal trainer</a><a href="#">the directory</a><a href="#">my program</a><a href="#">suggest something!</a></nav>
+  </header>
+
+  <div class="board">
+    <div class="cell athlete">
+      <div class="label">live demo · the engine never gets tired</div>
+      <div class="scene">
+        <svg viewBox="0 0 100 130" fill="none" stroke="#8E0038" stroke-width="5" stroke-linecap="round">
+          <g class="squatter">
+            <circle cx="50" cy="18" r="9" fill="#8E0038" stroke="none"/>
+            <line x1="50" y1="27" x2="50" y2="55"/>
+            <line x1="50" y1="34" x2="32" y2="48"/>
+            <line x1="50" y1="34" x2="68" y2="48"/>
+            <line class="thigh-l" x1="47" y1="55" x2="40" y2="78"/>
+            <line class="thigh-r" x1="53" y1="55" x2="60" y2="78"/>
+          </g>
+          <line x1="40" y1="78" x2="40" y2="104"/>
+          <line x1="60" y1="78" x2="60" y2="104"/>
+          <line x1="40" y1="104" x2="30" y2="104"/>
+          <line x1="60" y1="104" x2="70" y2="104"/>
+          <line x1="12" y1="112" x2="88" y2="112" stroke="#FFCEDF"/>
+        </svg>
+        <div class="readout">
+          <span class="n" id="reps">0</span>
+          <small>squats, counted with a tick.<br>in the real thing this is YOU -<br>your camera, your reps, your score.</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="cell depth-cell">
+      <div class="label">depth · read every frame</div>
+      <div class="bar"><div class="fill"></div></div>
+      <div class="word" id="phase">going down</div>
+    </div>
+
+    <div class="cell score-cell">
+      <div class="label">last rep score</div>
+      <div class="score" id="score">–</div>
+      <small>out of 100 - depth, tempo, control. the engine is honest, not mean.</small>
+    </div>
+
+    <div class="cell price-cell">
+      <div class="label">your bill · checked hourly</div>
+      <div class="zero">0₺</div>
+      <small>still zero. forever is the business model.</small>
+    </div>
+
+    <div class="cell privacy-cell">
+      <div class="label">frames uploaded</div>
+      <div class="big">none. ever.</div>
+      <small>the video never leaves your device - there is no upload code to begin with.</small>
+    </div>
+
+    <div class="cell moves-cell">
+      <div class="label">the trainer knows 14 moves · more in training</div>
+      <div class="belt"><div class="belt-inner" id="belt"></div></div>
+      <small>squats to bird dogs - each one a full spec the engine reads joint by joint.</small>
+    </div>
+
+    <div class="cell dir-cell">
+      <div class="label">the directory · by everyone, for everyone</div>
+      <div class="rows">
+        <a href="#">wall pilates <i>the wall is free too</i></a>
+        <a href="#">adult ballet <i>never too late</i></a>
+        <a href="#">yoga <i>on-purpose breathing</i></a>
+        <a href="#">calisthenics <i>you vs. gravity</i></a>
+        <a href="#">bodyweight <i>equipment: you</i></a>
+        <a href="#">articles <i>rest-day reading</i></a>
+      </div>
+    </div>
+
+    <div class="cell cta-cell">
+      <div class="label">your turn</div>
+      <p>the engine is warmed up and the door was never locked.</p>
+      <button>open the camera</button>
+    </div>
+  </div>
+
+  <p class="foot">no ads, no tracking, no cookies, no money - just links and reps. · damlahelloworld</p>
+</div>
+
+<script>
+  // rep counter synced to the squat animation (1.8s cycle)
+  var reps = 0, repsEl = document.getElementById('reps'), scoreEl = document.getElementById('score'),
+      phaseEl = document.getElementById('phase'), scores = [88, 93, 79, 96, 90, 84, 97, 91];
+  setInterval(function () {
+    reps++;
+    repsEl.textContent = reps;
+    repsEl.classList.remove('tick'); void repsEl.offsetWidth; repsEl.classList.add('tick');
+    scoreEl.textContent = scores[reps % scores.length];
+  }, 1800);
+  setInterval(function () {
+    phaseEl.textContent = phaseEl.textContent === 'going down' ? 'coming up' : 'going down';
+  }, 900);
+
+  var MOVES = ['squat','sumo squat','lunge','side lunge','push-up','kneeling push-up','glute bridge','sit-up','press','glute kickback','bird dog','calf raise','jumping jack','arm raise'];
+  var belt = document.getElementById('belt');
+  MOVES.concat(MOVES).forEach(function (m) {
+    var s = document.createElement('span');
+    s.className = 'chipm'; s.textContent = m;
+    belt.appendChild(s);
+  });
+</script>
+</body>
+</html>
