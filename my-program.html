@@ -124,7 +124,7 @@
   const MONTH_NAMES = ["january","february","march","april","may","june","july","august","september","october","november","december"];
   const now = new Date();
   const curIdx = now.getFullYear() * 12 + now.getMonth();
-  let minIdx = curIdx;
+  let minIdx = curIdx - 23;   // veri yokken de 2 yil geriye gezilebilir (oklar kilitlenmesin)
   for (const d of getDays()) {
     const dt = new Date(d + "T12:00:00");
     if (!isNaN(dt)) minIdx = Math.min(minIdx, dt.getFullYear() * 12 + dt.getMonth());
@@ -241,7 +241,7 @@
   // ── yil gorunumu: github katki duvari — 53 hafta × 7 gun, yogunluga gore boya ──
   const curYear = now.getFullYear();
   let yIdx = curYear;
-  let minYear = curYear;
+  let minYear = curYear - 2;   // veri yokken de geriye gezilebilir
   for (const d of getDays()) {
     const yy = parseInt(d.slice(0, 4), 10);
     if (yy && yy < minYear) minYear = yy;
