@@ -289,6 +289,10 @@ let lastVideoTime = -1;
 let drawer = null;
 let aspect = 1;
 let faceLandmarker = null, handLandmarker = null;   // görsel ağ katmanı
+// DONDURULDU (15 tem): yüz/el mesh katmanı SALT görüntüydü, sayma motoruna
+// hiç girmiyordu ama her 2 karede iki ekstra model koşturup fps yiyordu. amaç
+// gövdeyi güvenilir sayan motor; süs değil. true yaparsan çizim geri gelir.
+const MESH_LAYER = false;
 let rebuildingPose = false;   // canlı kurtarma sürerken ikinci kez kurma
 let lastFace = null, lastHands = null;              // atlanan karede son sonuç çizilir
 let meshFrame = 0;                                  // yüz/el her 2 karede bir koşar (fps)
@@ -338,23 +342,24 @@ async function loadPose() {
   }
   if (!poseLandmarker) throw lastErr;
   drawer = new DrawingUtils(ctx);
-  // ── görsel ağ katmanı (Damla "ekle", 15 tem): yüz 478 nokta + el 21'er nokta.
-  // SALT görüntü — sayma motoruna hiç girmez. Yüklenemezse sessizce vazgeçilir,
-  // iskelet ve sayaç aynen çalışır. ──
-  try {
-    faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
-      baseOptions: { modelAssetPath: "vendor/models/face_landmarker.task", delegate: "GPU" },
-      runningMode: "VIDEO",
-      numFaces: 1
-    });
-    handLandmarker = await HandLandmarker.createFromOptions(vision, {
-      baseOptions: { modelAssetPath: "vendor/models/hand_landmarker.task", delegate: "GPU" },
-      runningMode: "VIDEO",
-      numHands: 2
-    });
-  } catch (e) {
-    console.warn("mesh layer not loaded (skeleton still works):", e);
-    faceLandmarker = null; handLandmarker = null;
+  // ── görsel ağ katmanı DONDURULDU (MESH_LAYER=false): yüz/el mesh salt
+  // görüntüydü, motora girmiyordu, boşuna fps yiyordu. gövde motoru saf kalsın. ──
+  if (MESH_LAYER) {
+    try {
+      faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
+        baseOptions: { modelAssetPath: "vendor/models/face_landmarker.task", delegate: "GPU" },
+        runningMode: "VIDEO",
+        numFaces: 1
+      });
+      handLandmarker = await HandLandmarker.createFromOptions(vision, {
+        baseOptions: { modelAssetPath: "vendor/models/hand_landmarker.task", delegate: "GPU" },
+        runningMode: "VIDEO",
+        numHands: 2
+      });
+    } catch (e) {
+      console.warn("mesh layer not loaded (skeleton still works):", e);
+      faceLandmarker = null; handLandmarker = null;
+    }
   }
 }
 
