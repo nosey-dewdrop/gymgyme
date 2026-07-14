@@ -304,6 +304,129 @@ static int runClip(const char* path) {
   return 0;
 }
 
+// ── Faz 2 kanıtı: kemik kilidi — ham dünya iskeleti vs çözülmüş iskelet,
+// kemik uzunluğu varyansı (%). Kalibrasyonlu motor, gerçek üretim yolu. ──
+static int runBones() {
+  std::printf("kemik kilidi - ham vs cozulmus iskelet (kemik varyansi %%, kucuk iyi; hedef ~0)\n\n");
+  struct Case { const char* label; double sigma; double spike; };
+  const Case cases[] = {
+    {"temiz kamera ", 0.002, 0.005},
+    {"normal kamera", 0.004, 0.010},
+    {"kotu isik    ", 0.008, 0.030},
+  };
+  for (const auto& c : cases) {
+    auto clip = makeSynth(c.sigma, c.spike, 42);
+    Engine e(builtinMove("squat"));
+    e.setCalibration(true);
+    auto var = [](const std::vector<double>& len) {
+      if (len.size() < 10) return -1.0;
+      double s = 0; for (double v : len) s += v;
+      double m = s / len.size(), s2 = 0;
+      for (double v : len) s2 += (v - m) * (v - m);
+      return m > 1e-9 ? 100.0 * std::sqrt(s2 / len.size()) / m : -1.0;
+    };
+    auto dist = [](const std::vector<Landmark>& v, int a, int b) {
+      double dx = v[a].x - v[b].x, dy = v[a].y - v[b].y, dz = v[a].z - v[b].z;
+      return std::sqrt(dx * dx + dy * dy + dz * dz);
+    };
+    std::vector<double> rawThigh, rawShin, solThigh, solShin;
+    int reps = 0;
+    for (const auto& f : clip) {
+      Reading rd = e.update(f.screen, f.world, f.t);
+      reps = rd.reps;
+      if (!rd.tracking) continue;
+      rawThigh.push_back(dist(f.world, 23, 25));
+      rawShin.push_back(dist(f.world, 25, 27));
+      if (e.solvedWorld().size() == 33) {
+        solThigh.push_back(dist(e.solvedWorld(), 23, 25));
+        solShin.push_back(dist(e.solvedWorld(), 25, 27));
+      }
+    }
+    std::printf("%s  uyluk ham %5.2f%% -> kilitli %5.2f%%   baldir ham %5.2f%% -> kilitli %5.2f%%   reps %d/8\n",
+                c.label, var(rawThigh), var(solThigh), var(rawShin), var(solShin), reps);
+  }
+  std::printf("\nnot: kilitli iskelette kemik uzunlugu kalibrasyonda dondurulur. asil soru aci\n"
+              "metriklerinin bozulmamasi - synth tablosunu kalibrasyonlu kosan mod: bench synthcal.\n");
+  return 0;
+}
+
+// synth ama kalibrasyon + kemik kilidi AÇIK (üretim yolu): kilit açı metriklerini
+// bozuyor mu bozmuyor mu, aynı tabloyla cevap.
+static int runSynthCal() {
+  std::printf("olcum bandi - kalibrasyon + kemik kilidi ACIK (uretim yolu)\n");
+  struct Case { const char* label; double sigma; double spike; };
+  const Case cases[] = {
+    {"temiz kamera (sigma 0.002, %0.5 isinlanma)", 0.002, 0.005},
+    {"normal kamera (sigma 0.004, %1 isinlanma)", 0.004, 0.010},
+    {"kotu isik    (sigma 0.008, %3 isinlanma)", 0.008, 0.030},
+  };
+  for (const auto& c : cases) {
+    std::printf("\n%s\n", c.label);
+    auto clip = makeSynth(c.sigma, c.spike, 42);
+    Engine e(builtinMove("squat"));
+    e.setCalibration(true);
+    RunResult r;
+    bool was = false;
+    for (const auto& f : clip) {
+      Reading rd = e.update(f.screen, f.world, f.t);
+      r.angle.push_back(rd.tracking ? rd.smoothAngle : -1.0);
+      if (was && !rd.tracking) r.dropouts++;
+      was = rd.tracking;
+      r.reps = rd.reps; r.halfReps = rd.halfReps;
+    }
+    printRow("kilitli", clip, r);
+  }
+  return 0;
+}
+
+// ── Faz 2 kanıtı: çok kişi — kadraja giren yabancı (hoca vakası). Aday sırası
+// garanti değil: dedektör sırayı her an değiştirebilir. Naif yol (hep aday 0)
+// vs motor seçimi (updateBest) yan yana. ──
+static int runTwoPerson() {
+  std::printf("iki kisi senaryosu - 8. saniyede kadraja yabanci giriyor, aday sirasi guvenilmez\n\n");
+  auto clip = makeSynth(0.004, 0.01, 42);
+  // yabancı: ekranda +0.3 sağda, kısa uzuvlu, ayakta duran statik vücut.
+  std::vector<Landmark> strangerS, strangerW;
+  bodyFromTheta(170.0, strangerS, strangerW);
+  for (auto& p : strangerS) if (p.visibility > 0) p.x += 0.30;
+  for (int i : {25, 26}) strangerW[i].y *= 0.65;   // uyluk kısa
+  for (int i : {27, 28}) strangerW[i].y *= 0.70;   // baldır kısa
+  const int enterAt = 240;   // kalibrasyon (ilk ~2 sn) çoktan bitmiş
+
+  auto run = [&](bool best) {
+    Engine e(builtinMove("squat"));
+    e.setCalibration(true);
+    int reps = 0, wrong = 0, lost = 0;
+    for (size_t i = 0; i < clip.size(); i++) {
+      const auto& f = clip[i];
+      Reading rd;
+      if ((int)i < enterAt) {
+        rd = best ? e.updateBest({f.screen}, {f.world}, f.t) : e.update(f.screen, f.world, f.t);
+      } else {
+        // dedektör sırası güvenilmez: her 30 karede bir yabancı 0. sıraya geçer
+        bool swap = ((i / 30) % 2) == 0;
+        std::vector<std::vector<Landmark>> ss = swap
+            ? std::vector<std::vector<Landmark>>{strangerS, f.screen}
+            : std::vector<std::vector<Landmark>>{f.screen, strangerS};
+        std::vector<std::vector<Landmark>> ww = swap
+            ? std::vector<std::vector<Landmark>>{strangerW, f.world}
+            : std::vector<std::vector<Landmark>>{f.world, strangerW};
+        rd = best ? e.updateBest(ss, ww, f.t)
+                  : e.update(ss[0], ww[0], f.t);   // naif: hep aday 0
+        if (best) { int ours = swap ? 1 : 0; if (rd.pickedPose != ours) wrong++; }
+        else if (swap) wrong++;   // naif yol swap karesinde yabancıyı yer
+        if (!rd.tracking) lost++;
+      }
+      reps = rd.reps;
+    }
+    std::printf("  %-14s yanlis vucut karesi %3d   kopan kare %3d   reps %d/8\n",
+                best ? "motor secimi" : "naif (aday 0)", wrong, lost, reps);
+  };
+  run(false);
+  run(true);
+  return 0;
+}
+
 // parametre taraması: One Euro (minCutoff, beta) ızgarası, üç gürültü seviyesinin
 // TOPLAM skoru üstünden. skor = jitter + rmse + yanlış sayım cezası (yarım tekrar
 // gerçekte hiç yok; motor "sayılmadı" derse kullanıcıya haksızlık — 2 derece cezası).
@@ -340,8 +463,11 @@ static int runSweep() {
 
 int main(int argc, char** argv) {
   if (argc >= 2 && std::strcmp(argv[1], "synth") == 0) return runSynth();
+  if (argc >= 2 && std::strcmp(argv[1], "synthcal") == 0) return runSynthCal();
   if (argc >= 2 && std::strcmp(argv[1], "sweep") == 0) return runSweep();
+  if (argc >= 2 && std::strcmp(argv[1], "bones") == 0) return runBones();
+  if (argc >= 2 && std::strcmp(argv[1], "twoperson") == 0) return runTwoPerson();
   if (argc >= 3 && std::strcmp(argv[1], "clip") == 0) return runClip(argv[2]);
-  std::fprintf(stderr, "kullanim: bench synth | bench clip <dosya.ggclip>\n");
+  std::fprintf(stderr, "kullanim: bench synth | synthcal | sweep | bones | twoperson | clip <dosya.ggclip>\n");
   return 1;
 }
