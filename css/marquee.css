@@ -1,0 +1,125 @@
+/* marquee dünyası - 14 tem gece Damla'nın kilitlediği tasarım: vişne sinema
+   tabelası, fisto tente, yanıp sönen ampuller, bilet/damga süsleri, gerçekçi
+   yumuşak gölge (mekanik ofset yok). tüm sayfalar bu dili giyer. */
+
+/* üst bar: marka + ortada arama + nav (eski sol sidebar emekli) */
+.topbar { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 4px 0 16px; }
+.topbar .brand, .topbar .brand:visited { font-size: 26px; font-weight: bold; color: var(--ink); text-decoration: none; letter-spacing: -.02em; }
+.topbar nav { display: flex; gap: 18px; font-size: 14px; align-items: baseline; position: relative; flex-wrap: wrap; }
+.topbar nav a, .topbar nav a:visited { color: var(--cherry); font-weight: bold; text-decoration: none; }
+.topbar nav a:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+.searchwrap { flex: 1; display: flex; justify-content: center; position: relative; margin: 0 12px; min-width: 200px; }
+.topsearch { width: min(420px, 100%); font: 13.5px Arial, Helvetica, sans-serif; color: var(--ink); background: var(--card); border: none; border-radius: 11px; padding: 10px 40px 10px 14px; outline: none; box-shadow: var(--sh-1); transition: box-shadow .2s; }
+.topsearch:focus { box-shadow: var(--sh-2); }
+.topsearch::placeholder { color: var(--ink-soft); opacity: .7; }
+.searchwrap .mag { position: absolute; right: calc(50% - min(210px, 50%) + 12px); top: 50%; transform: translateY(-50%); font-size: 14px; pointer-events: none; opacity: .75; }
+.searchdrop { position: absolute; top: calc(100% + 8px); left: 50%; transform: translateX(-50%); width: min(420px, 90vw); background: var(--card); box-shadow: 0 12px 26px rgba(51,0,14,.24); display: none; z-index: 60; max-height: 340px; overflow-y: auto; border-radius: 12px; }
+.searchdrop.open { display: block; }
+.searchdrop .sr { display: flex; justify-content: space-between; gap: 10px; padding: 10px 14px; font-size: 13.5px; cursor: pointer; border-bottom: 1px solid var(--tint); color: var(--ink); }
+.searchdrop .sr:hover { background: var(--tint); }
+.searchdrop .sr small { color: var(--ink-soft); }
+.searchdrop .srall { font-weight: bold; color: var(--cherry); }
+
+/* my moves: nav'ın altında GERÇEK dropdown - küçük, ok uçlu, hover'la açılır */
+.mv-wrap { position: relative; }
+.mv-wrap > button { font: bold 14px Arial, Helvetica, sans-serif; color: var(--cherry); background: none; border: none; cursor: pointer; padding: 0 0 2px; border-bottom: 2px solid transparent; }
+.mv-wrap > button:hover, .mv-wrap > button.open { border-color: var(--cherry); }
+.moves-panel { position: absolute; top: calc(100% + 10px); left: 50%; transform: translateX(-50%); width: 280px; max-height: 420px; overflow-y: auto; background: var(--card); box-shadow: 0 12px 26px rgba(51,0,14,.24); padding: 12px 16px 10px; display: none; z-index: 50; border-radius: 12px; }
+.moves-panel::before { content: ""; position: absolute; top: -7px; left: 50%; transform: translateX(-50%); border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 8px solid var(--card); }
+.moves-panel.open { display: block; animation: mvdrop .22s ease; }
+@keyframes mvdrop { from { opacity: 0; transform: translateX(-50%) translateY(-6px); } to { opacity: 1; transform: translateX(-50%); } }
+.moves-panel .mhint { font-size: 10.5px; color: var(--ink-soft); padding: 0 0 6px; margin: 0; }
+.moves-panel .krow { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; padding: 6px 0; border-bottom: 1px solid var(--tint); font-size: 13px; font-weight: bold; color: var(--ink); }
+.moves-panel .krow:last-child { border-bottom: none; }
+.moves-panel .krow button { background: none; border: none; color: var(--cherry); font: bold 13px Arial; cursor: pointer; }
+.moves-panel .kfoot { font-size: 11px; color: var(--ink-soft); padding-top: 8px; margin: 4px 0 0; border-top: 1px solid var(--tint); }
+.moves-panel .kfoot a { color: var(--cherry); font-weight: bold; }
+
+/* tabela: vişne pano + tente + ampuller */
+.marquee { background: var(--cherry); color: var(--on-cherry); padding: 40px 4vw 38px; position: relative; overflow: hidden; box-shadow: 0 18px 32px rgba(51,0,14,.28), 0 4px 8px rgba(51,0,14,.16); margin-bottom: 0; }
+.awning { position: absolute; top: 0; left: 0; right: 0; display: flex; justify-content: center; pointer-events: none; overflow: hidden; }
+.awning i { flex: none; width: 30px; height: 14px; border-radius: 0 0 15px 15px; background: var(--on-cherry); opacity: .95; }
+.awning i:nth-child(even) { background: var(--tint-2); }
+.awning i:nth-child(4n) { background: var(--bg); }
+.bulbs { position: absolute; left: 10px; right: 10px; display: flex; justify-content: space-between; pointer-events: none; }
+.bulbs.b-top { top: 22px; } .bulbs.b-bot { bottom: 8px; }
+.bulbs.b-left, .bulbs.b-right { flex-direction: column; top: 40px; bottom: 40px; left: auto; right: auto; width: 8px; }
+.bulbs.b-left { left: 10px; } .bulbs.b-right { right: 10px; }
+.bulbs i { width: 8px; height: 8px; border-radius: 50%; background: var(--on-cherry); opacity: .35; }
+.bulbs i:nth-child(odd) { animation: ggblink 1.2s steps(1) infinite; }
+.bulbs i:nth-child(even) { animation: ggblink 1.2s steps(1) .6s infinite; }
+@keyframes ggblink { 0%, 49% { opacity: .9; } 50%, 100% { opacity: .25; } }
+.marquee .now { font-size: 11px; font-weight: bold; letter-spacing: .16em; opacity: .8; }
+.marquee h1, .marquee h2 { font-size: clamp(30px, 4.6vw, 58px); letter-spacing: -.02em; line-height: 1.02; margin: 6px 0 0; color: var(--on-cherry); }
+.marquee .mrow { display: flex; gap: 4vw; align-items: center; flex-wrap: wrap; margin-top: 12px; }
+.marquee .mrow > p { font-size: 14.5px; line-height: 1.6; max-width: 52ch; opacity: .95; margin: 0; }
+.marquee .herobtn { background: var(--on-cherry); color: var(--cherry); margin-top: 14px; }
+.marquee .herobtn:hover { background: #fff; }
+
+/* kadro fotoğrafları: farklı boylar, farklı açılar, damga */
+.cast { margin-left: auto; display: flex; gap: 44px; align-items: flex-start; flex: none; position: relative; }
+.cast .shot { position: relative; width: 150px; background: var(--on-cherry); padding: 4px 4px 20px; box-shadow: 0 10px 18px rgba(51,0,14,.35), 0 2px 5px rgba(51,0,14,.22); transition: transform .25s ease; }
+.cast .shot img { width: 100%; display: block; }
+.cast .shot em { position: absolute; bottom: 4px; left: 7px; font-style: normal; font-size: 10px; color: var(--cherry); white-space: nowrap; }
+.cast .shot:nth-of-type(1) { width: 205px; transform: rotate(-10deg) translateY(-26px); }
+.cast .shot:nth-of-type(2) { width: 178px; transform: rotate(4deg) translateY(-6px); }
+.cast .shot:nth-of-type(3) { width: 150px; transform: rotate(11deg) translateY(20px); }
+.cast .shot:hover { transform: rotate(0) scale(1.06); z-index: 4; }
+.stamp { position: absolute; right: -18px; top: -26px; z-index: 5; width: 92px; height: 92px; border: 3px solid var(--on-cherry); border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 9.5px; font-weight: bold; letter-spacing: .08em; color: var(--on-cherry); transform: rotate(12deg); padding: 10px; box-shadow: 0 0 0 2px var(--cherry), inset 0 0 0 2px var(--cherry), 0 0 0 5px var(--on-cherry) inset; opacity: .95; pointer-events: none; }
+
+/* bilet koçanı */
+.stub { display: inline-flex; align-items: center; gap: 10px; margin: 14px 0 0 14px; background: var(--on-cherry); color: var(--cherry); font-size: 11px; font-weight: bold; letter-spacing: .1em; padding: 10px 14px; transform: rotate(-2deg); position: relative; box-shadow: 0 6px 12px rgba(51,0,14,.3); }
+.stub::before, .stub::after { content: ""; position: absolute; top: 50%; width: 14px; height: 14px; border-radius: 50%; background: var(--cherry); transform: translateY(-50%); }
+.stub::before { left: -7px; } .stub::after { right: -7px; }
+.stub i { font-style: normal; border-left: 2px dashed var(--cherry); padding-left: 10px; font-weight: normal; letter-spacing: 0; }
+
+/* usul yanıp sönen yıldızlar */
+.tw { position: absolute; color: var(--on-cherry); opacity: .35; font-size: 13px; pointer-events: none; animation: ggtwk 3.2s ease-in-out infinite; }
+.tw:nth-of-type(2) { animation-delay: .9s; } .tw:nth-of-type(3) { animation-delay: 1.7s; } .tw:nth-of-type(4) { animation-delay: 2.4s; }
+@keyframes ggtwk { 0%, 100% { opacity: .18; transform: scale(.9); } 50% { opacity: .6; transform: scale(1.15); } }
+
+/* Q&A bandı: tabelanın altındaki açık şerit */
+.qa-band { background: var(--tint); padding: 18px 4vw 20px; margin: 0 0 22px; }
+.qa-band .lbl { font-size: 11px; font-weight: bold; letter-spacing: .13em; color: var(--cherry); margin: 0 0 10px; }
+.qa-grid { columns: 3; column-gap: 34px; }
+.qa-grid .q { break-inside: avoid; padding: 8px 0; border-bottom: 1px solid var(--tint-2); font-size: 13px; line-height: 1.55; }
+.qa-grid .q b { display: block; color: var(--cherry); font-size: 14px; margin-bottom: 2px; }
+.qa-grid .q span { color: var(--ink); }
+@media (max-width: 900px) { .qa-grid { columns: 1; } .cast { margin: 14px 0 0; } }
+
+/* alt tabela: iç sayfaların başlık bandı */
+.sub-sign { background: var(--cherry); color: var(--on-cherry); padding: 40px 4vw 38px; position: relative; overflow: hidden; box-shadow: 0 18px 32px rgba(51,0,14,.28), 0 4px 8px rgba(51,0,14,.16); }
+.sub-sign .now { font-size: 11px; font-weight: bold; letter-spacing: .16em; opacity: .8; }
+.sub-sign h1 { font-size: clamp(26px, 3.8vw, 46px); letter-spacing: -.02em; line-height: 1.05; margin: 6px 0 0; color: var(--on-cherry); }
+.sub-sign p { font-size: 14px; line-height: 1.6; max-width: 56ch; opacity: .95; margin: 8px 0 0; }
+.sub-body { background: var(--tint); padding: 20px 4vw 24px; }
+.sub-body .lbl { font-size: 11px; font-weight: bold; letter-spacing: .13em; color: var(--cherry); margin: 0 0 10px; }
+
+/* moves list sayfası */
+.mvsw { position: relative; display: inline-block; width: min(340px, 100%); }
+.mvsearch { width: 100%; font: 13px Arial, Helvetica, sans-serif; color: var(--ink); background: var(--card); border: none; border-radius: 9px; padding: 9px 38px 9px 11px; outline: none; box-shadow: var(--sh-1); }
+.mvsearch::placeholder { color: var(--ink-soft); opacity: .65; }
+.mvsw .tmag { position: absolute; right: 12px; top: 45%; transform: translateY(-50%); font-size: 13px; pointer-events: none; opacity: .75; }
+.libfilters { margin: 12px 0 4px; }
+.libfilters button { font: bold 12.5px Arial; background: var(--card); color: var(--cherry); border: none; border-radius: 9px; padding: 8px 13px; margin: 0 8px 8px 0; cursor: pointer; box-shadow: var(--sh-1); transition: background .15s, color .15s, transform .15s; }
+.libfilters button:hover { transform: translateY(-1px); }
+.libfilters button.on { background: var(--cherry); color: var(--on-cherry); }
+#allMoves .lib-cat { margin: 18px 0 6px; font-size: 15px; font-weight: bold; letter-spacing: -.01em; color: var(--cherry); }
+#allMoves .lib-cat small { font-weight: normal; font-size: 11.5px; color: var(--ink-soft); margin-left: 8px; }
+#allMoves .lib-grid { columns: 3; column-gap: 34px; }
+#allMoves .lib-mv { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; padding: 5px 2px; border-bottom: 1px solid var(--tint-2); font-size: 13.5px; break-inside: avoid; cursor: pointer; transition: background .12s; }
+#allMoves .lib-mv:hover { background: var(--tint-2); }
+#allMoves .lib-mv .hh { color: var(--tint-2); font-size: 14px; transition: color .12s, transform .12s; }
+#allMoves .lib-mv:hover .hh { transform: scale(1.2); }
+#allMoves .lib-mv.kept .hh { color: var(--cherry); }
+@media (max-width: 900px) { #allMoves .lib-grid { columns: 1; } }
+
+/* alt bilgi şeridi */
+.footstrip { display: flex; gap: 4vw; align-items: baseline; flex-wrap: wrap; padding: 18px 2px 6px; font-size: 13px; color: var(--ink-soft); }
+.footstrip .legal { margin-left: auto; font-size: 12px; }
+.footstrip a { color: var(--cherry); font-weight: bold; text-decoration: none; }
+
+/* eski sol-sidebar boslugu emekli: genis ekranda govde tam genislik */
+@media (min-width: 1100px) { body { padding-left: 52px !important; } }
+@media (min-width: 981px) and (max-width: 1099px) { body { padding-left: 52px !important; } }

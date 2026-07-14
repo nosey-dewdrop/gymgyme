@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>gymgyme moves list - 188 home moves, zero equipment</title>
+  <meta name="description" content="Every home training move gymgyme knows: 188 no-equipment moves across legs, core, back, chest, arms, glutes and shoulders. Like the ones you love and line them up for your next workout.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎀</text></svg>">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="css/marquee.css">
+  <link rel="canonical" href="https://gymgyme.damlahelloworld.com/moves.html">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="index.html">gymgyme</a>
+  <span class="searchwrap">
+    <input class="topsearch" id="topSearch" placeholder="search moves, categories...">
+    <span class="mag">🔍</span>
+    <div class="searchdrop" id="searchDrop"></div>
+  </span>
+  <nav>
+    <a href="coach.html">personal trainer</a>
+    <a href="moves.html">moves list</a>
+    <span class="mv-wrap">
+      <button id="movesBtn" type="button">my moves (0)</button>
+      <div class="moves-panel" id="movesPanel"></div>
+    </span>
+    <a href="index.html#my-program">my program</a>
+    <a href="suggest.html">suggest something!</a>
+  </nav>
+</header>
+
+<section class="sub-sign">
+  <div class="awning"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="now">THE MOVE LIBRARY · 188 ACTS · ZERO EQUIPMENT</div>
+  <h1>moves list 🤸 - every act this stage knows</h1>
+  <p>tap the ♥ on anything that looks like your kind of trouble - it lands in "my moves" up top and lines up for your next workout. the camera engine tracks 14 of these live today, and it is still in training.</p>
+  <div class="bulbs b-bot"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+</section>
+
+<section class="sub-body">
+  <span class="mvsw">
+    <input class="mvsearch" id="mvSearch" placeholder="search a move...">
+    <span class="tmag">🔍</span>
+  </span>
+  <div class="libfilters" id="libFilters"></div>
+  <div id="allMoves"></div>
+</section>
+
+<p class="footer">no ads, no tracking, no cookies, no money - just links and reps.<br>move data from the public-domain free-exercise-db.<br>built by <a href="https://github.com/damlahelloworld">damlahelloworld</a>.</p>
+
+<script src="data/moves-db.js"></script>
+<script src="js/topbar.js"></script>
+<script>
+(function () {
+  const QUIPS = { core: "the quiet boss", legs: "the foundation", glutes: "the show", shoulders: "hold them high", arms: "wave goodbye to noodle arms", back: "the unsung hero", chest: "you vs. the floor" };
+  const allMoves = document.getElementById("allMoves");
+  const searchEl = document.getElementById("mvSearch");
+  const libFilters = document.getElementById("libFilters");
+  let libCat = "all";
+  const total = Object.values(MOVE_DB).reduce((a, l) => a + l.length, 0);
+
+  function render() {
+    const filter = searchEl.value.trim().toLowerCase();
+    const kept = GG_MYMOVES.get();
+    allMoves.innerHTML = "";
+    Object.keys(MOVE_DB).forEach((cat) => {
+      if (libCat !== "all" && cat !== libCat) return;
+      const moves = MOVE_DB[cat].filter((m) => !filter || m.indexOf(filter) !== -1);
+      if (!moves.length) return;
+      const h = document.createElement("div");
+      h.className = "lib-cat";
+      h.innerHTML = cat + " (" + moves.length + ")<small>" + (QUIPS[cat] || "") + "</small>";
+      allMoves.appendChild(h);
+      const grid = document.createElement("div");
+      grid.className = "lib-grid";
+      moves.forEach((m) => {
+        const d = document.createElement("div");
+        d.className = "lib-mv" + (kept.indexOf(m) !== -1 ? " kept" : "");
+        const name = document.createElement("span"); name.textContent = m;
+        const hh = document.createElement("span"); hh.className = "hh"; hh.textContent = "♥";
+        d.append(name, hh);
+        d.addEventListener("click", () => GG_MYMOVES.toggle(m));
+        grid.appendChild(d);
+      });
+      allMoves.appendChild(grid);
+    });
+    if (!allMoves.children.length) {
+      const e = document.createElement("p");
+      e.className = "small";
+      e.textContent = "no move by that name yet - the stage is always auditioning, suggest it!";
+      allMoves.appendChild(e);
+    }
+  }
+
+  ["all"].concat(Object.keys(MOVE_DB)).forEach((cat) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.textContent = cat === "all" ? "all (" + total + ")" : cat + " (" + MOVE_DB[cat].length + ")";
+    if (cat === "all") b.classList.add("on");
+    b.addEventListener("click", () => {
+      libCat = cat;
+      libFilters.querySelectorAll("button").forEach((x) => x.classList.remove("on"));
+      b.classList.add("on");
+      render();
+    });
+    libFilters.appendChild(b);
+  });
+
+  // arama çubuğundan gelen derin bağlantı: moves.html?q=squat
+  const q = new URLSearchParams(location.search).get("q");
+  if (q) searchEl.value = q;
+  searchEl.addEventListener("input", render);
+  window.addEventListener("gg-mymoves-changed", render);
+  render();
+})();
+</script>
+</body>
+</html>

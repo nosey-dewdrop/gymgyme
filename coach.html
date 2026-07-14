@@ -9,6 +9,7 @@
   <meta name="description" content="A personal trainer that runs fully in your browser: it sees your body, reads your joint angles and counts your reps. The engine is c++ compiled to webassembly. The video never leaves your device; sign in and only your workout numbers are saved to your account.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎀</text></svg>">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="css/marquee.css">
   <link rel="stylesheet" href="css/coach.css">
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="theme-color" content="#FFBDD4">
@@ -22,25 +23,39 @@
 </head>
 <body class="coach">
 
-<aside class="sidebar">
+<header class="topbar">
   <a class="brand" href="index.html">gymgyme</a>
-  <nav class="sidenav">
-    <a class="navbig" href="coach.html">personal trainer</a>
-    <a class="navbig" href="index.html#my-program">my program</a>
-    <a class="navbig" href="index.html">the directory</a>
-    <a class="navbig" href="suggest.html">suggest something</a>
+  <span class="searchwrap">
+    <input class="topsearch" id="topSearch" placeholder="search moves, categories...">
+    <span class="mag">🔍</span>
+    <div class="searchdrop" id="searchDrop"></div>
+  </span>
+  <nav>
+    <a href="coach.html">personal trainer</a>
+    <a href="moves.html">moves list</a>
+    <span class="mv-wrap">
+      <button id="movesBtn" type="button">my moves (0)</button>
+      <div class="moves-panel" id="movesPanel"></div>
+    </span>
+    <a href="index.html#my-program">my program</a>
+    <a href="suggest.html">suggest something!</a>
   </nav>
-</aside>
+</header>
 
-<h1 class="pt-title">✨ personal trainer 🎀</h1>
-<p class="small">your camera watches you train, reads your joints and counts your reps. the engine is c++ (webassembly), it runs on your device. the video is never uploaded; sign in and only your workout numbers are saved to your account.</p>
+<section class="sub-sign backstage">
+  <div class="awning"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="now">BACKSTAGE · WHERE THE SHOW IS BUILT</div>
+  <h1>✨ personal trainer 🎀 - build tonight's set list</h1>
+  <p>line up your moves in order. the camera plays them one by one - counts each with a tick, rests you between sets, then calls the next act. the engine is c++ in your browser; the video never leaves your device.</p>
+  <div class="bulbs b-bot"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+</section>
 
 <div class="coach-main">
 <div class="setup">
 <div class="card" id="progCard">
-  <p class="card-title">build your workout</p>
-  <p class="prog-lead">line up the moves you'll do today, in order. the camera plays them one by one - counts each, rests you, then moves on.</p>
-  <div id="progList" class="prog-list"></div>
+  <p class="card-title">build tonight's set list</p>
+  <p class="prog-lead">tap a program and the receipt prints itself, or add moves one by one. your set list lives on the pink receipt - drag it anywhere, cross a line to cut it.</p>
+  <div class="preset-row" id="progPresets"></div>
   <div class="move-row">
     <label for="moveSel">add</label>
     <select id="moveSel">
@@ -138,6 +153,17 @@
 </div>
 </div><!-- /live -->
 </div><!-- /coach-main -->
+
+<div class="receipt" id="setReceipt" hidden>
+  <button class="rclose" id="rclose" type="button" aria-label="close the set list">×</button>
+  <div class="rhead"><b>GYMGYME</b><br>tonight's set list<br><span class="rdrag">drag me anywhere</span></div>
+  <div class="rrule"></div>
+  <div id="progList"></div>
+  <div class="rrule"></div>
+  <div class="rtotal"><span>TOTAL REPS</span><span id="rtot">0</span></div>
+  <p class="rnote">tap a line to cross it off. no refunds, only rest days.</p>
+</div>
+<button class="receipt-tab" id="rtab" type="button" hidden>🧾 your set list</button>
 
 <div class="coach-foot">
 <div class="history card" id="history" role="region" aria-label="your workouts" hidden>

@@ -69,26 +69,78 @@ function readPlanInputs() {
   return { move: moveSel.value, reps, sets };
 }
 function readRestInput() { return Math.max(0, Math.min(600, parseInt(planRest.value, 10) || 0)); }
+// program artık FİŞ: her satır kendini basar, satıra dokunmak keser (Damla:
+// seçilen program fiş gibi ekranda durur, sürüklenir, kapatılır).
+const receiptEl = $("setReceipt"), rtabEl = $("rtab"), rtotEl = $("rtot");
 function renderProgram() {
   progListEl.innerHTML = "";
+  receiptEl.hidden = false;
   if (!program.items.length) {
-    const e = document.createElement("div");
-    e.className = "prog-empty";
-    e.textContent = "no moves yet - pick one below and add it.";
+    const e = document.createElement("p");
+    e.className = "rempty";
+    e.textContent = "empty - pick moves on the sign above.";
     progListEl.appendChild(e);
-    return;
+  } else {
+    program.items.forEach((it, i) => {
+      const d = document.createElement("div");
+      d.className = "rline" + (running && i === progIdx ? " nowplaying" : "");
+      const name = document.createElement("span");
+      name.textContent = (i + 1) + ". " + moveLabel(it.move);
+      const dots = document.createElement("span");
+      dots.className = "dots"; dots.textContent = "................";
+      const plan = document.createElement("span");
+      plan.textContent = it.reps > 0 ? it.reps + "×" + it.sets : "free";
+      d.append(name, dots, plan);
+      d.title = "tap to cut this line";
+      d.onclick = () => {
+        if (running) return;                      // seans sırasında kuyruk sabit
+        program.items.splice(i, 1); saveProgram(); renderProgram();
+      };
+      progListEl.appendChild(d);
+      requestAnimationFrame(() => d.classList.add("printed"));
+    });
   }
-  program.items.forEach((it, i) => {
-    const d = document.createElement("div");
-    d.className = "prog-item";
-    d.textContent = (i + 1) + ". " + moveLabel(it.move) + " - " +
-      (it.reps > 0 ? it.reps + " reps × " + it.sets + " sets" : "free count");
-    const rm = document.createElement("button");
-    rm.type = "button"; rm.className = "mini"; rm.textContent = "remove";
-    rm.onclick = () => { program.items.splice(i, 1); saveProgram(); renderProgram(); };
-    d.append("  "); d.appendChild(rm);
-    progListEl.appendChild(d);
-  });
+  rtotEl.textContent = program.items.reduce((a, it) => a + (it.reps || 0) * (it.sets || 1), 0);
+}
+
+// fiş sürüklenir (pointer), × ile kapanır, köşedeki sekmeyle geri gelir.
+let rdrag = null;
+receiptEl.addEventListener("pointerdown", (e) => {
+  if (e.target.closest(".rline") || e.target.closest(".rclose")) return;
+  rdrag = { x: e.clientX, y: e.clientY, left: receiptEl.offsetLeft, top: receiptEl.offsetTop };
+  receiptEl.classList.add("dragging");
+  receiptEl.setPointerCapture(e.pointerId);
+});
+receiptEl.addEventListener("pointermove", (e) => {
+  if (!rdrag) return;
+  receiptEl.style.left = rdrag.left + e.clientX - rdrag.x + "px";
+  receiptEl.style.top = rdrag.top + e.clientY - rdrag.y + "px";
+  receiptEl.style.right = "auto";
+});
+receiptEl.addEventListener("pointerup", () => { rdrag = null; receiptEl.classList.remove("dragging"); });
+$("rclose").addEventListener("click", () => { receiptEl.hidden = true; rtabEl.hidden = false; });
+rtabEl.addEventListener("click", () => { receiptEl.hidden = false; rtabEl.hidden = true; });
+
+// hazır programlar: tek dokunuş, fiş komple basılır.
+const PRESETS = {
+  "honest beginner": ["squat", "kneelingpushup", "glutebridge", "situp"],
+  "leg day, no gym": ["squat", "sumosquat", "lunge", "sidelunge", "calfraise"],
+  "push day": ["pushup", "kneelingpushup", "press", "armraise"],
+  "quiet apartment set": ["squat", "glutebridge", "birddog", "situp"],
+  "wake the neighbors": ["jumpingjack", "squat", "pushup", "kickback"],
+};
+const presetRow = $("progPresets");
+if (presetRow) {
+  for (const [name, moves] of Object.entries(PRESETS)) {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "presetbtn"; b.textContent = name;
+    b.onclick = () => {
+      const { reps, sets } = readPlanInputs();
+      program.items = moves.map((m) => ({ move: m, reps: reps || 10, sets: sets || 3 }));
+      saveProgram(); renderProgram();
+    };
+    presetRow.appendChild(b);
+  }
 }
 
 // sıradaki hareketin planını motora ver (setPlan ilerlemeyi sıfırlar).
@@ -201,6 +253,7 @@ function loadItem(i) {
   repCountEl.textContent = "0"; halfNoteEl.textContent = ""; scoreLineEl.textContent = ""; msgEl.textContent = "";
   setLineEl.hidden = true; restEl.hidden = true;
   setStatus("move " + (i + 1) + " of " + program.items.length + ": " + moveLabel(it.move));
+  renderProgram();   // fişte sıradaki satır işaretlenir
 }
 
 // biten hareketten sıradakine: 5 sn "next up" arası, motor o sırada dinlenir.
@@ -281,6 +334,7 @@ function stop() {
   startWrap.hidden = true;
   introCard.hidden = false; progCard.hidden = false;
   setStatus("stopped. the camera is off.");
+  renderProgram();   // vurgu söner, satır kesme geri açılır
 }
 
 function sizeCanvas() {

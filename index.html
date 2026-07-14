@@ -10,6 +10,7 @@
   <meta property="og:description" content="Home workouts, pilates, ballet, yoga, gym, calisthenics, bodyweight. Everyone adds, everyone benefits. Free, no ads, forever.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎀</text></svg>">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="css/marquee.css">
   <link rel="canonical" href="https://gymgyme.damlahelloworld.com/">
   <meta property="og:url" content="https://gymgyme.damlahelloworld.com/">
   <script type="application/ld+json">
@@ -24,20 +25,63 @@
 </head>
 <body>
 
-<aside class="sidebar">
+<header class="topbar">
   <a class="brand" href="index.html">gymgyme</a>
-  <nav class="sidenav">
-    <a class="navbig" href="coach.html">personal trainer</a>
-    <a class="navbig" href="#my-program" id="nav-program">my program</a>
-    <a class="navbig" href="suggest.html">suggest something</a>
+  <span class="searchwrap">
+    <input class="topsearch" id="topSearch" placeholder="search moves, categories...">
+    <span class="mag">🔍</span>
+    <div class="searchdrop" id="searchDrop"></div>
+  </span>
+  <nav>
+    <a href="coach.html">personal trainer</a>
+    <a href="moves.html">moves list</a>
+    <span class="mv-wrap">
+      <button id="movesBtn" type="button">my moves (0)</button>
+      <div class="moves-panel" id="movesPanel"></div>
+    </span>
+    <a href="#my-program" id="nav-program">my program</a>
+    <a href="suggest.html">suggest something!</a>
   </nav>
-</aside>
+</header>
 
-<section class="hero">
-  <p class="hero-big">meet the <span class="nowrap">✨ personal trainer 🎀</span></p>
-  <p class="hero-line">stand in front of your camera: it counts your reps live on the screen (with a tick you can hear), scores every one out of 100 and calls out the ones that went too shallow.</p>
-  <a class="herobtn" href="coach.html">try it - open the camera</a>
-  <p class="hero-sub">free, no download, no upload - a c++ engine inside your browser. the video never leaves your device.</p>
+<section class="marquee">
+  <div class="bulbs b-top"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="awning"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="now">NOW SHOWING · EVERY NIGHT · YOUR LIVING ROOM · 🤸 NO EXPERIENCE REQUIRED</div>
+  <h1>✨ personal trainer 🎀 - starring you 🤸 counted live</h1>
+  <div class="mrow">
+    <p>your camera reads 33 points of your body, counts every rep with a tick, scores it out of 100 and fixes your form in 3d. filmed entirely on your device - the footage never leaves the theater.</p>
+    <div class="cast">
+      <span class="stamp">TESTED ON<br>HERSELF<br>★ DAILY ★</span>
+      <div class="shot"><img src="img/damla_5289_crop.jpg" alt="damla training in front of the engine"><em>the director</em></div>
+      <div class="shot"><img src="img/damla_5275.jpg" alt="damla building gymgyme"><em>damla - bilkent cs</em></div>
+      <div class="shot"><img src="img/damla_5263.jpg" alt="the engine tracking damla"><em>built the whole engine</em></div>
+    </div>
+  </div>
+  <a class="herobtn" href="coach.html">open the camera 📸 - no ticket needed</a>
+  <span class="stub">ADMIT ONE <i>+ her camera · seat: your living room · price: a few squats</i></span>
+  <span class="tw" style="left:6%;top:26%">✦</span>
+  <span class="tw" style="left:46%;bottom:18%">✦</span>
+  <span class="tw" style="right:8%;top:18%">✦</span>
+  <span class="tw" style="right:30%;bottom:30%">✦</span>
+  <div class="bulbs b-bot"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="bulbs b-left"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="bulbs b-right"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+</section>
+
+<section class="qa-band">
+  <p class="lbl">OKAY BUT HOW? · IN HUMAN WORDS</p>
+  <div class="qa-grid">
+    <div class="q"><b>is it chatgpt?</b><span>no. no llm, no api call, no server thinking for you - it's trigonometry running at camera speed. your joints make angles, angles make reps.</span></div>
+    <div class="q"><b>okay, not chatgpt - then how do you do it?</b><span>every move is a spec: which joint drives it, what angle counts as bottom, what counts as lockout, how fast a clean rep should travel. each frame the engine computes your joint angles from 3d coordinates, smooths the jitter, tracks which phase you're in and only counts the rep when the full cycle closes - with hysteresis, so half-hearted wobbles don't count twice.</span></div>
+    <div class="q"><b>then what sees me?</b><span>mediapipe's pose landmarker - an open, already-trained model running on your gpu, on your device. it returns 33 landmarks per frame (x, y, z + visibility), including metric 3d world coordinates, so angles stay honest even when you turn toward the camera.</span></div>
+    <div class="q"><b>does it use my photos to train your model?</b><span>no. each frame goes from your camera to the pose model, lands as a float buffer in wasm memory, gets its math done and is thrown away. nothing is stored, nothing is sent, nothing learns from you - there is no training pipeline to feed you into even if i wanted one.</span></div>
+    <div class="q"><b>then how did you train it?</b><span>i didn't train - i engineered. the pose model came pre-trained; on top of it sits my own hand-written engine: angle thresholds, phase state machines and scoring curves per move, unit-tested in native c++ (92 tests) and calibrated move by move on the person in the photos up there.</span></div>
+    <div class="q"><b>who counts?</b><span>my own engine, written in c++ and compiled to webassembly. landmarks are written straight into the wasm heap once per frame and passed by pointer - one boundary call per frame, so it keeps up with your camera instead of your patience.</span></div>
+    <div class="q"><b>why doesn't it upload?</b><span>there's no upload code in the entire codebase - the math happens in your browser's sandbox. the strictest privacy policy is the one physics enforces.</span></div>
+    <div class="q"><b>the score?</b><span>every rep gets graded 0-100 from three signals: depth (how far you actually went), tempo (how long the rep took vs. the spec) and control (how steady the angle curve was). honest, never mean.</span></div>
+    <div class="q"><b>so why is it free?</b><span>that's exactly why. no llm api, no gpu cluster, no server bill - i don't have to pay for anything, so you don't have to pay for me.</span></div>
+  </div>
 </section>
 
 <div id="greet" class="greet"></div>
@@ -64,6 +108,8 @@
 
 <p class="footer">no ads, no tracking, no cookies, no money - just links.<br>we store only what you see on this page.<br>built by <a href="https://github.com/damlahelloworld">damlahelloworld</a>.</p>
 
+<script src="data/moves-db.js"></script>
+<script src="js/topbar.js"></script>
 <script src="seed.js"></script>
 <script src="script.js"></script>
 </body>

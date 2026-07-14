@@ -290,3 +290,12 @@ Her aşama tek başına çekilebilir gerçek bir adım — biri bitince küçük
 - **18 · Yayına aç** — menüye ekle, ilk kullanım onboarding'i, gizlilik/consent metni (cihazda çalışır, kayıt yok — KVKK temiz). Artık herkese açık.
 
 Büyük ve çok oturumluk iş — acele yok. Bittiğinde gymgyme "linklere bak"tan "seni izleyip çalıştıran koç"a dönüşmüş olacak: aynı site, bambaşka bir kalp.
+
+## the night the site became a cinema (jul 14)
+hook: "i redesigned my whole fitness site as a movie theater marquee - in one night, live with the founder yelling at every draft."
+- 24 mockup iterations in one sitting: receipts, sticker sheets, night gyms, playlists, word walls - all rejected or mined for parts
+- the winner: a cherry marquee sign with blinking bulbs, scalloped awning, ticket stubs and a "TESTED ON HERSELF DAILY" stamp
+- the set list is now a RECEIPT: tilted, draggable, closable, prints itself line by line
+- new moves.html: 188 no-equipment moves (public-domain free-exercise-db), muscle filters, hearts that feed "my moves"
+- global search bar that shows results and waits for YOUR click (strava energy)
+- the whole faq rewritten techy-but-human: "is it chatgpt? no - it's trigonometry running at camera speed."
