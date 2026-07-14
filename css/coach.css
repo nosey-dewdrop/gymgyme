@@ -204,7 +204,7 @@ body.running #intro, body.running #progCard { display: none; }
 .pickband .plbl-gap { margin-top: 10px; }
 .pickband button { font: bold 13px Arial, Helvetica, sans-serif; background: var(--cherry-deep); color: var(--on-cherry); border: none; border-radius: 10px; padding: 9px 14px; margin: 0 8px 8px 0; cursor: pointer; transition: transform .15s, background .15s, color .15s; }
 .pickband button:hover { background: var(--on-cherry); color: var(--cherry); transform: translateY(-1px); }
-.pickband button.plchip { outline: 2px dashed var(--on-cherry); outline-offset: -2px; }  /* senin playlistlerin */
+/* playlist chipleri preset chiplerle ayni gorunur (Damla: ayri cerceve gerek yok) */
 .tsw { position: relative; display: inline-block; width: min(360px, 100%); }
 .tsw input { width: 100%; font: 13.5px Arial, Helvetica, sans-serif; color: var(--ink); background: var(--on-cherry); border: none; border-radius: 10px; padding: 10px 38px 10px 14px; outline: none; }
 .tsw input::placeholder { color: var(--ink-soft); opacity: .7; }

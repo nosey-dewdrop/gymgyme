@@ -149,3 +149,6 @@
 .hist .lbl { font-size: 11px; font-weight: bold; letter-spacing: .13em; color: var(--cherry); margin-bottom: 10px; }
 .hist .h { display: flex; justify-content: space-between; gap: 14px; padding: 8px 2px; border-bottom: 1px solid var(--tint-2); font-size: 13.5px; }
 .hist .h small { color: var(--ink-soft); }
+
+/* bilet gisesi: form ortada (mockup dili) */
+.office { max-width: 560px; margin: 0 auto; }

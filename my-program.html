@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>gymgyme my program - your residency calendar</title>
+  <meta name="description" content="Your residency at gymgyme: a night lights up when the trainer sees you finish a session. The calendar keeps itself - no diary homework.">
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="css/marquee.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="index.html">gymgyme</a>
+  <span class="searchwrap">
+    <input class="topsearch" id="topSearch" placeholder="search moves, categories...">
+    <span class="mag">🔍</span>
+    <div class="searchdrop" id="searchDrop"></div>
+  </span>
+  <nav>
+    <a href="coach.html">personal trainer</a>
+    <a href="moves.html">moves list</a>
+    <a href="my-moves.html" id="movesBtn">my moves (0)</a>
+    <a href="my-program.html">my program</a>
+    <a href="suggest.html">suggest something!</a>
+  </nav>
+</header>
+
+<section class="sub-sign">
+  <div class="awning"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="now">THE BOOKING CALENDAR · YOUR RESIDENCY</div>
+  <h1>my program - you, live, several nights a week 🤸</h1>
+  <span class="stub">SEASON PASS <i>holder: you · valid: forever · transfers: never</i></span>
+  <p>a night lights up when the trainer sees you finish. no diary homework - the calendar keeps itself.</p>
+  <div class="bulbs b-bot"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+</section>
+
+<section class="sub-body">
+  <div class="mcal">
+    <div class="calhead">
+      <button class="calnav" id="wPrev" type="button">‹</button>
+      <b id="wLabel">this month</b>
+      <button class="calnav" id="wNext" type="button">›</button>
+    </div>
+    <small class="caltotals" id="wTotals"></small>
+    <div class="dow"><span>m</span><span>t</span><span>w</span><span>t</span><span>f</span><span>s</span><span>s</span></div>
+    <div class="monthwall" id="weekWall"></div>
+  </div>
+  <div class="hist">
+    <div class="lbl">PAST PERFORMANCES</div>
+    <div id="histRows"></div>
+  </div>
+</section>
+
+<p class="footer">no ads, no tracking, no cookies, no money - just links and reps.<br>built by <a href="https://github.com/nosey-dewdrop">nosey-dewdrop</a>.</p>
+
+<script src="data/moves-db.js"></script>
+<script src="js/topbar.js"></script>
+<script>
+(function () {
+  // rezidans takvimi: hl_days = trainer'in yaktigi geceler, hl_coach_sessions = gosteriler.
+  const getDays = () => { try { return JSON.parse(localStorage.getItem("hl_days")) || []; } catch (_) { return []; } };
+  const getSessions = () => { try { return JSON.parse(localStorage.getItem("hl_coach_sessions")) || []; } catch (_) { return []; } };
+
+  const MONTH_NAMES = ["january","february","march","april","may","june","july","august","september","october","november","december"];
+  const now = new Date();
+  const curIdx = now.getFullYear() * 12 + now.getMonth();
+  let minIdx = curIdx;
+  for (const d of getDays()) {
+    const dt = new Date(d + "T12:00:00");
+    if (!isNaN(dt)) minIdx = Math.min(minIdx, dt.getFullYear() * 12 + dt.getMonth());
+  }
+  let mIdx = curIdx;
+
+  const wall = document.getElementById("weekWall");
+  const label = document.getElementById("wLabel");
+  const totals = document.getElementById("wTotals");
+  const prev = document.getElementById("wPrev");
+  const next = document.getElementById("wNext");
+
+  function isoToday() {
+    const d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+
+  function render() {
+    const days = getDays();
+    const sessions = getSessions();
+    const byDate = {};
+    for (const s of sessions) if (s && s.date) (byDate[s.date] = byDate[s.date] || []).push(s);
+
+    const y = Math.floor(mIdx / 12), mo = mIdx % 12;
+    label.textContent = MONTH_NAMES[mo] + " " + y;
+    const iso = (d) => y + "-" + String(mo + 1).padStart(2, "0") + "-" + String(d).padStart(2, "0");
+    const dim = new Date(y, mo + 1, 0).getDate();
+
+    let lit = 0, reps = 0;
+    for (let d = 1; d <= dim; d++) {
+      if (days.includes(iso(d))) {
+        lit++;
+        for (const s of byDate[iso(d)] || []) reps += (s.reps || 0);
+      }
+    }
+    totals.textContent = lit
+      ? lit + (lit === 1 ? " night" : " nights") + " on stage this month" + (reps ? " · " + reps + " reps" : "")
+      : "no shows this month yet - the stage is patient.";
+
+    wall.innerHTML = "";
+    const firstDow = (new Date(y, mo, 1).getDay() + 6) % 7;
+    for (let b = 0; b < firstDow; b++) {
+      const blank = document.createElement("div");
+      blank.className = "d blank";
+      wall.appendChild(blank);
+    }
+    const today = isoToday();
+    for (let d = 1; d <= dim; d++) {
+      const cell = document.createElement("div");
+      cell.className = "d";
+      const num = document.createElement("span");
+      num.textContent = d;
+      cell.appendChild(num);
+      if (days.includes(iso(d))) {
+        cell.classList.add("lit");
+        const acts = (byDate[iso(d)] || []).map((s) => s.move).filter(Boolean);
+        if (acts.length) {
+          const sm = document.createElement("small");
+          sm.textContent = [...new Set(acts)].slice(0, 2).join(", ");
+          cell.appendChild(sm);
+        }
+      }
+      if (iso(d) === today) cell.classList.add("today");
+      wall.appendChild(cell);
+    }
+    prev.disabled = mIdx <= minIdx;
+    next.disabled = mIdx >= curIdx;
+
+    const hist = document.getElementById("histRows");
+    hist.innerHTML = "";
+    const past = sessions.slice(-10).reverse();
+    if (!past.length) {
+      const e = document.createElement("p");
+      e.className = "loading";
+      e.innerHTML = 'no performances yet - build a set list on the <a href="coach.html" style="color:var(--cherry);font-weight:bold">personal trainer</a> and the reviews write themselves.';
+      hist.appendChild(e);
+    }
+    const fmt = (isoD) => {
+      const dt = new Date(isoD + "T12:00:00");
+      return isNaN(dt) ? isoD : ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"][dt.getMonth()] + " " + dt.getDate();
+    };
+    for (const sN of past) {
+      const h = document.createElement("div");
+      h.className = "h";
+      const left = document.createElement("span");
+      const setsTxt = sN.sets > 0 ? " in " + sN.sets + " sets" : "";
+      left.textContent = fmt(sN.date) + " · " + (sN.move || "workout") + " · " + (sN.reps || 0) + " reps" + setsTxt;
+      const right = document.createElement("small");
+      let crit = "the show went on";
+      if (sN.avg >= 90) crit = "the critics loved it";
+      else if (sN.avg >= 75) crit = "strong second act";
+      right.textContent = sN.avg > 0 ? "avg " + sN.avg + " - " + crit : "no score";
+      h.append(left, right);
+      hist.appendChild(h);
+    }
+  }
+
+  prev.addEventListener("click", () => { if (mIdx > minIdx) { mIdx--; render(); } });
+  next.addEventListener("click", () => { if (mIdx < curIdx) { mIdx++; render(); } });
+  render();
+  window.addEventListener("storage", render);
+})();
+</script>
+<script>
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+</script>
+</body>
+</html>
