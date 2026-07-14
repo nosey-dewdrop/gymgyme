@@ -40,6 +40,7 @@ struct JsReading {
   std::string message;
   bool calibrating;
   double calibProgress;
+  int pickedPose;   // Faz 2: çok kişili karede motorun seçtiği pozun indeksi
 };
 
 // Aşama 14: seans özeti (düz nesne).
@@ -111,6 +112,7 @@ static JsReading toJs(const coach::Reading& r) {
   j.message = r.message;
   j.calibrating = r.calibrating;
   j.calibProgress = r.calibProgress;
+  j.pickedPose = r.pickedPose;
   return j;
 }
 
@@ -151,8 +153,42 @@ class WebEngine {
     std::vector<coach::Landmark> pts = readBuf(ptr, count);
     std::vector<coach::Landmark> wpts;
     if (worldPtr && worldCount) wpts = readBuf(worldPtr, worldCount);
-    return toJs(engine_.update(pts, wpts, tMs));
+    JsReading j = toJs(engine_.update(pts, wpts, tMs));
+    fillSmooth();
+    return j;
   }
+
+  // ── Faz 2: çok kişili kare. Buffer'da poseCount adet ardışık 33'lük blok;
+  // motor izlediği vücudu kendisi seçer (Reading.pickedPose). worldPoseCount
+  // 0 olabilir (dünya verisi yoksa). ──
+  JsReading updateMultiPtr(std::uintptr_t ptr, unsigned floatsPerPose, unsigned poseCount,
+                           std::uintptr_t worldPtr, unsigned worldFloatsPerPose,
+                           unsigned worldPoseCount, double tMs) {
+    auto readPose = [](std::uintptr_t bp, unsigned floats, unsigned idx) {
+      const float* buf = reinterpret_cast<const float*>(bp) + (size_t)idx * floats;
+      unsigned n = floats / 4;
+      std::vector<coach::Landmark> pts(n);
+      for (unsigned i = 0; i < n; i++) {
+        pts[i].x = buf[i * 4];
+        pts[i].y = buf[i * 4 + 1];
+        pts[i].z = buf[i * 4 + 2];
+        pts[i].visibility = buf[i * 4 + 3];
+      }
+      return pts;
+    };
+    std::vector<std::vector<coach::Landmark>> screens, worlds;
+    for (unsigned i = 0; i < poseCount; i++) screens.push_back(readPose(ptr, floatsPerPose, i));
+    if (worldPtr)
+      for (unsigned i = 0; i < worldPoseCount; i++) worlds.push_back(readPose(worldPtr, worldFloatsPerPose, i));
+    JsReading j = toJs(engine_.updateBest(screens, worlds, tMs));
+    fillSmooth();
+    return j;
+  }
+
+  // Faz 2: çizim iskeleti buffer'ı — motorun yumuşatılmış ekran pozu (33×4 float).
+  // Her update sonrası tazelenir; smoothPoseOk() false ise bu karede yok (ham çiz).
+  std::uintptr_t smoothPosePtr() const { return reinterpret_cast<std::uintptr_t>(smoothBuf_); }
+  bool smoothPoseOk() const { return smoothOk_; }
 
   // yedek yol: JS dizisini eleman eleman oku.
   JsReading update(val landmarks, double tMs) {
@@ -169,7 +205,21 @@ class WebEngine {
   }
 
  private:
+  void fillSmooth() {
+    const std::vector<coach::Landmark>& s = engine_.smoothScreen();
+    smoothOk_ = s.size() == 33;
+    if (!smoothOk_) return;
+    for (int i = 0; i < 33; i++) {
+      smoothBuf_[i * 4]     = (float)s[i].x;
+      smoothBuf_[i * 4 + 1] = (float)s[i].y;
+      smoothBuf_[i * 4 + 2] = (float)s[i].z;
+      smoothBuf_[i * 4 + 3] = (float)s[i].visibility;
+    }
+  }
+
   coach::Engine engine_;
+  float smoothBuf_[33 * 4] = {};
+  bool smoothOk_ = false;
 };
 
 EMSCRIPTEN_BINDINGS(coach) {
@@ -208,7 +258,8 @@ EMSCRIPTEN_BINDINGS(coach) {
       .field("workoutComplete", &JsReading::workoutComplete)
       .field("message", &JsReading::message)
       .field("calibrating", &JsReading::calibrating)
-      .field("calibProgress", &JsReading::calibProgress);
+      .field("calibProgress", &JsReading::calibProgress)
+      .field("pickedPose", &JsReading::pickedPose);
 
   value_object<JsSummary>("Summary")
       .field("reps", &JsSummary::reps)
@@ -230,5 +281,8 @@ EMSCRIPTEN_BINDINGS(coach) {
       .function("setCalibration", &WebEngine::setCalibration)
       .function("summary", &WebEngine::summary)
       .function("updatePtr", &WebEngine::updatePtr)
+      .function("updateMultiPtr", &WebEngine::updateMultiPtr)
+      .function("smoothPosePtr", &WebEngine::smoothPosePtr)
+      .function("smoothPoseOk", &WebEngine::smoothPoseOk)
       .function("update", &WebEngine::update);
 }

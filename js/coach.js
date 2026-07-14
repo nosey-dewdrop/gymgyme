@@ -234,7 +234,7 @@ async function loadPose() {
       delegate: "GPU"
     },
     runningMode: "VIDEO",
-    numPoses: 1
+    numPoses: 2   // Faz 2: kadraja ikinci kişi girerse motor KİMİ izleyeceğini kendi seçer
   });
   drawer = new DrawingUtils(ctx);
 }
@@ -246,8 +246,8 @@ async function loadEngine() {
     motorMod = await createMotor();
     engine = new motorMod.Engine(moveSel.value);
     engine.setCalibration(true);   // önce vücudu öğren, sonra ona kilitlen
-    bufPtr = motorMod._malloc(FLOATS * 4);        // 4 byte/float
-    worldBufPtr = motorMod._malloc(FLOATS * 4);
+    bufPtr = motorMod._malloc(2 * FLOATS * 4);        // 4 byte/float, 2 poz (Faz 2)
+    worldBufPtr = motorMod._malloc(2 * FLOATS * 4);
     buildAngleRows();
     readEl.hidden = false;
   } catch (e) {
@@ -693,45 +693,68 @@ function loop() {
 
     let skeletonColor = "#33000E";
     if (result && result.landmarks && result.landmarks.length) {
-      const lm = result.landmarks[0];
+      let drawLm = result.landmarks[0];   // motor yoksa ham ilk poz çizilir
 
       if (engine && !switching) {
-        // landmark'ları wasm heap'ine yaz (x aspect ile ölçekli ki açı bozulmasın),
-        // sonra motora pointer geç. HEAPF32'yi her kare tazeliyoruz (bellek büyürse
-        // eski görünüm geçersiz olabilir). İkinci buffer: MediaPipe'ın DÜNYA
-        // koordinatları (metrik 3B) — motor açıları onlardan ölçer, kameraya
-        // dönük bükülmeler kaybolmaz.
+        // Faz 2: TÜM pozları (en fazla 2) heap'e ardışık bloklar halinde yaz;
+        // motor izlediği vücudu kendi seçer (kalibre oran + son kare benzerliği) —
+        // kadraja giren ikinci kişi iskeleti çalamaz. x aspect ile ölçekli ki açı
+        // bozulmasın. İkinci buffer: MediaPipe DÜNYA koordinatları (metrik 3B).
         const heap = motorMod.HEAPF32;
-        const base = bufPtr >> 2;
-        const count = Math.min(lm.length, LM);
-        for (let i = 0; i < count; i++) {
-          const p = lm[i];
-          heap[base + i * 4]     = p.x * aspect;
-          heap[base + i * 4 + 1] = p.y;
-          heap[base + i * 4 + 2] = 0;
-          heap[base + i * 4 + 3] = p.visibility ?? 1;
-        }
-        const wl = result.worldLandmarks && result.worldLandmarks[0];
-        let wcount = 0;
-        if (wl) {
-          const wbase = worldBufPtr >> 2;
-          wcount = Math.min(wl.length, LM);
-          for (let i = 0; i < wcount; i++) {
-            const p = wl[i];
-            heap[wbase + i * 4]     = p.x;
-            heap[wbase + i * 4 + 1] = p.y;
-            heap[wbase + i * 4 + 2] = p.z ?? 0;
-            heap[wbase + i * 4 + 3] = p.visibility ?? 1;
+        const n = Math.min(result.landmarks.length, 2);
+        for (let pIdx = 0; pIdx < n; pIdx++) {
+          const lm = result.landmarks[pIdx];
+          const base = (bufPtr >> 2) + pIdx * FLOATS;
+          for (let i = 0; i < LM; i++) {
+            const p = lm[i];
+            heap[base + i * 4]     = p ? p.x * aspect : 0;
+            heap[base + i * 4 + 1] = p ? p.y : 0;
+            heap[base + i * 4 + 2] = 0;
+            heap[base + i * 4 + 3] = p ? (p.visibility ?? 1) : 0;
           }
         }
-        if (recLines) recFrame(performance.now(), lm, wl);
-        const r = engine.updatePtr(bufPtr, count * 4, worldBufPtr, wcount * 4, performance.now());
+        let wn = 0;
+        if (result.worldLandmarks && result.worldLandmarks.length) {
+          wn = Math.min(result.worldLandmarks.length, n);
+          for (let pIdx = 0; pIdx < wn; pIdx++) {
+            const wl = result.worldLandmarks[pIdx];
+            const wbase = (worldBufPtr >> 2) + pIdx * FLOATS;
+            for (let i = 0; i < LM; i++) {
+              const p = wl[i];
+              heap[wbase + i * 4]     = p ? p.x : 0;
+              heap[wbase + i * 4 + 1] = p ? p.y : 0;
+              heap[wbase + i * 4 + 2] = p ? (p.z ?? 0) : 0;
+              heap[wbase + i * 4 + 3] = p ? (p.visibility ?? 1) : 0;
+            }
+          }
+        }
+        const r = engine.updateMultiPtr(bufPtr, FLOATS, n, worldBufPtr, FLOATS, wn, performance.now());
+        const picked = Math.min(r.pickedPose || 0, result.landmarks.length - 1);
+        drawLm = result.landmarks[picked];
+        if (recLines) recFrame(performance.now(), drawLm,
+          result.worldLandmarks && result.worldLandmarks[picked]);
         if (r.tracking) skeletonColor = r.phase === "bottom" ? "#A61B42" : "#33000E";
+        // Faz 2: ekrana ham dedektör değil motorun YUMUŞATILMIŞ iskeleti çizilir
+        // (nokta başına one euro; x motor tarafında aspect ölçekliydi, geri böl).
+        if (r.tracking && engine.smoothPoseOk()) {
+          const sbase = engine.smoothPosePtr() >> 2;
+          const smoothHeap = motorMod.HEAPF32;   // heap update sonrası büyümüş olabilir
+          const sm = new Array(LM);
+          for (let i = 0; i < LM; i++) {
+            sm[i] = {
+              x: smoothHeap[sbase + i * 4] / aspect,
+              y: smoothHeap[sbase + i * 4 + 1],
+              z: 0,
+              visibility: smoothHeap[sbase + i * 4 + 3],
+            };
+          }
+          drawLm = sm;
+        }
         render(r);
       }
 
-      drawer.drawConnectors(lm, PoseLandmarker.POSE_CONNECTIONS, { color: skeletonColor, lineWidth: 4 });
-      drawer.drawLandmarks(lm, { color: "#FFFFFF", fillColor: skeletonColor, radius: 5, lineWidth: 2 });
+      drawer.drawConnectors(drawLm, PoseLandmarker.POSE_CONNECTIONS, { color: skeletonColor, lineWidth: 4 });
+      drawer.drawLandmarks(drawLm, { color: "#FFFFFF", fillColor: skeletonColor, radius: 5, lineWidth: 2 });
     }
 
     frames++;
