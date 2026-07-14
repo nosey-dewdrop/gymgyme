@@ -295,7 +295,11 @@ let meshFrame = 0;                                  // yüz/el her 2 karede bir 
 let frames = 0, fps = 0, fpsClock = 0;
 let angleRows = null;          // textContent ile güncellenen satırlar
 
-const setStatus = (m) => { statusEl.textContent = m; };
+const stageStatusEl = $("stageStatus");
+const setStatus = (m) => {
+  statusEl.textContent = m;
+  if (stageStatusEl) stageStatusEl.textContent = m;   // sahne kutusu da konuşur
+};
 
 // gören model: MediaPipe pose (kendisi de c++/wasm, gpu'da, cihazda).
 let visionFileset = null;
@@ -453,9 +457,15 @@ function advanceMove() {
 }
 
 async function start() {
-  // kurulum çekilir, kamera sahnesi açılır (video ortada kocaman gelir)
+  // kurulum çekilir; sahne kutusu GİZLENMEZ, ısınma moduna geçer (15 tem dersi:
+  // modeller inerken ekran ölü görünüyordu, "açılmıyor" hissi veriyordu).
   introCard.hidden = true; progCard.hidden = true; consentEl.hidden = true;
-  if (camstageEl) camstageEl.hidden = true;
+  if (camstageEl) {
+    camstageEl.hidden = false;
+    camstageEl.classList.add("warming");
+    const b = camstageEl.querySelector("b");
+    if (b) b.textContent = "warming up the stage...";
+  }
   startWrap.hidden = false;
   try {
     if (!poseLandmarker) await loadPose();
@@ -470,6 +480,7 @@ async function start() {
     });
     video.srcObject = stream;
     await video.play();
+    if (camstageEl) { camstageEl.hidden = true; camstageEl.classList.remove("warming"); }
     stage.hidden = false;
     privateNote.hidden = false;
     stopBtn.hidden = false;
@@ -487,7 +498,12 @@ async function start() {
     document.body.classList.remove("running");
     startWrap.hidden = true;
     introCard.hidden = false; progCard.hidden = false;   // kurulum geri gelsin, tekrar denesin
-    if (camstageEl) camstageEl.hidden = false;
+    if (camstageEl) {
+      camstageEl.hidden = false;
+      camstageEl.classList.remove("warming");
+      const b = camstageEl.querySelector("b");
+      if (b) b.textContent = "that did not work - tap to try again";
+    }
   }
 }
 
@@ -519,7 +535,12 @@ function stop() {
   // kurulum geri gelsin: özet üstte, altında yeni workout kurabilir
   startWrap.hidden = true;
   introCard.hidden = false; progCard.hidden = false;
-  if (camstageEl) camstageEl.hidden = false;
+  if (camstageEl) {
+    camstageEl.hidden = false;
+    camstageEl.classList.remove("warming");
+    const b = camstageEl.querySelector("b");
+    if (b) b.textContent = "the stage goes here";
+  }
   setStatus("stopped. the camera is off.");
   renderProgram();   // vurgu söner, satır kesme geri açılır
 }

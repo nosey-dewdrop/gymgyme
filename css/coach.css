@@ -230,3 +230,9 @@ body.running #intro, body.running #progCard { display: none; }
    dropdown'i kirpiyordu (tente kendi overflow'unu zaten kendisi kirpar) */
 .sub-sign.backstage { overflow: visible; }
 .tsuggest { z-index: 40; }
+
+/* sahne kutusundaki canli durum: yuklenirken olu gorunmesin, hata da BURADA konussun */
+.camstage .stagestatus { font-size: 13px; min-height: 18px; max-width: 85%; opacity: .95; }
+.camstage.warming .stagestart { display: none; }
+.camstage.warming .cam { animation: ggspin 1.6s linear infinite; display: inline-block; }
+@keyframes ggspin { to { transform: rotate(360deg); } }
