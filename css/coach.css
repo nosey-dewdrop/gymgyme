@@ -225,3 +225,8 @@ body.running #intro, body.running #progCard { display: none; }
 .stagefloor .stage, .stagefloor .card, .stagefloor #startWrap, .stagefloor .status { margin-left: auto; margin-right: auto; }
 .stagefloor .stage { max-width: min(720px, 86%); }
 .stagefloor #startWrap, .stagefloor .status { max-width: min(720px, 86%); text-align: center; }
+
+/* arama onerileri tabelanin disina tasabilsin - sub-sign'in overflow:hidden'i
+   dropdown'i kirpiyordu (tente kendi overflow'unu zaten kendisi kirpar) */
+.sub-sign.backstage { overflow: visible; }
+.tsuggest { z-index: 40; }
