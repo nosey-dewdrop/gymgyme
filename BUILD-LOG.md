@@ -327,3 +327,11 @@ hook: "my fitness AI is now as loyal as a DJI drone - it locks on YOU and refuse
 - if only strangers are in the frame the engine waits for you instead of coaching them: "i only coach the body i learned"
 - benchmark: stranger-alone window, naive path coaches them for 420 frames; hard lock: 0 frames, 8/8 reps, tracking resumes the moment you step back in
 - 106 native tests, sw v17
+
+## the coach talks back now (jul 15, small hours)
+hook: "my AI trainer doesn't just count anymore - after every rep it tells you what it thought of it"
+- phase 3 layer 1: after each rep the engine writes a SENTENCE from the numbers it already measured - "textbook - deep and controlled", "counted - sink deeper next time", "you dropped into it - own the way down"
+- priority order is a coach's: form first, depth second, tempo third
+- the teleport gate became exercise-aware: the speed ceiling now derives from each move's own physics (a squat physically can't sweep 90° in one frame, a jumping jack can) - the engine assumes squat physics DURING a squat. first brick of the exercise-prior solver.
+- funny honest moment: the comment engine called my own test rep "a bit rushed" - and it was right, the test was too fast. fixed the test, not the engine.
+- 112 native tests, sw v18. also told github linguist that mediapipe's 5 MB bundle is not my code - the repo now shows what it really is: a C++ engine

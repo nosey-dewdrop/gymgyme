@@ -717,10 +717,15 @@ Reading Engine::update(const std::vector<Landmark>& p,
   // ── Aşama 4: yumuşatma + ince takip: tek karelik dev sıçrama (iskeletin
   // eşyaya/başkasına ışınlanması) yutulur; iki kare sürerse gerçek kabul edilir.
   // Filtre varsayılanı One Euro (açı uzayında, hıza uyarlı); EMA yolu ölçüm
-  // karşılaştırması için duruyor. Eşik zaman-farkında: 700°/sn üstü insan değil
-  // (fizyolojik tavan); 30fps'te ~23° ama tabanı 25° — eski 50°/kare sabiti
-  // düşük fps'te ışınlanmaları kaçırıyordu. ──
-  const bool spike = haveSmooth_ && std::fabs(raw - smooth_) > std::max(25.0, 700.0 * dtSec);
+  // karşılaştırması için duruyor. ──
+  // ── Faz 3 katman 1: EGZERSİZ-ÖNSELLİ hız tavanı. Genel bir sabit yerine
+  // eşik hareketin KENDİ fiziğinden türer: tam tekrar range dereceyi en hızlı
+  // goodRepSecMin'de tarar → sinüs tepe hızı π·range/T, ×3 güvenlik payı.
+  // Squat ~300°/sn'e kilitlenir (sıkı), jumping jack ~1500'e kadar serbest —
+  // motor squat sırasında squat'ın fiziğini varsayar. ──
+  const double rangeDeg = std::max(10.0, spec_.topAngle - spec_.bottomAngle);
+  const double maxVel = std::min(1500.0, std::max(300.0, 3.0 * M_PI * rangeDeg / spec_.goodRepSecMin));
+  const bool spike = haveSmooth_ && std::fabs(raw - smooth_) > std::max(25.0, maxVel * dtSec);
   if (spike && !spikeHold_) {
     spikeHold_ = true;                 // bu kareyi yut: yumuşatılmış açı yerinde kalır
   } else {
@@ -844,6 +849,24 @@ Reading Engine::update(const std::vector<Landmark>& p,
       lastFormIssues_ = __builtin_popcount(violMask_);
       lastScore_ = std::max(0, lastScore_ - 12 * lastFormIssues_);
       violMask_ = 0;
+      // ── Faz 3 katman 1: tekrar yorumu. Koç sayıyı söylemez, CÜMLE kurar —
+      // öncelik sırası: en çok neyi düzeltmesi gerekiyorsa onu duyar. ──
+      if (depthS >= 0.92 && tempoS >= 0.9 && controlS >= 0.85 && lastFormIssues_ == 0)
+        r.repComment = "textbook - deep and controlled";
+      else if (lastFormIssues_ > 0)
+        r.repComment = "counted - but fix your form first";
+      else if (depthS < 0.75)
+        r.repComment = "counted - sink deeper next time";
+      else if (durSec < spec_.goodRepSecMin)
+        r.repComment = "a bit rushed - slow it down";
+      else if (controlS < 0.6)
+        r.repComment = "you dropped into it - own the way down";
+      else if (durSec > spec_.goodRepSecMax)
+        r.repComment = "you stalled in there - keep it flowing";
+      else if (lastScore_ >= 85)
+        r.repComment = "clean rep";
+      else
+        r.repComment = "solid - tighten it up";
       lastRepSec_ = durSec;
       scoreSum_ += lastScore_;
       if (lastScore_ > bestScore_) bestScore_ = lastScore_;   // Aşama 14

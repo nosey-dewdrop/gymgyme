@@ -95,6 +95,8 @@ body.running #intro, body.running #progCard { display: none; }
 .half-note { font-size: 12px; color: #7a0a24; min-height: 16px; margin-bottom: 2px; }
 .score-line { font-size: 13px; min-height: 18px; margin-bottom: 6px; }
 .score-line .big { font-weight: bold; color: #A61B42; }
+/* faz 3: motorun tekrar yorumu - koc cumlesi, tekrar sayilinca ~4 sn gorunur */
+.rep-comment { font-size: 15px; color: #33000E; min-height: 20px; margin-bottom: 4px; }
 
 /* set ilerlemesi - sayaç üstünde küçük bir satır */
 .set-line { font-size: 13px; font-weight: bold; color: #7a0a24; margin: 2px 0 4px; }

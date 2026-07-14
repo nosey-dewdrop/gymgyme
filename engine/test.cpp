@@ -595,6 +595,54 @@ int main() {
     check(r.pickedPose == 0 && r.tracking, "hard lock: tracking resumes when the body returns");
   }
 
+  // ── Faz 3 katman 1: tekrar yorumu — koç her tekrardan sonra cümle kurar ──
+  {
+    Engine e(builtinMove("squat"));
+    Reading r;
+    double t = 0;
+    for (int i = 0; i < 6; i++) r = e.update(pose(false), (t += 100));
+    check(r.repComment.empty(), "no comment before any rep");
+    // derin + kontrollü + doğru tempoda tekrar (~2.5 sn): "textbook"
+    // (10 karelik iniş motorun saatinde 1.0 sn'ye düşüyor ve "rushed" yiyor —
+    // yorum motoru haklıydı, testi gerçekçi tempoya çektik)
+    for (int i = 0; i < 16; i++) r = e.update(pose(true), (t += 100));
+    std::string comment;
+    for (int i = 0; i < 18; i++) {
+      r = e.update(pose(false), (t += 100));
+      if (r.repTick) comment = r.repComment;
+    }
+    check(r.reps == 1 && comment.find("textbook") != std::string::npos,
+          "deep controlled rep earns the textbook comment");
+    // aşırı hızlı tekrar (~0.4 sn): "rushed"
+    for (int i = 0; i < 2; i++) r = e.update(pose(true), (t += 100));
+    comment.clear();
+    for (int i = 0; i < 10; i++) {
+      r = e.update(pose(false), (t += 100));
+      if (r.repTick) comment = r.repComment;
+    }
+    check(r.reps == 2 && comment.find("rushed") != std::string::npos,
+          "a rushed rep is told to slow down");
+    // yorum sadece sayım karesinde gelir, sonraki kare boş
+    r = e.update(pose(false), (t += 100));
+    check(r.repComment.empty(), "comment is transient like repTick");
+  }
+
+  // ── Faz 3 katman 1: egzersiz-önselli hız tavanı — squat'ın kapısı artık
+  // kendi fiziğinden (sıkı), eski 50°/kare sabitinin altındaki ışınlanmaları da yutar ──
+  {
+    Engine e(builtinMove("squat"));
+    Reading r;
+    double t = 0;
+    for (int i = 0; i < 8; i++) r = e.update(pose(false), (t += 33));
+    double before = r.smoothAngle;
+    r = e.update(poseHalf(), (t += 33));   // tek karede ~45° sıçrama (eski eşik 50'nin ALTI)
+    check(std::fabs(r.smoothAngle - before) < 5.0,
+          "exercise prior: a 45-degree single-frame jump is swallowed for squat");
+    // iki kare sürerse gerçek kabul edilir (ince takip korunur)
+    r = e.update(poseHalf(), (t += 33));
+    check(r.smoothAngle < before - 3.0, "exercise prior: a sustained move is accepted");
+  }
+
   // ── Faz 2: çizim iskeleti — takip olan karede yumuşatılmış ekran pozu üretilir ──
   {
     Engine e(builtinMove("squat"));

@@ -1,15 +1,6 @@
-# GitHub dil istatistiği "gerçek elle yazılmış kod"u yansıtsın.
-# Aşağıdakiler üretilmiş / veri / vendor dosyaları — projenin kodu sayılmaz.
-
-# emscripten'in ürettiği yükleyici (kaynak coach_engine.cpp + bindings.cpp)
-engine/motor.js   linguist-generated=true
-engine/motor.wasm linguist-generated=true
-
-# dizin verisi (uygulama mantığı değil, satır satır kaynak listesi)
-seed.js linguist-generated=true
-
-# üçüncü taraf kütüphaneler (vendor'lanan mediapipe + model)
-vendor/** linguist-vendored=true
-
-# wasm ikilisi metinsel diff'lenmesin
-*.wasm binary
+# github linguist: dil istatistigi MOTORU gostersin, baskasinin kodunu degil.
+# vendor/ = mediapipe + supabase paketleri (bizim degil), motor.js/wasm = emcc uretimi.
+vendor/** linguist-vendored
+engine/motor.js linguist-generated
+engine/motor.wasm linguist-generated
+mockups/** linguist-documentation

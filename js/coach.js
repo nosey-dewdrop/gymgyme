@@ -23,6 +23,7 @@ const repCountEl = $("repCount");
 const repRowEl = repCountEl.parentElement;
 const halfNoteEl = $("halfNote");
 const scoreLineEl = $("scoreLine");
+const repCommentEl = $("repComment");   // faz 3: motorun tekrar yorumu
 const phaseWord = $("phaseWord");
 const subEl = $("sub");
 const setLineEl = $("setLine");
@@ -287,6 +288,7 @@ function loadItem(i) {
   if (engine) { engine.setMove(it.move); applyPlan(); buildAngleRows(); }
   sessionLogged = false; wasComplete = false;
   repCountEl.textContent = "0"; halfNoteEl.textContent = ""; scoreLineEl.textContent = ""; msgEl.textContent = "";
+  if (repCommentEl) { repCommentEl.textContent = ""; commentUntil = 0; }
   setLineEl.hidden = true; restEl.hidden = true;
   setStatus("move " + (i + 1) + " of " + program.items.length + ": " + moveLabel(it.move));
   renderProgram();   // fişte sıradaki satır işaretlenir
@@ -434,6 +436,7 @@ function doneChime() {
 }
 
 let cueUntil = 0;   // takip sürerken gelen koç mesajı (örn. "yarım kaldı") kısa süre ekranda kalsın
+let commentUntil = 0;   // faz 3: tekrar yorumunun ekranda kalma süresi
 let wasComplete = false;   // antrenman-bitti sesini bir kez çalmak için
 
 // planlı akışın görünümü: set satırı, dinlenme bloğu, bitti hali. serbest modda
@@ -633,7 +636,15 @@ function render(r) {
   if (switching) return;   // hareket-arası geri sayım yazısını bu karenin geri kalanı ezmesin
   phaseWord.textContent = phraseFor(r);
   repCountEl.textContent = r.reps;
-  if (r.repTick) repTick();
+  if (r.repTick) {
+    repTick();
+    // faz 3: koç her tekrardan sonra cümle kurar; ~4 sn ekranda kalır
+    if (r.repComment && repCommentEl) {
+      repCommentEl.textContent = r.repComment;
+      commentUntil = performance.now() + 4000;
+    }
+  }
+  if (repCommentEl && performance.now() > commentUntil) repCommentEl.textContent = "";
   if (r.halfTick) halfBuzz();
   halfNoteEl.textContent = r.halfReps > 0 ? "not counted: " + r.halfReps + " (too shallow)" : "";
 

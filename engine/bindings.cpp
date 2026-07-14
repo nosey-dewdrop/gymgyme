@@ -31,6 +31,7 @@ struct JsReading {
   int lastRepScore;
   double lastRepSeconds;
   int avgRepScore;
+  std::string repComment;
   std::string formCue;
   int lastRepFormIssues;
   int currentSet, totalSets, repsInSet, targetReps;
@@ -99,6 +100,7 @@ static JsReading toJs(const coach::Reading& r) {
   j.lastRepScore = r.lastRepScore;
   j.lastRepSeconds = r.lastRepSeconds;
   j.avgRepScore = r.avgRepScore;
+  j.repComment = r.repComment;
   j.formCue = r.formCue;
   j.lastRepFormIssues = r.lastRepFormIssues;
   j.currentSet = r.currentSet;
@@ -246,6 +248,7 @@ EMSCRIPTEN_BINDINGS(coach) {
       .field("lastRepScore", &JsReading::lastRepScore)
       .field("lastRepSeconds", &JsReading::lastRepSeconds)
       .field("avgRepScore", &JsReading::avgRepScore)
+      .field("repComment", &JsReading::repComment)
       .field("formCue", &JsReading::formCue)
       .field("lastRepFormIssues", &JsReading::lastRepFormIssues)
       .field("currentSet", &JsReading::currentSet)

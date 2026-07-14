@@ -109,6 +109,9 @@ struct Reading {
   int lastRepScore = -1;     // son tekrarın puanı 0..100 (-1 = henüz tekrar yok)
   double lastRepSeconds = 0; // son tekrarın süresi
   int avgRepScore = -1;      // oturum ortalaması 0..100
+  // ── Faz 3 katman 1: tekrar yorumu — sayılar insanca TEK cümleye çevrilir.
+  // SADECE tekrarın sayıldığı karede dolu gelir (repTick gibi); koç konuşur. ──
+  std::string repComment;
   // ── Aşama 9: form ──
   std::string formCue;       // bu karede ihlal edilen kuralın düzeltme cümlesi ("" = form temiz)
   int lastRepFormIssues = 0; // son tekrarda ihlal edilen FARKLI kural sayısı
