@@ -27,6 +27,17 @@
     .yearwall i.lv3 { background: #B83368; }
     .yearwall i.lv4 { background: var(--cherry); }
     .ycal { max-width: 820px; margin: 0 auto; }
+    .wcal { max-width: 820px; margin: 0 auto; }
+    .weekwall { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
+    .weekwall .d { aspect-ratio: 1; border-radius: 12px; background: var(--tint-2); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 13px; color: var(--ink-soft); transition: transform .18s; text-align: center; }
+    .weekwall .d:hover { transform: translateY(-3px); }
+    .weekwall .d b { font-size: 16px; }
+    .weekwall .d small { font-size: 9.5px; line-height: 1.2; padding: 0 4px; }
+    .weekwall .d.today { box-shadow: inset 0 0 0 2.5px var(--cherry); }
+    .weekwall .d.lv1 { background: #F3A8C3; color: #6E0030; }
+    .weekwall .d.lv2 { background: #E06895; color: #fff; }
+    .weekwall .d.lv3 { background: #B83368; color: #fff; }
+    .weekwall .d.lv4 { background: var(--cherry); color: var(--on-cherry); font-weight: bold; }
     .ylegend { display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 11px; color: var(--ink-soft); }
     .ylegend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; background: var(--tint-2); }
     .ylegend .l1 { background: #F3A8C3; } .ylegend .l2 { background: #E06895; }
@@ -61,8 +72,18 @@
 
 <section class="sub-body">
   <div class="viewpick" id="viewPick">
+    <button type="button" data-v="week">week</button>
     <button type="button" data-v="month" class="on">month</button>
     <button type="button" data-v="year">year</button>
+  </div>
+  <div class="wcal" id="weekView" hidden>
+    <div class="calhead">
+      <button class="calnav" id="wkPrev" type="button">‹</button>
+      <b id="wkLabel">this week</b>
+      <button class="calnav" id="wkNext" type="button">›</button>
+    </div>
+    <small class="caltotals" id="wkTotals"></small>
+    <div class="weekwall" id="weekWall7"></div>
   </div>
   <div class="mcal" id="monthView">
     <div class="calhead">
@@ -273,7 +294,63 @@
   yPrev.addEventListener("click", () => { if (yIdx > minYear) { yIdx--; renderYear(); } });
   yNext.addEventListener("click", () => { if (yIdx < curYear) { yIdx++; renderYear(); } });
 
-  // gorunum secici: ay ↔ yil
+  // ── hafta gorunumu: 7 gun karti, yogunluk boyali, gunun hareketleri yazili ──
+  const DOW_NAMES = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+  let wkOffset = 0;   // 0 = bu hafta, -1 = gecen hafta...
+  const wk7 = document.getElementById("weekWall7");
+  const wkLabel = document.getElementById("wkLabel");
+  const wkTotals = document.getElementById("wkTotals");
+  const wkPrev = document.getElementById("wkPrev");
+  const wkNext = document.getElementById("wkNext");
+
+  function renderWeek() {
+    const days = getDays();
+    const sessions = getSessions();
+    const byDate = {};
+    for (const s of sessions) if (s && s.date) (byDate[s.date] = byDate[s.date] || []).push(s);
+
+    const base = new Date();
+    base.setDate(base.getDate() - ((base.getDay() + 6) % 7) + wkOffset * 7);   // haftanin pazartesisi
+    const isoOf = (dt) => dt.getFullYear() + "-" + String(dt.getMonth() + 1).padStart(2, "0") + "-" + String(dt.getDate()).padStart(2, "0");
+    const end = new Date(base); end.setDate(end.getDate() + 6);
+    const fmt = (dt) => ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"][dt.getMonth()] + " " + dt.getDate();
+    wkLabel.textContent = wkOffset === 0 ? "this week" : fmt(base) + " - " + fmt(end);
+
+    wk7.innerHTML = "";
+    let lit = 0, reps = 0;
+    const today = isoToday();
+    for (let i = 0; i < 7; i++) {
+      const dt = new Date(base); dt.setDate(dt.getDate() + i);
+      const isoD = isoOf(dt);
+      const cell = document.createElement("div");
+      cell.className = "d";
+      const b = document.createElement("b");
+      b.textContent = DOW_NAMES[i] + " " + dt.getDate();
+      cell.appendChild(b);
+      const lv = dayLevel(isoD, days, byDate);
+      if (lv > 0) {
+        cell.classList.add("lv" + lv);
+        lit++;
+        const dayReps = (byDate[isoD] || []).reduce((a, s) => a + (s.reps || 0), 0);
+        reps += dayReps;
+        const acts = [...new Set((byDate[isoD] || []).map((s) => s.move).filter(Boolean))];
+        const sm = document.createElement("small");
+        sm.textContent = (acts.slice(0, 2).join(", ") || "on stage") + (dayReps ? " · " + dayReps + " reps" : "");
+        cell.appendChild(sm);
+      }
+      if (isoD === today) cell.classList.add("today");
+      wk7.appendChild(cell);
+    }
+    wkTotals.textContent = lit
+      ? lit + (lit === 1 ? " night" : " nights") + " on stage" + (reps ? " · " + reps + " reps" : "")
+      : "no shows this week - the stage is patient.";
+    wkNext.disabled = wkOffset >= 0;
+  }
+  wkPrev.addEventListener("click", () => { wkOffset--; renderWeek(); });
+  wkNext.addEventListener("click", () => { if (wkOffset < 0) { wkOffset++; renderWeek(); } });
+
+  // gorunum secici: hafta ↔ ay ↔ yil
+  const weekView = document.getElementById("weekView");
   const monthView = document.getElementById("monthView");
   const yearView = document.getElementById("yearView");
   document.getElementById("viewPick").addEventListener("click", (e) => {
@@ -281,14 +358,17 @@
     if (!b) return;
     document.querySelectorAll("#viewPick button").forEach((x) => x.classList.toggle("on", x === b));
     const v = b.dataset.v;
+    weekView.hidden = v !== "week";
     monthView.hidden = v !== "month";
     yearView.hidden = v !== "year";
     if (v === "year") renderYear();
+    if (v === "week") renderWeek();
   });
 
   render();
   renderYear();
-  window.addEventListener("storage", () => { render(); renderYear(); });
+  renderWeek();
+  window.addEventListener("storage", () => { render(); renderYear(); renderWeek(); });
 })();
 </script>
 <script>
