@@ -33,6 +33,13 @@ Master plan: reports/2026-07-14-vucut-motoru-plan.md — the engine grows into a
 - PHASE 1 (filter + model): One Euro filter in the C++ core (angle-space, time-aware; EMA path kept for comparison). Params 2.5 Hz / 0.005 picked by sweep — first sweep had no lag penalty and bought calm with 100 ms lag (the old "hassas değil" complaint); lag penalty added, re-swept. Results (same seed/noise): bad-light jitter 5.01°→2.32° (EMA was 2.82°), lag unchanged 33 ms, EMA's false half-rep gone. Pose model lite→full (9.4 MB, on-device). 94 tests green, wasm rebuilt, sw v15.
 - OPEN: Damla phone FPS check (revert to lite = one line in coach.js + sw.js), golden clip shoot. Next engine phase: Faz 2 skeleton core (bone-length lock, FK) to push bone variance to ~0.
 
+## Status update (2026-07-14 late night — precision engine phase 2: the rig)
+- BONE LOCK: calibration also learns ABSOLUTE bone lengths (world/metric, both sides pooled); after calibration every frame is re-fit hierarchically (hip/shoulder anchors, observed direction, locked length) and ALL angles are measured from the locked skeleton. `bench.sh bones`: bone variance 1.3–5.7% raw → 0.00% locked in all three noise scenarios; angle metrics improved (`bench.sh synthcal`: bad-light rmse 3.54°→2.70°, jitter 2.32°→2.14°, lag unchanged 33 ms). Engine API: setBoneLock(), solvedWorld().
+- MULTI-PERSON (the "hocam girince bozuldu" bug): MediaPipe numPoses=2, engine picks the tracked body via candidateScore (2.0×temporal similarity + 1.5×calibrated-ratio error + 0.3×visibility) — updateBest()/updateMultiPtr(), Reading.pickedPose. `bench.sh twoperson`: naive path 360 wrong-body frames + 6/8 reps; engine pick 0 wrong frames, 8/8.
+- DRAWN SKELETON = MOTOR's smoothed pose (per-landmark One Euro on screen coords, smoothPosePtr/smoothPoseOk) instead of raw MediaPipe; falls back to raw when not tracking. Teleport gate now time-aware (700°/s ceiling, was 50°/frame).
+- 104 native tests green (bone lock snap-back, stranger rejection, single-candidate passthrough, smooth pose), wasm rebuilt, sw v16.
+- BACKLOG (Damla wish, optional): finger/hand web overlay — pose model has NO finger joints (only wrist + rough hand points); needs MediaPipe Hand Landmarker as a second model (~10 MB + GPU cost). Parked deliberately.
+
 ## Status update (2026-07-13 evening — LIVE at gymgyme.damlahelloworld.com)
 Big day, all pushed and deployed (Vercel auto-deploys on push, domain is bound):
 - WORDING: user-facing "coach" -> "personal trainer" (urls unchanged).

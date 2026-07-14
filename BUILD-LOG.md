@@ -309,3 +309,13 @@ hook: "everyone tunes their computer vision by eyeballing it. i built a ruler fi
 - first sweep quietly optimized calm by buying it with lag — exactly the "not responsive" complaint from before. added a lag penalty to the score and re-swept. the ruler caught the ruler.
 - pose model upgraded lite → full (9 MB, still fully on-device)
 - 94 native tests green, wasm rebuilt, pwa cache v15
+
+## the skeleton can no longer be stolen (jul 14, later that night)
+hook: "my teacher walked into the frame and my AI started coaching HER. fixed it at the physics level."
+- phase 2 of the precision plan: the engine now works like a CGI rig, not a point detector
+- BONE LOCK: calibration learns your absolute bone lengths (world space, metric), then every frame the skeleton is re-fit to those lengths — the detector proposes a direction, never a length. bone variance: 1.3-5.7% raw → 0.00% locked, in every noise scenario
+- MULTI-PERSON: the detector now returns 2 bodies and the ENGINE picks whose to trust — calibrated proportions + similarity to the last accepted pose. benchmark: naive path spent 360 frames coaching the stranger and lost 2 reps; engine pick: 0 wrong frames, 8/8 reps
+- the drawn skeleton is now the MOTOR's smoothed skeleton (per-landmark one euro), not raw mediapipe — what you see is what the engine believes
+- teleport gate went time-aware: 700°/s physiological ceiling instead of a per-frame constant
+- angle metrics IMPROVED with the lock on: bad-light rmse 3.54°→2.70°
+- 104 native tests green
