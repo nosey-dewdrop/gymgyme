@@ -126,3 +126,26 @@
 /* eski sol-sidebar boslugu emekli: genis ekranda govde tam genislik */
 @media (min-width: 1100px) { body { padding-left: 52px !important; } }
 @media (min-width: 981px) and (max-width: 1099px) { body { padding-left: 52px !important; } }
+
+
+/* ── my program = rezidans takvimi (mockup birebir, 15 tem kontrat) ── */
+.stub-line { margin: 4px 0 10px; }
+.mcal { max-width: 620px; margin: 0 auto; }
+.calhead { display: flex; align-items: center; justify-content: center; gap: 18px; margin-bottom: 4px; }
+.calhead b { font-size: 20px; letter-spacing: -.01em; }
+.caltotals { display: block; text-align: center; font-size: 12px; color: var(--ink-soft); margin-bottom: 14px; }
+.calnav { font: bold 16px Arial, Helvetica, sans-serif; background: var(--tint-2); color: var(--cherry); border: none; border-radius: 9px; width: 32px; height: 32px; cursor: pointer; transition: background .15s, transform .15s; }
+.calnav:hover { background: var(--cherry); color: var(--on-cherry); transform: translateY(-1px); }
+.calnav:disabled { opacity: .35; cursor: default; transform: none; }
+.dow { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; font-size: 11px; font-weight: bold; color: var(--ink-soft); margin-bottom: 6px; }
+.monthwall { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.monthwall .d { aspect-ratio: 1; border-radius: 12px; background: var(--tint-2); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 12px; color: var(--ink-soft); transition: transform .18s; }
+.monthwall .d:hover { transform: translateY(-2px); }
+.monthwall .d.blank { background: none; }
+.monthwall .d.lit { background: var(--cherry); color: var(--on-cherry); font-weight: bold; }
+.monthwall .d.lit small { font-size: 8.5px; font-weight: normal; opacity: .9; line-height: 1.1; text-align: center; padding: 0 2px; }
+.monthwall .d.today { box-shadow: inset 0 0 0 2.5px var(--cherry); }
+.hist { margin: 22px auto 0; max-width: 620px; }
+.hist .lbl { font-size: 11px; font-weight: bold; letter-spacing: .13em; color: var(--cherry); margin-bottom: 10px; }
+.hist .h { display: flex; justify-content: space-between; gap: 14px; padding: 8px 2px; border-bottom: 1px solid var(--tint-2); font-size: 13.5px; }
+.hist .h small { color: var(--ink-soft); }

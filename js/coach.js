@@ -94,6 +94,8 @@ try {
 } catch (_) { /* kayıt yoksa boş programla başlanır */ }
 let progIdx = 0;
 let switching = false;     // hareketler arası geri sayım — motor o karelerde dinlenir
+let timedAct = null;       // süreli hareket (motor saymaz, kamera izler, süre tutulur)
+let timedIv = null;
 let doneSummaries = [];    // her hareketin özeti; sonda toplanıp tek özet gösterilir
 
 function saveProgram() { try { localStorage.setItem(PROG_KEY, JSON.stringify(program)); } catch (_) {} }
@@ -120,11 +122,11 @@ function renderProgram() {
       const d = document.createElement("div");
       d.className = "rline" + (running && i === progIdx ? " nowplaying" : "");
       const name = document.createElement("span");
-      name.textContent = (i + 1) + ". " + moveLabel(it.move);
+      name.textContent = (i + 1) + ". " + (it.timed ? it.timed : moveLabel(it.move));
       const dots = document.createElement("span");
       dots.className = "dots"; dots.textContent = "................";
       const plan = document.createElement("span");
-      plan.textContent = it.reps > 0 ? it.reps + "×" + it.sets : "free";
+      plan.textContent = it.timed ? (it.seconds || 45) + "s" : (it.reps > 0 ? it.reps + "×" + it.sets : "free");
       d.append(name, dots, plan);
       d.title = "tap to cut this line";
       d.onclick = () => {
@@ -135,7 +137,7 @@ function renderProgram() {
       requestAnimationFrame(() => d.classList.add("printed"));
     });
   }
-  rtotEl.textContent = program.items.reduce((a, it) => a + (it.reps || 0) * (it.sets || 1), 0);
+  rtotEl.textContent = program.items.reduce((a, it) => a + (it.timed ? 0 : (it.reps || 0) * (it.sets || 1)), 0);
 }
 
 // fiş sürüklenir (pointer), × ile kapanır, köşedeki sekmeyle geri gelir.
@@ -191,14 +193,10 @@ function renderChips() {
     const b = document.createElement("button");
     b.type = "button"; b.className = "plchip"; b.textContent = "\u2661 " + pl.name;
     b.onclick = () => {
-      const coachable = [], skipped = [];
-      for (const m of pl.moves || []) {
+      printItems((pl.moves || []).map((m) => {
         const key = ENGINE_BY_NAME[String(m).trim().toLowerCase()];
-        if (key) coachable.push({ move: key, reps: 10, sets: 3 });
-        else skipped.push(m);
-      }
-      printItems(coachable);
-      if (skipped.length) setStatus("left off the receipt (camera can't watch these yet): " + skipped.join(", "));
+        return key ? { move: key, reps: 10, sets: 3 } : { timed: m, seconds: 45 };
+      }));
     };
     wrap.appendChild(b);
   }
@@ -215,18 +213,32 @@ if (trainSearch && trainSuggest) {
     const v = trainSearch.value.trim().toLowerCase();
     trainSuggest.innerHTML = "";
     if (v) {
-      for (const o of [...moveSel.options].filter((o) => o.textContent.toLowerCase().includes(v)).slice(0, 7)) {
+      const add = (label, note, item) => {
         const d = document.createElement("div");
         d.className = "tr";
-        const nm = document.createElement("span"); nm.textContent = o.textContent;
-        const sm = document.createElement("small"); sm.textContent = "add";
+        const nm = document.createElement("span"); nm.textContent = label;
+        const sm = document.createElement("small"); sm.textContent = note;
         d.append(nm, sm);
         d.addEventListener("click", () => {
-          program.items.push({ move: o.value, reps: 10, sets: 3 });
+          program.items.push(item);
           saveProgram(); renderProgram();
           trainSearch.value = ""; trainSuggest.classList.remove("open");
         });
         trainSuggest.appendChild(d);
+      };
+      // once motorun saydigi 14 (durustluk: bunlar tekrar tekrar sayilir)
+      for (const o of [...moveSel.options].filter((o) => o.textContent.toLowerCase().includes(v)).slice(0, 5))
+        add(o.textContent, "counts reps · add", { move: o.value, reps: 10, sets: 3 });
+      // sonra kutuphanenin tamami: kamera izler, SURE tutar — sayiyorum numarasi yok
+      if (typeof MOVE_DB !== "undefined") {
+        const engineNames = new Set([...moveSel.options].map((o) => o.textContent.toLowerCase()));
+        for (const [cat, list] of Object.entries(MOVE_DB)) {
+          for (const m of list) {
+            if (trainSuggest.children.length >= 9) break;
+            if (!m.includes(v) || engineNames.has(m)) continue;
+            add(m, cat + " · timed · add", { timed: m, seconds: 45 });
+          }
+        }
       }
     }
     trainSuggest.classList.toggle("open", trainSuggest.children.length > 0);
@@ -360,16 +372,45 @@ function buildAngleRows() {
 }
 
 // kuyruğun i. hareketini yükle: motor sıfırdan o hareketle başlar, ekran temizlenir.
+function clearTimedAct() {
+  timedAct = null;
+  if (timedIv) { clearInterval(timedIv); timedIv = null; }
+}
 function loadItem(i) {
   progIdx = i;
   const it = program.items[i];
-  moveSel.value = it.move;
-  move = MOVES[it.move] || MOVES.squat;
-  if (engine) { engine.setMove(it.move); applyPlan(); buildAngleRows(); }
+  clearTimedAct();
   sessionLogged = false; wasComplete = false;
   repCountEl.textContent = "0"; halfNoteEl.textContent = ""; scoreLineEl.textContent = ""; msgEl.textContent = "";
   if (repCommentEl) { repCommentEl.textContent = ""; commentUntil = 0; }
   setLineEl.hidden = true; restEl.hidden = true;
+
+  if (it.timed) {
+    // ── süreli hareket: motorun spec'i yok — kamera seni izler, süreyi BEN tutarım.
+    // dürüstlük: sayamadığım şeyi sayıyormuş gibi yapmam; iskelet/siluet çizilir. ──
+    timedAct = { name: it.timed, remaining: it.seconds || 45 };
+    phaseWord.textContent = it.timed;
+    subEl.textContent = "you do it - i keep the time: " + timedAct.remaining + "s";
+    setStatus("act " + (i + 1) + " of " + program.items.length + ": " + it.timed + " (timed)");
+    renderProgram();
+    timedIv = setInterval(() => {
+      if (!running || !timedAct) { clearTimedAct(); return; }
+      timedAct.remaining--;
+      if (timedAct.remaining > 0) {
+        subEl.textContent = "you do it - i keep the time: " + timedAct.remaining + "s";
+      } else {
+        clearTimedAct();
+        beep(880, 0.12, 0.09);
+        if (progIdx < program.items.length - 1) advanceMove();
+        else { setStatus("that was the last act - take a bow."); stop(); }
+      }
+    }, 1000);
+    return;
+  }
+
+  moveSel.value = it.move;
+  move = MOVES[it.move] || MOVES.squat;
+  if (engine) { engine.setMove(it.move); applyPlan(); buildAngleRows(); }
   setStatus("move " + (i + 1) + " of " + program.items.length + ": " + moveLabel(it.move));
   renderProgram();   // fişte sıradaki satır işaretlenir
 }
@@ -379,7 +420,7 @@ function advanceMove() {
   switching = true;
   const next = program.items[progIdx + 1];
   let n = 5;
-  phaseWord.textContent = "next: " + moveLabel(next.move);
+  phaseWord.textContent = "next: " + (next.timed || moveLabel(next.move));
   subEl.textContent = "get in position - starting in " + n + "...";
   const iv = setInterval(() => {
     if (!running) { clearInterval(iv); switching = false; return; }
@@ -431,6 +472,7 @@ async function start() {
 function stop() {
   running = false;
   switching = false;
+  clearTimedAct();
   recDownload();   // kayıt açıksa klibi indir (Faz 0 ölçüm bandı)
   document.body.classList.remove("running");
   const s = video.srcObject;
@@ -861,7 +903,7 @@ function loop() {
       let drawLm = result.landmarks[0];   // motor yoksa ham ilk poz çizilir
       let rawPicked = result.landmarks[0];   // derinlik (z) kaynağı: hep ham dedektör
 
-      if (engine && !switching) {
+      if (engine && !switching && !timedAct) {
         // Faz 2: TÜM pozları (en fazla 2) heap'e ardışık bloklar halinde yaz;
         // motor izlediği vücudu kendi seçer (kalibre oran + son kare benzerliği) —
         // kadraja giren ikinci kişi iskeleti çalamaz. x aspect ile ölçekli ki açı

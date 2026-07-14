@@ -362,47 +362,107 @@ function renderGenerator(dir) {
   dir.appendChild(row);
 }
 
+// my program = REZIDANS TAKVIMI (mockup birebir, 15 tem kontrat): gun, trainer
+// seansi bitince KENDI yanar (hl_days) - gunluk odevi yok. altta gecmis gosteriler.
+let mcalIdx = null;   // gosterilen ay (yil*12+ay); null = bu ay
 function renderProgram(dir) {
-  renderGenerator(dir);
-  const list = getProgram();
-  if (!list.length) {
-    dir.appendChild(el('p', 'loading', 'your program is empty - open a category and hit “+ add” on the moves you like. it lives only in this browser.'));
-    renderCalendar(dir);
-    return;
+  document.getElementById('cat-title').textContent = 'my program - you, live, several nights a week \u{1F938}';
+  const stubP = el('p', 'stub-line');
+  const stub = el('span', 'stub');
+  stub.append('SEASON PASS');
+  const si = el('i', null, 'holder: you \u00b7 valid: forever \u00b7 transfers: never');
+  stub.appendChild(si);
+  stubP.appendChild(stub);
+  dir.appendChild(stubP);
+  dir.appendChild(el('p', 'tag', 'a night lights up when the trainer sees you finish. no diary homework - the calendar keeps itself.'));
+
+  const days = getDays();
+  let sessions = [];
+  try { sessions = JSON.parse(localStorage.getItem('hl_coach_sessions')) || []; } catch { /* yoksa bos */ }
+  const byDate = {};
+  for (const s of sessions) if (s && s.date) (byDate[s.date] = byDate[s.date] || []).push(s);
+
+  const now = new Date();
+  const curIdx = now.getFullYear() * 12 + now.getMonth();
+  let minIdx = curIdx;
+  for (const d of days) {
+    const dt = new Date(d + 'T12:00:00');
+    if (!isNaN(dt)) minIdx = Math.min(minIdx, dt.getFullYear() * 12 + dt.getMonth());
   }
-  list.forEach((m, i) => {
-    const row = el('p', 'entry');
-    row.draggable = true;
-    row.ondragstart = ev => ev.dataTransfer.setData('text/plain', moveKey(m));
-    row.appendChild(el('span', 'kindmark', (i + 1) + '. '));
-    const a = el('a', null, m.title);
-    a.href = m.url; a.rel = 'noopener'; a.target = '_blank';
-    row.appendChild(a);
-    if (m.description) row.appendChild(el('span', 'desc', ' - ' + m.description.replace(' · ', ' - ')));
-    const meta = getMeta(m);
-    row.appendChild(el('span', 'by', ' - ~' + (meta.durationSec || 45) + 's - last done: ' + lastDoneText(m)));
-    const did = el('button', 'mini', 'did it!'); did.onclick = () => markDone(m);
-    const planBtn = el('button', 'mini noprint', armedMove && moveKey(armedMove) === moveKey(m) ? 'tap a day…' : 'plan');
-    planBtn.onclick = () => { armedMove = (armedMove && moveKey(armedMove) === moveKey(m)) ? null : m; render(); };
-    const up = el('button', 'mini noprint', '↑'); up.onclick = () => moveInProgram(moveKey(m), -1);
-    const down = el('button', 'mini noprint', '↓'); down.onclick = () => moveInProgram(moveKey(m), 1);
-    const rm = el('button', 'mini noprint', 'remove'); rm.onclick = () => toggleProgram(m);
-    row.append(' ', did, ' ', planBtn, ' ', up, ' ', down, ' ', rm);
-    const how = getHow(m);
-    if (how) appendHow(dir, row, how);
-    else dir.appendChild(row);
-  });
+  if (mcalIdx === null || mcalIdx > curIdx || mcalIdx < minIdx) mcalIdx = curIdx;
 
-  renderProgramStats(dir, list);
-  renderCalendar(dir);
+  const cal = el('div', 'mcal');
+  const head = el('div', 'calhead');
+  const prev = el('button', 'calnav', '\u2039'); prev.type = 'button';
+  const next = el('button', 'calnav', '\u203a'); next.type = 'button';
+  const y = Math.floor(mcalIdx / 12), mo = mcalIdx % 12;
+  const MONTH_NAMES = ['january','february','march','april','may','june','july','august','september','october','november','december'];
+  const label = el('b', null, MONTH_NAMES[mo] + ' ' + y);
+  head.append(prev, label, next);
+  cal.appendChild(head);
 
-  const pdf = el('button', null, 'print / save as pdf');
-  pdf.onclick = () => window.print();
-  const clear = el('button', 'mini clear', 'clear the whole program');
-  clear.onclick = () => { if (confirm('remove all moves from your program?')) { saveProgram([]); render(); } };
-  const actions = el('p', 'ob-row');
-  actions.append(pdf, ' ', clear);
-  dir.appendChild(actions);
+  const iso = (d) => y + '-' + String(mo + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+  const daysInMonth = new Date(y, mo + 1, 0).getDate();
+  let litCount = 0, repCount = 0;
+  for (let d = 1; d <= daysInMonth; d++) {
+    if (days.includes(iso(d))) {
+      litCount++;
+      for (const s of byDate[iso(d)] || []) repCount += (s.reps || 0);
+    }
+  }
+  cal.appendChild(el('small', 'caltotals',
+    litCount ? litCount + (litCount === 1 ? ' night' : ' nights') + ' on stage this month' + (repCount ? ' \u00b7 ' + repCount + ' reps' : '')
+             : 'no shows this month yet - the stage is patient.'));
+
+  const dow = el('div', 'dow');
+  for (const c of ['m','t','w','t','f','s','s']) dow.appendChild(el('span', null, c));
+  cal.appendChild(dow);
+
+  const wall = el('div', 'monthwall');
+  const firstDow = (new Date(y, mo, 1).getDay() + 6) % 7;   // pazartesi baslar
+  for (let b = 0; b < firstDow; b++) wall.appendChild(el('div', 'd blank'));
+  const todayIso = isoToday();
+  for (let d = 1; d <= daysInMonth; d++) {
+    const cell = el('div', 'd');
+    cell.appendChild(el('span', null, String(d)));
+    if (days.includes(iso(d))) {
+      cell.classList.add('lit');
+      const acts = (byDate[iso(d)] || []).map((s) => s.move).filter(Boolean);
+      if (acts.length) cell.appendChild(el('small', null, [...new Set(acts)].slice(0, 2).join(', ')));
+    }
+    if (iso(d) === todayIso) cell.classList.add('today');
+    wall.appendChild(cell);
+  }
+  cal.appendChild(wall);
+  dir.appendChild(cal);
+
+  prev.disabled = mcalIdx <= minIdx;
+  next.disabled = mcalIdx >= curIdx;
+  prev.onclick = () => { if (mcalIdx > minIdx) { mcalIdx--; render(); } };
+  next.onclick = () => { if (mcalIdx < curIdx) { mcalIdx++; render(); } };
+
+  const hist = el('div', 'hist');
+  hist.appendChild(el('div', 'lbl', 'PAST PERFORMANCES'));
+  const past = sessions.slice(-8).reverse();
+  if (!past.length) {
+    hist.appendChild(el('p', 'loading', 'no performances yet - build a set list on the personal trainer and the reviews write themselves.'));
+  } else {
+    const fmt = (isoD) => {
+      const dt = new Date(isoD + 'T12:00:00');
+      return isNaN(dt) ? isoD : ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'][dt.getMonth()] + ' ' + dt.getDate();
+    };
+    for (const sN of past) {
+      const h = el('div', 'h');
+      const setsTxt = sN.sets > 0 ? ' in ' + sN.sets + ' sets' : '';
+      h.appendChild(el('span', null, fmt(sN.date) + ' \u00b7 ' + (sN.move || 'workout') + ' \u00b7 ' + (sN.reps || 0) + ' reps' + setsTxt));
+      let crit = 'the show went on';
+      if (sN.avg >= 90) crit = 'the critics loved it';
+      else if (sN.avg >= 75) crit = 'strong second act';
+      h.appendChild(el('small', null, sN.avg > 0 ? 'avg ' + sN.avg + ' - ' + crit : 'no score'));
+      hist.appendChild(h);
+    }
+  }
+  dir.appendChild(hist);
 }
 
 // ---- filters (exercise categories only): equipment + muscles ----
