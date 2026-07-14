@@ -1,7 +1,7 @@
 // gymgyme service worker: ana ekrana kurulan personal trainer offline da açılsın.
 // kamera + motor zaten cihazda çalışıyor; burada sadece dosyaları önbelleğe alıyoruz.
 // vendor/ ya da engine/ değişirse CACHE sürümünü artır — eski önbellek silinir.
-const CACHE = "gg-pwa-v19";  // v19: derinlik-kodlu iskelet, marquee perde cercevesi, onboarding penceresi
+const CACHE = "gg-pwa-v20";  // v20: yuz agi + parmak iskeleti gorsel katmani
 
 const CORE = [
   "coach.html",
@@ -22,6 +22,8 @@ const CORE = [
   "vendor/mediapipe/wasm/vision_wasm_nosimd_internal.js",
   "vendor/mediapipe/wasm/vision_wasm_nosimd_internal.wasm",
   "vendor/models/pose_landmarker_full.task",
+  "vendor/models/face_landmarker.task",
+  "vendor/models/hand_landmarker.task",
   "manifest.webmanifest",
   "icons/icon-192.png",
   "icons/icon-512.png",

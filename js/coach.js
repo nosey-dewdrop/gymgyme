@@ -6,7 +6,7 @@
 // (kare başına yüzlerce JS↔wasm sınır geçişi yerine tek çağrı).
 
 // mediapipe VENDOR'lanmış — üçüncü taraf CDN'e runtime bağımlılık yok, offline çalışır.
-import { PoseLandmarker, FilesetResolver, DrawingUtils } from "../vendor/mediapipe/vision_bundle.mjs";
+import { PoseLandmarker, FaceLandmarker, HandLandmarker, FilesetResolver, DrawingUtils } from "../vendor/mediapipe/vision_bundle.mjs";
 // ortak hesap: giriş yapılıysa seanslar DB'ye de gider (cihazlar arası).
 import { sb, currentUser, onAuth } from "./auth.js";
 
@@ -218,6 +218,9 @@ let running = false;
 let lastVideoTime = -1;
 let drawer = null;
 let aspect = 1;
+let faceLandmarker = null, handLandmarker = null;   // görsel ağ katmanı
+let lastFace = null, lastHands = null;              // atlanan karede son sonuç çizilir
+let meshFrame = 0;                                  // yüz/el her 2 karede bir koşar (fps)
 let frames = 0, fps = 0, fpsClock = 0;
 let angleRows = null;          // textContent ile güncellenen satırlar
 
@@ -238,6 +241,24 @@ async function loadPose() {
     numPoses: 2   // Faz 2: kadraja ikinci kişi girerse motor KİMİ izleyeceğini kendi seçer
   });
   drawer = new DrawingUtils(ctx);
+  // ── görsel ağ katmanı (Damla "ekle", 15 tem): yüz 478 nokta + el 21'er nokta.
+  // SALT görüntü — sayma motoruna hiç girmez. Yüklenemezse sessizce vazgeçilir,
+  // iskelet ve sayaç aynen çalışır. ──
+  try {
+    faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
+      baseOptions: { modelAssetPath: "vendor/models/face_landmarker.task", delegate: "GPU" },
+      runningMode: "VIDEO",
+      numFaces: 1
+    });
+    handLandmarker = await HandLandmarker.createFromOptions(vision, {
+      baseOptions: { modelAssetPath: "vendor/models/hand_landmarker.task", delegate: "GPU" },
+      runningMode: "VIDEO",
+      numHands: 2
+    });
+  } catch (e) {
+    console.warn("mesh layer not loaded (skeleton still works):", e);
+    faceLandmarker = null; handLandmarker = null;
+  }
 }
 
 // düşünen beyin: bizim c++ motorumuz, wasm'a derli. yoksa iskelet yine görünür.
@@ -812,6 +833,37 @@ function loop() {
 
       // derinlik (z) her zaman ham dedektörden okunur — yumuşatılmış pozda z sıfırlı
       drawSkeleton3D(drawLm, rawPicked, skeletonColor);
+
+      // ── ağ katmanı: yüz mesh'i (kavisli dudak, kaş — gerçek "ağ") + parmaklar.
+      // her 2 karede bir koşar, aradaki karede son sonuç çizilir (fps koruması). ──
+      if (faceLandmarker && handLandmarker) {
+        meshFrame++;
+        if (meshFrame % 2 === 0) {
+          try {
+            lastFace = faceLandmarker.detectForVideo(video, performance.now());
+            lastHands = handLandmarker.detectForVideo(video, performance.now());
+          } catch (_) { /* mesh dusse de iskelet yasar */ }
+        }
+        if (lastFace && lastFace.faceLandmarks) {
+          for (const fl of lastFace.faceLandmarks) {
+            drawer.drawConnectors(fl, FaceLandmarker.FACE_LANDMARKS_TESSELATION,
+              { color: "rgba(51, 0, 14, 0.18)", lineWidth: 0.5 });
+            drawer.drawConnectors(fl, FaceLandmarker.FACE_LANDMARKS_LIPS,
+              { color: skeletonColor, lineWidth: 2 });
+            drawer.drawConnectors(fl, FaceLandmarker.FACE_LANDMARKS_LEFT_EYEBROW,
+              { color: skeletonColor, lineWidth: 1.5 });
+            drawer.drawConnectors(fl, FaceLandmarker.FACE_LANDMARKS_RIGHT_EYEBROW,
+              { color: skeletonColor, lineWidth: 1.5 });
+          }
+        }
+        if (lastHands && lastHands.landmarks) {
+          for (const hl of lastHands.landmarks) {
+            drawer.drawConnectors(hl, HandLandmarker.HAND_CONNECTIONS,
+              { color: skeletonColor, lineWidth: 2 });
+            drawer.drawLandmarks(hl, { color: "#FFFFFF", fillColor: skeletonColor, radius: 2.5, lineWidth: 1 });
+          }
+        }
+      }
     }
 
     frames++;
