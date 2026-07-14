@@ -1,29 +1,42 @@
 # gymgyme
 
-A personal trainer that runs **entirely in your browser** — computer vision, on your device, no upload, ever.
+tamamen tarayıcında çalışan bir personal trainer. bilgisayarlı görü, senin cihazında, hiçbir kare hiçbir yere yüklenmiyor.
 
-The heart is a **hand-written C++ engine compiled to WebAssembly** (`engine/`). Each frame, MediaPipe's pose landmarker reads 33 body points on your GPU; our engine takes those noisy points and does the actual coaching:
+canlı: https://gymgyme.damlahelloworld.com
 
-- **One Euro filtering in joint-angle space** (parameters picked by a measurement bench, not by feel)
-- **Bone-lock skeleton**: calibration learns YOUR bone lengths in metric world space, then re-fits the skeleton every frame — bone-length variance drops from ~5% raw to 0.00%, joints cannot slide
-- **Person lock**: if someone else walks into the frame, the engine refuses to coach them (calibrated body proportions + temporal consistency veto)
-- **Exercise-prior gating**: the physically possible angular speed is derived from each move's own spec — squat physics during a squat
-- **Rep counting with hysteresis**, half-rep detection, 0-100 scoring (depth/tempo/control) and a one-line coach comment after every rep
-- Face mesh + hand skeleton + segmentation silhouette as a visual layer; depth-coded drawing
+## neden yaptım
 
-120+ native unit tests (`engine/test.sh`), a measurement bench with synthetic ground truth (`engine/bench.sh`: jitter, RMSE, lag, bone variance, two-person scenarios), and a hidden `?rec=1` recorder that captures landmark streams for offline evaluation. The camera image never leaves the device — the strictest privacy policy is the one physics enforces.
+evde spor yapmaya çalışan herkesin sorunu aynı: doğru mu yapıyorum bilmiyorsun, sayan yok, düzelten yok. spor salonundaki hoca cebinde olsun istedim ama kamera görüntüsünü buluta gönderen bir şey değil — mahremiyeti fizik zorlasın, ben söz vererek değil. o yüzden kamera görüntüsü cihazdan hiç çıkmıyor, çıkamıyor.
 
-Around the engine: a cinema-marquee world with a 188-move library, liked moves, one-tap programs, a residency calendar that paints like a contribution graph, and a community-curated directory of home training links.
+## kalbi: kendi yazdığım c++ motoru
 
-**Free, no ads, no tracking. Workout numbers (never video) sync only if you sign in.**
+asıl iş `engine/` klasöründeki, elle yazılıp webassembly'ye derlenmiş c++ motorunda dönüyor. her karede mediapipe'ın pose landmarker'ı gpu'da 33 vücut noktasını okuyor; benim motorum o gürültülü noktaları alıp asıl koçluğu yapıyor:
 
-## Stack
-C++17 → WebAssembly (emscripten) engine + static HTML/CSS/JS (no build step) + MediaPipe Tasks (vendored, on-device) + Supabase (accounts + workout numbers, RLS-guarded). Hosted on Vercel.
+- **eklem-açısı uzayında one euro filtresi** — parametreleri hisle değil, bir ölçüm bench'iyle seçtim
+- **kemik-kilidi iskelet**: kalibrasyon senin kemik uzunluklarını metrik dünya koordinatında öğreniyor, sonra her karede iskeleti yeniden oturtuyor — kemik uzunluğu varyansı ham ~%5'ten %0.00'a düşüyor, eklemler kayamıyor
+- **kişi kilidi**: kadraja başkası girerse motor onu koçlamayı reddediyor (kalibre edilmiş vücut oranları + zamansal tutarlılık vetosu)
+- **hareket-öncülü kapılama**: fiziksel olarak mümkün açısal hız her hareketin kendi spec'inden türetiliyor — squat yaparken squat fiziği
+- **histerezisli tekrar sayımı**, yarım-tekrar tespiti, 0-100 puanlama (derinlik/tempo/kontrol) ve her tekrardan sonra tek satır koç yorumu
+- görsel katman olarak yüz mesh'i + el iskeleti + segmentasyon silueti; derinlik-kodlu çizim
 
-## Contributing
-Use the suggestion form on the site — that's the whole point. Your display name is published on the page with the entry; use a nickname if you prefer.
+120+ native birim testi (`engine/test.sh`), sentetik doğru-referanslı bir ölçüm bench'i (`engine/bench.sh`: jitter, rmse, gecikme, kemik varyansı, iki-kişi senaryoları) ve offline değerlendirme için landmark akışını yakalayan gizli bir `?rec=1` kaydedici var.
 
-## Setup notes
-- `supabase/migration.sql` — table, RLS policies and seed rows; paste into the Supabase SQL editor once.
-- `config.js` — Supabase URL + anon key (public by design, RLS protects everything).
-- After the domain is attached: update canonical/og:url in `index.html` and add robots.txt + sitemap.xml with the real domain.
+## motorun etrafındaki dünya
+
+bir sinema-marquee dünyası: 188 hareketlik kütüphane, beğenilen hareketler, tek dokunuşla programlar, contribution graph gibi boyanan bir devamlılık takvimi ve toplulukça derlenen evde-spor link dizini.
+
+**ücretsiz, reklam yok, takip yok. antrenman sayıların (asla video) sadece giriş yaparsan senkronlanıyor.**
+
+## stack
+
+c++17 → webassembly (emscripten) motor + statik html/css/js (build adımı yok) + mediapipe tasks (vendored, cihaz üstünde) + supabase (hesap + antrenman sayıları, rls korumalı). vercel'de barınıyor.
+
+## katkı
+
+sitedeki öneri formunu kullan — zaten olayın tamamı bu. gönderdiğin isim sayfada girdiyle birlikte yayınlanıyor; istersen takma ad kullan.
+
+## kurulum notları
+
+- `supabase/migration.sql` — tablo, rls politikaları ve seed satırları; supabase sql editörüne bir kere yapıştır.
+- `config.js` — supabase url + anon key (bilerek public, her şeyi rls koruyor).
+- domain bağlandıktan sonra: `index.html`'deki canonical/og:url'yi güncelle, gerçek domain'le robots.txt + sitemap.xml ekle.
