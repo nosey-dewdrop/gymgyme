@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>gymgyme my moves - your liked acts, sorted into programs</title>
+  <meta name="description" content="The moves you liked, in your order. Sort them, name them, save them as playlists - they show up on the personal trainer sign as one-tap programs.">
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="css/marquee.css">
+  <style>
+    /* beğenilenler: sıralanabilir liste + playlist kurma (spotify metaforu) */
+    .kept-list { max-width: 640px; margin: 0 auto; }
+    .kept-row { display: flex; align-items: center; gap: 10px; padding: 10px 6px; border-bottom: 1px solid var(--tint-2); font-size: 14.5px; font-weight: bold; color: var(--ink); }
+    .kept-row small { font-weight: normal; color: var(--ink-soft); }
+    .kept-row .grow { flex: 1; min-width: 0; }
+    .kept-row button { background: var(--tint-2); color: var(--cherry); border: none; border-radius: 8px; font: bold 13px Arial, Helvetica, sans-serif; width: 30px; height: 30px; cursor: pointer; padding: 0; box-shadow: none; }
+    .kept-row button:hover { background: var(--cherry); color: var(--on-cherry); transform: none; }
+    .kept-empty { text-align: center; color: var(--ink-soft); font-size: 14px; margin: 30px 0; }
+    .plmake { max-width: 640px; margin: 26px auto 0; }
+    .plmake .lbl { font-size: 11px; font-weight: bold; letter-spacing: .13em; color: var(--cherry); margin-bottom: 10px; }
+    .plmake .rowline { display: flex; gap: 8px; }
+    .plmake input { flex: 1; font: 14px Arial, Helvetica, sans-serif; color: var(--ink); background: var(--tint-2); border: none; border-radius: 10px; padding: 12px 14px; outline: none; min-width: 0; }
+    .plmake input:focus { box-shadow: inset 0 0 0 3px var(--cherry); }
+    .plmake .hint { font-size: 12px; color: var(--ink-soft); margin-top: 8px; }
+    .pl-list { max-width: 640px; margin: 18px auto 0; }
+    .pl-row { display: flex; align-items: center; gap: 10px; padding: 9px 6px; border-bottom: 1px solid var(--tint-2); font-size: 14px; color: var(--ink); }
+    .pl-row b { color: var(--cherry); }
+    .pl-row .grow { flex: 1; min-width: 0; }
+    .pl-row button { background: none; border: none; color: var(--cherry); font: bold 13px Arial, Helvetica, sans-serif; cursor: pointer; box-shadow: none; padding: 4px 8px; }
+  </style>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="index.html">gymgyme</a>
+  <span class="searchwrap">
+    <input class="topsearch" id="topSearch" placeholder="search moves, categories...">
+    <span class="mag">🔍</span>
+    <div class="searchdrop" id="searchDrop"></div>
+  </span>
+  <nav>
+    <a href="coach.html">personal trainer</a>
+    <a href="moves.html">moves list</a>
+    <a href="my-moves.html" id="movesBtn">my moves (0)</a>
+    <a href="index.html#my-program">my program</a>
+    <a href="suggest.html">suggest something!</a>
+  </nav>
+</header>
+
+<section class="sub-sign">
+  <div class="awning"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="now">MY MOVES · YOUR ♥ COLLECTION · SORT THE SET</div>
+  <h1>my moves - liked songs, but sweatier 🤍</h1>
+  <p>everything you ♥'d on the moves list lands here, in your order. sort it, name it, save it as a playlist - saved playlists show up on the personal trainer sign as one-tap programs.</p>
+  <div class="bulbs b-bot"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+</section>
+
+<section class="sub-body">
+  <div class="kept-list" id="keptList"></div>
+
+  <div class="plmake" id="plMake" hidden>
+    <div class="lbl">SAVE THIS ORDER AS A PLAYLIST</div>
+    <div class="rowline">
+      <input id="plName" placeholder="name this playlist... (leg night, exam week rescue...)" maxlength="30">
+      <button class="mainbtn" id="plSave" type="button">save ♥</button>
+    </div>
+    <p class="hint">the camera counts the moves it knows; the rest run as timed acts - honestly labeled on the receipt.</p>
+  </div>
+
+  <div class="pl-list" id="plList"></div>
+</section>
+
+<p class="footer">no ads, no tracking, no cookies, no money - just links and reps.<br>built by <a href="https://github.com/nosey-dewdrop">nosey-dewdrop</a>.</p>
+
+<script src="data/moves-db.js"></script>
+<script src="js/topbar.js"></script>
+<script>
+(function () {
+  const KEY = "gg_mymoves", PL_KEY = "gg_playlists";
+  const getKept = () => { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (_) { return []; } };
+  const setKept = (l) => { try { localStorage.setItem(KEY, JSON.stringify(l)); } catch (_) {} window.dispatchEvent(new Event("gg-mymoves-changed")); };
+  const getPls = () => { try { return JSON.parse(localStorage.getItem(PL_KEY)) || []; } catch (_) { return []; } };
+  const setPls = (l) => { try { localStorage.setItem(PL_KEY, JSON.stringify(l)); } catch (_) {} window.dispatchEvent(new Event("gg-playlists-changed")); };
+
+  const catOf = {};
+  if (typeof MOVE_DB !== "undefined")
+    for (const [c, list] of Object.entries(MOVE_DB)) for (const m of list) catOf[m] = c;
+
+  const keptList = document.getElementById("keptList");
+  const plMake = document.getElementById("plMake");
+  const plList = document.getElementById("plList");
+
+  function render() {
+    const kept = getKept();
+    keptList.innerHTML = "";
+    plMake.hidden = kept.length === 0;
+    if (!kept.length) {
+      const e = document.createElement("p");
+      e.className = "kept-empty";
+      e.innerHTML = 'nothing here yet - open the <a href="moves.html" style="color:var(--cherry);font-weight:bold">moves list</a> and ♥ whatever looks like your kind of trouble.';
+      keptList.appendChild(e);
+    }
+    kept.forEach((m, i) => {
+      const row = document.createElement("div");
+      row.className = "kept-row";
+      const grow = document.createElement("span");
+      grow.className = "grow";
+      grow.textContent = (i + 1) + ". " + m + " ";
+      const cat = document.createElement("small");
+      cat.textContent = catOf[m] ? "· " + catOf[m] : "";
+      grow.appendChild(cat);
+      const up = document.createElement("button");
+      up.type = "button"; up.textContent = "↑"; up.title = "move up";
+      up.onclick = () => { if (i > 0) { const l = getKept(); [l[i - 1], l[i]] = [l[i], l[i - 1]]; setKept(l); render(); } };
+      const down = document.createElement("button");
+      down.type = "button"; down.textContent = "↓"; down.title = "move down";
+      down.onclick = () => { const l = getKept(); if (i < l.length - 1) { [l[i + 1], l[i]] = [l[i], l[i + 1]]; setKept(l); render(); } };
+      const un = document.createElement("button");
+      un.type = "button"; un.textContent = "♥"; un.title = "unlike";
+      un.onclick = () => { setKept(getKept().filter((x) => x !== m)); render(); };
+      row.append(grow, up, down, un);
+      keptList.appendChild(row);
+    });
+
+    plList.innerHTML = "";
+    const pls = getPls();
+    if (pls.length) {
+      const lbl = document.createElement("div");
+      lbl.className = "lbl";
+      lbl.style.cssText = "font-size:11px;font-weight:bold;letter-spacing:.13em;color:var(--cherry);margin-bottom:6px";
+      lbl.textContent = "YOUR PLAYLISTS · CHIPS ON THE TRAINER SIGN";
+      plList.appendChild(lbl);
+    }
+    for (const pl of pls) {
+      const row = document.createElement("div");
+      row.className = "pl-row";
+      const grow = document.createElement("span");
+      grow.className = "grow";
+      const b = document.createElement("b");
+      b.textContent = "♡ " + pl.name;
+      grow.append(b, " · " + (pl.moves || []).length + " moves");
+      const del = document.createElement("button");
+      del.type = "button"; del.textContent = "delete";
+      del.onclick = () => { setPls(getPls().filter((x) => x.name !== pl.name)); render(); };
+      row.append(grow, del);
+      plList.appendChild(row);
+    }
+  }
+
+  document.getElementById("plSave").addEventListener("click", () => {
+    const name = document.getElementById("plName").value.trim();
+    if (!name) { document.getElementById("plName").focus(); return; }
+    const lists = getPls().filter((x) => x.name !== name);
+    lists.push({ name, moves: getKept() });
+    setPls(lists);
+    document.getElementById("plName").value = "";
+    render();
+  });
+
+  render();
+  window.addEventListener("storage", render);
+})();
+</script>
+<script>
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+</script>
+</body>
+</html>

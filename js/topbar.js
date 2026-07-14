@@ -58,76 +58,12 @@
     });
   }
 
-  // ── my moves dropdown: hover'la açılır, beğenilenleri listeler ──
+  // ── my moves artık kendi SAYFASI (Damla, 15 tem): nav'daki sayaç linki
+  // güncel kalır; sıralama + playlist kurma my-moves.html'de yaşar. ──
   const btn = document.getElementById("movesBtn");
-  const panel = document.getElementById("movesPanel");
-  if (!btn || !panel) return;
-  let closeT = null;
-  const show = () => { clearTimeout(closeT); btn.classList.add("open"); panel.classList.add("open"); };
-  const hide = () => { closeT = setTimeout(() => { btn.classList.remove("open"); panel.classList.remove("open"); }, 250); };
-  [btn, panel].forEach((el) => {
-    el.addEventListener("mouseenter", show);
-    el.addEventListener("mouseleave", hide);
-  });
-  btn.addEventListener("click", () => {   // dokunmatik için
-    panel.classList.contains("open") ? hide() : show();
-  });
-
+  if (!btn) return;
   function renderKept() {
-    const kept = getKept();
-    btn.textContent = "my moves (" + kept.length + ")";
-    panel.innerHTML = "";
-    const hint = document.createElement("p");
-    hint.className = "mhint";
-    hint.textContent = "the moves you liked - they line up in your next workout.";
-    panel.appendChild(hint);
-    if (!kept.length) {
-      const e = document.createElement("p");
-      e.className = "mhint";
-      e.innerHTML = 'nothing yet - open the <a href="moves.html" style="color:var(--cherry);font-weight:bold">moves list</a> and ♥ a few.';
-      panel.appendChild(e);
-      return;
-    }
-    kept.forEach((m) => {
-      const d = document.createElement("div");
-      d.className = "krow";
-      const name = document.createElement("span"); name.textContent = m;
-      const x = document.createElement("button");
-      x.type = "button"; x.textContent = "♥"; x.title = "unlike";
-      x.addEventListener("click", (e) => { e.stopPropagation(); toggleMove(m); });
-      d.append(name, x);
-      panel.appendChild(d);
-    });
-    // playlist kaydet (Damla'nin metaforu: my moves = begenilen sarkilar,
-    // playlist = onlardan kurdugun isimli set; trainer'da chip olarak cikar).
-    const plRow = document.createElement("p");
-    plRow.className = "plrow";
-    const plName = document.createElement("input");
-    plName.placeholder = "name this playlist...";
-    plName.maxLength = 30;
-    const plBtn = document.createElement("button");
-    plBtn.type = "button"; plBtn.textContent = "save \u2661";
-    plBtn.title = "save these liked moves as a playlist";
-    plBtn.addEventListener("click", () => {
-      const name = plName.value.trim();
-      if (!name) { plName.focus(); return; }
-      let lists = [];
-      try { lists = JSON.parse(localStorage.getItem("gg_playlists")) || []; } catch (_) {}
-      lists = lists.filter((x) => x.name !== name);
-      lists.push({ name, moves: getKept() });
-      try { localStorage.setItem("gg_playlists", JSON.stringify(lists)); } catch (_) {}
-      window.dispatchEvent(new Event("gg-playlists-changed"));
-      plName.value = "";
-      plBtn.textContent = "saved!";
-      setTimeout(() => { plBtn.textContent = "save \u2661"; }, 1400);
-    });
-    plRow.append(plName, plBtn);
-    panel.appendChild(plRow);
-
-    const foot = document.createElement("p");
-    foot.className = "kfoot";
-    foot.innerHTML = 'saved playlists show up as chips on the <a href="coach.html">personal trainer</a> sign.';
-    panel.appendChild(foot);
+    btn.textContent = "my moves (" + getKept().length + ")";
   }
   renderKept();
   window.addEventListener("gg-mymoves-changed", renderKept);
