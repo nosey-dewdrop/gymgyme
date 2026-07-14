@@ -27,6 +27,12 @@ The "slop -> engine" upgrade: an on-device camera coach that watches home workou
 
 Roadmap (0-18): ALL DONE, including 18 launch (2026-07-13, Damla: "yayınla yayınla sen durma").
 
+## Status update (2026-07-14 night — precision engine phase 0+1)
+Master plan: reports/2026-07-14-vucut-motoru-plan.md — the engine grows into a reusable body-CGI motor (gym → ballet → physio), the MOTOR API is the product; sites embed one JS/WASM bundle.
+- PHASE 0 (measurement bench): engine/bench.cpp + bench.sh — synthetic squat with KNOWN true angle, raw/EMA/OneEuro race; metrics: hold jitter, motion RMSE, lag, rep accuracy, dropouts, bone-length variance (the "joint slide" number). `bench.sh sweep` = parameter grid search. `bench.sh clip x.ggclip` = real-clip metrics. Hidden recorder on coach.html?rec=1 downloads exactly what the motor sees (.ggclip); chain verified end-to-end. Golden clip protocol (8-12 clips, Damla shoots, NEVER committed) in reports/2026-07-14-gymgyme-motor-faz0-faz1.md.
+- PHASE 1 (filter + model): One Euro filter in the C++ core (angle-space, time-aware; EMA path kept for comparison). Params 2.5 Hz / 0.005 picked by sweep — first sweep had no lag penalty and bought calm with 100 ms lag (the old "hassas değil" complaint); lag penalty added, re-swept. Results (same seed/noise): bad-light jitter 5.01°→2.32° (EMA was 2.82°), lag unchanged 33 ms, EMA's false half-rep gone. Pose model lite→full (9.4 MB, on-device). 94 tests green, wasm rebuilt, sw v15.
+- OPEN: Damla phone FPS check (revert to lite = one line in coach.js + sw.js), golden clip shoot. Next engine phase: Faz 2 skeleton core (bone-length lock, FK) to push bone variance to ~0.
+
 ## Status update (2026-07-13 evening — LIVE at gymgyme.damlahelloworld.com)
 Big day, all pushed and deployed (Vercel auto-deploys on push, domain is bound):
 - WORDING: user-facing "coach" -> "personal trainer" (urls unchanged).

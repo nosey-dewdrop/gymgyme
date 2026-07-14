@@ -299,3 +299,13 @@ hook: "i redesigned my whole fitness site as a movie theater marquee - in one ni
 - new moves.html: 188 no-equipment moves (public-domain free-exercise-db), muscle filters, hearts that feed "my moves"
 - global search bar that shows results and waits for YOUR click (strava energy)
 - the whole faq rewritten techy-but-human: "is it chatgpt? no - it's trigonometry running at camera speed."
+
+## the ruler came before the engine (jul 14)
+hook: "everyone tunes their computer vision by eyeballing it. i built a ruler first."
+- the precision plan: gymgyme's engine becomes a reusable body-CGI motor (gym today, ballet and physio tomorrow)
+- phase 0 shipped: a measurement bench (engine/bench.sh) — synthetic squats where the TRUE angle is known, plus a hidden ?rec=1 recorder that dumps exactly what the motor sees into a .ggclip file
+- phase 1 shipped: the One Euro filter (the same filter inside VR headsets) replaced plain EMA — in angle space, time-aware, parameters chosen by a grid sweep, not by feel
+- numbers, same noise, same seed: bad-light jitter 5.01° raw → 2.82° EMA → 2.32° one euro, lag unchanged at 33 ms, zero false "didn't count" warnings
+- first sweep quietly optimized calm by buying it with lag — exactly the "not responsive" complaint from before. added a lag penalty to the score and re-swept. the ruler caught the ruler.
+- pose model upgraded lite → full (9 MB, still fully on-device)
+- 94 native tests green, wasm rebuilt, pwa cache v15
