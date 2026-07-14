@@ -319,3 +319,11 @@ hook: "my teacher walked into the frame and my AI started coaching HER. fixed it
 - teleport gate went time-aware: 700°/s physiological ceiling instead of a per-frame constant
 - angle metrics IMPROVED with the lock on: bad-light rmse 3.54°→2.70°
 - 104 native tests green
+
+## the engine now coaches exactly one person: you (jul 14, addendum)
+hook: "my fitness AI is now as loyal as a DJI drone - it locks on YOU and refuses everyone else"
+- damla's call: no two-person mode (too slow, not the product) - instead the lock got HARD
+- a candidate body that fails the calibrated proportions VETO is disqualified, not just penalized - and the veto uses the WORST ratio, not the mean (a stranger's short legs can't hide behind normal arms)
+- if only strangers are in the frame the engine waits for you instead of coaching them: "i only coach the body i learned"
+- benchmark: stranger-alone window, naive path coaches them for 420 frames; hard lock: 0 frames, 8/8 reps, tracking resumes the moment you step back in
+- 106 native tests, sw v17

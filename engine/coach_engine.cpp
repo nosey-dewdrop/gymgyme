@@ -247,6 +247,7 @@ void Engine::reset() {
   for (int i = 0; i < kBoneN; i++) { boneLen_[i] = 0; boneUsable_[i] = false; }
   solvedWorld_.clear();
   lastCore_.clear();
+  lastCoreT_ = -1;
   smoothScreen_.clear();
   for (int i = 0; i < 33; i++) { visEuroInit_[i] = false; visX_[i] = visY_[i] = visDx_[i] = visDy_[i] = 0; }
   visEuroLastT_ = -1;
@@ -451,19 +452,63 @@ double Engine::candidateScore(const std::vector<Landmark>& screen,
   return 2.0 * temporal + 1.5 * ratioErr + 0.3 * (1.0 - vis);
 }
 
+// bir adayın kalibre vücuda oran uyumsuzluğu: EN KÖTÜ bağıl hata (ölçülemedi = -1).
+// Ortalama değil en kötü: kimlik en bariz farktan belli olur — kısa bacaklı
+// yabancının kolları normal diye ortalamada aklanmasın.
+double Engine::ratioMismatch(const std::vector<Landmark>& screen,
+                             const std::vector<Landmark>& world) const {
+  if (!calibrated_ || world.size() < 33) return -1.0;
+  double ratios[kRatioN]; bool have[kRatioN];
+  if (!bodyRatiosFrame(world, screen, ratios, have)) return -1.0;
+  double worst = -1.0; int n = 0;
+  for (int i = 0; i < kRatioN; i++) {
+    if (!ratioUsable_[i] || !have[i] || bodyRatio_[i] < 1e-6) continue;
+    worst = std::max(worst, std::fabs(ratios[i] - bodyRatio_[i]) / bodyRatio_[i]); n++;
+  }
+  return n >= 2 ? worst : -1.0;
+}
+
 Reading Engine::updateBest(const std::vector<std::vector<Landmark>>& screens,
                            const std::vector<std::vector<Landmark>>& worlds, double timestampMs) {
   static const std::vector<Landmark> kEmpty;
   if (screens.empty()) return update(kEmpty, kEmpty, timestampMs);
-  int best = 0;
-  if (screens.size() > 1) {
-    double bestScore = 1e18;
-    for (size_t i = 0; i < screens.size(); i++) {
-      if (screens[i].size() < 33) continue;
-      const std::vector<Landmark>& w = i < worlds.size() ? worlds[i] : kEmpty;
-      double sc = candidateScore(screens[i], w);
-      if (sc < bestScore) { bestScore = sc; best = (int)i; }
+
+  // ── SERT KİLİT (Damla, 14 Tem): motor tek kişilik — kalibre ettiği vücut
+  // dışında KİMSEYİ koçlamaz. Aday önce elemeden geçer: (a) kalibre orana
+  // ölçülebilir ve %20'den fazla uymayan vücut DİSKALİFİYE (ceza değil, veto),
+  // (b) az önce izlediğimiz vücuttan ekranın öbür ucuna ışınlanan aday da öyle.
+  // Hiç aday kalmazsa motor yabancıya geçmek yerine BEKLER. ──
+  int best = -1;
+  double bestScore = 1e18;
+  const bool coreFresh = !lastCore_.empty() && lastCoreT_ >= 0 &&
+                         timestampMs >= 0 && timestampMs - lastCoreT_ < 1500.0;
+  for (size_t i = 0; i < screens.size(); i++) {
+    if (screens[i].size() < 33) continue;
+    const std::vector<Landmark>& w = i < worlds.size() ? worlds[i] : kEmpty;
+    double mis = ratioMismatch(screens[i], w);
+    if (mis >= 0.0 && mis > 0.25) continue;            // bu vücut sen değilsin: veto
+    if (coreFresh && screens.size() > 1) {
+      // az önce izlenen vücuttan tek karede 0.35 ekran birimi ışınlanma da veto —
+      // oranı ölçülemeyen (dünya verisiz) yabancıya karşı ikinci kilit.
+      static const int core[] = {L_SHO, R_SHO, L_HIP, R_HIP, L_KNE, R_KNE};
+      double s = 0; int n = 0;
+      for (int idx : core) {
+        if (screens[i][idx].visibility < 0.3 || lastCore_[idx].visibility < 0.3) continue;
+        double dx = screens[i][idx].x - lastCore_[idx].x, dy = screens[i][idx].y - lastCore_[idx].y;
+        s += std::sqrt(dx * dx + dy * dy); n++;
+      }
+      if (n >= 3 && s / n > 0.35) continue;
     }
+    double sc = candidateScore(screens[i], w);
+    if (sc < bestScore) { bestScore = sc; best = (int)i; }
+  }
+  if (best < 0) {
+    // kadrajda izlediğimiz vücut yok: durumu İLERLETME (yabancı filtrelere
+    // sızmasın), sayaçları taşıyan boş okuma dön ve dürüstçe bekle.
+    Reading r = update(kEmpty, kEmpty, timestampMs);
+    r.pickedPose = -1;
+    r.message = "i only coach the body i learned - step back in when you are ready";
+    return r;
   }
   Reading r = update(screens[best], (size_t)best < worlds.size() ? worlds[best] : kEmpty, timestampMs);
   r.pickedPose = best;
@@ -666,6 +711,7 @@ Reading Engine::update(const std::vector<Landmark>& p,
   // ── Faz 2: bu poz kabul edildi — çok kişi seçimi (updateBest) bir sonraki
   // karede "en son kimi izliyordum"u bilsin; çizim iskeleti de üretilsin. ──
   lastCore_ = p;
+  lastCoreT_ = t;
   smoothScreenApply(p, t);
 
   // ── Aşama 4: yumuşatma + ince takip: tek karelik dev sıçrama (iskeletin

@@ -213,6 +213,9 @@ class Engine {
   // aday puanı (küçük iyi): son kabul edilen poza uzaklık + kalibre orana uzaklık.
   double candidateScore(const std::vector<Landmark>& screen,
                         const std::vector<Landmark>& world) const;
+  // kalibre vücuda oran uyumsuzluğu (ortalama bağıl hata; -1 = ölçülemedi).
+  double ratioMismatch(const std::vector<Landmark>& screen,
+                       const std::vector<Landmark>& world) const;
   // kemik kilidi çözümü: dünya iskeletini öğrenilen uzunluklara oturt (out'a yazar).
   void solveBones(const std::vector<Landmark>& world,
                   const std::vector<Landmark>& vis, std::vector<Landmark>& out) const;
@@ -247,6 +250,7 @@ class Engine {
   std::vector<Landmark> solvedWorld_;       // bu karenin kilitli iskeleti (boş = yok)
   // ── Faz 2: çok kişi seçimi — son kabul edilen pozun çekirdek noktaları ──
   std::vector<Landmark> lastCore_;
+  double lastCoreT_ = -1;
   // ── Faz 2: çizim iskeleti filtreleri (33 nokta × x,y) ──
   std::vector<Landmark> smoothScreen_;
   bool visEuroInit_[33] = {};

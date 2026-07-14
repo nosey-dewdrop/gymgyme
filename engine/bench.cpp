@@ -402,6 +402,13 @@ static int runTwoPerson() {
       Reading rd;
       if ((int)i < enterAt) {
         rd = best ? e.updateBest({f.screen}, {f.world}, f.t) : e.update(f.screen, f.world, f.t);
+      } else if (i >= clip.size() - 90) {
+        // son 3 saniye: BİZ kadrajdan çıktık, sadece yabancı var — sert kilit
+        // ona geçmemeli (naif yol geçer ve onu koçlar).
+        std::vector<std::vector<Landmark>> ss = {strangerS};
+        std::vector<std::vector<Landmark>> ww = {strangerW};
+        rd = best ? e.updateBest(ss, ww, f.t) : e.update(ss[0], ww[0], f.t);
+        if (rd.tracking) wrong++;   // bu karede kimi izliyorsa yabancıdır
       } else {
         // dedektör sırası güvenilmez: her 30 karede bir yabancı 0. sıraya geçer
         bool swap = ((i / 30) % 2) == 0;
