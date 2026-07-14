@@ -47,6 +47,12 @@ body.running .setup { max-width: 900px; margin: 0 auto; text-align: center; }
 body.running .setup .safety { max-width: 640px; margin: 0 auto 8px; }
 body.running .live { max-width: 900px; margin: 0 auto; }
 body.running .stage { max-width: 900px; margin: 4px auto 16px; }
+/* marquee aynisi (Damla, 15 tem): kamera = sinema perdesi. visne cerceve,
+   ustte fisto tente, kenarlarda yanip sonen ampuller - tabelanin devami. */
+.stage { border: 10px solid var(--cherry); border-radius: 8px; box-shadow: 0 18px 32px rgba(51,0,14,.28), 0 4px 8px rgba(51,0,14,.16); }
+.stage .awning, .stage .bulbs { z-index: 5; }
+.stage .bulbs.b-bot { bottom: 6px; }
+.stage .bulbs.b-left, .stage .bulbs.b-right { top: 24px; bottom: 24px; }
 body.running .read.card { max-width: 640px; margin: 0 auto; text-align: left; }
 body.running #intro, body.running #progCard { display: none; }
 

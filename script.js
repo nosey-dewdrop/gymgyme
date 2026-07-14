@@ -77,9 +77,21 @@ function renderGreet() {
   box.append(' ', edit);
 }
 
-// first visit: the page itself is the onboarding, then never again
-function renderOnboarding(dir) {
-  document.getElementById('cat-title').textContent = 'welcome!';
+// ilk ziyaret: onboarding artık sayfayı KAPLAMAZ — mesaj gibi üstte açılan,
+// isim girilmeden KAPANMAYAN bir pencere (Damla, 15 Tem). site arkada durur.
+function ensureOnboardingModal() {
+  if (getProfile() || document.getElementById('ob-overlay')) return;
+  const ov = el('div'); ov.id = 'ob-overlay';
+  const dir = el('div'); dir.id = 'ob-modal';
+  ov.appendChild(dir);
+  // marquee dili: tabela tentesi + yanip sonen ampuller (site ile ayni dunya)
+  const aw = el('div', 'awning');
+  for (let i = 0; i < 24; i++) aw.appendChild(el('i'));
+  dir.appendChild(aw);
+  const bb = el('div', 'ob-bulbs');
+  for (let i = 0; i < 14; i++) bb.appendChild(el('i'));
+  dir.appendChild(bb);
+  dir.appendChild(el('h2', null, 'welcome!'));
   dir.appendChild(el('p', 'tag', 'before you wander around: two tiny questions. everything stays in your browser, we never see it.'));
 
   const name = el('input');
@@ -104,19 +116,25 @@ function renderOnboarding(dir) {
   }
   dir.appendChild(list);
 
+  const err = el('p', 'ob-err', '');
   const go = el('button', null, "let's go");
   go.onclick = () => {
     const n = name.value.trim();
-    if (!n) { name.focus(); return; }
+    if (!n) { err.textContent = 'your name first - that one is not optional :)'; name.focus(); return; }
     const interests = boxes.filter(b => b.checked).map(b => b.value);
     localStorage.setItem(PROFILE_KEY, JSON.stringify({ name: n, interests }));
+    ov.remove();
     location.hash = '#' + (interests[0] || DEFAULT_CATEGORY);
     renderGreet();
     render();
   };
+  name.addEventListener('keydown', (e) => { if (e.key === 'Enter') go.click(); });
   const goP = el('p', 'ob-row');
   goP.appendChild(go);
   dir.appendChild(goP);
+  dir.appendChild(err);
+  document.body.appendChild(ov);
+  name.focus();
 }
 
 function currentCategory() {
@@ -432,7 +450,7 @@ function render() {
   const dir = document.getElementById('directory');
   dir.textContent = '';
 
-  if (!getProfile()) { renderOnboarding(dir); return; }
+  ensureOnboardingModal();   // profil yoksa pencere üstte durur, sayfa arkada yaşar
   if (cat === 'my-program') { renderProgram(dir); return; }
 
   let list = allEntries.filter(e => e.category === cat);

@@ -395,6 +395,50 @@ function phraseFor(r) {
 
 const deg = (v) => (v >= 0 ? Math.round(v) + "°" : "–");
 
+// ── CGI hissi (Damla, 15 tem): iskelet düz 2D değil, derinlik-kodlu çizilir.
+// Dedektör her noktanın z'sini zaten tahmin ediyor; yakın uzuv KALIN ve DOLGUN,
+// arkadaki İNCE ve SOLUK. Uzak segmentler önce çizilir, yakınlar üstüne biner —
+// kolun gövdenin önünde mi arkasında mı olduğu artık ekranda okunur. ──
+function drawSkeleton3D(lm, zsrc, color) {
+  const zs = zsrc || lm;
+  const W = canvas.width, H = canvas.height;
+  const depth = (i) => {
+    const z = zs[i] ? (zs[i].z ?? 0) : 0;
+    return Math.max(0, Math.min(1, 0.5 - z));   // z ~ [-0.5..0.5] → 0 uzak, 1 yakın
+  };
+  const segs = [];
+  for (const c of PoseLandmarker.POSE_CONNECTIONS) {
+    const a = lm[c.start], b = lm[c.end];
+    if (!a || !b || (a.visibility ?? 1) < 0.4 || (b.visibility ?? 1) < 0.4) continue;
+    segs.push({ a, b, t: (depth(c.start) + depth(c.end)) / 2 });
+  }
+  segs.sort((s1, s2) => s1.t - s2.t);   // uzak önce: yakın uzuv üstte kalır
+  ctx.lineCap = "round";
+  for (const s of segs) {
+    ctx.globalAlpha = 0.35 + 0.65 * s.t;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2 + 5 * s.t;
+    ctx.beginPath();
+    ctx.moveTo(s.a.x * W, s.a.y * H);
+    ctx.lineTo(s.b.x * W, s.b.y * H);
+    ctx.stroke();
+  }
+  for (let i = 0; i < lm.length; i++) {
+    const p = lm[i];
+    if (!p || (p.visibility ?? 1) < 0.4) continue;
+    const t = depth(i);
+    ctx.globalAlpha = 0.4 + 0.6 * t;
+    ctx.fillStyle = color;
+    ctx.strokeStyle = "#FFFFFF";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(p.x * W, p.y * H, 3 + 3.5 * t, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+}
+
 // tekrar "tık"ı: kısa bir bip (WebAudio, dosya yok) + telefonda küçük titreşim.
 // AudioContext start'taki kullanıcı jestiyle açılır; açılamazsa sessizce vazgeç.
 let audioCtx = null;
@@ -705,6 +749,7 @@ function loop() {
     let skeletonColor = "#33000E";
     if (result && result.landmarks && result.landmarks.length) {
       let drawLm = result.landmarks[0];   // motor yoksa ham ilk poz çizilir
+      let rawPicked = result.landmarks[0];   // derinlik (z) kaynağı: hep ham dedektör
 
       if (engine && !switching) {
         // Faz 2: TÜM pozları (en fazla 2) heap'e ardışık bloklar halinde yaz;
@@ -740,8 +785,9 @@ function loop() {
           }
         }
         const r = engine.updateMultiPtr(bufPtr, FLOATS, n, worldBufPtr, FLOATS, wn, performance.now());
-        const picked = Math.min(r.pickedPose || 0, result.landmarks.length - 1);
+        const picked = Math.max(0, Math.min(r.pickedPose || 0, result.landmarks.length - 1));
         drawLm = result.landmarks[picked];
+        rawPicked = result.landmarks[picked];
         if (recLines) recFrame(performance.now(), drawLm,
           result.worldLandmarks && result.worldLandmarks[picked]);
         if (r.tracking) skeletonColor = r.phase === "bottom" ? "#A61B42" : "#33000E";
@@ -764,8 +810,8 @@ function loop() {
         render(r);
       }
 
-      drawer.drawConnectors(drawLm, PoseLandmarker.POSE_CONNECTIONS, { color: skeletonColor, lineWidth: 4 });
-      drawer.drawLandmarks(drawLm, { color: "#FFFFFF", fillColor: skeletonColor, radius: 5, lineWidth: 2 });
+      // derinlik (z) her zaman ham dedektörden okunur — yumuşatılmış pozda z sıfırlı
+      drawSkeleton3D(drawLm, rawPicked, skeletonColor);
     }
 
     frames++;
