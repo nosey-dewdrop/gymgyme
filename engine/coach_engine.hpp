@@ -96,6 +96,9 @@ struct Reading {
   Motion motion = Motion::Hold;
   View view = View::Unknown;
   JointAngles angles;
+  // ── Faz 2: çok kişili karede motorun SEÇTİĞİ pozun indeksi (updateBest).
+  // Çizim bu pozu kullanmalı — motor kimi izliyorsa ekran onu göstersin. ──
+  int pickedPose = 0;
   // ── Aşama 7: sayma ──
   int reps = 0;              // bu oturumda sayılan TAM tekrar
   bool repTick = false;      // SADECE tekrarın sayıldığı karede true (ses/titreşim için)
@@ -187,8 +190,34 @@ class Engine {
   Reading update(const std::vector<Landmark>& screen,
                  const std::vector<Landmark>& world, double timestampMs);
 
+  // ── Faz 2: çok kişili kare. Dedektör birden çok vücut verdiğinde motor
+  // İZLEDİĞİ vücudu kendi seçer: kalibre edilen orana + son kabul edilen
+  // poza en çok benzeyen aday kazanır. Kadraja giren yabancı (hoca vakası)
+  // iskelet çalamaz. Dönen Reading.pickedPose = seçilen adayın indeksi. ──
+  Reading updateBest(const std::vector<std::vector<Landmark>>& screens,
+                     const std::vector<std::vector<Landmark>>& worlds, double timestampMs);
+
+  // ── Faz 2: kemik kilidi. Kalibrasyon mutlak kemik uzunluklarını da öğrenir
+  // (dünya/metrik — bükülmeyle değişmez); kilit açıkken her kare iskelet bu
+  // uzunluklara hiyerarşik projeksiyonla oturtulur ve açılar KİLİTLİ iskeletten
+  // ölçülür: kemik uzayamaz, eklem kayamaz. Kalibrasyon kapalıysa etkisiz. ──
+  void setBoneLock(bool on) { boneLockOn_ = on; }
+  // son karenin kilitli dünya iskeleti (boş = bu karede çözüm yok). ölçüm/bench için.
+  const std::vector<Landmark>& solvedWorld() const { return solvedWorld_; }
+  // son karenin çizim iskeleti: ekran noktaları, nokta başına One Euro ile
+  // yumuşatılmış. Ekrana ham dedektör değil BU çizilir (görsel sükunet).
+  const std::vector<Landmark>& smoothScreen() const { return smoothScreen_; }
+
  private:
   double euroApply(double x, double tMs);   // One Euro adımı (durumu aşağıda)
+  // aday puanı (küçük iyi): son kabul edilen poza uzaklık + kalibre orana uzaklık.
+  double candidateScore(const std::vector<Landmark>& screen,
+                        const std::vector<Landmark>& world) const;
+  // kemik kilidi çözümü: dünya iskeletini öğrenilen uzunluklara oturt (out'a yazar).
+  void solveBones(const std::vector<Landmark>& world,
+                  const std::vector<Landmark>& vis, std::vector<Landmark>& out) const;
+  // çizim iskeleti: ekran noktalarını nokta başına One Euro'dan geçir.
+  void smoothScreenApply(const std::vector<Landmark>& screen, double tMs);
 
   MoveSpec spec_;
   double smooth_ = -1;
@@ -208,6 +237,23 @@ class Engine {
   std::vector<double> calibSamples_[kRatioN];
   double bodyRatio_[kRatioN] = {0, 0, 0, 0, 0};
   bool ratioUsable_[kRatioN] = {false, false, false, false, false};
+  // ── Faz 2: kemik kilidi durumu. uzunluklar MUTLAK (metre, dünya uzayı);
+  // iki taraf tek uzunluk kullanır (vücut simetrik, örnek sayısı ikiye katlanır).
+  static constexpr int kBoneN = 4;          // uyluk, baldır, üst kol, ön kol
+  bool boneLockOn_ = true;
+  std::vector<double> boneSamples_[kBoneN];
+  double boneLen_[kBoneN] = {0, 0, 0, 0};
+  bool boneUsable_[kBoneN] = {false, false, false, false};
+  std::vector<Landmark> solvedWorld_;       // bu karenin kilitli iskeleti (boş = yok)
+  // ── Faz 2: çok kişi seçimi — son kabul edilen pozun çekirdek noktaları ──
+  std::vector<Landmark> lastCore_;
+  // ── Faz 2: çizim iskeleti filtreleri (33 nokta × x,y) ──
+  std::vector<Landmark> smoothScreen_;
+  bool visEuroInit_[33] = {};
+  double visX_[33] = {}, visY_[33] = {}, visDx_[33] = {}, visDy_[33] = {};
+  double visEuroLastT_ = -1;
+  // ── Faz 2: zaman-farkında ışınlanma kapısı için önceki kare zamanı ──
+  double prevFrameT_ = -1;
   bool phaseTop_ = true;
   int reps_ = 0;
   int halfReps_ = 0;

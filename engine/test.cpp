@@ -531,6 +531,71 @@ int main() {
     check(r2.tracking, "without calibration the same read is accepted");
   }
 
+  // ── Faz 2: kemik kilidi — kalibre uzunluklar sabitlenir, gerilen kemik
+  // çözülmüş iskelette gerilemez; açılar kilitli iskeletten ölçülür ──
+  {
+    Engine e(builtinMove("squat"));
+    e.setCalibration(true);
+    Reading r;
+    double t = 0;
+    for (int i = 0; i < 65; i++) r = e.update(pose(false), worldPose(false), (t += 33));
+    check(!r.calibrating, "bone lock: calibration completed");
+
+    // baldırı %20 uzamış okuma (dedektör gürültüsü): oran testi bunu tek başına
+    // reddedecek kadar bozuk bulmaz ama kilit uzunluğu geri çekmeli.
+    std::vector<Landmark> stretched = worldPose(false);
+    stretched[27].y += 0.08; stretched[28].y += 0.08;   // bilekler aşağı: baldır uzar
+    r = e.update(pose(false), stretched, (t += 33));
+    check(r.tracking, "bone lock: mildly stretched read is still tracked");
+    const std::vector<Landmark>& s = e.solvedWorld();
+    check(s.size() == 33, "bone lock: solved skeleton exists");
+    auto len = [&](const std::vector<Landmark>& v, int a, int b) {
+      double dx = v[a].x - v[b].x, dy = v[a].y - v[b].y, dz = v[a].z - v[b].z;
+      return std::sqrt(dx * dx + dy * dy + dz * dz);
+    };
+    double shinSolved = len(s, 25, 27);
+    double shinTrue = len(worldPose(false), 25, 27);
+    double shinObs = len(stretched, 25, 27);
+    check(std::fabs(shinSolved - shinTrue) < 0.02 && shinObs > shinTrue + 0.05,
+          "bone lock: solved shin snaps back to the calibrated length");
+  }
+
+  // ── Faz 2: çok kişi — kadraja giren yabancı iskelet çalamaz (hoca vakası) ──
+  {
+    Engine e(builtinMove("squat"));
+    e.setCalibration(true);
+    Reading r;
+    double t = 0;
+    for (int i = 0; i < 65; i++) r = e.update(pose(false), worldPose(false), (t += 33));
+    check(!r.calibrating, "multi-person: calibration completed");
+    // iki aday: 0 = kısa uzuvlu yabancı ekranın öbür yanında, 1 = bizim vücut.
+    // MediaPipe sırayı garanti etmez — motor 0'ı değil BİZİ seçmeli.
+    std::vector<Landmark> strangerS = pose(false), strangerW = worldPose(false);
+    for (auto* v : {&strangerS}) for (auto& p2 : *v) p2.x += 0.30;   // ekranda uzakta
+    for (int i : {25, 26}) { strangerW[i].y = 0.28; }                 // uyluk kısa
+    for (int i : {27, 28}) { strangerW[i].y = 0.52; }                 // baldır kısa
+    std::vector<std::vector<Landmark>> screens = {strangerS, pose(false)};
+    std::vector<std::vector<Landmark>> worlds  = {strangerW, worldPose(false)};
+    r = e.updateBest(screens, worlds, (t += 33));
+    check(r.pickedPose == 1, "multi-person: the calibrated body wins over the stranger");
+    check(r.tracking, "multi-person: tracking continues on the picked body");
+    // tek adaylı çağrı eski davranış: aday 0 seçilir
+    std::vector<std::vector<Landmark>> one = {pose(false)};
+    std::vector<std::vector<Landmark>> oneW = {worldPose(false)};
+    r = e.updateBest(one, oneW, (t += 33));
+    check(r.pickedPose == 0, "multi-person: single candidate falls through");
+  }
+
+  // ── Faz 2: çizim iskeleti — takip olan karede yumuşatılmış ekran pozu üretilir ──
+  {
+    Engine e(builtinMove("squat"));
+    Reading r;
+    double t = 0;
+    for (int i = 0; i < 8; i++) r = e.update(pose(false), (t += 33));
+    check(r.tracking && e.smoothScreen().size() == 33, "smooth screen pose exists while tracking");
+    check(std::fabs(e.smoothScreen()[25].x - 0.45) < 0.02, "smooth screen pose sits on the body");
+  }
+
   // ── yeni hareketler: kickback bükülü başlar, jumping jack omuzdan sayar,
   // calf raise ayak bileğinden okur — hepsi saf veri, motor kodu aynı ──
   {

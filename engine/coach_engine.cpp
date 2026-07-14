@@ -209,6 +209,8 @@ void Engine::setCalibration(bool on) {
   calibrated_ = false;
   calibCount_ = 0;
   for (auto& v : calibSamples_) v.clear();
+  for (auto& v : boneSamples_) v.clear();
+  for (int i = 0; i < kBoneN; i++) { boneLen_[i] = 0; boneUsable_[i] = false; }
 }
 
 // ── One Euro (Casiez ve ark. 2012): hıza uyarlanan alçak geçiren. dt gerçek kare
@@ -239,6 +241,16 @@ void Engine::reset() {
   spikeHold_ = false;
   euroInit_ = false;
   euroX_ = 0; euroDx_ = 0; euroLastT_ = -1;
+  // Faz 2: kemik kilidi yeniden öğrenilir (açık/kapalı ayarı korunur),
+  // poz seçimi hafızası ve çizim filtreleri sıfırlanır.
+  for (auto& v : boneSamples_) v.clear();
+  for (int i = 0; i < kBoneN; i++) { boneLen_[i] = 0; boneUsable_[i] = false; }
+  solvedWorld_.clear();
+  lastCore_.clear();
+  smoothScreen_.clear();
+  for (int i = 0; i < 33; i++) { visEuroInit_[i] = false; visX_[i] = visY_[i] = visDx_[i] = visDy_[i] = 0; }
+  visEuroLastT_ = -1;
+  prevFrameT_ = -1;
   // kalibrasyon: açık/kapalı ayarı KORUNUR, öğrenilen vücut yeniden öğrenilir
   calibrated_ = false;
   calibCount_ = 0;
@@ -350,6 +362,148 @@ static double medianOf(std::vector<double> v) {
   return v[v.size() / 2];
 }
 
+// ── Faz 2: mutlak kemik uzunlukları (metre, dünya uzayı). İki taraf tek havuzda:
+// vücut simetrik, örnek iki katına çıkar. [uyluk, baldır, üst kol, ön kol].
+static void boneLengthsFrame(const std::vector<Landmark>& w,
+                             const std::vector<Landmark>& vis,
+                             double out[], bool have[]) {
+  auto dist = [&](int a, int b) {
+    double dx = w[a].x - w[b].x, dy = w[a].y - w[b].y, dz = w[a].z - w[b].z;
+    return std::sqrt(dx * dx + dy * dy + dz * dz);
+  };
+  auto seen = [&](int a, int b) { return vis[a].visibility >= 0.5 && vis[b].visibility >= 0.5; };
+  auto limb = [&](int aL, int bL, int aR, int bR, double& val) {
+    bool l = seen(aL, bL), r = seen(aR, bR);
+    if (!l && !r) return false;
+    double s = 0; int n = 0;
+    if (l) { s += dist(aL, bL); n++; }
+    if (r) { s += dist(aR, bR); n++; }
+    val = s / n;
+    return true;
+  };
+  have[0] = limb(L_HIP, L_KNE, R_HIP, R_KNE, out[0]);
+  have[1] = limb(L_KNE, L_ANK, R_KNE, R_ANK, out[1]);
+  have[2] = limb(L_SHO, L_ELB, R_SHO, R_ELB, out[2]);
+  have[3] = limb(L_ELB, L_WRI, R_ELB, R_WRI, out[3]);
+}
+
+// ── Faz 2: kemik kilidi çözümü. CGI mantığının çekirdeği: dedektörün önerdiği
+// YÖN kabul edilir, UZUNLUK edilmez. Kalça/omuz çapa kalır, zincir aşağı doğru
+// hiyerarşik oturtulur: çocuk = çözülmüş ebeveyn + öğrenilen uzunluk × gözlenen
+// segment yönü. Kemik uzayamadığı için eklem "kayamaz". ──
+void Engine::solveBones(const std::vector<Landmark>& world,
+                        const std::vector<Landmark>& vis, std::vector<Landmark>& out) const {
+  out = world;
+  auto place = [&](int parent, int child, int bone) {
+    if (!boneUsable_[bone]) return;
+    if (vis[parent].visibility < 0.5 || vis[child].visibility < 0.5) return;
+    // yön GÖZLENEN segmentten (ebeveynin ham hali → çocuğun ham hali):
+    // ebeveyn düzeltmesi yönü bozmasın, sadece zinciri taşısın.
+    double dx = world[child].x - world[parent].x;
+    double dy = world[child].y - world[parent].y;
+    double dz = world[child].z - world[parent].z;
+    double m = std::sqrt(dx * dx + dy * dy + dz * dz);
+    if (m < 1e-6) return;
+    out[child].x = out[parent].x + boneLen_[bone] * dx / m;
+    out[child].y = out[parent].y + boneLen_[bone] * dy / m;
+    out[child].z = out[parent].z + boneLen_[bone] * dz / m;
+  };
+  // bacaklar: kalça çapa → diz → ayak bileği
+  place(L_HIP, L_KNE, 0); place(L_KNE, L_ANK, 1);
+  place(R_HIP, R_KNE, 0); place(R_KNE, R_ANK, 1);
+  // kollar: omuz çapa → dirsek → bilek
+  place(L_SHO, L_ELB, 2); place(L_ELB, L_WRI, 3);
+  place(R_SHO, R_ELB, 2); place(R_ELB, R_WRI, 3);
+}
+
+// ── Faz 2: aday puanı (küçük iyi). Kadraja ikinci kişi girince motor kimi
+// izleyeceğini buna göre seçer: (a) son kabul edilen poza yakınlık — iskelet
+// bir karede odanın öbür ucuna ışınlanamaz, (b) kalibre edilen vücut oranlarına
+// uyum — hoca Damla'nın oranlarını taşımaz, (c) görünürlük (eşitlik bozucu). ──
+double Engine::candidateScore(const std::vector<Landmark>& screen,
+                              const std::vector<Landmark>& world) const {
+  static const int core[] = {L_SHO, R_SHO, L_HIP, R_HIP, L_KNE, R_KNE};
+  double temporal = 0;
+  if (lastCore_.size() == 33) {
+    double s = 0; int n = 0;
+    for (int idx : core) {
+      if (screen[idx].visibility < 0.3 || lastCore_[idx].visibility < 0.3) continue;
+      double dx = screen[idx].x - lastCore_[idx].x, dy = screen[idx].y - lastCore_[idx].y;
+      s += std::sqrt(dx * dx + dy * dy); n++;
+    }
+    temporal = n ? s / n : 0.5;   // hiç ortak nokta yok = şüpheli aday
+  }
+  double ratioErr = 0.15;   // ölçülemiyorsa nötr-hafif ceza
+  if (calibrated_ && world.size() >= 33) {
+    double ratios[kRatioN]; bool have[kRatioN];
+    if (bodyRatiosFrame(world, screen, ratios, have)) {
+      double s = 0; int n = 0;
+      for (int i = 0; i < kRatioN; i++) {
+        if (!ratioUsable_[i] || !have[i] || bodyRatio_[i] < 1e-6) continue;
+        s += std::fabs(ratios[i] - bodyRatio_[i]) / bodyRatio_[i]; n++;
+      }
+      if (n >= 2) ratioErr = s / n;
+    }
+  }
+  double vis = 0;
+  for (int idx : core) vis += screen[idx].visibility;
+  vis /= 6.0;
+  return 2.0 * temporal + 1.5 * ratioErr + 0.3 * (1.0 - vis);
+}
+
+Reading Engine::updateBest(const std::vector<std::vector<Landmark>>& screens,
+                           const std::vector<std::vector<Landmark>>& worlds, double timestampMs) {
+  static const std::vector<Landmark> kEmpty;
+  if (screens.empty()) return update(kEmpty, kEmpty, timestampMs);
+  int best = 0;
+  if (screens.size() > 1) {
+    double bestScore = 1e18;
+    for (size_t i = 0; i < screens.size(); i++) {
+      if (screens[i].size() < 33) continue;
+      const std::vector<Landmark>& w = i < worlds.size() ? worlds[i] : kEmpty;
+      double sc = candidateScore(screens[i], w);
+      if (sc < bestScore) { bestScore = sc; best = (int)i; }
+    }
+  }
+  Reading r = update(screens[best], (size_t)best < worlds.size() ? worlds[best] : kEmpty, timestampMs);
+  r.pickedPose = best;
+  return r;
+}
+
+// ── Faz 2: çizim iskeleti — ekran noktalarını nokta başına One Euro'dan geçir.
+// Görsel katman: sayma/açı matematiğine karışmaz, sadece ekrandaki iskeletin
+// "ağ gibi" sakin durmasını sağlar. Parametreler ekran uzayı için (birim 0..1).
+void Engine::smoothScreenApply(const std::vector<Landmark>& screen, double tMs) {
+  const double minCut = 1.2, beta = 5.0, dCut = 1.0;
+  double dt = (visEuroLastT_ >= 0 && tMs > visEuroLastT_) ? (tMs - visEuroLastT_) / 1000.0 : (1.0 / 30.0);
+  dt = std::min(dt, 0.25);
+  visEuroLastT_ = tMs;
+  smoothScreen_ = screen;
+  auto alpha = [](double cutoff, double dt) {
+    double tau = 1.0 / (2.0 * M_PI * cutoff);
+    return 1.0 / (1.0 + tau / dt);
+  };
+  for (int i = 0; i < 33; i++) {
+    if (screen[i].visibility < 0.3) { visEuroInit_[i] = false; continue; }   // görünmeyeni filtreleme
+    if (!visEuroInit_[i]) {
+      visX_[i] = screen[i].x; visY_[i] = screen[i].y;
+      visDx_[i] = 0; visDy_[i] = 0;
+      visEuroInit_[i] = true;
+      continue;
+    }
+    double aD = alpha(dCut, dt);
+    double dx = (screen[i].x - visX_[i]) / dt, dy = (screen[i].y - visY_[i]) / dt;
+    visDx_[i] = aD * dx + (1 - aD) * visDx_[i];
+    visDy_[i] = aD * dy + (1 - aD) * visDy_[i];
+    double ax = alpha(minCut + beta * std::fabs(visDx_[i]), dt);
+    double ay = alpha(minCut + beta * std::fabs(visDy_[i]), dt);
+    visX_[i] = ax * screen[i].x + (1 - ax) * visX_[i];
+    visY_[i] = ay * screen[i].y + (1 - ay) * visY_[i];
+    smoothScreen_[i].x = visX_[i];
+    smoothScreen_[i].y = visY_[i];
+  }
+}
+
 Reading Engine::update(const std::vector<Landmark>& p, double timestampMs) {
   static const std::vector<Landmark> kNoWorld;
   return update(p, kNoWorld, timestampMs);
@@ -361,6 +515,11 @@ Reading Engine::update(const std::vector<Landmark>& p,
   if (t < 0) { fakeT_ += 1000.0 / 30.0; t = fakeT_; }   // saat verilmediyse ~30fps varsay
   if (startT_ < 0) startT_ = t;                          // seans süresi için (Aşama 14)
   lastT_ = t;
+  // Faz 2: gerçek kare aralığı (ışınlanma kapısı zaman-farkında çalışsın)
+  const double dtSec = (prevFrameT_ >= 0 && t > prevFrameT_)
+                       ? std::min((t - prevFrameT_) / 1000.0, 0.25) : (1.0 / 30.0);
+  prevFrameT_ = t;
+  solvedWorld_.clear();   // bu karenin çözümü aşağıda üretilir; bayat kalmasın
 
   // ── Aşama 13: dinlenme geri sayımı. Motor zaman-farkında olduğu için süreyi
   // KENDİ tutar — dinlenirken vücut kadrajda olmasa da (mola verip çıkabilirsin)
@@ -445,6 +604,10 @@ Reading Engine::update(const std::vector<Landmark>& p,
     if (bodyRatiosFrame(world, p, ratios, have)) {
       if (!calibrated_) {
         for (int i = 0; i < kRatioN; i++) if (have[i]) calibSamples_[i].push_back(ratios[i]);
+        // Faz 2: aynı karelerden MUTLAK kemik uzunlukları da öğrenilir (kilit için)
+        double lens[kBoneN]; bool haveLen[kBoneN];
+        boneLengthsFrame(world, p, lens, haveLen);
+        for (int i = 0; i < kBoneN; i++) if (haveLen[i]) boneSamples_[i].push_back(lens[i]);
         calibCount_++;
         r.calibrating = true;
         r.calibProgress = (double)calibCount_ / kCalibFrames;
@@ -454,6 +617,11 @@ Reading Engine::update(const std::vector<Landmark>& p,
             ratioUsable_[i] = calibSamples_[i].size() >= (size_t)(kCalibFrames * 3 / 5);
             if (ratioUsable_[i]) bodyRatio_[i] = medianOf(calibSamples_[i]);
             calibSamples_[i].clear();
+          }
+          for (int i = 0; i < kBoneN; i++) {
+            boneUsable_[i] = boneSamples_[i].size() >= (size_t)(kCalibFrames * 3 / 5);
+            if (boneUsable_[i]) boneLen_[i] = medianOf(boneSamples_[i]);
+            boneSamples_[i].clear();
           }
           calibrated_ = true;
         }
@@ -478,11 +646,35 @@ Reading Engine::update(const std::vector<Landmark>& p,
     }
   }
 
+  // ── Faz 2: kemik kilidi — vücut öğrenildiyse iskelet, kalibre edilen kemik
+  // uzunluklarına hiyerarşik projeksiyonla oturtulur ve TÜM açılar kilitli
+  // iskeletten yeniden ölçülür. Dedektörün uzunluk gürültüsü açıya giremez. ──
+  if (boneLockOn_ && calibrated_ && hasWorld) {
+    solveBones(world, p, solvedWorld_);
+    const std::vector<Landmark>& s = solvedWorld_;
+    r.angles.leftKnee   = angleAt(s, {L_HIP, L_KNE, L_ANK});
+    r.angles.rightKnee  = angleAt(s, {R_HIP, R_KNE, R_ANK});
+    r.angles.leftHip    = angleAt(s, {L_SHO, L_HIP, L_KNE});
+    r.angles.rightHip   = angleAt(s, {R_SHO, R_HIP, R_KNE});
+    r.angles.leftElbow  = angleAt(s, {L_SHO, L_ELB, L_WRI});
+    r.angles.rightElbow = angleAt(s, {R_SHO, R_ELB, R_WRI});
+    double rawSolved = (visL >= visR) ? angleAt(s, spec_.primaryLeft)
+                                      : angleAt(s, spec_.primaryRight);
+    if (rawSolved >= 0.0) { raw = rawSolved; r.rawAngle = raw; }
+  }
+
+  // ── Faz 2: bu poz kabul edildi — çok kişi seçimi (updateBest) bir sonraki
+  // karede "en son kimi izliyordum"u bilsin; çizim iskeleti de üretilsin. ──
+  lastCore_ = p;
+  smoothScreenApply(p, t);
+
   // ── Aşama 4: yumuşatma + ince takip: tek karelik dev sıçrama (iskeletin
   // eşyaya/başkasına ışınlanması) yutulur; iki kare sürerse gerçek kabul edilir.
   // Filtre varsayılanı One Euro (açı uzayında, hıza uyarlı); EMA yolu ölçüm
-  // karşılaştırması için duruyor. ──
-  const bool spike = haveSmooth_ && std::fabs(raw - smooth_) > 50.0;
+  // karşılaştırması için duruyor. Eşik zaman-farkında: 700°/sn üstü insan değil
+  // (fizyolojik tavan); 30fps'te ~23° ama tabanı 25° — eski 50°/kare sabiti
+  // düşük fps'te ışınlanmaları kaçırıyordu. ──
+  const bool spike = haveSmooth_ && std::fabs(raw - smooth_) > std::max(25.0, 700.0 * dtSec);
   if (spike && !spikeHold_) {
     spikeHold_ = true;                 // bu kareyi yut: yumuşatılmış açı yerinde kalır
   } else {
