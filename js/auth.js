@@ -1,4 +1,4 @@
-// auth.js — ortak damlahelloworld hesabı. email + şifre, Supabase.
+// auth.js — ortak nosey-dewdrop hesabı. email + şifre, Supabase.
 // Kendi küçük barını #authbar'a çizer, giriş durumunu onAuth ile dışa verir.
 // Koç giriş yapmadan da çalışır (seans localStorage'a düşer); giriş yapınca
 // seanslar hesaba senkron olur.

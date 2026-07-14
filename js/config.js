@@ -1,4 +1,4 @@
-// gymgyme -> ortak damlahelloworld Supabase projesi (auth + koç seansları).
+// gymgyme -> ortak nosey-dewdrop Supabase projesi (auth + koç seansları).
 // anon key public-safe: tarayıcıda durması normal, korumayı RLS yapar (her
 // kullanıcı yalnız kendi satırını görür/yazar). service key ASLA repoda olmaz.
 window.GG_CONFIG = {

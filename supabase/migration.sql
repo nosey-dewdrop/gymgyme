@@ -1,4 +1,4 @@
--- gymgyme koç — ortak damlahelloworld Supabase projesinde çalıştır (SQL editor).
+-- gymgyme koç — ortak nosey-dewdrop Supabase projesinde çalıştır (SQL editor).
 -- Tablolar gg_ ön ekli, çünkü proje başka app'lerle paylaşımlı (çakışma olmasın).
 -- Kamera/video ASLA buraya gelmez; sadece seansın sayıları saklanır. RLS ile
 -- her kullanıcı yalnız kendi seanslarını görebilir/yazabilir/silebilir.

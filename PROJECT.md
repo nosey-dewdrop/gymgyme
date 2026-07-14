@@ -3,8 +3,8 @@
 A public-good website: a community-fed directory of home training resources — healthy-living articles, home workouts, pilates, ballet, yoga, gym, calisthenics, bodyweight. Anyone suggests a link or a move; Damla approves; the best-recommended rise up. Born from the home-workout iOS pivot (2026-07-10): the mission is ACCESS ("adult ballet barely exists even in Ankara"), not revenue.
 
 ## Direction change (Damla, 2026-07-13): backend is now IN
-Damla: "local olmaz, database gidelim." The coach now has real accounts + a database (shared damlahelloworld Supabase, project ref xjtmqncfhuidctxgthhv). This SUPERSEDES the SUPABASESIZ / no-backend non-negotiable below for the coach. The camera/video still never leaves the device (KVKK); only the workout NUMBERS (reps, scores, dates, move) sync to the account. Accounts open the door to a money model on top (not yet decided/built). The directory link-list itself is still static for now; migrating its my-program/calendar to accounts is the next step.
-- Auth = email + password, shared across the damlahelloworld ecosystem. Tables gg_ prefixed. RLS: each user only their own rows. Anon key is public (client-side, RLS-protected). Run supabase/migration.sql in the shared project's SQL editor.
+Damla: "local olmaz, database gidelim." The coach now has real accounts + a database (shared nosey-dewdrop Supabase, project ref xjtmqncfhuidctxgthhv). This SUPERSEDES the SUPABASESIZ / no-backend non-negotiable below for the coach. The camera/video still never leaves the device (KVKK); only the workout NUMBERS (reps, scores, dates, move) sync to the account. Accounts open the door to a money model on top (not yet decided/built). The directory link-list itself is still static for now; migrating its my-program/calendar to accounts is the next step.
+- Auth = email + password, shared across the nosey-dewdrop ecosystem. Tables gg_ prefixed. RLS: each user only their own rows. Anon key is public (client-side, RLS-protected). Run supabase/migration.sql in the shared project's SQL editor.
 - Privacy/consent shipped same session: gizlilik.html + consent line on the auth bar + honest copy (no more "nothing is saved").
 
 ## Earlier non-negotiables (Damla, 2026-07-10) — kept for the directory, superseded for the coach
@@ -40,7 +40,7 @@ Master plan: reports/2026-07-14-vucut-motoru-plan.md — the engine grows into a
 - 104 native tests green (bone lock snap-back, stranger rejection, single-candidate passthrough, smooth pose), wasm rebuilt, sw v16.
 - BACKLOG (Damla wish, optional): finger/hand web overlay — pose model has NO finger joints (only wrist + rough hand points); needs MediaPipe Hand Landmarker as a second model (~10 MB + GPU cost). Parked deliberately.
 
-## Status update (2026-07-13 evening — LIVE at gymgyme.damlahelloworld.com)
+## Status update (2026-07-13 evening — LIVE at gymgyme.noseydewdrop.com)
 Big day, all pushed and deployed (Vercel auto-deploys on push, domain is bound):
 - WORDING: user-facing "coach" -> "personal trainer" (urls unchanged).
 - PWA: manifest + icons (PIL, pink+arial "gg") + sw.js (precache, vendor/engine cache-first; BUMP CACHE version in sw.js whenever vendor/ or engine/ change — currently v3).
@@ -63,7 +63,7 @@ OPEN / NEXT:
 Suggested channels when live: r/xxfitness + r/bodyweightfitness (helpful-tool framing, not promo), Turkish fitness Instagram/TikTok ("Ankara'da yetişkin balesi yok diye yaptık" story), ekşi sözlük (evde spor başlıkları), Bilkent groups. The pitch is the mission: free forever, no ads, no accounts, everyone adds. The "contributors (thank you!)" wall is the growth loop: people come back to see their name.
 
 ## Architecture
-- Static site, vanilla JS, Supabase REST directly from the browser (shared damlahelloworld project, table `hl_entries`).
+- Static site, vanilla JS, Supabase REST directly from the browser (shared nosey-dewdrop project, table `hl_entries`).
 - RLS: anon SELECT only `approved=true`; anon INSERT forced `approved=false, recommend_count=1`. Seed rows inserted as owner with `approved=true`.
 - Moderation: Supabase dashboard. Duplicate URL suggestions → merge by bumping `recommend_count` (manual for now).
 - Privacy: stores only what is published (title, url, description, display name). Form says the name will be published. No emails, no cookies, no analytics.
