@@ -47,6 +47,40 @@ const privateNote = $("private");
 const LM = 33;                 // MediaPipe pose nokta sayısı
 const FLOATS = LM * 4;         // her nokta [x, y, z, visibility]
 
+// ── ölçüm bandı kaydedicisi (hassas motor Faz 0): ?rec=1 ile açılır, normal
+// kullanıcı hiç görmez. Motorun gördüğü landmark akışını aynen tutar; seans
+// durunca .ggclip olarak iner, engine/bench.sh clip <dosya> ile metriklenir.
+// Tek hareketli seans kaydet — başlık ilk hareketle yazılır.
+const recOn = new URLSearchParams(location.search).get("rec") === "1";
+let recLines = null;
+function recFrame(t, lm, wl) {
+  if (!recLines) return;
+  const parts = [Math.round(t)];
+  for (let i = 0; i < LM; i++) {
+    const p = lm[i];
+    if (p) parts.push((p.x * aspect).toFixed(5), p.y.toFixed(5), "0", (p.visibility ?? 1).toFixed(3));
+    else parts.push("0", "0", "0", "0");
+  }
+  if (wl) {
+    for (let i = 0; i < LM; i++) {
+      const p = wl[i];
+      if (p) parts.push(p.x.toFixed(5), p.y.toFixed(5), (p.z ?? 0).toFixed(5), (p.visibility ?? 1).toFixed(3));
+      else parts.push("0", "0", "0", "0");
+    }
+  } else parts.push("-");
+  recLines.push(parts.join(" "));
+}
+function recDownload() {
+  if (!recLines || recLines.length < 2) { recLines = null; return; }
+  const blob = new Blob([recLines.join("\n") + "\n"], { type: "text/plain" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "gymgyme-" + (recLines[0].split(" ")[2] || "clip") + "-" + Date.now() + ".ggclip";
+  a.click();
+  URL.revokeObjectURL(a.href);
+  recLines = null;
+}
+
 // ── program: hareket KUYRUĞU (Damla: seans değil program). cihazda saklanır,
 // kamera sırayla oynatır — biten hareket kaydedilir, sıradaki 5 sn geri sayımla gelir. ──
 const PROG_KEY = "gg_program";
@@ -194,7 +228,9 @@ async function loadPose() {
   const vision = await FilesetResolver.forVisionTasks("vendor/mediapipe/wasm");
   poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
     baseOptions: {
-      modelAssetPath: "vendor/models/pose_landmarker_lite.task",
+      // full model (Faz 1): lite'tan belirgin daha isabetli landmark, ~9 MB.
+      // FPS düşerse geri dönüş lite — karar Damla'nın telefon turunda.
+      modelAssetPath: "vendor/models/pose_landmarker_full.task",
       delegate: "GPU"
     },
     runningMode: "VIDEO",
@@ -296,6 +332,7 @@ async function start() {
     loadItem(0);
     setStatus("i can see you - move 1 of " + program.items.length + ": " +
       moveLabel(program.items[0].move) + ". stand back so your whole body fits.");
+    if (recOn) recLines = ["ggclip 1 " + (program.items[0] ? program.items[0].move : moveSel.value)];
     running = true;
     frames = 0; fps = 0; fpsClock = performance.now();
     requestAnimationFrame(loop);
@@ -310,6 +347,7 @@ async function start() {
 function stop() {
   running = false;
   switching = false;
+  recDownload();   // kayıt açıksa klibi indir (Faz 0 ölçüm bandı)
   document.body.classList.remove("running");
   const s = video.srcObject;
   if (s) s.getTracks().forEach((t) => t.stop());
@@ -686,6 +724,7 @@ function loop() {
             heap[wbase + i * 4 + 3] = p.visibility ?? 1;
           }
         }
+        if (recLines) recFrame(performance.now(), lm, wl);
         const r = engine.updatePtr(bufPtr, count * 4, worldBufPtr, wcount * 4, performance.now());
         if (r.tracking) skeletonColor = r.phase === "bottom" ? "#A61B42" : "#33000E";
         render(r);
