@@ -3,7 +3,7 @@
 (function () {
   // gorunur surum etiketi (Damla kurali: github.io testinde hangi surume
   // baktigin belli olsun) - sw.js cache surumuyle birlikte elle guncellenir.
-  const GG_V = "v31";
+  const GG_V = "v32";
   const bar = document.querySelector(".topbar");
   if (bar) {
     const v = document.createElement("span");

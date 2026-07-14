@@ -289,6 +289,7 @@ let lastVideoTime = -1;
 let drawer = null;
 let aspect = 1;
 let faceLandmarker = null, handLandmarker = null;   // görsel ağ katmanı
+let rebuildingPose = false;   // canlı kurtarma sürerken ikinci kez kurma
 let lastFace = null, lastHands = null;              // atlanan karede son sonuç çizilir
 let meshFrame = 0;                                  // yüz/el her 2 karede bir koşar (fps)
 let frames = 0, fps = 0, fpsClock = 0;
@@ -297,20 +298,41 @@ let angleRows = null;          // textContent ile güncellenen satırlar
 const setStatus = (m) => { statusEl.textContent = m; };
 
 // gören model: MediaPipe pose (kendisi de c++/wasm, gpu'da, cihazda).
+let visionFileset = null;
+let segOn = false;   // siluet maskesi aktif mi (kurulumda karar verilir)
+async function makePose(vision, model, seg) {
+  return PoseLandmarker.createFromOptions(vision, {
+    baseOptions: { modelAssetPath: "vendor/models/pose_landmarker_" + model + ".task", delegate: "GPU" },
+    runningMode: "VIDEO",
+    numPoses: 2,   // Faz 2: kadraja ikinci kişi girerse motor KİMİ izleyeceğini kendi seçer
+    outputSegmentationMasks: seg
+  });
+}
 async function loadPose() {
   setStatus("loading the pose model (first time only, then cached)...");
   const vision = await FilesetResolver.forVisionTasks("vendor/mediapipe/wasm");
-  poseLandmarker = await PoseLandmarker.createFromOptions(vision, {
-    baseOptions: {
-      // full model (Faz 1): lite'tan belirgin daha isabetli landmark, ~9 MB.
-      // FPS düşerse geri dönüş lite — karar Damla'nın telefon turunda.
-      modelAssetPath: "vendor/models/pose_landmarker_full.task",
-      delegate: "GPU"
-    },
-    runningMode: "VIDEO",
-    numPoses: 2,   // Faz 2: kadraja ikinci kişi girerse motor KİMİ izleyeceğini kendi seçer
-    outputSegmentationMasks: true   // "iskelet degil vucut": siluet isiltisi icin
-  });
+  visionFileset = vision;
+  // ── KADEMELİ AÇILIŞ (15 tem "kamera açılmıyor" dersi): siluet ya da full
+  // model bazı GPU'larda kurulumu düşürebiliyor — kamera SÜSTEN önce gelir.
+  // full+siluet → full → lite sırasıyla dener; hangisi tutarsa onunla açılır. ──
+  const attempts = [
+    { model: "full", seg: true },
+    { model: "full", seg: false },
+    { model: "lite", seg: false },
+  ];
+  let lastErr = null;
+  poseLandmarker = null;
+  for (const a of attempts) {
+    try {
+      poseLandmarker = await makePose(vision, a.model, a.seg);
+      segOn = a.seg;
+      break;
+    } catch (e) {
+      lastErr = e;
+      console.warn("pose init failed (" + a.model + ", seg=" + a.seg + "):", e);
+    }
+  }
+  if (!poseLandmarker) throw lastErr;
   drawer = new DrawingUtils(ctx);
   // ── görsel ağ katmanı (Damla "ekle", 15 tem): yüz 478 nokta + el 21'er nokta.
   // SALT görüntü — sayma motoruna hiç girmez. Yüklenemezse sessizce vazgeçilir,
@@ -914,7 +936,22 @@ function loop() {
     lastVideoTime = video.currentTime;
     if (canvas.width !== (video.videoWidth || canvas.width)) sizeCanvas();
 
-    const result = poseLandmarker.detectForVideo(video, performance.now());
+    let result = null;
+    try {
+      result = poseLandmarker.detectForVideo(video, performance.now());
+    } catch (err) {
+      // canli kurtarma: siluet aciksa onsuz, degilse lite modelle yeniden kur
+      console.warn("pose detect failed, rebuilding:", err);
+      if (!rebuildingPose && visionFileset) {
+        rebuildingPose = true;
+        const nextSeg = false, nextModel = segOn ? "full" : "lite";
+        makePose(visionFileset, nextModel, nextSeg).then((p) => {
+          poseLandmarker = p; segOn = nextSeg; rebuildingPose = false;
+        }).catch(() => { rebuildingPose = false; });
+      }
+      requestAnimationFrame(loop);
+      return;
+    }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     if (result && result.segmentationMasks && result.segmentationMasks.length) {
