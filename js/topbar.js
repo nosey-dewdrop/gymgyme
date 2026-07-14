@@ -1,6 +1,17 @@
 // topbar.js - her sayfanın üstü: hareket arayan arama çubuğu + "my moves (n)"
 // dropdown'ı. beğeniler cihazda durur (gg_mymoves); moves.html ile ortak dil.
 (function () {
+  // gorunur surum etiketi (Damla kurali: github.io testinde hangi surume
+  // baktigin belli olsun) - sw.js cache surumuyle birlikte elle guncellenir.
+  const GG_V = "v30";
+  const bar = document.querySelector(".topbar");
+  if (bar) {
+    const v = document.createElement("span");
+    v.className = "vtag";
+    v.textContent = GG_V;
+    bar.appendChild(v);
+  }
+
   const KEY = "gg_mymoves";
 
   function getKept() {

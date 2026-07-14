@@ -152,3 +152,6 @@
 
 /* bilet gisesi: form ortada (mockup dili) */
 .office { max-width: 560px; margin: 0 auto; }
+
+/* gorunur surum etiketi: cache tartismasini bitirir */
+.vtag { font-size: 10px; color: var(--ink-soft); opacity: .7; align-self: flex-start; }
