@@ -1242,13 +1242,19 @@ function loop() {
       // modelleri uykuya alınır — gövde dolgusu + iskelet zaten akıcı kalır. ──
       if (faceLandmarker && handLandmarker && !meshFaceHandsSleep) {
         meshFrame++;
+        // yüz/el mesh her 2 karede bir algılanır (fps). Pilatess dersi: ATLANAN
+        // karede eski landmark'ı çizersek video oynamışken maske yüzer. O yüzden
+        // yalnız TAZE algılamanın olduğu karede çiz — arada mesh çizilmez (sabit
+        // maske değil, hiç maske; gövde ağı zaten her kare akıyor).
+        let freshMesh = false;
         if (meshFrame % 2 === 0) {
           try {
             lastFace = faceLandmarker.detectForVideo(video, performance.now());
             lastHands = handLandmarker.detectForVideo(video, performance.now());
-          } catch (_) { /* mesh dusse de gövde+iskelet yasar */ }
+            freshMesh = true;
+          } catch (_) { /* mesh dusse de gövde ağı yasar */ }
         }
-        if (lastFace && lastFace.faceLandmarks) {
+        if (freshMesh && lastFace && lastFace.faceLandmarks) {
           // kavisli özellikler: [connector listesi, çizgi kalınlığı, renk]
           const feats = [
             [FaceLandmarker.FACE_LANDMARKS_LIPS,          2.4, skeletonColor],
@@ -1261,7 +1267,7 @@ function loop() {
           for (const fl of lastFace.faceLandmarks)
             drawFace(ctx, fl, FaceLandmarker.FACE_LANDMARKS_TESSELATION, feats, canvas.width, canvas.height);
         }
-        if (lastHands && lastHands.landmarks)
+        if (freshMesh && lastHands && lastHands.landmarks)
           for (const hl of lastHands.landmarks) drawHand(ctx, hl, canvas.width, canvas.height);
       }
     }
