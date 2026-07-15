@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 #include "kalman.hpp"
+#include "ik.hpp"
 
 namespace coach {
 
@@ -293,6 +294,7 @@ class Engine {
   // iki taraf tek uzunluk kullanır (vücut simetrik, örnek sayısı ikiye katlanır).
   static constexpr int kBoneN = 4;          // uyluk, baldır, üst kol, ön kol
   bool boneLockOn_ = true;
+  bool ikOn_ = true;   // anatomik eklem limitleri (ik.hpp) — kemik kilidi sonrası açı kırpma
   std::vector<double> boneSamples_[kBoneN];
   double boneLen_[kBoneN] = {0, 0, 0, 0};
   bool boneUsable_[kBoneN] = {false, false, false, false};

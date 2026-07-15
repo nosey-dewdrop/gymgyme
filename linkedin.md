@@ -55,3 +55,15 @@ Bu tam olarak Kalman filtresinin yaptığı iş. Her noktanın durumunu konum VE
 Bunu neden önemli buluyorum: bu, oyuncak bir yumuşatmadan gerçek bir kestirim katmanına geçiş. Vision Pro'nun, mocap sistemlerinin, MediaPipe'ın kendi iç filtrelerinin oturduğu matematik bu. Tek webcam'le, tarayıcıda, gerçek zamanlı çalıştırıyoruz — Pixar'ın çok kameralı offline lüksü yok, ama "hareketi çöz" problemi aynı problem, ve o problemde rekabet edilebilir.
 
 Bir mühendislik disiplini de dayattı kendini: Kalman'ı motora bağlamadan önce 12 test yazdım — yakınsama, hız öğrenme, occlusion boyunca akma, gürültü bastırma, güven-ağırlıklı güncelleme. "Sanırım daha pürüzsüz" demek istemedim; matematiğin doğru olduğunu ölçtüm. Occlusion sırasında eklemin gerçekten tahmini hızla ilerlediğini, komşu eklemlerin normal takibini sürdürdüğünü, ve en önemlisi sayma matematiğinin hiç etkilenmediğini — çünkü bu katman sadece çizime bağlı, açı ölçümü hâlâ ham veriden — testle sabitledim.
+
+## Dizin geriye bükülemez: iskelete anatomi öğretmek
+
+gymgyme'nin motorunda kemik kilidi diye bir katman var: dedektörün önerdiği yönü kabul eder ama uzunluğu kalibrasyonda öğrenilen sabite çeker. Kemik uzayamaz, eklem kayamaz. Bu iyi çalışıyordu ama bir boşluk bıraktığını fark ettim: uzunluğu sabitliyordum, açıyı değil. Dedektör gürültüsü bir dizi geriye bükebiliyordu — insan dizinin fiziksel olarak yapamayacağı bir şey. İskelet doğru boyda ama imkansız bir şekilde kırılmış görünüyordu.
+
+Gerçek bir hareket-yakalama hattında bu, "cleanup" ya da "solve" aşamasının işidir: ham veri temizlenirken her eklemin fiziksel bir hareket açıklığı (ROM) olduğu bilinir, dışına çıkan okuma gürültü sayılıp sınıra çekilir. Diz yaklaşık 0 ile 180 derece arasında bükülür; 185'i geçmez, 15'in altına inmez. Dirsek geriye kırılmaz. Kalça belli bir aralıkta döner. Bunlar keyfi sayılar değil, insan anatomisinin sınırları.
+
+ik.hpp'de bu limitleri kodladım ve kemik kilidinden sonra uyguluyorum. Bir eklemin açısı yasal aralığın dışındaysa, çocuk noktayı ebeveyn etrafında en yakın sınıra kadar döndürüyorum. Kritik olan: döndürme sırasında hem yönü hem kemik uzunluğunu koruyorum. Bunu Rodrigues dönme formülüyle yapıyorum — bir vektörü bir eksen etrafında tam bir açı kadar döndürmenin temiz yolu. Sonuç: iskelet artık hem doğru boyda hem anatomik olarak mümkün.
+
+Neden bu kadar önemsiyorum: bir CV motorunu oyuncaktan ürüne taşıyan şey tam bu tür katmanlar. Ham dedektör çıktısı bir başlangıçtır, bitiş değil. Onun üstüne kestirim (Kalman), kısıt (kemik kilidi + eklem limitleri), ve anlam (form kuralları) koydukça motor "noktaları çizen bir şey"den "vücudu anlayan bir şey"e dönüşüyor. Anatomik bilgi bunun bir parçası: motor artık sadece nokta görmüyor, o noktaların bir İNSANA ait olduğunu ve insanların nasıl büküldüğünü biliyor.
+
+Ve her zamanki disiplin: 9 test yazdım önce. Geçerli bir açının dokunulmadan bırakıldığını, aşırı bükülü bir dizin sınıra çekildiğini, ve en önemlisi kemik uzunluğunun kırpma sırasında korunduğunu ölçtüm. Matematik doğru olmadan "düzeldi" demek istemiyorum.

@@ -491,6 +491,17 @@ void Engine::solveBones(const std::vector<Landmark>& world,
   // kollar: omuz çapa → dirsek → bilek
   place(L_SHO, L_ELB, 2); place(L_ELB, L_WRI, 3);
   place(R_SHO, R_ELB, 2); place(R_ELB, R_WRI, 3);
+
+  // ── anatomik eklem limitleri (ik.hpp): kemik kilidi UZUNLUĞU sabitledi, bu
+  // AÇIYI yasal aralığa çeker. Dedektör dizi geriye bükerse (imkansız) sınıra
+  // döndürülür, kemik boyu korunarak. Çözülmüş iskelet artık hem doğru boyda
+  // hem anatomik olarak mümkün — mocap "cleanup" aşamasının çekirdeği. ──
+  if (ikOn_) {
+    double P[99];
+    for (int i = 0; i < 33; i++) { P[i*3] = out[i].x; P[i*3+1] = out[i].y; P[i*3+2] = out[i].z; }
+    clampHumanLimits(P);
+    for (int i = 0; i < 33; i++) { out[i].x = P[i*3]; out[i].y = P[i*3+1]; out[i].z = P[i*3+2]; }
+  }
 }
 
 // ── Faz 2: aday puanı (küçük iyi). Kadraja ikinci kişi girince motor kimi
