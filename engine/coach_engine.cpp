@@ -851,7 +851,7 @@ Reading Engine::update(const std::vector<Landmark>& p,
                    avg2(r.angles.leftElbow, r.angles.rightElbow),
                    avg2(r.angles.leftHip, r.angles.rightHip),
                    avg2(angleAt(g, {L_HIP, L_SHO, L_ELB}), angleAt(g, {R_HIP, R_SHO, R_ELB})),
-                   r.torsoTilt);
+                   r.torsoTilt, r.asymmetryDeg);   // asimetri: squat(sim) vs lunge(asim) ayırır
   {
     double dc = 0;
     std::string dm = classifier_.classify(dc);

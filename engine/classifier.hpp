@@ -26,28 +26,31 @@ namespace coach {
 // izlenen dört büyük eklemin adı (imza ekseni).
 enum class SigJoint { Knee, Elbow, Hip, Shoulder, None };
 
-// bir hareketin imzası: hangi eklem, dik mi yatay mı, rep mi hold mu.
+// bir hareketin imzası: hangi eklem, dik mi yatay mı, rep mi hold mu, ve
+// TEK-TARAFLI mı (lunge bir bacak önde = asimetrik; squat iki bacak simetrik).
+// Asimetri boyutu, aynı eklemi paylaşan hareketleri ayırır (squat vs lunge).
 struct MoveSignature {
   std::string name;
   SigJoint joint;
   bool horizontal;   // gövde yatay mı (plank/push-up) yoksa dik mi (squat)
   bool isHold;       // salınım yok mu (izometrik)
+  bool asymmetric;   // sol-sağ belirgin farklı mı (lunge, sidelunge) yoksa simetrik mi (squat)
 };
 
 // bilinen hareket imzaları. Motor bu tabloyla canlı imzayı eşleştirir.
 inline const std::vector<MoveSignature>& knownSignatures() {
   static const std::vector<MoveSignature> S = {
-    {"squat",      SigJoint::Knee,     false, false},
-    {"lunge",      SigJoint::Knee,     false, false},
-    {"pushup",     SigJoint::Elbow,    true,  false},
-    {"press",      SigJoint::Elbow,    false, false},
-    {"glutebridge",SigJoint::Hip,      true,  false},
-    {"situp",      SigJoint::Hip,      true,  false},
-    {"jumpingjack",SigJoint::Shoulder, false, false},
-    {"armraise",   SigJoint::Shoulder, false, false},
-    {"plank",      SigJoint::Elbow,    true,  true},
-    {"wallsit",    SigJoint::Knee,     false, true},
-    {"superman",   SigJoint::Hip,      true,  true},
+    {"squat",      SigJoint::Knee,     false, false, false},
+    {"lunge",      SigJoint::Knee,     false, false, true},   // tek bacak önde: asimetrik
+    {"pushup",     SigJoint::Elbow,    true,  false, false},
+    {"press",      SigJoint::Elbow,    false, false, false},
+    {"glutebridge",SigJoint::Hip,      true,  false, false},
+    {"situp",      SigJoint::Hip,      true,  false, false},
+    {"jumpingjack",SigJoint::Shoulder, false, false, false},
+    {"armraise",   SigJoint::Shoulder, false, false, false},
+    {"plank",      SigJoint::Elbow,    true,  true,  false},
+    {"wallsit",    SigJoint::Knee,     false, true,  false},
+    {"superman",   SigJoint::Hip,      true,  true,  false},
   };
   return S;
 }
@@ -59,12 +62,13 @@ class MoveClassifier {
  public:
   void reset() {
     for (int i = 0; i < 4; i++) { mn_[i] = 1e9; mx_[i] = -1e9; sum_[i] = 0; }
-    tiltSum_ = 0; n_ = 0;
+    tiltSum_ = 0; n_ = 0; asymSum_ = 0; asymN_ = 0;
   }
 
   // bir kareyi besle: dört eklem açısı (diz, dirsek, kalça, omuz; -1 = yok) +
-  // gövde tilt'i (derece, -1 = yok). Pencere dolunca eskiler düşer (kayan).
-  void feed(double knee, double elbow, double hip, double shoulder, double tilt) {
+  // gövde tilt'i (derece, -1 = yok) + sol-sağ asimetri (derece, -1 = ölçülemedi).
+  // Asimetri squat/lunge gibi aynı-eklem hareketleri ayırır.
+  void feed(double knee, double elbow, double hip, double shoulder, double tilt, double asym = -1.0) {
     const double a[4] = {knee, elbow, hip, shoulder};
     for (int i = 0; i < 4; i++) {
       if (a[i] < 0) continue;
@@ -73,6 +77,7 @@ class MoveClassifier {
       sum_[i] += a[i];
     }
     if (tilt >= 0) tiltSum_ += tilt;
+    if (asym >= 0) { asymSum_ += asym; asymN_++; }
     n_++;
     if (n_ > kWindow) {
       // kaba kayan pencere: pencere aşılınca uçları hafif daralt (yeni salınıma
@@ -104,20 +109,27 @@ class MoveClassifier {
     const bool isHold = bestAmp < 12.0;   // <12° salınım ~2s = izometrik tutuş
     const double avgTilt = n_ > 0 ? tiltSum_ / n_ : -1;
     const bool horizontal = avgTilt >= 0 && avgTilt > 50.0;
+    // asimetri ölçüldüyse: ort. sol-sağ fark >18° = tek-taraflı hareket (lunge).
+    const double avgAsym = asymN_ > 0 ? asymSum_ / asymN_ : -1;
+    const bool asymMeasured = avgAsym >= 0;
+    const bool asymmetric = asymMeasured && avgAsym > 18.0;
 
-    // imza eşleştirme: eklem + oryantasyon + hold türü üç boyutta puanla.
+    // imza eşleştirme: eklem + oryantasyon + hold türü + asimetri dört boyutta puanla.
     std::string bestName; double bestScore = -1;
     for (const auto& sig : knownSignatures()) {
       double sc = 0;
       if (sig.joint == dominant) sc += 3.0;               // dominant eklem en ağır
       if (avgTilt >= 0 && sig.horizontal == horizontal) sc += 1.5;
       if (sig.isHold == isHold) sc += 1.5;
+      // asimetri yalnız ölçülebildiyse ayırıcı — squat(sim) vs lunge(asim)
+      if (asymMeasured && sig.asymmetric == asymmetric) sc += 1.5;
       if (sc > bestScore) { bestScore = sc; bestName = sig.name; }
     }
-    // güven: alınan puanın maksimuma (6.0) oranı, salınım netliğiyle ölçekli
+    // güven: alınan puanın maksimuma oranı (asimetri ölçüldüyse 7.5, yoksa 6.0)
+    double maxScore = asymMeasured ? 7.5 : 6.0;
     double clarity = std::min(1.0, bestAmp / 40.0);
     if (isHold) clarity = std::min(1.0, 0.5 + (12.0 - std::min(12.0, bestAmp)) / 24.0);
-    confidence = (bestScore / 6.0) * (0.5 + 0.5 * clarity);
+    confidence = (bestScore / maxScore) * (0.5 + 0.5 * clarity);
     return bestName;
   }
 
@@ -126,6 +138,8 @@ class MoveClassifier {
   double mn_[4] = {1e9, 1e9, 1e9, 1e9};
   double mx_[4] = {-1e9, -1e9, -1e9, -1e9};
   double sum_[4] = {0, 0, 0, 0};
+  double asymSum_ = 0;   // sol-sağ asimetri toplamı (lunge vs squat ayırıcı)
+  int asymN_ = 0;
   double tiltSum_ = 0;
   int n_ = 0;
 };

@@ -401,3 +401,6 @@ three more jury findings fixed:
 - pilates princess: don't print a "quality %" for a hold whose form you can't measure. superman (no form rule) now shows "in position N" instead of "hold quality N" - honest about what the geometry can back.
 - pilatess princess: the rep count and hold seconds hard-swapped like a gym timer. added a count-up tween (numbers climb smoothly to target, snap down on reset) - Damla's premium-flow standard.
 - pilatess princess: the did-you-mean nudge wrote into the same element as form cues and got clobbered / only fired at reps===0. moved it to its own slot (subEl, separate from the msg cue) and it now fires through reps<=1. sw v39.
+
+## classifier can now tell squat from lunge (jul 15, jury response)
+the CS dean's sharpest classifier finding: squat and lunge had IDENTICAL signatures (both Knee/upright/rep), so claiming "the engine recognizes what you're doing" while it provably couldn't separate the two most common leg moves was inflated. fixed it for real, not by scoping down: added an ASYMMETRY dimension. a squat is symmetric (left knee = right knee); a lunge is one leg forward = a large left-right angle gap the engine already measures. the classifier now feeds mean asymmetry and separates the pair - a test proves symmetric knee motion -> squat, asymmetric knee motion -> lunge. the claim is now true. 182 native tests.

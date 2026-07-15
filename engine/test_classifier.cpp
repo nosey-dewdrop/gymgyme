@@ -70,6 +70,29 @@ int main() {
     check(m == "wallsit", "static knee ~90 + upright -> wall sit");
   }
 
+  // ── squat vs lunge ayrımı (CS-dekan bulgusu: eskiden AYNI imza, ayırt
+  // edilemezdi). Artık ASİMETRİ boyutu ayırır: squat simetrik (sol=sağ diz),
+  // lunge asimetrik (bir bacak önde, büyük sol-sağ fark). ──
+  {
+    // simetrik salınan diz + DÜŞÜK asimetri -> squat
+    MoveClassifier sq;
+    for (int i = 0; i < 60; i++) {
+      double knee = 130 + 50 * std::sin(i * 0.3);
+      sq.feed(knee, 175, 170, 20, 10.0, 3.0);   // asimetri ~3° (simetrik)
+    }
+    double c1; std::string m1 = sq.classify(c1);
+    check(m1 == "squat", "symmetric knee movement -> squat (not lunge)");
+
+    // salınan diz + YÜKSEK asimetri -> lunge
+    MoveClassifier lu;
+    for (int i = 0; i < 60; i++) {
+      double knee = 130 + 50 * std::sin(i * 0.3);
+      lu.feed(knee, 175, 170, 20, 10.0, 35.0);   // asimetri ~35° (tek bacak önde)
+    }
+    double c2; std::string m2 = lu.classify(c2);
+    check(m2 == "lunge", "asymmetric knee movement -> lunge (asymmetry dimension separates them)");
+  }
+
   // yetersiz veri -> boş (motor emin değil)
   {
     MoveClassifier c;
