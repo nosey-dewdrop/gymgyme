@@ -360,3 +360,6 @@ Damla's push: "this is a real product to be sold, not a kid's toy - make the eng
 - LIBRARY 188 -> 386 moves: expanded MOVE_DB with 198 real, fact-checked home/bodyweight exercises across all 7 muscle groups (no fabrication - a verify pass removed anything gym-only or invented).
 - gitattributes: marked the data files as generated so github linguist stops calling this a JS project - it's a C++ vision engine with a thin web binding.
 - 143 native tests (131 engine + 12 kalman).
+
+## kalman wired into the engine: the skeleton stops jumping (jul 15, deep night)
+the Kalman filter existed as a tested module; now it's actually in the draw path. before drawing, each landmark runs predict (coast on velocity) then correct (blend by confidence). when a joint drops for a few frames it keeps flowing on its last known velocity instead of freezing or teleporting; when it comes back a blurry low-visibility read is trusted less. after ~0.5s of occlusion it stops guessing (no phantom limb). draw-only: the counting angles still read raw/world data, so counting is provably unaffected (test asserts reps unchanged through an occlusion). 151 native tests.

@@ -70,3 +70,9 @@ IG için hook'lu 30-60 sn reel scriptleri. İlk cümle KANCA. Damla seslendirir.
 **Hook (ilk 2 sn):** "Squat yapıyorum, koç eğildiğimi görüyor — ama saymıyor. En sinir bozucu bug bu."
 
 **Anlatı (~40 sn):** Motorun squat'ı sayma şekli sabit bir eşiğe bağlıydı: diz açın 120 dereceye inecek. Ama kameraya dönük çömeldiğinde perspektif diz açını olduğundan düz gösteriyor — sen derin iniyorsun, ekrandaki açı 120'ye hiç değmiyor, sayaç sıfır. Derinlik barı doluyor ama tekrar gelmiyor. Çözüm: eşiği herkese sabit koymayı bıraktım. Motor artık senin GERÇEK ayakta duruşunu öğreniyor, dip eşiğini o duruştan 42 derece aşağı koyuyor. Yani "sen ne kadar bükülürsen senin squat'ın o" diyor. Sabit eşik de bir taban olarak kalıyor, kimseden imkansız derinlik istemesin. Test ettim: eski eşiğin üstünde kalan gerçek bir squat artık sayılıyor.
+
+## Reel — "iskelet neden zıplıyor" ve Kalman
+
+**Hook (ilk 2 sn):** "Kamera koçlarında iskelet sürekli zıplar. Sebebini ve gerçek çözümünü buldum: Kalman filtresi."
+
+**Anlatı (~45 sn):** Elini kaldırdığında el bir an gövdenin önünden geçer ve kamera onu kaybeder. O anda çoğu iskelet ya donar ya da zıplar. Çünkü filtreleri sadece "nokta neredeydi" biliyor. Bense her noktaya bir hız hafızası verdim — Kalman filtresi. Nokta kaybolunca "son gördüğümde saniyede şu hızla yukarı gidiyordu, o zaman şimdi buradadır" diyor ve akmaya devam ediyor. Nokta geri gelince ölçümün ne kadar net olduğuna göre otomatik ağırlık veriyor. Bu, Vision Pro'nun ve sinema mocap sistemlerinin kullandığı matematik. Ben de yazabildim çünkü onların mühendisleri de insan. 12 testle matematiğin doğruluğunu kanıtladım — "sanırım düzeldi" demedim, ölçtüm.

@@ -43,3 +43,15 @@ Doğru çözüm eşiği kişiselleştirmekti. Motor zaten kalibrasyon aşamasın
 Bir emniyet ağı bıraktım: eski sabit eşik bir TABAN olarak duruyor — adaptif eşik ondan daha zor olamıyor, yani motor kimseden fiziksel olarak imkansız bir derinlik istemiyor. Adaptif mekanizma yalnızca saymayı KOLAYLAŞTIRIYOR, hiçbir zaman zorlaştırmıyor.
 
 Ders şu: bir ürün gerçek insanlarla buluştuğunda, "makul bir sabit" diye koyduğun her sayı birinin gerçekliğiyle çelişir. Ölçtüğün şey insandan insana değişiyorsa, eşiğin de değişmeli. Sabit sayı mühendisin kolayına gelir; kullanıcının vücuduna değil.
+
+## İskeletin neden zıpladığını çözmek: One Euro'dan Kalman'a
+
+gymgyme'nin kamera motorunda uzun süre One Euro filtresi kullandım. İyi bir filtredir: bir açıyı hem duruşta sakin hem harekette çevik tutar, kesim frekansını hıza göre ayarlar. Ama bir sınırı var ve o sınır tam da ürünü ucuz gösteren yerde patlıyordu: bir eklem bir kare için kaybolduğunda — el gövdenin önünden geçer, diz bir başkasının arkasında kalır — One Euro'nun söyleyecek sözü yoktur. Ölçüm yoksa çıktı yoktur. İskelet o noktada ya donar ya da model yeni bir tahmin ürettiğinde oraya zıplar. Kullanıcı bunu "bozuk" diye okur, ve haklıdır.
+
+Sorunun kökü şu: One Euro'nun geleceğe dair bir modeli yok. Sadece geçmiş ölçümleri yumuşatıyor. Oysa bir eklem kaybolduğunda elimizde çok değerli bir bilgi var — o eklemin son bilinen HIZI. Kol yukarı gidiyorduysa, görünmediği o birkaç karede de yukarı gitmeye devam ediyordur. Bunu kullanabilmek için filtrenin bir durumu olmalı: sadece "neredeydi" değil, "nereye ve ne hızla gidiyordu".
+
+Bu tam olarak Kalman filtresinin yaptığı iş. Her noktanın durumunu konum VE hız olarak tutuyor, iki fazda çalışıyor. Predict fazı: ölçüm gelmese bile hızı kullanıp bir sonraki konumu öngörüyor — occlusion boyunca iskelet donmuyor, son bilinen hızla akmaya devam ediyor. Update fazı: ölçüm gelince, ölçüm gürültüsüyle süreç gürültüsünü tartıp optimal karışımı alıyor. Bulanık, düşük güvenli bir kare ölçümüne az ağırlık veriyor; net bir ölçüme çok. Bu ağırlığı (Kalman kazancı) elle ayarlamıyorum, matematik kendisi türetiyor.
+
+Bunu neden önemli buluyorum: bu, oyuncak bir yumuşatmadan gerçek bir kestirim katmanına geçiş. Vision Pro'nun, mocap sistemlerinin, MediaPipe'ın kendi iç filtrelerinin oturduğu matematik bu. Tek webcam'le, tarayıcıda, gerçek zamanlı çalıştırıyoruz — Pixar'ın çok kameralı offline lüksü yok, ama "hareketi çöz" problemi aynı problem, ve o problemde rekabet edilebilir.
+
+Bir mühendislik disiplini de dayattı kendini: Kalman'ı motora bağlamadan önce 12 test yazdım — yakınsama, hız öğrenme, occlusion boyunca akma, gürültü bastırma, güven-ağırlıklı güncelleme. "Sanırım daha pürüzsüz" demek istemedim; matematiğin doğru olduğunu ölçtüm. Occlusion sırasında eklemin gerçekten tahmini hızla ilerlediğini, komşu eklemlerin normal takibini sürdürdüğünü, ve en önemlisi sayma matematiğinin hiç etkilenmediğini — çünkü bu katman sadece çizime bağlı, açı ölçümü hâlâ ham veriden — testle sabitledim.

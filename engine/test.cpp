@@ -819,6 +819,43 @@ int main() {
     check(r.smoothAngle < before - 3.0, "exercise prior: a sustained move is accepted");
   }
 
+  // ── Kalman occlusion-recovery: çizim iskeleti, bir landmark bir kaç kare
+  // kaybolunca tahmini hızla akmaya devam eder (zıplamaz), sayma bozulmaz ──
+  {
+    Engine e(builtinMove("squat"));
+    Reading r;
+    double t = 0;
+    // sağa doğru sabit hızla kayan bir vücut: her kare hepsi +0.004 x
+    auto poseMoving = [](double shift) {
+      std::vector<Landmark> p(33);
+      auto set = [&](int i, double x, double y) { p[i].x = x + shift; p[i].y = y; p[i].z = 0; p[i].visibility = 1; };
+      set(11, 0.45, 0.20); set(12, 0.55, 0.20);
+      set(23, 0.45, 0.50); set(24, 0.55, 0.50);
+      set(25, 0.45, 0.70); set(26, 0.55, 0.70);
+      set(27, 0.45, 0.90); set(28, 0.55, 0.90);
+      return p;
+    };
+    double shift = 0;
+    for (int i = 0; i < 20; i++) { t += 33; shift += 0.004; r = e.update(poseMoving(shift), t); }
+    check(e.smoothScreen().size() == 33, "kalman: smooth screen pose exists");
+    double kneeXbefore = e.smoothScreen()[25].x;
+    // sağ diz (26) 5 kare KAYBOLUR (occlusion), gövde kaymaya devam eder
+    double kneeX26_atOcclusion = e.smoothScreen()[26].x;
+    for (int i = 0; i < 5; i++) {
+      t += 33; shift += 0.004;
+      auto pm = poseMoving(shift);
+      pm[26].visibility = 0.0;   // sağ diz görünmez
+      r = e.update(pm, t);
+    }
+    double kneeX26_after = e.smoothScreen()[26].x;
+    check(kneeX26_after > kneeX26_atOcclusion + 0.008,
+          "kalman: an occluded joint keeps flowing on predicted velocity (does not freeze)");
+    check(kneeXbefore < e.smoothScreen()[25].x,
+          "kalman: visible joints keep tracking normally during a neighbour's occlusion");
+    // occlusion sayma matematiğini bozmadı (bu poz hiç dip yapmadı -> 0 rep)
+    check(r.reps == 0, "kalman: occlusion recovery is draw-only, counting is unaffected");
+  }
+
   // ── Faz 2: çizim iskeleti — takip olan karede yumuşatılmış ekran pozu üretilir ──
   {
     Engine e(builtinMove("squat"));

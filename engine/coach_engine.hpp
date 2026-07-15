@@ -12,6 +12,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include "kalman.hpp"
 
 namespace coach {
 
@@ -266,6 +267,9 @@ class Engine {
                   const std::vector<Landmark>& vis, std::vector<Landmark>& out) const;
   // çizim iskeleti: ekran noktalarını nokta başına One Euro'dan geçir.
   void smoothScreenApply(const std::vector<Landmark>& screen, double tMs);
+  // Kalman occlusion-recovery: görünür noktaları düzelt, kayıpları tahminle
+  // doldur. out'a yazar (görünmeyen nokta = tahmin, visibility düşük işaretli).
+  void kalmanApply(const std::vector<Landmark>& screen, double tMs, std::vector<Landmark>& out);
 
   MoveSpec spec_;
   double smooth_ = -1;
@@ -301,6 +305,13 @@ class Engine {
   bool visEuroInit_[33] = {};
   double visX_[33] = {}, visY_[33] = {}, visDx_[33] = {}, visDy_[33] = {};
   double visEuroLastT_ = -1;
+  // ── Kalman occlusion-recovery: her ekran noktası için konum-hız durumu.
+  // görünür nokta correct edilir; görünmeyen nokta yalnız predict'le akar
+  // (el gövde arkasına geçince iskelet zıplamaz, tahmini hızla devam eder).
+  // occludedFor_ = o noktanın kaç kaç kaç kaç karedir ölçümsüz kaldığı. ──
+  KalmanPoint kf_[33];
+  int occludedFor_[33] = {};
+  double kfLastT_ = -1;
   // ── Faz 2: zaman-farkında ışınlanma kapısı için önceki kare zamanı ──
   double prevFrameT_ = -1;
   bool phaseTop_ = true;

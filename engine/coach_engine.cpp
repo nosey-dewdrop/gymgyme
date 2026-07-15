@@ -315,6 +315,8 @@ void Engine::reset() {
   smoothScreen_.clear();
   for (int i = 0; i < 33; i++) { visEuroInit_[i] = false; visX_[i] = visY_[i] = visDx_[i] = visDy_[i] = 0; }
   visEuroLastT_ = -1;
+  for (int i = 0; i < 33; i++) { kf_[i].reset(); occludedFor_[i] = 0; }
+  kfLastT_ = -1;
   prevFrameT_ = -1;
   // kalibrasyon: açık/kapalı ayarı KORUNUR, öğrenilen vücut yeniden öğrenilir
   calibrated_ = false;
@@ -645,6 +647,40 @@ void Engine::smoothScreenApply(const std::vector<Landmark>& screen, double tMs) 
   }
 }
 
+// ── Kalman occlusion-recovery. Her nokta için: predict (dt ileri sar), sonra
+// GÖRÜNÜRSE correct (görünürlüğe göre R ölçekli — bulanık ölçüme az güven),
+// GÖRÜNMEZSE yalnız tahmin. Kayıp nokta son bilinen hızla akar; kısa occlusion
+// boyunca iskelet zıplamaz. Uzun kopmada (>~0.5s) tahmine güvenmeyi bırakır:
+// nokta "yok" işaretlenir, hayali bir uzvu çizmeyiz. ──
+void Engine::kalmanApply(const std::vector<Landmark>& screen, double tMs, std::vector<Landmark>& out) {
+  double dt = (kfLastT_ >= 0 && tMs > kfLastT_) ? (tMs - kfLastT_) / 1000.0 : (1.0 / 30.0);
+  if (dt <= 0) dt = 1.0 / 30.0;
+  dt = std::min(dt, 0.25);
+  kfLastT_ = tMs;
+  out = screen;
+  const int kMaxOccludeFrames = 15;   // ~0.5s @30fps: sonrasında tahmine güvenme
+  for (int i = 0; i < 33; i++) {
+    kf_[i].setParams(60.0, 2e-3);   // ekran uzayı (0..1): hızlı harekete uyum + titreme bastırma
+    kf_[i].predict(dt);
+    const double vis = screen[i].visibility;
+    if (vis >= 0.3) {
+      // görünür: düzelt. düşük görünürlük → büyük R ölçeği → ölçüme az güven.
+      double rScale = std::max(0.5, 1.0 / std::max(0.05, vis));
+      kf_[i].correct(screen[i].x, screen[i].y, screen[i].z, rScale);
+      occludedFor_[i] = 0;
+      out[i].x = kf_[i].kx.x; out[i].y = kf_[i].ky.x; out[i].z = kf_[i].kz.x;
+    } else if (kf_[i].ready() && occludedFor_[i] < kMaxOccludeFrames) {
+      // görünmez ama yakın zamanda görüldü: tahminle akıt, görünürlüğü sönümle
+      occludedFor_[i]++;
+      out[i].x = kf_[i].kx.x; out[i].y = kf_[i].ky.x; out[i].z = kf_[i].kz.x;
+      out[i].visibility = std::max(0.0, 0.5 - 0.03 * occludedFor_[i]);   // "tahmin ediyorum" sinyali
+    } else {
+      // uzun kayıp: hayali uzuv çizme, olduğu gibi (görünmez) bırak
+      occludedFor_[i] = kMaxOccludeFrames;
+    }
+  }
+}
+
 Reading Engine::update(const std::vector<Landmark>& p, double timestampMs) {
   static const std::vector<Landmark> kNoWorld;
   return update(p, kNoWorld, timestampMs);
@@ -816,7 +852,11 @@ Reading Engine::update(const std::vector<Landmark>& p,
   // karede "en son kimi izliyordum"u bilsin; çizim iskeleti de üretilsin. ──
   lastCore_ = p;
   lastCoreT_ = t;
-  smoothScreenApply(p, t);
+  // Kalman occlusion-recovery ÖNCE (kayıp noktaları tahminle doldur), sonra One
+  // Euro pürüzsüzleştirme — çizim iskeleti hem occlusion'da akar hem sakin durur.
+  std::vector<Landmark> kfScreen;
+  kalmanApply(p, t, kfScreen);
+  smoothScreenApply(kfScreen, t);
 
   // ── Aşama 4: yumuşatma + ince takip: tek karelik dev sıçrama (iskeletin
   // eşyaya/başkasına ışınlanması) yutulur; iki kare sürerse gerçek kabul edilir.
