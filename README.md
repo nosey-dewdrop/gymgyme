@@ -29,7 +29,7 @@ c++17 → webassembly (emscripten) engine plus static html/css/js (no build step
 
 **free, no ads, no tracking. your workout counts (never video) sync only if you sign in.**
 
-## why i built it ❤️
+## why i built it 🌷
 
 everyone trying to work out at home has the same problem: you do not know if you are doing it right, nobody counts, nobody corrects you. i wanted the gym coach in your pocket, but not something that sends your camera feed to the cloud. privacy should be enforced by physics, not by my promises. so the camera image never leaves the device and it cannot: the strictest privacy policy is the one physics imposes.
 
