@@ -49,6 +49,9 @@ body.running .live { max-width: 900px; margin: 0 auto; }
 body.running .stage { max-width: 900px; margin: 4px auto 16px; }
 
 body.running .read.card { max-width: 640px; margin: 0 auto; text-align: left; }
+/* kamera açıkken alttaki beyaz kartlar (your workouts / your account) gizli:
+   antrenman sırasında dikkat dağıtıyor, sahne temiz kalsın (Damla) */
+body.running .coach-foot { display: none; }
 body.running #intro, body.running #progCard { display: none; }
 
 /* hareket seçici + plan - beyaz kartın içinde beyaz kutular, ince pembe kenar */
@@ -117,10 +120,25 @@ body.running #intro, body.running #progCard { display: none; }
 .summary-body { font-size: 15px; line-height: 1.7; margin-top: 4px; }
 .summary-body div { padding: 1px 0; }
 
-/* ilk kullanım onayı */
+/* ilk kullanım onayı — MODAL (kapatma penceresi gibi ortada, arkası karartılmış) */
 .consent[hidden] { display: none; }
-.consent p { font-size: 15px; line-height: 1.6; color: #33000E; margin: 0 0 6px; }
+.consent {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(51, 0, 14, 0.5);          /* arkayı karart */
+  -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
+  padding: 20px; margin: 0; max-width: none; box-shadow: none;
+  animation: consentIn .18s ease-out;
+}
+/* içteki beyaz kart — yüzen pencere */
+.consent .consent-box {
+  background: #fff; border-radius: 16px; padding: 26px 24px 22px;
+  max-width: 460px; width: 100%; text-align: left;
+  box-shadow: 0 24px 60px rgba(51, 0, 14, .35);
+}
+.consent p { font-size: 15px; line-height: 1.6; color: #33000E; margin: 0 0 14px; }
 .consent a { color: #7a0a24; }
+@keyframes consentIn { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: scale(1); } }
 
 /* geçmiş */
 .history[hidden] { display: none; }

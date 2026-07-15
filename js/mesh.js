@@ -81,67 +81,60 @@ export function drawBody(ctx, lm, zsrc, W, H) {
   // interaktif kurulum gibi"): dolu blob DEĞİL. Vücut bir NET: düğümler arası
   // ışıltılı ipler (üçgen örgü) + parlak glow düğümler. Video ardından görünür;
   // ağ onun üstünde canlı, derinlikle parlayan bir enerji örgüsü. ──
-  // ağ kenarları: gerçek vücut topolojisi + üçgenleyen çapraz bağlar (net hissi).
+  // ── DÜĞÜM (parlak top) YOK (Damla: "toplar olmasın, vücudum da ağ gibi
+  // görünsün"). Sadece ince ışıltılı üçgen ağ örgüsü — gövde SIK üçgenlenir,
+  // uzuvlar ince tel. Yüze düğüm/top asla. ──
+  // ağ kenarları: gerçek vücut topolojisi + gövdeyi SIKLAŞTIRAN üçgen köşegenler.
   const EDGES = [
-    // gövde dörtgeni + köşegenler (üçgen örgü)
+    // gövde dörtgeni + iki köşegen (X) → dört üçgen (sık ağ hissi)
     [L.LSHO, L.RSHO], [L.LHIP, L.RHIP], [L.LSHO, L.LHIP], [L.RSHO, L.RHIP],
     [L.LSHO, L.RHIP], [L.RSHO, L.LHIP],
+    // gövde ortası: omuz-orta ve kalça-orta arası dikey tel (ağı böler)
     // kollar
     [L.LSHO, L.LELB], [L.LELB, L.LWRI], [L.RSHO, L.RELB], [L.RELB, L.RWRI],
     // bacaklar
     [L.LHIP, L.LKNE], [L.LKNE, L.LANK], [L.RHIP, L.RKNE], [L.RKNE, L.RANK],
-    // omuz-kalça çapraz örgüsü (ağı sıklaştırır)
-    [L.LSHO, L.RELB], [L.RSHO, L.LELB],
-    // boyun/baş bağı
-    [L.LSHO, 0], [L.RSHO, 0],
+    // omuz-dirsek-kalça üçgenleri (ağı sıklaştırır, kol gövdeye bağlanır)
+    [L.LELB, L.LHIP], [L.RELB, L.RHIP],
+    // diz-diz ve dirsek-dirsek çapraz (alt ve üst ağı kapatır)
+    [L.LKNE, L.RKNE], [L.LELB, L.RELB],
   ];
 
   ctx.save();
   ctx.lineCap = "round"; ctx.lineJoin = "round";
 
-  // görünürlük→alfa YUMUŞAK sönüm (Pilatess: sert 0.4 kesimi normal ışıkta
-  // 0.35-0.45 salınan bilek/ayakla ağı yakıp söndürüyordu = "kırık" hissi).
-  // 0.3-0.58 bandında yumuşak geçiş: nokta blink yerine soluklaşarak kaybolur.
+  // görünürlük→alfa yumuşak sönüm: nokta görünmezse ip soluklaşarak kaybolur (blink yok).
   const vfade = (v) => Math.max(0, Math.min(1, (v - 0.3) / 0.28));
 
-  // 1) ipler: her kenar derinliğe göre parlayan bir çizgi (yakın kalın+parlak).
+  // ipler: her kenar derinliğe göre parlayan İNCE bir tel. Top yok, sadece ağ.
   const edges = [];
   for (const [a, b] of EDGES) {
     const fa = vfade(vis(a)), fb = vfade(vis(b));
     if (fa <= 0 || fb <= 0) continue;
     edges.push({ a, b, t: (dep(a) + dep(b)) / 2, f: Math.min(fa, fb) });
   }
-  edges.sort((p, q) => p.t - q.t);   // uzak ip önce, yakın üstte
+  edges.sort((p, q) => p.t - q.t);   // uzak tel önce, yakın üstte
   for (const e of edges) {
     const t = e.t, f = e.f;
-    // dış hâle (yumuşak glow) — alfa görünürlükle de sönümlenir
-    ctx.strokeStyle = "rgba(255,150,190," + ((0.10 + 0.14 * t) * f) + ")";
-    ctx.lineWidth = 5 + 5 * t;
+    // yumuşak hâle (ince): telin etrafında hafif ışıltı
+    ctx.strokeStyle = "rgba(255,150,190," + ((0.06 + 0.10 * t) * f) + ")";
+    ctx.lineWidth = 3 + 3 * t;
     ctx.beginPath(); ctx.moveTo(px(e.a), py(e.a)); ctx.lineTo(px(e.b), py(e.b)); ctx.stroke();
-    // iç parlak tel
-    ctx.strokeStyle = "rgba(255,220,235," + ((0.5 + 0.4 * t) * f) + ")";
-    ctx.lineWidth = 1 + 1.6 * t;
+    // parlak ince tel (asıl ağ çizgisi)
+    ctx.strokeStyle = "rgba(255,225,238," + ((0.55 + 0.35 * t) * f) + ")";
+    ctx.lineWidth = 0.8 + 1.0 * t;
     ctx.beginPath(); ctx.moveTo(px(e.a), py(e.a)); ctx.lineTo(px(e.b), py(e.b)); ctx.stroke();
   }
 
-  // 2) düğümler: her eklem parlak bir nokta (yakın büyük+beyaz çekirdek).
-  const nodes = [L.LSHO, L.RSHO, L.LELB, L.RELB, L.LWRI, L.RWRI,
-                 L.LHIP, L.RHIP, L.LKNE, L.RKNE, L.LANK, L.RANK, 0];
-  const shoulderW = Math.hypot((lm[L.LSHO].x - lm[L.RSHO].x) * W, (lm[L.LSHO].y - lm[L.RSHO].y) * H) || 60;
-  const r0 = Math.max(3, shoulderW * 0.05);
-  for (const i of nodes) {
+  // eklemlerde TOP değil, minik soluk kavşak noktası (ağ düğümü hissi, patlama yok).
+  const joints = [L.LSHO, L.RSHO, L.LELB, L.RELB, L.LWRI, L.RWRI,
+                  L.LHIP, L.RHIP, L.LKNE, L.RKNE, L.LANK, L.RANK];
+  for (const i of joints) {
     const f = vfade(vis(i));
     if (f <= 0) continue;
-    const t = dep(i), x = px(i), y = py(i), r = r0 * (0.7 + 0.7 * t);
-    // hâle — alfa görünürlükle sönümlenir (blink yerine soluklaşma)
-    const g = ctx.createRadialGradient(x, y, 0, x, y, r * 2.6);
-    g.addColorStop(0, "rgba(255,180,210," + ((0.5 + 0.4 * t) * f) + ")");
-    g.addColorStop(1, "rgba(255,150,190,0)");
-    ctx.fillStyle = g;
-    ctx.beginPath(); ctx.arc(x, y, r * 2.6, 0, Math.PI * 2); ctx.fill();
-    // parlak çekirdek
-    ctx.fillStyle = "rgba(255,246,250," + ((0.7 + 0.3 * t) * f) + ")";
-    ctx.beginPath(); ctx.arc(x, y, r * 0.55, 0, Math.PI * 2); ctx.fill();
+    const t = dep(i);
+    ctx.fillStyle = "rgba(255,235,245," + (0.5 * f) + ")";
+    ctx.beginPath(); ctx.arc(px(i), py(i), 1.6 + 1.4 * t, 0, Math.PI * 2); ctx.fill();
   }
   ctx.restore();
 }
