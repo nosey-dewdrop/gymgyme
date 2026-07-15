@@ -50,6 +50,152 @@ const privateNote = $("private");
 const LM = 33;                 // MediaPipe pose nokta sayısı
 const FLOATS = LM * 4;         // her nokta [x, y, z, visibility]
 
+// ── LOOP 02 OVERLAY: iki prototip yan yana. Damla kamerada gözüyle seçer.
+//   "box"   (A) = uzuvlara ince çerçeveli dikdörtgen (makine seni okuyor hissi)
+//   "nodes" (B) = yumuşak eklem düğümü + yarı-saydam bağ, hareketin eklemi hale'li
+// Renk kaynağı GERÇEK: motorun formCue'su boşsa form iyi (NANE), doluysa
+// düzeltme var (VİŞNE pulse). Uydurma yok — kanıt motorun kendi çıktısı. ──
+const MINT = "#3AD6A0";        // doğru / nane
+const CHERRY = "#E04A6E";      // düzelt / vişne
+const OVERLAY_KEY = "gg_overlay";
+let OVERLAY_MODE = (() => {
+  const q = new URLSearchParams(location.search).get("ov");
+  if (q === "box" || q === "nodes") return q;
+  try { return localStorage.getItem(OVERLAY_KEY) || "nodes"; } catch (_) { return "nodes"; }
+})();
+// MediaPipe pose landmark indisleri (koçlanan eklemler, L+R).
+const LM_IDX = {
+  shoulder: [11, 12], elbow: [13, 14], wrist: [15, 16],
+  hip: [23, 24], knee: [25, 26], ankle: [27, 28],
+};
+// hareketin izlediği eklem adını (MOVES[x].joint) landmark indislerine çevir.
+function jointIndices(jointName) {
+  if (!jointName) return [];
+  const key = String(jointName).split(" ")[0];   // "body line" -> "body"
+  return LM_IDX[key] || [];
+}
+
+// A — kutu overlay: her uzuv segmentine (bağ) ince çerçeveli, hafif dönük
+// dikdörtgen. İzlenen eklemi içeren segment renk taşır (nane/vişne), gerisi nötr.
+function drawOverlayBox(lm, formOk, trackedIdx) {
+  const W = canvas.width, H = canvas.height;
+  const track = new Set(trackedIdx);
+  ctx.save();
+  ctx.lineJoin = "round";
+  for (const c of PoseLandmarker.POSE_CONNECTIONS) {
+    const a = lm[c.start], b = lm[c.end];
+    if (!a || !b || (a.visibility ?? 1) < 0.4 || (b.visibility ?? 1) < 0.4) continue;
+    const ax = a.x * W, ay = a.y * H, bx = b.x * W, by = b.y * H;
+    const dx = bx - ax, dy = by - ay;
+    const len = Math.hypot(dx, dy);
+    if (len < 8) continue;
+    const ang = Math.atan2(dy, dx);
+    const half = Math.max(10, len * 0.14);   // uzva göre kalınlık
+    const active = track.has(c.start) || track.has(c.end);
+    const col = active ? (formOk ? MINT : CHERRY) : "rgba(255,255,255,0.5)";
+    ctx.translate((ax + bx) / 2, (ay + by) / 2);
+    ctx.rotate(ang);
+    ctx.strokeStyle = col;
+    ctx.lineWidth = active ? 2.4 : 1.2;
+    ctx.globalAlpha = active ? 1 : 0.6;
+    const r = 4;
+    const x = -len / 2 - 3, y = -half, w = len + 6, h = half * 2;
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+    ctx.stroke();
+    if (active && !formOk) {                 // düzeltme kutusu hafif dolu vişne
+      ctx.fillStyle = "rgba(224,74,110,0.12)";
+      ctx.fill();
+    }
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+  }
+  ctx.restore();
+}
+
+// B — düğüm overlay: yarı-saydam bağ + dolu yumuşak eklem düğümü. İzlenen eklem
+// büyür, nane/vişne olur, vişneyse nabız gibi atar + hafif radial hale.
+let overlayPulse = 0;
+function drawOverlayNodes(lm, zsrc, formOk, trackedIdx) {
+  const W = canvas.width, H = canvas.height;
+  const zs = zsrc || lm;
+  const track = new Set(trackedIdx);
+  const depth = (i) => {
+    const z = zs[i] ? (zs[i].z ?? 0) : 0;
+    return Math.max(0, Math.min(1, 0.5 - z));
+  };
+  overlayPulse += 0.18;
+  const pulse = 0.5 + 0.5 * Math.sin(overlayPulse);
+  const activeCol = formOk ? MINT : CHERRY;
+  // bağlar: ince yarı-saydam beyaz (spagetti değil, sakin doku)
+  ctx.save();
+  ctx.lineCap = "round";
+  const segs = [];
+  for (const c of PoseLandmarker.POSE_CONNECTIONS) {
+    const a = lm[c.start], b = lm[c.end];
+    if (!a || !b || (a.visibility ?? 1) < 0.4 || (b.visibility ?? 1) < 0.4) continue;
+    segs.push({ a, b, t: (depth(c.start) + depth(c.end)) / 2 });
+  }
+  segs.sort((s1, s2) => s1.t - s2.t);
+  for (const s of segs) {
+    ctx.globalAlpha = 0.18 + 0.22 * s.t;
+    ctx.strokeStyle = "#FFFFFF";
+    ctx.lineWidth = 2 + 3 * s.t;
+    ctx.beginPath();
+    ctx.moveTo(s.a.x * W, s.a.y * H);
+    ctx.lineTo(s.b.x * W, s.b.y * H);
+    ctx.stroke();
+  }
+  // izlenen eklemin hale'si (radial gradient, shader yok, ucuz) — "seni okuyorum"
+  for (const i of trackedIdx) {
+    const p = lm[i];
+    if (!p || (p.visibility ?? 1) < 0.4) continue;
+    const cx = p.x * W, cy = p.y * H;
+    const rad = 34 + 10 * pulse * (formOk ? 0.3 : 1);
+    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, rad);
+    const glow = formOk ? "58,214,160" : "224,74,110";
+    g.addColorStop(0, "rgba(" + glow + ",0.28)");
+    g.addColorStop(1, "rgba(" + glow + ",0)");
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(cx, cy, rad, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  // düğümler
+  for (let i = 0; i < lm.length; i++) {
+    const p = lm[i];
+    if (!p || (p.visibility ?? 1) < 0.4) continue;
+    const t = depth(i);
+    const active = track.has(i);
+    const cx = p.x * W, cy = p.y * H;
+    const baseR = 3 + 3 * t;
+    const r = active ? baseR + 3 + (formOk ? 0 : 2 * pulse) : baseR;
+    ctx.globalAlpha = active ? 1 : (0.35 + 0.5 * t);
+    ctx.fillStyle = active ? activeCol : "rgba(255,255,255,0.85)";
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fill();
+    if (active) {                             // ince halka: düğüm okunur kalsın
+      ctx.strokeStyle = "rgba(255,255,255,0.9)";
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+  }
+  ctx.restore();
+}
+
+// tek giriş: moda göre doğru overlay'i çiz. formOk = motorun formCue'su boş mu.
+function drawOverlay(lm, zsrc, formOk, jointName) {
+  const idx = jointIndices(jointName);
+  if (OVERLAY_MODE === "box") drawOverlayBox(lm, formOk, idx);
+  else drawOverlayNodes(lm, zsrc, formOk, idx);
+}
+
 // ── ölçüm bandı kaydedicisi (hassas motor Faz 0): ?rec=1 ile açılır, normal
 // kullanıcı hiç görmez. Motorun gördüğü landmark akışını aynen tutar; seans
 // durunca .ggclip olarak iner, engine/bench.sh clip <dosya> ile metriklenir.
@@ -1184,6 +1330,8 @@ function loop() {
     if (result && result.landmarks && result.landmarks.length) {
       let drawLm = result.landmarks[0];   // motor yoksa ham ilk poz çizilir
       let rawPicked = result.landmarks[0];   // derinlik (z) kaynağı: hep ham dedektör
+      let overlayFormOk = true;            // motorun formCue'su boş mu (renk kodu kaynağı)
+      let overlayActive = false;           // motor izliyor mu (renk kodu yalnız izlerken)
 
       if (engine && !switching && !timedAct) {
         // Faz 2: TÜM pozları (en fazla 2) heap'e ardışık bloklar halinde yaz;
@@ -1230,6 +1378,8 @@ function loop() {
         if (recLines) recFrame(performance.now(), drawLm,
           result.worldLandmarks && result.worldLandmarks[picked]);
         if (r.tracking) skeletonColor = r.phase === "bottom" ? "#A61B42" : "#33000E";
+        overlayActive = !!r.tracking && !r.calibrating;
+        overlayFormOk = !r.formCue;        // düzeltme cümlesi yoksa form iyi (nane)
         // Faz 2: ekrana ham dedektör değil motorun YUMUŞATILMIŞ iskeleti çizilir
         // (nokta başına one euro; x motor tarafında aspect ölçekliydi, geri böl).
         if (r.tracking && engine.smoothPoseOk()) {
@@ -1249,14 +1399,10 @@ function loop() {
         render(r);
       }
 
-      // ── CGI gövde: önce DOLU figür (derinlik-gölgeli hacim), sonra üstüne ince
-      // iskelet omurgası. Damla "adet iskelet" demişti — artık dolu bir vücut,
-      // iskelet sadece onun üstünde okunur bir çizgi. Konum yumuşatılmış pozdan
-      // (drawLm), derinlik ham dedektörden (rawPicked, z var). ──
-      // CV AĞ tek dil: parlak nokta-düğüm + ışıltılı ip örgüsü (mesh.js drawBody).
-      // eski çöp-adam iskeleti (drawSkeleton3D) KALDIRILDI — Pilatess: iki iskelet
-      // üst üste = gürültü, "not a stick figure" hedefini bozuyordu. ağ tek başına.
-      drawBody(ctx, drawLm, rawPicked, canvas.width, canvas.height);
+      // ── LOOP 02 OVERLAY: renk-kodlu overlay (kutu VEYA düğüm, moda göre).
+      // Renk yalnız motor izlerken anlamlı: izlemiyorken nötr göster (formOk=true).
+      // jointName = izlenen hareketin eklemi (squat->knee), o eklem hale/renk taşır.
+      drawOverlay(drawLm, rawPicked, overlayActive ? overlayFormOk : true, move.joint);
       drawBanner(stageBanner);
 
       // ── CGI yüz + el mesh: dolgulu deri + kavisli dudak/göz/kaş + gerçek
@@ -1324,6 +1470,22 @@ moveSel.addEventListener("change", () => {
   // motor targetReps'i hold'da saniye yorumlar; giriş de ona göre başlasın.
   if (HOLD_MOVES.has(moveSel.value)) { planReps.value = 30; planSets.value = 1; }
 });
+
+// LOOP 02: overlay prototip seçici (A kutu / B düğüm). seçim cihazda saklanır,
+// canlıda anında değişir — Damla kamerada gözüyle seçer, sonra kalan mod silinir.
+const ovpickEl = $("ovpick");
+if (ovpickEl) {
+  const paint = () => ovpickEl.querySelectorAll("button").forEach((b) =>
+    b.classList.toggle("on", b.dataset.ov === OVERLAY_MODE));
+  ovpickEl.addEventListener("click", (e) => {
+    const b = e.target.closest("button[data-ov]");
+    if (!b) return;
+    OVERLAY_MODE = b.dataset.ov;
+    try { localStorage.setItem(OVERLAY_KEY, OVERLAY_MODE); } catch (_) {}
+    paint();
+  });
+  paint();
+}
 
 // dinlenme süresi programın ortak ayarı — değişince kaydedilir.
 planRest.addEventListener("change", () => { program.rest = readRestInput(); saveProgram(); });

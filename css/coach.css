@@ -277,3 +277,8 @@ body.running #intro, body.running #progCard { display: none; }
 .foldcard .fold-chev { transition: transform .2s; font-size: 12px; opacity: .7; }
 .foldcard[open] .fold-chev { transform: rotate(180deg); }
 .foldcard > *:not(summary) { padding: 0 18px 16px; }
+
+/* LOOP 02 — overlay prototip seçici (kutu A / düğüm B). geçici: Damla seçince silinir. */
+.ovpick { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); z-index: 40; display: flex; gap: 6px; background: rgba(51,0,14,.55); padding: 4px; border-radius: 999px; backdrop-filter: blur(4px); }
+.ovpick button { border: none; background: transparent; color: #FFDCE9; font: 600 12px/1 Arial, sans-serif; padding: 6px 12px; border-radius: 999px; cursor: pointer; letter-spacing: .2px; }
+.ovpick button.on { background: #FFDCE9; color: #6E0030; }
