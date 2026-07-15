@@ -819,6 +819,40 @@ int main() {
     check(r.smoothAngle < before - 3.0, "exercise prior: a sustained move is accepted");
   }
 
+  // ── simetri analizi: iki taraf dengeli inince asimetri düşük; bir bacak
+  // daha az bükülünce (telafi) asimetri yükselir ve koç uyarır ──
+  {
+    // simetrik squat: sol ve sağ diz aynı açıda
+    Engine sym(builtinMove("squat"));
+    Reading r;
+    for (int i = 0; i < 6; i++) r = sym.update(pose(false));
+    for (int i = 0; i < 10; i++) r = sym.update(pose(true));
+    check(r.asymmetryDeg >= 0 && r.asymmetryDeg < 8.0, "symmetric squat reads low asymmetry");
+    for (int i = 0; i < 12; i++) r = sym.update(pose(false));
+    check(r.reps == 1 && (r.lastRepAsymmetry < 10 || r.lastRepAsymmetry == -1), "a balanced rep records low/no asymmetry");
+
+    // asimetrik squat: SAĞ bacak neredeyse düz kalıyor (sol iniyor) -> büyük fark
+    auto poseLopsided = []() {
+      std::vector<Landmark> p(33);
+      auto set = [&](int i, double x, double y) { p[i].x = x; p[i].y = y; p[i].z = 0; p[i].visibility = 1; };
+      set(11, 0.45, 0.20); set(12, 0.55, 0.20);
+      set(23, 0.45, 0.50); set(24, 0.55, 0.50);
+      set(25, 0.45, 0.70); set(26, 0.55, 0.70);
+      // sol bilek ileride (sol diz ~90 bükülü), sağ bilek dizin altında (sağ diz ~180 düz)
+      set(27, 0.65, 0.70); set(28, 0.55, 0.90);
+      return p;
+    };
+    Engine asy(builtinMove("squat"));
+    Reading ra;
+    for (int i = 0; i < 6; i++) ra = asy.update(pose(false));
+    for (int i = 0; i < 10; i++) ra = asy.update(poseLopsided());
+    check(ra.asymmetryDeg > 20.0, "a lopsided squat reads high live asymmetry");
+    std::string cmt;
+    for (int i = 0; i < 12; i++) { ra = asy.update(pose(false)); if (ra.repTick) cmt = ra.repComment; }
+    check(ra.lastRepAsymmetry > 15, "a lopsided rep records the imbalance");
+    check(cmt.find("one side") != std::string::npos, "the coach flags one-sided compensation");
+  }
+
   // ── Kalman occlusion-recovery: çizim iskeleti, bir landmark bir kaç kare
   // kaybolunca tahmini hızla akmaya devam eder (zıplamaz), sayma bozulmaz ──
   {

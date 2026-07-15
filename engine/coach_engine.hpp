@@ -129,6 +129,11 @@ struct Reading {
   // (plank/şınav). Motor artık "ayakta mı yatay mı" bilir — plank'ı ayakta
   // durmaktan ayıran budur, eklem açısı değil. -1 = ölçülemedi (2B). ──
   double torsoTilt = -1;
+  // ── simetri / denge analizi: sol ve sağ tarafın izlenen açısı ne kadar
+  // ayrışıyor. 0 = kusursuz simetri, büyüdükçe bir taraf telafi ediyor demektir
+  // (fizyo değeri: sakatlık sonrası kaçınma, zayıf taraf). -1 = ölçülemedi. ──
+  double asymmetryDeg = -1;  // sol-sağ izlenen açı farkının canlı mutlak değeri
+  int lastRepAsymmetry = -1; // son tekrarda görülen EN BÜYÜK sol-sağ fark (derece)
   JointAngles angles;
   // ── Faz 2: çok kişili karede motorun SEÇTİĞİ pozun indeksi (updateBest).
   // Çizim bu pozu kullanmalı — motor kimi izliyorsa ekran onu göstersin. ──
@@ -343,6 +348,8 @@ class Engine {
   double repStartT_ = 0;       // pencere başlangıcı (üstten ilk sarkma anı)
   double repMinA_ = 1e9;       // penceredeki en derin açı
   double repMinT_ = 0;         // o derinliğin zamanı (iniş/çıkış süresi ayrımı)
+  double repMaxAsym_ = 0;      // bu tekrar penceresinde görülen en büyük sol-sağ açı farkı
+  int lastRepAsym_ = -1;       // son tamamlanan tekrarın asimetrisi (derece)
   int lastScore_ = -1;
   double lastRepSec_ = 0;
   double scoreSum_ = 0;

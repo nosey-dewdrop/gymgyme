@@ -336,6 +336,8 @@ void Engine::reset() {
   repStartT_ = 0;
   repMinA_ = 1e9;
   repMinT_ = 0;
+  repMaxAsym_ = 0;
+  lastRepAsym_ = -1;
   lastScore_ = -1;
   lastRepSec_ = 0;
   scoreSum_ = 0;
@@ -778,10 +780,18 @@ Reading Engine::update(const std::vector<Landmark>& p,
   };
   double visL = chainVis(spec_.primaryLeft);
   double visR = chainVis(spec_.primaryRight);
+  double angL = angleAt(g, spec_.primaryLeft);
+  double angR = angleAt(g, spec_.primaryRight);
   double raw, bestVis;
-  if (visL >= visR) { raw = angleAt(g, spec_.primaryLeft);  bestVis = visL; }
-  else              { raw = angleAt(g, spec_.primaryRight); bestVis = visR; }
+  if (visL >= visR) { raw = angL; bestVis = visL; }
+  else              { raw = angR; bestVis = visR; }
   r.confidence = bestVis;
+
+  // ── simetri: İKİ taraf da güvenle görünüyorsa sol-sağ izlenen açı farkı.
+  // Tek taraf görünürse (yandan duruş) asimetri ölçülemez — dürüstçe -1. ──
+  if (visL >= spec_.minVisibility && visR >= spec_.minVisibility && angL >= 0 && angR >= 0) {
+    r.asymmetryDeg = std::fabs(angL - angR);
+  }
 
   if (r.framing < spec_.minFraming) {
     // hareketin kendi cümlesi varsa onu söyle: push-up bacak istemez, bunu bilsin.
@@ -943,8 +953,11 @@ Reading Engine::update(const std::vector<Landmark>& p,
     repStartT_ = t;
     repMinA_ = smooth_;
     repMinT_ = t;
+    repMaxAsym_ = 0;   // yeni tekrar: asimetri birikimi sıfırdan
   }
   if (inRep_ && smooth_ < repMinA_) { repMinA_ = smooth_; repMinT_ = t; }
+  // tekrar boyunca en büyük sol-sağ farkı tut (dip bölgesinde en anlamlı)
+  if (inRep_ && r.asymmetryDeg >= 0 && r.asymmetryDeg > repMaxAsym_) repMaxAsym_ = r.asymmetryDeg;
 
   // ── Aşama 9: form kuralları — hareketin anlamlı bölümünde (derinlik > 0.4),
   // sadece 3B veri varken değerlendirilir: emin olmadan form yargılanmaz.
@@ -1107,6 +1120,12 @@ Reading Engine::update(const std::vector<Landmark>& p,
       else
         r.repComment = "solid - tighten it up";
       lastRepSec_ = durSec;
+      // simetri: bu tekrarda görülen en büyük sol-sağ farkı sakla (rapor + ipucu).
+      lastRepAsym_ = repMaxAsym_ > 0 ? (int)std::lround(repMaxAsym_) : -1;
+      // belirgin dengesizlik (>15°) form sorunundan sonra ama depth/tempo
+      // yorumlarından ÖNCE gelir: telafi, "biraz daha in"den önemli bir uyarı.
+      if (lastRepAsym_ > 15 && lastFormIssues_ == 0)
+        r.repComment = "counted - but one side is doing more work than the other";
       scoreSum_ += lastScore_;
       if (lastScore_ > bestScore_) bestScore_ = lastScore_;   // Aşama 14
       if (lastFormIssues_ == 0) cleanReps_++;
@@ -1148,6 +1167,7 @@ Reading Engine::update(const std::vector<Landmark>& p,
   r.lastRepSeconds = lastRepSec_;
   r.avgRepScore = reps_ > 0 ? (int)std::lround(scoreSum_ / reps_) : -1;
   r.lastRepFormIssues = lastFormIssues_;
+  r.lastRepAsymmetry = lastRepAsym_;
   // set alanları bu karede değişmiş olabilir (setTick dinlenmeyi başlatır) → tazele.
   r.currentSet = currentSet_;
   r.repsInSet = repsInSet_;

@@ -42,6 +42,12 @@ struct JsReading {
   bool calibrating;
   double calibProgress;
   int pickedPose;   // Faz 2: çok kişili karede motorun seçtiği pozun indeksi
+  // yeni CV yetenekleri
+  double torsoTilt;       // yerçekimi-farkında gövde oryantasyonu (derece)
+  double asymmetryDeg;    // canlı sol-sağ açı farkı
+  int lastRepAsymmetry;   // son tekrarın asimetrisi
+  bool isHold, inHold;    // hold modu
+  double heldSeconds, holdQuality;
 };
 
 // Aşama 14: seans özeti (düz nesne).
@@ -49,6 +55,9 @@ struct JsSummary {
   int reps, halfReps, setsCompleted, totalSets, avgScore, bestScore, cleanReps;
   double durationSec;
   bool workoutComplete;
+  bool isHold;
+  double heldSeconds, bestHoldSeconds;
+  int holdQualityPct;
 };
 static JsSummary toJsSummary(const coach::Summary& s) {
   JsSummary j;
@@ -56,6 +65,8 @@ static JsSummary toJsSummary(const coach::Summary& s) {
   j.setsCompleted = s.setsCompleted; j.totalSets = s.totalSets;
   j.avgScore = s.avgScore; j.bestScore = s.bestScore; j.cleanReps = s.cleanReps;
   j.durationSec = s.durationSec; j.workoutComplete = s.workoutComplete;
+  j.isHold = s.isHold; j.heldSeconds = s.heldSeconds;
+  j.bestHoldSeconds = s.bestHoldSeconds; j.holdQualityPct = s.holdQualityPct;
   return j;
 }
 
@@ -115,6 +126,13 @@ static JsReading toJs(const coach::Reading& r) {
   j.calibrating = r.calibrating;
   j.calibProgress = r.calibProgress;
   j.pickedPose = r.pickedPose;
+  j.torsoTilt = r.torsoTilt;
+  j.asymmetryDeg = r.asymmetryDeg;
+  j.lastRepAsymmetry = r.lastRepAsymmetry;
+  j.isHold = r.isHold;
+  j.inHold = r.inHold;
+  j.heldSeconds = r.heldSeconds;
+  j.holdQuality = r.holdQuality;
   return j;
 }
 
@@ -262,7 +280,14 @@ EMSCRIPTEN_BINDINGS(coach) {
       .field("message", &JsReading::message)
       .field("calibrating", &JsReading::calibrating)
       .field("calibProgress", &JsReading::calibProgress)
-      .field("pickedPose", &JsReading::pickedPose);
+      .field("pickedPose", &JsReading::pickedPose)
+      .field("torsoTilt", &JsReading::torsoTilt)
+      .field("asymmetryDeg", &JsReading::asymmetryDeg)
+      .field("lastRepAsymmetry", &JsReading::lastRepAsymmetry)
+      .field("isHold", &JsReading::isHold)
+      .field("inHold", &JsReading::inHold)
+      .field("heldSeconds", &JsReading::heldSeconds)
+      .field("holdQuality", &JsReading::holdQuality);
 
   value_object<JsSummary>("Summary")
       .field("reps", &JsSummary::reps)
@@ -273,7 +298,11 @@ EMSCRIPTEN_BINDINGS(coach) {
       .field("bestScore", &JsSummary::bestScore)
       .field("cleanReps", &JsSummary::cleanReps)
       .field("durationSec", &JsSummary::durationSec)
-      .field("workoutComplete", &JsSummary::workoutComplete);
+      .field("workoutComplete", &JsSummary::workoutComplete)
+      .field("isHold", &JsSummary::isHold)
+      .field("heldSeconds", &JsSummary::heldSeconds)
+      .field("bestHoldSeconds", &JsSummary::bestHoldSeconds)
+      .field("holdQualityPct", &JsSummary::holdQualityPct);
 
   class_<WebEngine>("Engine")
       .constructor<std::string>()
