@@ -85,13 +85,21 @@
 </div>
 
 <div class="stagefloor">
-  <div class="camstage" id="camstage">
-    <span class="cam">📸</span>
-    <b>the stage goes here</b>
-    <span>your camera opens in this spot and never leaves the building.<br>it learns YOUR body first, then locks onto you.</span>
-    <span class="framehint">before you start: stand back so your <b>whole body fits</b> the frame, side-on for squats and holds, in an evenly lit spot. the coach won't count until it can see you clearly.</span>
-    <div class="stagestatus" id="stageStatus" aria-live="polite"></div>
-    <button id="ready" class="stagestart">▸ start the show</button>
+  <!-- TEK SAHNE: warming (camstage) ve video (stage) aynı yerde, biri gizli. -->
+  <div class="stageslot">
+    <div class="camstage" id="camstage">
+      <span class="cam">📸</span>
+      <b>the stage goes here</b>
+      <span>your camera opens in this spot and never leaves the building.<br>it learns YOUR body first, then locks onto you.</span>
+      <span class="framehint">before you start: stand back so your <b>whole body fits</b> the frame, side-on for squats and holds, in an evenly lit spot. the coach won't count until it can see you clearly.</span>
+      <div class="stagestatus" id="stageStatus" aria-live="polite"></div>
+      <button id="ready" class="stagestart">▸ start the show</button>
+    </div>
+
+    <div class="stage" id="stage" hidden>
+      <video id="cam" autoplay playsinline muted></video>
+      <canvas id="overlay"></canvas>
+    </div>
   </div>
 
   <div class="consent" id="consent" hidden>
@@ -99,11 +107,6 @@
       <p>quick note before your first session: the personal trainer reads your body through your camera, entirely on this device. no video is uploaded, recorded or stored - ever. if you sign in, only your workout numbers (reps, scores, dates) are saved to your account. details: <a href="gizlilik.html">your data</a>.</p>
       <button id="consentGo" class="mainbtn">got it - start the workout</button>
     </div>
-  </div>
-
-  <div class="stage" id="stage" hidden>
-    <video id="cam" autoplay playsinline muted></video>
-    <canvas id="overlay"></canvas>
   </div>
 
   <div id="startWrap" hidden>

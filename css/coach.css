@@ -48,7 +48,8 @@ body.running #wip-moves { display: none; }
 body.running .setup { max-width: 900px; margin: 0 auto; text-align: center; }
 body.running .setup .safety { max-width: 640px; margin: 0 auto 8px; }
 body.running .live { max-width: 900px; margin: 0 auto; }
-body.running .stage { max-width: 900px; margin: 4px auto 16px; }
+body.running .stageslot { width: min(900px, 94%); margin: 4px auto 16px; }
+body.running .stage { max-width: none; margin: 0; }
 
 body.running .read.card { max-width: 640px; margin: 0 auto; text-align: left; }
 /* kamera açıkken alttaki beyaz kartlar (your workouts / your account) gizli:
@@ -237,6 +238,12 @@ body.running #intro, body.running #progCard { display: none; }
 
 /* sahne kati: kamera burada acilir, fis solda */
 .stagefloor { position: relative; margin: 0 4vw 24px; background: var(--tint); padding: 28px 4vw 36px; min-height: 520px; }
+/* ── TEK SAHNE (Damla, defalarca): warming kutusu (camstage) ve video (stage)
+   AYNI YERE. warming gidince kamera tam onun yerine gelir. Sahne alanını sabit
+   bir kutu yapıyorum; camstage ve stage ikisi de o kutuyu doldurur, biri
+   görünürken diğeri gizli — asla iki ayrı kutu üst üste olmaz. ── */
+.stageslot { position: relative; width: min(720px, 86%); aspect-ratio: 4 / 3; margin: 0 auto; }
+.stageslot .camstage, .stageslot .stage { position: absolute; inset: 0; width: 100%; max-width: none; margin: 0; }
 .camstage { background: var(--cherry-deep); color: var(--on-cherry); width: min(720px, 86%); aspect-ratio: 4 / 3; margin: 0 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 8px; font-size: 13px; box-shadow: 0 16px 30px rgba(51,0,14,.3); cursor: pointer; }
 .camstage .cam { font-size: 38px; }
 .camstage b { font-size: 16px; }
