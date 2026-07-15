@@ -281,6 +281,9 @@ class Engine {
   // Kalman occlusion-recovery: görünür noktaları düzelt, kayıpları tahminle
   // doldur. out'a yazar (görünmeyen nokta = tahmin, visibility düşük işaretli).
   void kalmanApply(const std::vector<Landmark>& screen, double tMs, std::vector<Landmark>& out);
+  // world (3B metrik) pozu Kalman'dan geçir: kare-kare z gürültüsünü sönümle,
+  // temporal-tutarlı bir metrik iskelet üret (açı geometrisi bunu okur).
+  void refineWorld(const std::vector<Landmark>& world, double tMs, std::vector<Landmark>& out);
 
   MoveSpec spec_;
   double smooth_ = -1;
@@ -324,6 +327,12 @@ class Engine {
   KalmanPoint kf_[33];
   int occludedFor_[33] = {};
   double kfLastT_ = -1;
+  // ── world (3B metrik) Kalman: MediaPipe world-z gürültülü/kare-kare zıplıyor.
+  // Açı geometrisi buradan okunuyor, o yüzden temporal-tutarlı 3B poz açının
+  // temelini sağlamlaştırır. Ayrı filtre (ekran uzayından farklı ölçek/gürültü). ──
+  KalmanPoint wkf_[33];
+  double wkfLastT_ = -1;
+  std::vector<Landmark> refinedWorld_;   // son karenin iyileştirilmiş 3B pozu
   // ── Faz 2: zaman-farkında ışınlanma kapısı için önceki kare zamanı ──
   double prevFrameT_ = -1;
   bool phaseTop_ = true;

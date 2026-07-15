@@ -819,6 +819,47 @@ int main() {
     check(r.smoothAngle < before - 3.0, "exercise prior: a sustained move is accepted");
   }
 
+  // ── 2D->3D metrik poz iyileştirme: world-z kare-kare gürültülü gelse de
+  // Kalman'dan geçtiği için okunan açı ham world'den DAHA STABİL olmalı ──
+  {
+    // sabit duran bir vücut ama world-z'de deterministik ±gürültü enjekte et.
+    // ham açı gürültüyle salınır; motorun okuduğu (refined) açı sakinleşmeli.
+    auto worldNoisy = [](int i) {
+      std::vector<Landmark> p(33);
+      auto set = [&](int idx, double x, double y, double z) { p[idx].x=x; p[idx].y=y; p[idx].z=z; p[idx].visibility=1; };
+      // bilek Z'sinde ASİMETRİK kare-kare gürültü (0..0.16 arası deterministik
+      // dört-adımlı desen). açı z'ye karesel bağlı olduğu için işaret simetrik
+      // gürültü açıyı oynatmaz; bu yüzden pozitif, değişen büyüklükte gürültü.
+      double pat[4] = {0.0, 0.16, 0.04, 0.12};
+      double n = pat[i % 4];
+      set(11,-0.18,-0.50,0); set(12,0.18,-0.50,0);
+      set(23,-0.10,0.0,0);   set(24,0.10,0.0,0);
+      set(25,-0.10,0.40,0);  set(26,0.10,0.40,0);   // diz sabit
+      set(27,-0.10,0.80,n);  set(28,0.10,0.80,n);   // bilek z titrer -> açı titrer
+      return p;
+    };
+    Engine e(builtinMove("squat"));
+    Reading r;
+    double t = 0, rawSum = 0, refSum = 0, rawMean = 0, refMean = 0;
+    std::vector<double> raws, refs;
+    for (int i = 0; i < 40; i++) {
+      t += 33;
+      r = e.update(pose(false), worldNoisy(i), t);
+      // ham world açısı (filtre yok) — kıyas için elle hesap
+      auto wn = worldNoisy(i);
+      double v1x=wn[23].x-wn[25].x, v1y=wn[23].y-wn[25].y, v1z=wn[23].z-wn[25].z;
+      double v2x=wn[27].x-wn[25].x, v2y=wn[27].y-wn[25].y, v2z=wn[27].z-wn[25].z;
+      double m1=std::sqrt(v1x*v1x+v1y*v1y+v1z*v1z), m2=std::sqrt(v2x*v2x+v2y*v2y+v2z*v2z);
+      double rawAng = std::acos(std::max(-1.0,std::min(1.0,(v1x*v2x+v1y*v2y+v1z*v2z)/(m1*m2))))*180.0/M_PI;
+      if (i >= 20) { raws.push_back(rawAng); refs.push_back(r.angles.leftKnee); rawSum+=rawAng; refSum+=r.angles.leftKnee; }
+    }
+    rawMean = rawSum / raws.size(); refMean = refSum / refs.size();
+    double rawVar = 0, refVar = 0;
+    for (size_t i = 0; i < raws.size(); i++) { rawVar += (raws[i]-rawMean)*(raws[i]-rawMean); refVar += (refs[i]-refMean)*(refs[i]-refMean); }
+    rawVar /= raws.size(); refVar /= refs.size();
+    check(refVar < rawVar, "refined 3d knee angle is more stable than the raw noisy world angle");
+  }
+
   // ── hareket sınıflandırma (motor seviyesi): squat yapılırken motor bunu
   // KENDİ tahmin eder (kullanıcı söylemeden), detectedMove'a yazar ──
   {

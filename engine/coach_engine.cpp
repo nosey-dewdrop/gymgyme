@@ -317,6 +317,9 @@ void Engine::reset() {
   visEuroLastT_ = -1;
   for (int i = 0; i < 33; i++) { kf_[i].reset(); occludedFor_[i] = 0; }
   kfLastT_ = -1;
+  for (int i = 0; i < 33; i++) wkf_[i].reset();
+  wkfLastT_ = -1;
+  refinedWorld_.clear();
   prevFrameT_ = -1;
   // kalibrasyon: açık/kapalı ayarı KORUNUR, öğrenilen vücut yeniden öğrenilir
   calibrated_ = false;
@@ -695,6 +698,34 @@ void Engine::kalmanApply(const std::vector<Landmark>& screen, double tMs, std::v
   }
 }
 
+// ── world (3B metrik) poz iyileştirme. MediaPipe'ın world-z'si kare-kare zıplar;
+// açı geometrisi buradan okunduğu için bu gürültü doğrudan açıya ve saymaya
+// sızıyordu. Her world noktasını kendi 3B Kalman'ından geçiriyoruz: predict +
+// confidence-ağırlıklı correct. z ekseni en gürültülü olduğu için filtre orada
+// en çok kazanç sağlar. Çıktı: temporal-tutarlı metrik iskelet. ──
+void Engine::refineWorld(const std::vector<Landmark>& world, double tMs, std::vector<Landmark>& out) {
+  out = world;
+  if (world.size() < 33) return;
+  double dt = (wkfLastT_ >= 0 && tMs > wkfLastT_) ? (tMs - wkfLastT_) / 1000.0 : (1.0 / 30.0);
+  if (dt <= 0) dt = 1.0 / 30.0;
+  dt = std::min(dt, 0.25);
+  wkfLastT_ = tMs;
+  for (int i = 0; i < 33; i++) {
+    // world uzayı metre ölçekli: süreç gürültüsü ekran uzayından farklı ayarlı.
+    // q büyük (vücut hızlı hareket eder) ama r küçük değil (world-z gürültülü).
+    wkf_[i].setParams(40.0, 4e-4);
+    wkf_[i].predict(dt);
+    double vis = world[i].visibility;
+    if (vis >= 0.3) {
+      double rScale = std::max(0.6, 1.0 / std::max(0.05, vis));
+      wkf_[i].correct(world[i].x, world[i].y, world[i].z, rScale);
+      out[i].x = wkf_[i].kx.x; out[i].y = wkf_[i].ky.x; out[i].z = wkf_[i].kz.x;
+    } else if (wkf_[i].ready()) {
+      out[i].x = wkf_[i].kx.x; out[i].y = wkf_[i].ky.x; out[i].z = wkf_[i].kz.x;
+    }
+  }
+}
+
 Reading Engine::update(const std::vector<Landmark>& p, double timestampMs) {
   static const std::vector<Landmark> kNoWorld;
   return update(p, kNoWorld, timestampMs);
@@ -738,9 +769,12 @@ Reading Engine::update(const std::vector<Landmark>& p,
   if (p.size() < 33) { r.message = "i cannot see you yet"; return r; }
 
   // ── 3B kaynak seçimi: kadraj/görünürlük EKRAN verisinden (kamera ne görüyor),
-  // açı geometrisi varsa DÜNYA verisinden (vücut gerçekte nasıl duruyor). ──
+  // açı geometrisi varsa DÜNYA verisinden (vücut gerçekte nasıl duruyor). Dünya
+  // verisi önce Kalman'dan geçirilir (refineWorld): kare-kare z gürültüsü açıya
+  // sızmasın — tüm açı/sayma/form buradan okuduğu için temeli sağlamlaştırır. ──
   const bool hasWorld = world.size() >= 33;
-  const std::vector<Landmark>& g = hasWorld ? world : p;
+  if (hasWorld) refineWorld(world, t, refinedWorld_);
+  const std::vector<Landmark>& g = hasWorld ? refinedWorld_ : p;
 
   // ── Aşama 5: kadraj doluluğu — bu hareketin İZLEDİĞİ noktaların kaçı görünüyor
   // (squat bacak ister, push-up kol ister; liste MoveSpec verisinden gelir) ──
