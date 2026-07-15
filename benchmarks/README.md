@@ -35,7 +35,7 @@ MOVE_DB'de **386 hareket** var ama hepsi koçlanamaz. Üç sınıf:
 ## LOOP SIRASI
 
 ### GRUP A — MÜŞTERİ NEDEN BURADA (görünür değer, önce bu)
-- [ ] **benchmark-01-value.md** — Ana sayfa + coach girişinde net değer cümlesi. "Adam neden burada, ne kullanıyor, ne elde edecek."
+- [x] **benchmark-01-value.md** — Ana sayfa + coach girişinde net değer cümlesi. "Adam neden burada, ne kullanıyor, ne elde edecek."
 - [ ] **benchmark-02-overlay.md** — Ham iskelet → yumuşak renk-kodlu eklem overlay (doğru=nane, düzelt=vişne). Premium his. (referans/birlikte iterasyon)
 - [ ] **benchmark-03-declutter.md** — Debug metreleri (açı/fps/confidence) müşteriden gizle (`?rec=1` arkası). Fiş videoyu örtmesin. CS-ödevi hissini kaldır.
 

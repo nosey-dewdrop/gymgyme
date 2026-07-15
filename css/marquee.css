@@ -55,6 +55,7 @@
 @keyframes ggblink { 0%, 49% { opacity: .9; } 50%, 100% { opacity: .25; } }
 .marquee .now { font-size: 11px; font-weight: bold; letter-spacing: .16em; opacity: .8; }
 .marquee h1, .marquee h2 { font-size: clamp(30px, 4.6vw, 58px); letter-spacing: -.02em; line-height: 1.02; margin: 6px 0 0; color: var(--on-cherry); }
+.marquee .value-line { font-size: clamp(15px, 1.7vw, 19px); line-height: 1.45; max-width: 46ch; margin: 12px 0 0; color: var(--on-cherry); opacity: 1; font-weight: bold; }
 .marquee .mrow { display: flex; gap: 4vw; align-items: center; flex-wrap: wrap; margin-top: 12px; }
 .marquee .mrow > p { font-size: 14.5px; line-height: 1.6; max-width: 52ch; opacity: .95; margin: 0; }
 .marquee .herobtn { background: var(--on-cherry); color: var(--cherry); margin-top: 14px; }

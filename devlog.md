@@ -216,3 +216,14 @@ gymgyme'ın CV motorundan doğal çıkan tech/yapay zeka/CV konulu reels fikirle
 
 **Görsel:** "bence iyi" kırmızı çarpı → "%96 doğruluk" yeşil tik; altında "ölçemezsen bilmiyorsun".
 **Format:** reel / carousel
+
+---
+
+## Reel — bilgi vardı ama afişin altında kaybolmuştu (loop 01)
+
+**Hook (ilk 2 sn):** "Sitemde her şey yazıyordu. Yine de kimse ne işe yaradığını anlamıyordu. Sorun bilgi değildi."
+
+**Anlatı (~35 sn):** gymgyme'ın ana sayfasını bir sinema afişi gibi kurmuştum — "starring you", "admit one, price: a few squats". Sevdim, hâlâ da duruyor. Ama bir arkadaşım girip "bu tam olarak ne yapıyor?" dedi. Halbuki sayfa anlatıyordu: kameran seni sayar, puanlar... Ama o cümle afiş süslemesinin altında, üçüncü satırdaydı. İnsan bir sayfaya 2 saniye bakar. O 2 saniyede süsleme değil, SONUÇ görmeli. Tek bir şey yaptım: başlığın hemen altına, süssüz, çıplak bir cümle koydum — "kameran repini sayar, formunu 100 üzerinden puanlar ve düzeltir; canlı, cihazında, ücretsiz." Afişi silmedim, sadece önüne net bir çapa attım. Bilgiyi yaratmak değildi iş; onu görünür yere taşımaktı.
+
+**Görsel:** afiş süslemesi bulanık → ortada net değer cümlesi keskinleşiyor; "the info was there, just buried".
+**Format:** reel
