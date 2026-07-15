@@ -1,5 +1,12 @@
 # healthy living — community directory
 
+## SON OTURUM (2026-07-15 gece→sabah): motor büyütme maratonu + MÜŞTERİ GÖZÜ PİVOT
+Gece motor 2837→4700 satır büyüdü (191 native test, 4 saf CV modülü: kalman/ik/classifier + hold motoru, simetri, world-refine, MOVE_DB 188→386). AMA Damla sabah kamerada açınca ÜRÜN DENEYİMİ kötü çıktı: görsel çirkin, layout bozuk, rep saymıyordu. **DERS: motoru büyütmek ≠ işe yarar ürün; kamerada Damla'nın gözüyle test edilmedi.** Yeni yön: MÜŞTERİ GÖZÜYLE ("işime yarıyor mu?").
+- **Sabah çözülenler (canlı v62):** default move squat→arm raise (oturan kullanıcı sayabilir — rep saymamanın kök sebebi), kilit kayması 5-kare eşiği, takvim grid, coach topbar.js eksikti, sade vişne iskelet overlay, yüz mesh KAPALI, sürüm etiketi her sayfada, tek sahne stageslot, logo padding, SW network-first.
+- **KRİTİK:** Vercel DEPLOY LİMİTİ doldu (free 100/gün, gece 82 push). 24 saatte açılır. BİRİKTİR, tek deploy. Vercel proje adı "healthy-living".
+- **KALAN (Damla kararları):** (1) index directory'yi moves list'e BİRLEŞTİR, ana sayfa sadece marquee+FAQ; (2) koçlanabilir tüm hareketleri motora ekle (bait-and-switch kapat); (3) ana sayfada net değer cümlesi; (4) debug panel gizle; (5) fiş video'yu örtmesin; (6) "just try it" butonu.
+- **DAMLA 18 TEMMUZ DÖNER.** Devam planı: reports/2026-07-15-gymgyme-DEVAM-BURADAN.md
+
 A public-good website: a community-fed directory of home training resources — healthy-living articles, home workouts, pilates, ballet, yoga, gym, calisthenics, bodyweight. Anyone suggests a link or a move; Damla approves; the best-recommended rise up. Born from the home-workout iOS pivot (2026-07-10): the mission is ACCESS ("adult ballet barely exists even in Ankara"), not revenue.
 
 ## Direction change (Damla, 2026-07-13): backend is now IN
