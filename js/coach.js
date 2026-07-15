@@ -430,7 +430,7 @@ function loadItem(i) {
   progIdx = i;
   const it = program.items[i];
   clearTimedAct();
-  sessionLogged = false; wasComplete = false;
+  sessionLogged = false; wasComplete = false; nudgeShownFor = "";
   repCountEl.textContent = "0"; halfNoteEl.textContent = ""; scoreLineEl.textContent = ""; msgEl.textContent = "";
   if (repCommentEl) { repCommentEl.textContent = ""; commentUntil = 0; }
   setLineEl.hidden = true; restEl.hidden = true;
@@ -720,6 +720,16 @@ function doneChime() {
 }
 
 let cueUntil = 0;   // takip sürerken gelen koç mesajı (örn. "yarım kaldı") kısa süre ekranda kalsın
+// ── did-you-mean nudge: motor kendi tahmin ettiği hareket (detectedMove) seçili
+// olandan farklı ve güvenliyse, kullanıcıya BİR KEZ nazikçe önerir. Motor izliyor
+// ve anlıyor — ama karar kullanıcının, o yüzden dayatmaz, sadece nudge. ──
+let nudgeShownFor = "";   // hangi hareket seçiliyken nudge gösterildi (tekrar etmesin)
+// motorun kısa adlarını insan diline çevir (öneri cümlesi için).
+const MOVE_HUMAN = {
+  squat: "a squat", lunge: "a lunge", pushup: "a push-up", press: "a press",
+  glutebridge: "a glute bridge", situp: "a sit-up", jumpingjack: "jumping jacks",
+  armraise: "arm raises", plank: "a plank", wallsit: "a wall sit", superman: "a superman",
+};
 let commentUntil = 0;   // faz 3: tekrar yorumunun ekranda kalma süresi
 let wasComplete = false;   // antrenman-bitti sesini bir kez çalmak için
 
@@ -1002,6 +1012,18 @@ function render(r) {
       "   ·   " + r.lastRepSeconds.toFixed(1) + "s   ·   session avg " + r.avgRepScore));
   } else {
     scoreLineEl.textContent = "";
+  }
+
+  // ── did-you-mean nudge: motor başka bir hareket görüyorsa (yüksek güven,
+  // henüz tekrar sayılmadı) bir kez nazikçe sor. Dayatmaz — karar kullanıcının. ──
+  const sel = moveSel.value;
+  if (r.tracking && r.reps === 0 && !r.isHold &&
+      r.detectedMove && r.detectedMove !== sel && r.detectedConfidence > 0.72 &&
+      MOVE_HUMAN[r.detectedMove] && nudgeShownFor !== sel) {
+    nudgeShownFor = sel;
+    msgEl.textContent = "that looks like " + MOVE_HUMAN[r.detectedMove] + " - switch? tap the move above";
+    msgEl.classList.remove("loud");
+    cueUntil = performance.now() + 3500;
   }
 
   if (r.tracking) {
