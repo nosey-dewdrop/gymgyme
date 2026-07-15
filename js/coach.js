@@ -318,7 +318,7 @@ let faceLandmarker = null, handLandmarker = null;   // görsel ağ katmanı
 //   (2) YÜZ + EL mesh (ekstra iki model): kavisli dudak/göz + dolgulu parmaklar.
 //       fps'i koruyoruz — düşük fps ölçülürse otomatik uykuya alınır (Damla'nın
 //       telefon fps dersi). MESH_FACE_HANDS=false yaparsan hiç yüklenmez. ──
-const MESH_FACE_HANDS = true;
+const MESH_FACE_HANDS = false;   // Damla: yüz mesh'i seni boyuyor ("travesti gibi"), KAPALI. yüz temiz kalır.
 let meshFaceHandsSleep = false;   // fps düşükse yüz/el mesh'i geçici kapat (gövde kalır)
 let rebuildingPose = false;   // canlı kurtarma sürerken ikinci kez kurma
 let lastFace = null, lastHands = null;              // atlanan karede son sonuç çizilir
