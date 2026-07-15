@@ -99,22 +99,27 @@ export function drawBody(ctx, lm, zsrc, W, H) {
   ctx.save();
   ctx.lineCap = "round"; ctx.lineJoin = "round";
 
+  // görünürlük→alfa YUMUŞAK sönüm (Pilatess: sert 0.4 kesimi normal ışıkta
+  // 0.35-0.45 salınan bilek/ayakla ağı yakıp söndürüyordu = "kırık" hissi).
+  // 0.3-0.58 bandında yumuşak geçiş: nokta blink yerine soluklaşarak kaybolur.
+  const vfade = (v) => Math.max(0, Math.min(1, (v - 0.3) / 0.28));
+
   // 1) ipler: her kenar derinliğe göre parlayan bir çizgi (yakın kalın+parlak).
-  //    additive değil ama yarı-saydam ki video kaybolmasın.
   const edges = [];
   for (const [a, b] of EDGES) {
-    if (vis(a) < 0.4 || vis(b) < 0.4) continue;
-    edges.push({ a, b, t: (dep(a) + dep(b)) / 2 });
+    const fa = vfade(vis(a)), fb = vfade(vis(b));
+    if (fa <= 0 || fb <= 0) continue;
+    edges.push({ a, b, t: (dep(a) + dep(b)) / 2, f: Math.min(fa, fb) });
   }
   edges.sort((p, q) => p.t - q.t);   // uzak ip önce, yakın üstte
   for (const e of edges) {
-    const t = e.t;
-    // dış hâle (yumuşak glow)
-    ctx.strokeStyle = "rgba(255,150,190," + (0.10 + 0.14 * t) + ")";
+    const t = e.t, f = e.f;
+    // dış hâle (yumuşak glow) — alfa görünürlükle de sönümlenir
+    ctx.strokeStyle = "rgba(255,150,190," + ((0.10 + 0.14 * t) * f) + ")";
     ctx.lineWidth = 5 + 5 * t;
     ctx.beginPath(); ctx.moveTo(px(e.a), py(e.a)); ctx.lineTo(px(e.b), py(e.b)); ctx.stroke();
     // iç parlak tel
-    ctx.strokeStyle = "rgba(255,220,235," + (0.5 + 0.4 * t) + ")";
+    ctx.strokeStyle = "rgba(255,220,235," + ((0.5 + 0.4 * t) * f) + ")";
     ctx.lineWidth = 1 + 1.6 * t;
     ctx.beginPath(); ctx.moveTo(px(e.a), py(e.a)); ctx.lineTo(px(e.b), py(e.b)); ctx.stroke();
   }
@@ -125,16 +130,17 @@ export function drawBody(ctx, lm, zsrc, W, H) {
   const shoulderW = Math.hypot((lm[L.LSHO].x - lm[L.RSHO].x) * W, (lm[L.LSHO].y - lm[L.RSHO].y) * H) || 60;
   const r0 = Math.max(3, shoulderW * 0.05);
   for (const i of nodes) {
-    if (vis(i) < 0.4) continue;
+    const f = vfade(vis(i));
+    if (f <= 0) continue;
     const t = dep(i), x = px(i), y = py(i), r = r0 * (0.7 + 0.7 * t);
-    // hâle
+    // hâle — alfa görünürlükle sönümlenir (blink yerine soluklaşma)
     const g = ctx.createRadialGradient(x, y, 0, x, y, r * 2.6);
-    g.addColorStop(0, "rgba(255,180,210," + (0.5 + 0.4 * t) + ")");
+    g.addColorStop(0, "rgba(255,180,210," + ((0.5 + 0.4 * t) * f) + ")");
     g.addColorStop(1, "rgba(255,150,190,0)");
     ctx.fillStyle = g;
     ctx.beginPath(); ctx.arc(x, y, r * 2.6, 0, Math.PI * 2); ctx.fill();
     // parlak çekirdek
-    ctx.fillStyle = "rgba(255,246,250," + (0.7 + 0.3 * t) + ")";
+    ctx.fillStyle = "rgba(255,246,250," + ((0.7 + 0.3 * t) * f) + ")";
     ctx.beginPath(); ctx.arc(x, y, r * 0.55, 0, Math.PI * 2); ctx.fill();
   }
   ctx.restore();
