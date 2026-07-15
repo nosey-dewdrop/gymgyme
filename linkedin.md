@@ -67,3 +67,17 @@ ik.hpp'de bu limitleri kodladım ve kemik kilidinden sonra uyguluyorum. Bir ekle
 Neden bu kadar önemsiyorum: bir CV motorunu oyuncaktan ürüne taşıyan şey tam bu tür katmanlar. Ham dedektör çıktısı bir başlangıçtır, bitiş değil. Onun üstüne kestirim (Kalman), kısıt (kemik kilidi + eklem limitleri), ve anlam (form kuralları) koydukça motor "noktaları çizen bir şey"den "vücudu anlayan bir şey"e dönüşüyor. Anatomik bilgi bunun bir parçası: motor artık sadece nokta görmüyor, o noktaların bir İNSANA ait olduğunu ve insanların nasıl büküldüğünü biliyor.
 
 Ve her zamanki disiplin: 9 test yazdım önce. Geçerli bir açının dokunulmadan bırakıldığını, aşırı bükülü bir dizin sınıra çekildiğini, ve en önemlisi kemik uzunluğunun kırpma sırasında korunduğunu ölçtüm. Matematik doğru olmadan "düzeldi" demek istemiyorum.
+
+## Motor ne yaptığını söylemeden bilmeli: açıklanabilir hareket tanıma
+
+gymgyme'nin koç motoru bugüne kadar kullanıcının SEÇTİĞİ hareketi izliyordu. "Squat yapacağım" dersin, motor squat'ı sayar. Ama gerçek bir koç, ne yaptığını söylemeden tanır. Bu farkı kapatmak istedim — ve bunu bir derin öğrenme modeliyle değil, açıklanabilir geometriyle yaptım.
+
+Yaklaşım şu: her hareketin bir imzası var. Son iki saniyenin hareketinden dört şeye bakıyorum. Birincisi, hangi büyük eklem en çok salınıyor — diz mi, dirsek mi, kalça mı, omuz mu? Squat'ta diz salınır, push-up'ta dirsek. İkincisi, gövde dik mi yatay mı — bunu yerçekimi-farkında tilt ölçümünden alıyorum (daha önce eklediğim katman). Squat dik, plank yatay. Üçüncüsü, salınım mı var yoksa sabit mi — salınım varsa rep, yoksa izometrik tutuş. Dördüncüsü, salınımın genliği. Bu dört boyut çoğu ev hareketini ayırt etmeye yetiyor.
+
+Neden derin ağ değil de bu? Çünkü bir üründe her kararın HATA AYIKLANABİLİR olması, black-box doğruluktan değerli. Motor "bu squat" dediğinde, neden dediğini tam olarak söyleyebiliyorum: diz en çok salınan eklemdi, gövde dikti, salınım genişti. Bir kullanıcı yanlış tanıma bildirdiğinde, hangi boyutun yanıldığını görüp düzeltebiliyorum. Bir sinir ağı "bilmiyorum, ağırlıklar öyle diyor" derdi. Küçük, hızlı, tarayıcıda çalışan ve her kararını açıklayan bir sınıflandırıcı, bu ürün için doğru mühendislik tercihi.
+
+Sonuç bir tahmin ve bir GÜVEN döndürüyor. Güven düşükse motor "emin değilim" diyebiliyor — uydurmuyor. Bu, ürünün geri kalanındaki dürüstlük çizgisiyle aynı: ölçemediğini ölçmüş gibi yapma, tanıyamadığını tanımış gibi yapma.
+
+Şimdilik bunu "seçtiğin hareket bu değil galiba, X mi demek istedin?" nazik uyarısı için kullanacağım. Ama asıl yön şu: motor giderek daha az soru soran, daha çok anlayan bir şeye dönüşüyor. Önce vücudu tanıdı (kalibrasyon), sonra oryantasyonu (yerçekimi), şimdi de niyeti (hangi hareket). Her katman onu "nokta çizen bir şey"den "ne yaptığını anlayan bir şey"e biraz daha yaklaştırıyor.
+
+Ve yine: 8 birim testi önce. Salınan dizin squat, salınan dirseğin push-up, sabit yatay gövdenin plank olarak sınıflandığını ölçtüm. Motorun kendisi de bir squat'ı bağımsızca "bacak hareketi" olarak tanıdı. Doğruluk iddiası ölçümle gelir.

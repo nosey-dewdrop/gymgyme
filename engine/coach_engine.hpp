@@ -14,6 +14,7 @@
 #include <vector>
 #include "kalman.hpp"
 #include "ik.hpp"
+#include "classifier.hpp"
 
 namespace coach {
 
@@ -134,6 +135,10 @@ struct Reading {
   // (fizyo değeri: sakatlık sonrası kaçınma, zayıf taraf). -1 = ölçülemedi. ──
   double asymmetryDeg = -1;  // sol-sağ izlenen açı farkının canlı mutlak değeri
   int lastRepAsymmetry = -1; // son tekrarda görülen EN BÜYÜK sol-sağ fark (derece)
+  // ── hareket sınıflandırma: motor son ~2s'den ne yaptığını KENDİ tahmin eder.
+  // Seçili hareketle uyuşmuyorsa "did you mean X?" için kullanılır. "" = emin değil. ──
+  std::string detectedMove;      // motorun tahmini hareket adı
+  double detectedConfidence = 0; // 0..1
   JointAngles angles;
   // ── Faz 2: çok kişili karede motorun SEÇTİĞİ pozun indeksi (updateBest).
   // Çizim bu pozu kullanmalı — motor kimi izliyorsa ekran onu göstersin. ──
@@ -350,6 +355,7 @@ class Engine {
   double repMinT_ = 0;         // o derinliğin zamanı (iniş/çıkış süresi ayrımı)
   double repMaxAsym_ = 0;      // bu tekrar penceresinde görülen en büyük sol-sağ açı farkı
   int lastRepAsym_ = -1;       // son tamamlanan tekrarın asimetrisi (derece)
+  MoveClassifier classifier_;  // hareket sınıflandırıcı (motor ne yapıldığını tahmin eder)
   int lastScore_ = -1;
   double lastRepSec_ = 0;
   double scoreSum_ = 0;

@@ -819,6 +819,23 @@ int main() {
     check(r.smoothAngle < before - 3.0, "exercise prior: a sustained move is accepted");
   }
 
+  // ── hareket sınıflandırma (motor seviyesi): squat yapılırken motor bunu
+  // KENDİ tahmin eder (kullanıcı söylemeden), detectedMove'a yazar ──
+  {
+    Engine e(builtinMove("squat"));
+    Reading r;
+    double t = 0;
+    // birkaç tam squat döngüsü sür — classifier penceresi dolsun
+    for (int cyc = 0; cyc < 3; cyc++) {
+      for (int i = 0; i < 10; i++) { t += 33; r = e.update(pose(true), t); }
+      for (int i = 0; i < 10; i++) { t += 33; r = e.update(pose(false), t); }
+    }
+    check(!r.detectedMove.empty(), "engine produces a move guess after enough motion");
+    check(r.detectedMove == "squat" || r.detectedMove == "lunge",
+          "engine independently classifies an oscillating-knee move as a leg move");
+    check(r.detectedConfidence > 0.3, "the classification carries a confidence");
+  }
+
   // ── simetri analizi: iki taraf dengeli inince asimetri düşük; bir bacak
   // daha az bükülünce (telafi) asimetri yükselir ve koç uyarır ──
   {

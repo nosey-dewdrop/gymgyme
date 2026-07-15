@@ -9,3 +9,5 @@ clang++ -std=c++17 -O2 -Wall test_kalman.cpp -o /tmp/kalman_test
 /tmp/kalman_test
 clang++ -std=c++17 -O2 -Wall test_ik.cpp -o /tmp/ik_test
 /tmp/ik_test
+clang++ -std=c++17 -O2 -Wall test_classifier.cpp -o /tmp/classifier_test
+/tmp/classifier_test

@@ -48,6 +48,8 @@ struct JsReading {
   int lastRepAsymmetry;   // son tekrarın asimetrisi
   bool isHold, inHold;    // hold modu
   double heldSeconds, holdQuality;
+  std::string detectedMove;   // motorun bağımsız hareket tahmini
+  double detectedConfidence;
 };
 
 // Aşama 14: seans özeti (düz nesne).
@@ -133,6 +135,8 @@ static JsReading toJs(const coach::Reading& r) {
   j.inHold = r.inHold;
   j.heldSeconds = r.heldSeconds;
   j.holdQuality = r.holdQuality;
+  j.detectedMove = r.detectedMove;
+  j.detectedConfidence = r.detectedConfidence;
   return j;
 }
 
@@ -287,7 +291,9 @@ EMSCRIPTEN_BINDINGS(coach) {
       .field("isHold", &JsReading::isHold)
       .field("inHold", &JsReading::inHold)
       .field("heldSeconds", &JsReading::heldSeconds)
-      .field("holdQuality", &JsReading::holdQuality);
+      .field("holdQuality", &JsReading::holdQuality)
+      .field("detectedMove", &JsReading::detectedMove)
+      .field("detectedConfidence", &JsReading::detectedConfidence);
 
   value_object<JsSummary>("Summary")
       .field("reps", &JsSummary::reps)

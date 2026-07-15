@@ -338,6 +338,7 @@ void Engine::reset() {
   repMinT_ = 0;
   repMaxAsym_ = 0;
   lastRepAsym_ = -1;
+  classifier_.reset();
   lastScore_ = -1;
   lastRepSec_ = 0;
   scoreSum_ = 0;
@@ -791,6 +792,25 @@ Reading Engine::update(const std::vector<Landmark>& p,
   // Tek taraf görünürse (yandan duruş) asimetri ölçülemez — dürüstçe -1. ──
   if (visL >= spec_.minVisibility && visR >= spec_.minVisibility && angL >= 0 && angR >= 0) {
     r.asymmetryDeg = std::fabs(angL - angR);
+  }
+
+  // ── hareket sınıflandırıcıyı besle: dört büyük eklemin sol-sağ ortalaması +
+  // gövde tilt'i. Motor bağımsızca "ne yapılıyor" tahmin eder (seçili hareketten
+  // ayrı). İki tarafın ortalaması gürültüye daha dayanıklı; -1'ler atlanır. ──
+  auto avg2 = [](double a, double b) {
+    if (a >= 0 && b >= 0) return (a + b) / 2.0;
+    return a >= 0 ? a : b;   // biri -1 ise diğeri (ikisi de -1 ise -1)
+  };
+  classifier_.feed(avg2(r.angles.leftKnee, r.angles.rightKnee),
+                   avg2(r.angles.leftElbow, r.angles.rightElbow),
+                   avg2(r.angles.leftHip, r.angles.rightHip),
+                   avg2(angleAt(g, {L_HIP, L_SHO, L_ELB}), angleAt(g, {R_HIP, R_SHO, R_ELB})),
+                   r.torsoTilt);
+  {
+    double dc = 0;
+    std::string dm = classifier_.classify(dc);
+    r.detectedMove = dm;
+    r.detectedConfidence = dc;
   }
 
   if (r.framing < spec_.minFraming) {
