@@ -3,7 +3,7 @@
    yumuşak gölge (mekanik ofset yok). tüm sayfalar bu dili giyer. */
 
 /* üst bar: marka + ortada arama + nav (eski sol sidebar emekli) */
-.topbar { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 4px 0 16px; }
+.topbar { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; padding: 4px 3vw 16px; }
 .topbar .brand, .topbar .brand:visited { font-size: 26px; font-weight: bold; color: var(--ink); text-decoration: none; letter-spacing: -.02em; }
 .topbar nav { display: flex; gap: 18px; font-size: 14px; align-items: baseline; position: relative; flex-wrap: wrap; }
 .topbar nav a, .topbar nav a:visited { color: var(--cherry); font-weight: bold; text-decoration: none; }
