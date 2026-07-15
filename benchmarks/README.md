@@ -8,7 +8,7 @@ Bu klasör her sorunu **ayrı bir loop** olarak tutar. Kural:
 
 ## KAPANIŞ RİTÜELİ (her loop DONE olunca)
 1. Loop dosyası `STATUS: DONE`, README kutusu işaretle.
-2. **devlog.md** — HER loop'ta (büyük/küçük fark etmez): ufak Z-kuşağı reels parçaları düşer (hook zorunlu, 30-60sn, "şunu değiştirdim çünkü şu sorun vardı" tonu, gerçek tarihçeden, sınırsız içerik).
+2. **devlog.md** — HER loop'ta (büyük/küçük fark etmez): ufak Z-kuşağı reels parçaları düşer (hook zorunlu, 30-60sn, "şunu değiştirdim çünkü şu sorun vardı" tonu, gerçek tarihçeden, sınırsız içerik). Bazıları AÇIKLAMALI olsun — tech stack / terim (wasm, pose estimation, on-device, false positive, benchmark...) sıfırdan, "mala öğretir gibi" sıcak dille; izleyen bilmeyebilir. Ton hep bu. Stok aklına geldikçe, farklı alanlardan da büyür (devlog.md sonundaki "TECH/AI/CV STOĞU" bölümü).
 3. **BÜYÜK REWORK ise** (motor/UI'ı gerçekten değiştiren iş — her küçük loop DEĞİL): ek olarak benchmark **raporu** (reports/ altına) + **linkedin.md** halkası (300-500 kelime, numaralı inşa zinciri: ne+neden+karar).
 4. Push.
 5. Pencereyi TEMİZLE, yeni sekmede sıradaki loop'a geç.

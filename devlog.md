@@ -161,3 +161,58 @@ gymgyme'ın CV motorundan doğal çıkan tech/yapay zeka/CV konulu reels fikirle
 
 **Görsel:** slider %100'de "kimse geçemez" kırmızı → %60'da "gerçek insan" yeşil.
 **Format:** reel
+
+---
+
+## Stok — "wasm ne ya?" (sıfırdan anlatım, mala öğretir gibi)
+
+**Hook:** "Kodumu C++'la yazıp tarayıcıda çalıştırdım. 'Ama tarayıcı C++ çalıştıramaz' diyorsun. İşte hile."
+
+**Anlatı (~45 sn):** Sana en baştan anlatayım, terim bilmene gerek yok. Tarayıcı normalde tek bir dil bilir: JavaScript. C++ ise bilgisayarların dibindeki, çok hızlı ama tarayıcının anlamadığı bir dil. Peki C++ kodum tarayıcıda nasıl çalışıyor? WebAssembly diye bir şey var — kısaca "wasm". Şöyle düşün: C++'ı, tarayıcının anlayacağı çok basit bir "makine diline" çeviriyorum, tıpkı bir kitabı başka dile çevirir gibi. Tarayıcı bu çeviriyi okuyup çalıştırıyor, hem de neredeyse C++ hızında. Yani ben motoru güçlü dilde yazıyorum, sonra tarayıcının yiyebileceği forma çeviriyorum. Sonuç: web sitesi ama içinde gerçek bir motor var, sunucuya ihtiyaç yok.
+
+**Görsel:** C++ dosyası → "çevirmen (wasm)" kutusu → tarayıcı; altında "senin dilin değil? çevir, çalışsın".
+**Format:** reel / carousel
+
+---
+
+## Stok — "pose estimation nedir?" (sıfırdan anlatım)
+
+**Hook:** "Kamera seni sadece renkli noktalar olarak görür. Peki nasıl 'bu senin dizin' diyor?"
+
+**Anlatı (~40 sn):** Terim korkutmasın: 'pose estimation' demek, bir görüntüde insan vücudunun eklemlerini bulmak demek. Kamera aslında hiçbir şey 'anlamaz' — onun için sen sadece milyonlarca renkli noktasın. Ama Google gibi şirketler, milyonlarca fotoğrafı 'işte burnu, işte dizi, işte omzu' diye elle işaretleyip bir modele göstermiş. Model o kadar örnek görünce artık yeni bir görüntüde de eklemleri tahmin edebiliyor — bu yüzden adı 'estimation', yani tahmin. Bana 33 nokta veriyor: iki omuz, iki dirsek, iki diz... Ben de bu noktalardan açı hesaplıyorum. Squat'ta diz açısı küçülür, işte tekrarı oradan sayıyorum. Sihir değil, geometri.
+
+**Görsel:** fotoğraf → üstüne 33 nokta beliriyor → diz açısı çiziliyor; "kamera görmez, model tahmin eder".
+**Format:** reel
+
+---
+
+## Stok — "on-device ne demek, neden önemli?" (gizlilik, sıfırdan)
+
+**Hook:** "Uygulamaların çoğu kameranı buluta yollar. Benimki telefonundan çıkmıyor. Farkı anlatayım."
+
+**Anlatı (~40 sn):** İki yol var. Birincisi: kamera görüntün internetten bir sunucuya gider, orada işlenir, cevap geri gelir — buna 'bulutta işleme' denir. Hızlı kurulur ama en özel verin (vücudun) bir yerlere gitmiş olur. İkincisi: bütün hesap senin cihazının içinde yapılır, hiçbir şey dışarı çıkmaz — buna 'on-device', yani cihaz-üstü işleme denir. Ben ikincisini seçtim. Motor senin tarayıcının içinde çalışıyor, kamera görüntün tek bir kere bile telefonundan ayrılmıyor. Bunu yapması daha zor çünkü her şeyi küçük bir cihaza sığdırman lazım — ama gizlilik pazarlık konusu değil. KVKK, GDPR gibi yasaların da istediği tam bu.
+
+**Görsel:** iki ok: "bulut = veri dışarı" kırmızı / "cihaz-üstü = veri içeride" yeşil.
+**Format:** reel / carousel
+
+---
+
+## Stok — "false positive ne?" (koçun yanlış sayması, sıfırdan)
+
+**Hook:** "Koç, sen hiç squat yapmadan sayı arttırıyordu. Buna 'false positive' denir."
+
+**Anlatı (~35 sn):** Terimi açayım: 'false positive' — yani 'yanlış alarm'. Motor bir tekrar OLMADIĞI halde 'oldu' derse buna false positive denir. Bir doktor testinin, hasta olmadığın halde 'hastasın' demesi gibi. Benim koçumda bu şöyle oluyordu: masada otururken bile ufak bir hareket squat sanılıp sayılabiliyordu. Bunu ölçmek için bir 'skor tablosu' tutuyorum: motor bilerek yanlış hareketlere bakıyor ve kaç kere yanlış alarm verdiğini sayıyorum. Sonra eşikleri sıkılaştırıp o sayıyı düşürüyorum. İyi bir koç, saymadığı zaman da güvenilirdir — yani yanlış saymadığında.
+
+**Görsel:** oturan kişi → sayaç yanlışlıkla artıyor → kırmızı "false positive"; eşik sıkılaşınca sayaç sabit.
+**Format:** reel
+
+---
+
+## Stok — "benchmark neden her şeyin anası?" (ölçüm kültürü, sıfırdan)
+
+**Hook:** "'Motorum iyi çalışıyor' demek bir şey ifade etmez. Sayı vermezsen inanma — bana bile."
+
+**Anlatı (~40 sn):** Mühendislikte en tehlikeli cümle 'bence iyi oldu'dur. Hisse göre karar veremezsin çünkü his yanıltır. O yüzden 'benchmark' diye bir şey var: elinde cevabı belli bir test seti tutarsın, sistemini ondan geçirirsin, ve tek bir sayı çıkar — mesela 'squat tekrarını %96 doğru saydı'. Bir şeyi değiştirdiğinde bu sayı yükseldi mi düştü mü, görürsün. Bu yüzden bu projede her büyük değişikliğin bir benchmark tablosu var. Reklam değil bu — bu, 'işe yarıyor' demenin tek dürüst yolu. Bir şeyin doğru olduğunu ölçemiyorsan, aslında bilmiyorsun demektir.
+
+**Görsel:** "bence iyi" kırmızı çarpı → "%96 doğruluk" yeşil tik; altında "ölçemezsen bilmiyorsun".
+**Format:** reel / carousel
