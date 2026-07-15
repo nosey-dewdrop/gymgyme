@@ -4,14 +4,22 @@ IG için hook'lu 30-60 sn reel scriptleri. İlk cümle KANCA. Damla seslendirir.
 
 ---
 
-## İKİ TEMPLATE — devlog ikisini de tutar
+## FORMAT + KONU BÖLÜMLERİ
 
-Bu dosyada iki tür kayıt var. Biri sosyal-medya (reels), biri teknik günlük. İkisi de burada yaşar.
-NOT: reels malzemesini ne zaman düşüreceğine CLAUDE karar verir (Damla'ya sormaz) — aklına uygun bir an/konu geldiğinde stoğa atar. Sınır yok.
+MARKA NOTU: Damla sadece "tech konuşan" bir marka değil. İçerik tech'in yanında SOSYOLOJİ, HAYAT, PSİKOLOJİ, MARKETING de taşır — insanlar insana bağlanır, sadece koda değil. Tek boyutlu mühendis markası KURMA.
 
-### TEMPLATE A — REELS (sosyal medya · Damla seslendirir · hepsi tek tür)
+Bu dosyada iki template var: (A) REELS — tek format, ama farklı KONU bölümlerinde birikir. (B) TECH DEVİNİM — teknik günlük, sosyal medya değil.
+NOT: reels malzemesini ne zaman düşüreceğine CLAUDE karar verir (Damla'ya sormaz) — aklına uygun bir an/konu geldiğinde ilgili konu bölümüne atar. Sınır yok.
 
-Reels tek türdür. İçinde üç kaynak var ama HEPSİ reel: (1) build anı — o loop'ta/sistemde ne yaptım. (2) kavram/açıklama — wasm, pose estimation gibi terimi mala öğretir gibi. (3) konu/sohbet — teknoloji, sosyoloji, marketing ya da günlük hayattan aklına düşen görüş. "Vlog" diye ayrı bir şey YOK; sohbet reel'leri de bu template.
+### TEMPLATE A — REELS (tek format · Damla seslendirir · farklı konu bölümleri)
+
+Reels TEK formattır. Bu dosyada (PROJE devlog'u) sadece PROJEYE ÖZEL iki bölüm var:
+- **build-in-public** — o loop/sistemde ne yaptım, gymgyme'ın inşa anları.
+- **tech sohbetleri** — bu projeden doğan teknoloji açıklaması (wasm, pose estimation, on-device...).
+
+PROJEYE BAĞSIZ konular (sosyoloji / hayat / psikoloji / genel tech görüşü) BURAYA DEĞİL → merkezi `~/damla_projects_2026/damla-icerik.md` dosyasına yazılır. Her proje aynı genel konuyu tekrar tutmasın diye. (Ama o merkezi konular projelerin ALANINDAN beslenir — gymgyme=fitness/sağlık → "insan neden antrenmanı bırakır" gibi.)
+
+Format:
 
 DETAY + BOLLUK ŞART: içerik DETAYLI ve ÇOK olmalı. Bir sistem ne kadar büyükse o kadar çok reel çıkar — stitchu bir oyun motoru + SaaS (API), böyle bir proje 6-9 reel'e SIĞMAZ. Her sistem, her mimari karar, her alt-özellik, her downfall/pivot kendi reel'ini hak eder. "Birkaç reel yeter" YANLIŞ; derinlemesine ve bol üret. Küçük parça = ayrı reel.
 
@@ -51,16 +59,16 @@ Bu sosyal medya için değil — kendi teknik günlüğün. Ne yaptım, neden, n
 
 Kurallar: dürüst (çalışmayan çalışmadı yazılır) · sayıyla konuş (test geçti/benchmark X) · kısa ama izlenebilir · gelecekteki Damla'ya not gibi.
 
-STOK KONU FİKİRLERİ (reel için · Claude aklına geldikçe büyütür):
-- yapay zekayla kod yazmak: asistan mı, koltuk değneği mi, çoğaltıcı mı? gerçek deneyim.
-- slop uygulama nasıl anlaşılır — 5 işaret (backend yok, hepsi localStorage, aynı gradient, CRUD'un yarısı, "coming soon"lar).
-- vibecoding gerçekten iş görür mü, nerede duvara çarpar (motor/mimari gerektiren yerde).
-- AI kodu yazarken senin işin ne kalıyor: karar, mimari, "bu doğru mu"yu ölçmek.
-- bir CS öğrencisi olarak AI çağında ne öğreniyorum / öğrenmiyorum.
-- "her şeyi AI yazsın" ile "hiçbir şeye güvenme" arasında sağlıklı yer neresi.
-- (teknoloji / sosyoloji / marketing / günlük hayat — sınır yok)
+STOK KONU FİKİRLERİ (Claude aklına geldikçe ilgili bölüme yazar):
+- tech sohbetleri: AI'yla kod yazmak (asistan mı çoğaltıcı mı) · slop uygulama nasıl anlaşılır (backend yok, hepsi localStorage, aynı gradient, yarım CRUD, "coming soon"lar) · vibecoding nerede duvara çarpar · AI kodu yazınca senin işin ne kalıyor (karar/mimari/ölçüm).
+- sosyoloji: insanlar hangi ürüne bağlanır neden · "herkes yapıyor" baskısı · dijital utanç/gösteriş.
+- hayat: CS öğrencisi + gerçek ürün build etmek nasıl · gece 3'te bug · üretmenin ruh haline etkisi.
+- psikoloji: insan neden yarım bırakır · "sonuç görmek" motivasyonu · ürün insanı nasıl iyi/kötü hissettirir.
+- (marketing vb. — sınır yok, yeni başlık aç)
 
 ---
+
+# ═══ BÖLÜM: BUILD-IN-PUBLIC ═══
 
 ## Reel 1 — kameran seni izliyor ama hiçbir yere gitmiyor
 
@@ -161,9 +169,9 @@ STOK KONU FİKİRLERİ (reel için · Claude aklına geldikçe büyütür):
 
 ---
 
-# TECH / AI / CV STOĞU (aklıma geldikçe biriktir)
+# ═══ BÖLÜM: TECH SOHBETLERİ ═══
 
-gymgyme'ın CV motorundan doğal çıkan tech/yapay zeka/CV konulu reels fikirleri. Z-kuşağı formatı: ilk cümle kanca, kısa, "şu sanılıyor ama aslında bu" çevirmesi. Damla seslendirir. Çekilmeye hazır oldukça yukarı numaralı Reel'e taşınır.
+Teknoloji/yapay zeka/CV üzerine reel fikirleri. Kanca + "şu sanılıyor ama aslında bu". Damla seslendirir (TR) + EN text-on-video.
 
 ---
 
