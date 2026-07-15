@@ -97,6 +97,11 @@ struct MoveSpec {
   double holdMin = 0.0;         // hedef açı bandı alt sınırı (derece)
   double holdMax = 0.0;         // hedef açı bandı üst sınırı (derece)
   JointRef holdJoint;           // hold'da izlenen açı (boşsa primaryLeft/Right kullanılır)
+  // ── yerçekimi kapısı (3B veri varken): tutuş yalnız gövde bu tilt bandındayken
+  // sayılır. plank yatay ister (tilt yüksek), wall-sit dik ister (tilt düşük).
+  // Böylece ayakta dururken plank "sayılmaz". [0,180] = kapalı (her oryantasyon).
+  double holdTiltMin = 0.0;
+  double holdTiltMax = 180.0;
 };
 
 // altı büyük eklem açısı (gösterim + ileri aşamalar). -1 = okunamadı.
@@ -117,6 +122,11 @@ struct Reading {
   Phase phase = Phase::Top;
   Motion motion = Motion::Hold;
   View view = View::Unknown;
+  // ── yerçekimi-farkında gövde oryantasyonu (3B veri varken). torsoTilt =
+  // gövde ekseninin DİKEYden sapması, derece: 0 = dimdik ayakta, 90 = yatay
+  // (plank/şınav). Motor artık "ayakta mı yatay mı" bilir — plank'ı ayakta
+  // durmaktan ayıran budur, eklem açısı değil. -1 = ölçülemedi (2B). ──
+  double torsoTilt = -1;
   JointAngles angles;
   // ── Faz 2: çok kişili karede motorun SEÇTİĞİ pozun indeksi (updateBest).
   // Çizim bu pozu kullanmalı — motor kimi izliyorsa ekran onu göstersin. ──

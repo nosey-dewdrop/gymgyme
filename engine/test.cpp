@@ -654,6 +654,41 @@ int main() {
     Summary hs = cq.summary();
     check(hs.isHold && hs.heldSeconds > 0.5, "hold summary reports held seconds");
     check(hs.holdQualityPct >= 0, "hold summary reports a quality percent");
+
+    // ── yerçekimi-farkında oryantasyon: plank YATAY gövde ister; ayakta dururken
+    // (dik gövde) aynı düz hip açısı olsa bile plank SAYILMAZ. ──
+    auto worldHorizontal = []() {   // yatay gövde: omuz-kalça y'de düz, x'te yayılmış
+      std::vector<Landmark> p(33);
+      auto set = [&](int i, double x, double y, double z) { p[i].x = x; p[i].y = y; p[i].z = z; p[i].visibility = 1; };
+      set(11, -0.40, 0.0, 0); set(12, -0.40, 0.02, 0);   // omuz ve kalça AYNI y (yatay)
+      set(23, 0.0, 0.0, 0); set(24, 0.0, 0.02, 0);
+      set(25, 0.30, 0.0, 0); set(26, 0.30, 0.02, 0);
+      set(27, 0.55, 0.0, 0); set(28, 0.55, 0.02, 0);
+      set(13, -0.40, 0.15, 0); set(14, -0.40, 0.17, 0);
+      return p;
+    };
+    auto worldVertical = []() {   // dik gövde: omuz kalçanın ÜSTÜNDE (y farkı büyük)
+      std::vector<Landmark> p(33);
+      auto set = [&](int i, double x, double y, double z) { p[i].x = x; p[i].y = y; p[i].z = z; p[i].visibility = 1; };
+      set(11, -0.02, -0.50, 0); set(12, 0.02, -0.50, 0);   // omuz yukarıda
+      set(23, -0.02, 0.0, 0); set(24, 0.02, 0.0, 0);       // kalça altta -> gövde dikey
+      set(25, -0.02, 0.40, 0); set(26, 0.02, 0.40, 0);
+      set(27, -0.02, 0.80, 0); set(28, 0.02, 0.80, 0);
+      set(13, -0.02, -0.30, 0); set(14, 0.02, -0.30, 0);
+      return p;
+    };
+    // yatay: tilt ~90, plank sayılır
+    Engine ph(builtinMove("plank"));
+    double th = 0; Reading rh;
+    for (int i = 0; i < 8; i++) { th += 100; rh = ph.update(posePlank(false), worldHorizontal(), th); }
+    check(rh.torsoTilt > 55.0, "horizontal torso reads high tilt (plank orientation)");
+    check(rh.inHold && rh.heldSeconds > 0.3, "a real horizontal plank counts");
+    // dikey: tilt ~0, aynı hareket ama ayakta -> plank SAYILMAZ
+    Engine pv(builtinMove("plank"));
+    double tv = 0; Reading rv;
+    for (int i = 0; i < 8; i++) { tv += 100; rv = pv.update(posePlank(false), worldVertical(), tv); }
+    check(rv.torsoTilt < 45.0, "vertical torso reads low tilt (standing)");
+    check(!rv.inHold && rv.heldSeconds < 0.2, "standing upright does NOT count as a plank (gravity gate)");
   }
 
   // ── Faz 2: kemik kilidi — kalibre uzunluklar sabitlenir, gerilen kemik

@@ -199,6 +199,7 @@ MoveSpec builtinMove(const std::string& name) {
     s.holdJoint = {L_SHO, L_HIP, L_KNE};   // omuz-kalça-diz hattı (düz olmalı)
     s.primaryLeft = {L_SHO, L_HIP, L_KNE}; s.primaryRight = {R_SHO, R_HIP, R_KNE};   // güven+açı kapısı
     s.holdMin = 155.0; s.holdMax = 195.0;  // gövde tek çizgi (~180°); sarkma/pike dışarı
+    s.holdTiltMin = 55.0; s.holdTiltMax = 125.0;   // YATAY gövde: ayakta dururken sayılmaz
     s.framingPoints = {L_SHO, R_SHO, L_HIP, R_HIP, L_KNE, R_KNE, L_ANK, R_ANK};
     s.framingCue = "get side-on so i can see your shoulders, hips and ankles in one line";
     s.rules = {{RuleKind::HipSag, 160.0, View::Unknown, "hips are dropping - lift them into the line"}};
@@ -209,6 +210,7 @@ MoveSpec builtinMove(const std::string& name) {
     s.holdJoint = {L_SHO, L_HIP, L_ANK};   // omuz-kalça-ayak hattı (düz)
     s.primaryLeft = {L_SHO, L_HIP, L_ANK}; s.primaryRight = {R_SHO, R_HIP, R_ANK};
     s.holdMin = 155.0; s.holdMax = 195.0;
+    s.holdTiltMin = 55.0; s.holdTiltMax = 125.0;   // yatay gövde
     s.framingPoints = {L_SHO, L_HIP, L_KNE, L_ANK};
     s.framingCue = "face me side-on with your shoulder, hip and ankle stacked";
     s.rules = {{RuleKind::HipSag, 160.0, View::Unknown, "keep your hip up - don't let it sink"}};
@@ -219,6 +221,7 @@ MoveSpec builtinMove(const std::string& name) {
     s.holdJoint = {L_HIP, L_KNE, L_ANK};   // diz ~90° tutulmalı
     s.primaryLeft = {L_HIP, L_KNE, L_ANK}; s.primaryRight = {R_HIP, R_KNE, R_ANK};
     s.holdMin = 75.0; s.holdMax = 110.0;
+    s.holdTiltMin = 0.0; s.holdTiltMax = 45.0;   // DİK gövde (duvara yaslı otur)
     s.framingPoints = {L_HIP, R_HIP, L_KNE, R_KNE, L_ANK, R_ANK};
     s.framingCue = "side-on so i can see your hips, knees and ankles - knees at ninety";
     s.rules = {{RuleKind::TorsoLean, 30.0, View::Unknown, "sit tall against the wall - back flat"}};
@@ -229,6 +232,7 @@ MoveSpec builtinMove(const std::string& name) {
     s.holdJoint = {L_SHO, L_HIP, L_KNE};   // gövde-bacak hafif kapalı (dishing)
     s.primaryLeft = {L_SHO, L_HIP, L_KNE}; s.primaryRight = {R_SHO, R_HIP, R_KNE};
     s.holdMin = 120.0; s.holdMax = 165.0;
+    s.holdTiltMin = 45.0; s.holdTiltMax = 135.0;   // sırtüstü, gövde yataya yakın
     s.framingPoints = {L_SHO, R_SHO, L_HIP, R_HIP, L_KNE, R_KNE};
     s.framingCue = "lie side-on so i can see your torso and legs";
     return s;
@@ -238,6 +242,7 @@ MoveSpec builtinMove(const std::string& name) {
     s.holdJoint = {L_SHO, L_HIP, L_KNE};   // sırt ekstansiyonu: gövde-bacak hattı açık+kalkık
     s.primaryLeft = {L_SHO, L_HIP, L_KNE}; s.primaryRight = {R_SHO, R_HIP, R_KNE};
     s.holdMin = 160.0; s.holdMax = 200.0;
+    s.holdTiltMin = 45.0; s.holdTiltMax = 135.0;   // yüzüstü yatay
     s.framingPoints = {L_SHO, R_SHO, L_HIP, R_HIP, L_KNE, R_KNE};
     s.framingCue = "lie facedown side-on so i can see your back line";
     return s;
@@ -701,6 +706,14 @@ Reading Engine::update(const std::vector<Landmark>& p,
     double dx = std::fabs(world[L_SHO].x - world[R_SHO].x) + std::fabs(world[L_HIP].x - world[R_HIP].x);
     double dz = std::fabs(world[L_SHO].z - world[R_SHO].z) + std::fabs(world[L_HIP].z - world[R_HIP].z);
     r.view = dx >= dz ? View::Front : View::Side;
+    // ── yerçekimi-farkında gövde tilt'i: gövde ekseni (kalça ortası → omuz
+    // ortası) ile DİKEY (y ekseni, world'de yerçekimi) arasındaki açı. 0 =
+    // dimdik, 90 = yatay. Plank'ı ayakta durmaktan ayıran ölçü bu. ──
+    double tx = (world[L_SHO].x + world[R_SHO].x) / 2.0 - (world[L_HIP].x + world[R_HIP].x) / 2.0;
+    double ty = (world[L_SHO].y + world[R_SHO].y) / 2.0 - (world[L_HIP].y + world[R_HIP].y) / 2.0;
+    double tz = (world[L_SHO].z + world[R_SHO].z) / 2.0 - (world[L_HIP].z + world[R_HIP].z) / 2.0;
+    double tm = std::sqrt(tx * tx + ty * ty + tz * tz);
+    if (tm > 1e-6) r.torsoTilt = std::acos(std::min(1.0, std::fabs(ty) / tm)) * 180.0 / M_PI;
   }
 
   // altı ham açı (gösterim).
@@ -939,7 +952,11 @@ Reading Engine::update(const std::vector<Landmark>& p,
       double hj = angleAt(g, spec_.holdJoint);
       if (hj >= 0) holdA = hj;
     }
-    const bool inBand = holdA >= spec_.holdMin && holdA <= spec_.holdMax;
+    // yerçekimi kapısı: 3B varsa gövde doğru oryantasyonda mı (plank yatay,
+    // wall-sit dik). 2B'de tilt ölçülemez → kapı açık (eski davranış).
+    const bool tiltOk = r.torsoTilt < 0 ||
+                        (r.torsoTilt >= spec_.holdTiltMin && r.torsoTilt <= spec_.holdTiltMax);
+    const bool inBand = holdA >= spec_.holdMin && holdA <= spec_.holdMax && tiltOk;
     if (inBand && !countingPaused) {
       heldSec_ += dtSec;
       curHoldRunSec_ += dtSec;
