@@ -44,7 +44,8 @@ MoveSpec builtinMove(const std::string& name) {
   MoveSpec s;
   s.emaAlpha = 0.5;        // 0.4'tü: Damla "hassas değil" dedi — ham sinyali daha çabuk izle
   s.minVisibility = 0.5;
-  s.minFraming = 0.75;
+  s.minFraming = 0.55;     // 0.75'ti: yakın oturan gerçek kullanıcı tam sığmasa da
+                           // izlenen açı okunuyorsa saysın (Damla: herkes tam boy girmez)
 
   if (name == "pushup") {
     s.name = "pushup";
@@ -894,10 +895,16 @@ Reading Engine::update(const std::vector<Landmark>& p,
     r.detectedConfidence = dc;
   }
 
+  // ── kadraj: izlenen noktaların yeterince görünmesi lazım. YETERSİZSE kibarca
+  // "tam boy gir" der AMA kritik olan: izlenen açı zinciri (raw) OKUNABİLİYORSA
+  // motor yine de sayabilir. Diz/bilek görünüyorsa (squat için gereken) framing
+  // biraz eksik olsa da (arka plan noktaları) sayma devam eder. Sadece izlenen
+  // açının kendisi okunamıyorsa dururuz — o zaman gerçekten sayamayız. ──
   if (r.framing < spec_.minFraming) {
-    // hareketin kendi cümlesi varsa onu söyle: push-up bacak istemez, bunu bilsin.
     r.message = spec_.framingCue.empty() ? "step back so your whole body fits the frame" : spec_.framingCue;
-    return r;
+    // izlenen açı zinciri hâlâ okunuyorsa (raw geçerli + güven yeterli) DURMA,
+    // uyar ama saymaya devam et — kişi tam sığmasa da o hareketi yapıyorsa saysın.
+    if (raw < 0.0 || bestVis < spec_.minVisibility) return r;
   }
   if (bestVis < spec_.minVisibility || raw < 0.0) { r.message = "i lost the joints i am watching - check the light and the frame"; return r; }
   r.tracking = true;

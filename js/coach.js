@@ -518,11 +518,21 @@ async function start() {
     });
     video.srcObject = stream;
     await video.play();
-    if (camstageEl) { camstageEl.hidden = true; camstageEl.classList.remove("warming"); }
-    stage.hidden = false;
+    // ── kamera GERÇEKTEN ilk kareyi boyayana kadar bekle, SONRA warming'i
+    // gizle ve videoyu göster — tek geçiş, iki kutu asla üst üste görünmez
+    // (Damla: sahne gidince kamera onun yerine gelsin). ──
+    await new Promise((res) => {
+      let done = false;
+      const go = () => { if (!done) { done = true; res(); } };
+      if (video.requestVideoFrameCallback) video.requestVideoFrameCallback(go);
+      else video.addEventListener("loadeddata", go, { once: true });
+      setTimeout(go, 900);   // güvenlik: geç kalırsa yine geç
+    });
+    stage.hidden = false;      // önce videoyu hazırla (görünür yap)
+    sizeCanvas();
+    if (camstageEl) { camstageEl.hidden = true; camstageEl.classList.remove("warming"); }  // sonra warming'i kaldır
     privateNote.hidden = false;
     stopBtn.hidden = false;
-    sizeCanvas();
     document.body.classList.add("running");   // kamera sahnesi: video ortada ve kocaman, kurulum çekilir
     loadItem(0);
     setStatus("i can see you - move 1 of " + program.items.length + ": " +
