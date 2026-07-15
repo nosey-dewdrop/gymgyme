@@ -413,3 +413,10 @@ sw v40.
 
 ## kalman params are now swept, not guessed (jul 15, jury response)
 the CS dean's most repeated jab: the one-euro params were grid-swept but the world-Kalman q/r were hand-picked magic numbers - the exact sin the project accused EMA of. fixed the inconsistency: added `bench kalmansweep`, a q/r grid search against the synthetic ground truth scored on jitter+rmse+lag with rep-accuracy as a hard gate. picked q=10/r=2e-4 by measurement (marginally better than the old 40/4e-4). the honest sub-result: the world-Kalman is nearly insensitive to q/r on this synthetic path (jitter 1.63-1.77 across the whole grid) - i.e. one-euro is already doing the work and this layer's real payoff is occlusion, not steady-state smoothing. that's the truth and it's in the sweep output. 182 native tests.
+
+## 5-jury round 2: classifier contamination + IK honesty (jul 15)
+26 confirmed findings from the full 5-critic jury (dean 7, pilates 4, pilatess 5, vc 4, nihilist 6). fixed the sharpest engineering ones:
+- classifier was fed the SELECTED move's asymmetry (r.asymmetryDeg from the current spec's angle pair). that pollutes the "recognize without being told" claim - pick push-up, do a lunge, and the asymmetry reflects elbows. now the classifier gets a MOVE-INDEPENDENT left-vs-right knee gap, so squat/lunge separation works regardless of what's selected.
+- IK honesty, deeper: ikAngle returns an INTERIOR angle, mathematically 0-180. so the 185/210 UPPER limits could NEVER fire - they were false security. removed them (upper=180, a no-op), kept the real work at the LOWER bound (impossible over-bend). the old hyperextension test used check(true) to pass when its own premise failed; replaced with a real test that a straight 180 leg is left untouched (no false upper clamp), plus the honest note that >180 hyperextension isn't representable in this 2D angle at all - so we don't claim it.
+- added a kalman turnaround-occlusion test (velocity reversal is where CV coasting is wrong) - overshoot bounded, fast recovery.
+185 native tests. the theme of this round: the jury made the engine SMALLER and more honest, not bigger.

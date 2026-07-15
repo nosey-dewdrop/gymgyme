@@ -307,7 +307,12 @@ static int runClip(const char* path) {
 // ── Faz 2 kanıtı: kemik kilidi — ham dünya iskeleti vs çözülmüş iskelet,
 // kemik uzunluğu varyansı (%). Kalibrasyonlu motor, gerçek üretim yolu. ──
 static int runBones() {
-  std::printf("kemik kilidi - ham vs cozulmus iskelet (kemik varyansi %%, kucuk iyi; hedef ~0)\n\n");
+  std::printf("kemik kilidi - ham vs cozulmus iskelet (kemik varyansi %%, kucuk iyi; hedef ~0)\n");
+  // DURUSTLUK (CS-dekan): cozulmus iskeletin varyansi ~0 cikmasi bir SADAKAT
+  // olcutu DEGIL, totoloji: solveBones zaten ogrenilen uzunluga yansitiyor, o
+  // uzunlugu geri olcunce elbette ~0. Asil anlamli sayi HAM dunya varyansi ve
+  // ham->cozulmus dususu; ~0 "iskelet dogru" degil "kilit calisiyor" demektir.
+  std::printf("(not: cozulmus ~0 totolojidir - kilit calisiyor demek, dogru demek degil)\n\n");
   struct Case { const char* label; double sigma; double spike; };
   const Case cases[] = {
     {"temiz kamera ", 0.002, 0.005},

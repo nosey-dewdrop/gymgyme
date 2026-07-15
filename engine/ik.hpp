@@ -22,25 +22,25 @@ struct JointLimit {
   double minDeg, maxDeg; // fiziksel aralık
 };
 
-// ── SEZGİSEL güvenlik kırpma sınırları (biyomekanik ROM tablosu DEĞİL — dürüst
-// olalım, bunlar atıfsız heuristik). Amaç dar bir "gerçek açı"yı düzeltmek değil;
-// yalnız FİZİKSEL OLARAK İMKANSIZ okumayı (dedektör gürültüsü dizi geriye büken)
-// reddetmek. O yüzden sınırlar GENİŞ tutulur: gerçek derin bir tekrar (dizin 20°,
-// dirsek 25°) kırpma bandının içinde kalır, dokunulmaz. Yalnız <geniş-alt> ve
-// >~185 gibi anatomik olarak olamayacak uçlar kırpılır. Gerçek ROM istenirse
-// atıflı bir tabloyla değiştirilecek; şimdilik "imkansızı ele" güvenlik ağı. ──
+// ── SEZGİSEL güvenlik kırpma sınırları (biyomekanik ROM tablosu DEĞİL, atıfsız
+// heuristik). ÖNEMLİ DÜRÜSTLÜK NOTU (CS-dekan turu): ikAngle üç noktanın İÇ
+// açısını verir, matematiksel olarak 0-180° arası. Bu yüzden 185/210 gibi ÜST
+// sınırlar ASLA tetiklenmez — kaldırıldılar (yalancı güvenlik). Kırpmanın
+// gerçek işi ALT sınır: dedektör gürültüsü bir eklemi fiziken imkansız kadar
+// (birkaç derece) kapatırsa geri açılır. Gerçek derin tekrar (diz/dirsek ~20-40°)
+// bandın rahat içinde, dokunulmaz. Hiperekstansiyon (>180) bu 2B açı ölçümüyle
+// zaten temsil edilemiyor; onu iddia etmiyoruz. ──
 inline const JointLimit* humanLimits(int& count) {
   static const JointLimit L[] = {
-    // dizler: 5°'nin altı ya da 185°'nin üstü fiziken olamaz (geriye bükülme).
-    {23, 25, 27,  5.0, 185.0},   // sol diz (kalça-diz-bilek)
-    {24, 26, 28,  5.0, 185.0},   // sağ diz
-    // dirsekler: 5°'nin altı ya da 188°'nin üstü olamaz. Gerçek tam-büküm ~25-40°
-    // bandın rahat içinde — push-up dibi kırpılMAZ.
-    {11, 13, 15,  5.0, 188.0},   // sol dirsek (omuz-dirsek-bilek)
-    {12, 14, 16,  5.0, 188.0},   // sağ dirsek
-    // kalça (gövde-uyluk iç açısı): geniş; yalnız uç saçmalık kırpılır.
-    {11, 23, 25,  10.0, 210.0},   // sol kalça (omuz-kalça-diz)
-    {12, 24, 26,  10.0, 210.0},   // sağ kalça
+    // dizler: ~5°'nin altı fiziken imkansız (bilek uyluğa katlanmaz). üst 180 = etkisiz sınır.
+    {23, 25, 27,  5.0, 180.0},   // sol diz (kalça-diz-bilek)
+    {24, 26, 28,  5.0, 180.0},   // sağ diz
+    // dirsekler: ~5°'nin altı imkansız. gerçek tam-büküm ~25-40° bandın içinde.
+    {11, 13, 15,  5.0, 180.0},   // sol dirsek (omuz-dirsek-bilek)
+    {12, 14, 16,  5.0, 180.0},   // sağ dirsek
+    // kalça (gövde-uyluk iç açısı): ~8°'nin altı imkansız.
+    {11, 23, 25,  8.0, 180.0},   // sol kalça (omuz-kalça-diz)
+    {12, 24, 26,  8.0, 180.0},   // sağ kalça
   };
   count = sizeof(L) / sizeof(L[0]);
   return L;

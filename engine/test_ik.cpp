@@ -47,22 +47,19 @@ int main() {
     check(std::fabs(shinBefore - shinAfter) < 1e-6, "clamping preserves the shin bone length");
   }
 
-  // hiper-ekstansiyon: diz geriye bükülü (>183°) — geri çekilmeli
+  // DÜRÜSTLÜK: ikAngle 0-180° arası iç açı verir, yani >180 üst sınır ASLA
+  // tetiklenmez — düz bir bacak (180°) hiç kırpılmaz. Bunu doğrula (yalancı üst
+  // sınır iddiası yok). Kırpma yalnız ALT sınırda (imkansız aşırı-büküm) çalışır.
   {
     double P[99] = {0};
-    P[24*3]=0; P[24*3+1]=0; P[24*3+2]=0;          // sağ kalça
-    P[26*3]=0; P[26*3+1]=-0.4; P[26*3+2]=0;       // sağ diz
-    // bilek, kalça-diz doğrultusunun ÖTESİNE bükülü (geriye kırık) -> >183
-    P[28*3]=-0.02; P[28*3+1]=-0.85; P[28*3+2]=0.0;
-    // hafif geriye krılma acısı yarat: bilek dizden ileri+geride
-    P[28*3]=0.0; P[28*3+1]=-0.80; P[28*3+2]=-0.02;
+    P[24*3]=0; P[24*3+1]=0; P[24*3+2]=0;         // kalça
+    P[26*3]=0; P[26*3+1]=-0.4; P[26*3+2]=0;      // diz
+    P[28*3]=0; P[28*3+1]=-0.8; P[28*3+2]=0;      // bilek tam altta -> düz bacak ~180
     double before = ikAngle(P[24*3],P[24*3+1],P[24*3+2], P[26*3],P[26*3+1],P[26*3+2], P[28*3],P[28*3+1],P[28*3+2]);
-    int fixed = clampHumanLimits(P);
+    clampHumanLimits(P);
     double after = ikAngle(P[24*3],P[24*3+1],P[24*3+2], P[26*3],P[26*3+1],P[26*3+2], P[28*3],P[28*3+1],P[28*3+2]);
-    // (bu poz cok geriye kirik degilse fixed 0 olabilir — o zaman zaten aralikta)
-    if (before > 183.0) { check(after <= 184.0, "a hyperextended knee is pulled back under the limit"); }
-    else check(true, "knee already within range (setup did not exceed hyperextension)");
-    (void)fixed;
+    check(before > 178.0, "test setup: a straight leg reads ~180deg");
+    check(std::fabs(before - after) < 0.5, "a straight (180deg) leg is left untouched - no false upper clamp");
   }
 
   // gerçek DERİN tekrar kırpma ile DEĞİŞMEMELİ (CS-dekan: geniş güvenlik bandı,
@@ -94,8 +91,8 @@ int main() {
     clampHumanLimits(P);
     double knee = ikAngle(P[23*3],P[23*3+1],P[23*3+2], P[25*3],P[25*3+1],P[25*3+2], P[27*3],P[27*3+1],P[27*3+2]);
     double hip  = ikAngle(P[11*3],P[11*3+1],P[11*3+2], P[23*3],P[23*3+1],P[23*3+2], P[25*3],P[25*3+1],P[25*3+2]);
-    check(knee >= 4.0 && knee <= 186.0, "after clamp: knee is within limits");
-    check(hip >= 9.0 && hip <= 211.0, "after clamp: hip is ALSO within limits (chain converged)");
+    check(knee >= 4.0 && knee <= 181.0, "after clamp: knee is within limits");
+    check(hip >= 7.0 && hip <= 181.0, "after clamp: hip is ALSO within limits (chain converged)");
   }
 
   std::printf(failed ? "\n%d ik test FAILED\n" : "\nall ik tests passed\n", failed);

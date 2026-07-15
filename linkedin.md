@@ -93,3 +93,15 @@ Sonra bu jüriyi gerçekten koda saldım — her denetçinin bulgusunu bağıms�
 Sonra CS Dekanı'nın sorusuna kendi silahıyla cevap verdim — bench'e world-refine AÇIK vs KAPALI karşılaştırması ekledim. Ölçüm alçakgönüllüydü: sentetik klipte ikinci Kalman katmanı One Euro'nun üstüne kayda değer bir şey katmıyor, hatta kötü ışıkta jitter'ı biraz artırıyor. Bunu saklamadım, commit mesajına yazdım. Çünkü katmanın gerçek değeri occlusion-recovery — ve sentetik test onu hiç sınamıyor (dropout yok). Bu ancak gerçek bir klipte yargılanabilir.
 
 İşin özü şu: iyi mühendislik "çalışıyor" demek değil, "yanılıyor olabileceğim yeri arayıp buldum" demektir. Kendine bir jüri kurmak, o aramayı sistematik hale getiriyor. Nihilist haklıysa, kesersin. Değilse, soğukkanlılıkla kanıtlarsın. Her iki durumda da slopware dışarıda kalıyor.
+
+## "CGI netliği" bir pazarlama lafıydı — jüri haklıydı, düzeltiyorum
+
+Motoru geliştirirken bir cümle kullandım: "CGI netliği." Kulağa iyi geliyordu. Sonra kendi kurduğum jürideki CS dekanı onu yerden yere vurdu, ve haklıydı: "CGI netliği ölçülebilir bir şey değil, pazarlama. Sen bana gerçek bir klipte ölçülmüş jitter, RMSE, gecikme göster."
+
+Doğru. Motorun tüm hassasiyet sayıları — jitter 4.57°'den 2.21°'ye, kemik varyansı %5.7'den %0'a — sentetik veriden geliyor. Sentetik veride ben gerçek açıyı biliyorum çünkü iskeleti o açıdan kuruyorum, sonra üstüne kendi eklediğim Gauss gürültüsünü koyuyorum. Bu, kodun benim gürültü modelime uyduğunu kanıtlar. Gerçekliğe uyduğunu değil. Çünkü MediaPipe'ın gerçek hatası Gauss değil — korelasyonlu, önyargılı, özellikle derinlik ekseninde (z) sistematik. Benim temizlediğim titreme onda yok; onda olan başka bir şey.
+
+Dahası, "kemik varyansı %0" diye övündüğüm sayı bir totoloji. Kemik kilidi iskeleti öğrenilmiş bir uzunluğa yeniden yansıtıyor; sonra o aynı uzunluğu geri ölçünce tabii ki %0 çıkıyor. Bu bir sadakat ölçütü değil, projeksiyonun matematiksel bir özelliği. Dekan bunu da yakaladı.
+
+Peki ne yapıyorum? İki şey. Birincisi, dili düzeltiyorum: bu sayılar "modellenmiş gürültü altında filtre davranışı"dır, "gerçeklikte hassasiyet" değil. İkincisi — ve asıl doğrusu bu — gerçek bir ölçüm hattı kurdum ama gerçek klip henüz yok. Motora gizli bir kaydedici koydum (?rec=1), gerçek bir insanın gerçek bir squat'ı kaydedilip motordan geçirilebiliyor. O klip çekilene kadar hiçbir "gerçek hassasiyet" iddiası etmeyeceğim. Tek kameralı bir sistemde derinlik zaten bir tahmindir; onu gerçek ölçüm gibi sunmak, dekanın deyimiyle, "tahmini gerçeğe çamaşır yıkamak" olur.
+
+Bunu neden yazıyorum? Çünkü bir mühendisin en kolay yalanı kendine söylediğidir. "CGI netliği" hoş bir cümleydi ve testler yeşildi, o yüzden inanmak kolaydı. Ama yeşil testlerin çoğu benim kendi kurgumu doğruluyordu, gerçekliği değil. Kendine düşman bir jüri kurmanın bütün değeri bu: senin duymak istemediğin ama duyman gereken cümleyi, senin yerine biri söylüyor. İyi ürün, rahatsız edici doğruları erken duyan üründür.
