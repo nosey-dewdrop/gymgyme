@@ -236,3 +236,7 @@ body.running #intro, body.running #progCard { display: none; }
 .camstage.warming .stagestart { display: none; }
 .camstage.warming .cam { animation: ggspin 1.6s linear infinite; display: inline-block; }
 @keyframes ggspin { to { transform: rotate(360deg); } }
+
+/* framing rehberi: kamera acilmadan nerede duracagini soyler (Pilatess jury) */
+.camstage .framehint { max-width: 78%; font-size: 12px; opacity: .82; line-height: 1.5; margin-top: 2px; }
+.camstage .framehint b { font-size: 12px; }
