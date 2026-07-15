@@ -4,6 +4,24 @@ IG için hook'lu 30-60 sn reel scriptleri. İlk cümle KANCA. Damla seslendirir.
 
 ---
 
+## FORMAT (her reel bunu takip eder)
+
+```
+## Reel — [kısa başlık, konu ne] (loop XX)
+
+**Hook (ilk 2 sn):** "[Merak uyandıran, ters köşe ilk cümle. 'Şu sanılıyor ama aslında bu.']"
+
+**Anlatı (~30-45 sn):** [Damla'nın dili, mala öğretir gibi. Akış: neyi değiştirdim → çünkü şu sorun vardı → nasıl çözdüm → ders. Terim geçerse sıfırdan aç, izleyen bilmeyebilir.]
+
+**Görsel:** [ekranda ne görünsün + alt yazı fikri]
+**Format:** reel   (ya da: reel / carousel)
+```
+
+Kurallar: ilk cümle KANCA (sıkıcıysa kimse izlemez) · 30-60sn kısa · gerçek tarihçeden "şunu değiştirdim çünkü şu sorun vardı" (senaryo değil) · terimi mala öğretir gibi aç · Damla seslendirir (cümleler onun ağzından) · sınır yok, biriktir.
+İki tip: (1) LOOP reel'i — o loop'ta ne yaptım, başlıkta `(loop XX)`. (2) STOK/açıklama reel'i — kavram anlatan, loop'a bağsız → aşağıdaki "TECH/AI/CV STOĞU" bölümüne.
+
+---
+
 ## Reel 1 — kameran seni izliyor ama hiçbir yere gitmiyor
 
 **Hook (ilk 2 sn):** "Bu uygulama kameranla squat'ını izliyor. Ama tek bir kare bile telefonundan çıkmıyor."
