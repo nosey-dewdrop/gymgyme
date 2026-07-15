@@ -88,3 +88,9 @@ IG için hook'lu 30-60 sn reel scriptleri. İlk cümle KANCA. Damla seslendirir.
 **Hook (ilk 2 sn):** "Kendi kodumu değerlendirmesi için, benden nefret eden beş kişilik bir jüri kurdum."
 
 **Anlatı (~50 sn):** Bir motoru büyütürken en tehlikeli an 'oldu' dediğin andır. O yüzden bir jüri kurdum — bir CS dekanı mühendisliği yerden yere vursun, iki pilates uzmanı hareketleri denetlesin, bir VC paneli 'buna gerek yok, feature bu şirket değil' desin, ve bir nihilist hiçbir şeyi beğenmesin. Sonra bu jüriyi gerçekten koduma saldım, her bulguyu bağımsız doğrulattım. Utandırıcı derecede işe yaradı. En büyüğü: yeni eklediğim bir Kalman katmanının, testler geçmesine rağmen ana yolda bypass edildiğini buldular — faydasını almadan maliyetini ödüyordum. Düzelttim. Sonra dekanın sorusuna kendi silahıyla cevap verdim: katmanın kazancını ölçtüm, ve ölçüm alçakgönüllüydü — saklamadım, commit'e yazdım. İyi mühendislik 'çalışıyor' demek değil, 'yanıldığım yeri aradım ve buldum' demek.
+
+## Reel — kendi eklediğim şeyi ölçüm çürütünce kapattım
+
+**Hook (ilk 2 sn):** "Motora bir katman ekledim, testler yeşildi, 'iyileştirdim' dedim. Sonra kendi ölçümüm beni yalancı çıkardı."
+
+**Anlatı (~45 sn):** Kameranın gürültülü derinlik tahminini ikinci bir Kalman filtresinden geçirdim, açılar daha kararlı olsun diye. Yeşil testler, güzel bir build-log yazısı, devam. Sonra kurduğum jürideki CS dekanı benim kendi ölçüm bandımı kötü ışıkta çalıştırdı — ve katman motoru KÖTÜLEŞTİRİYORDU. İkinci filtre gecikme ekliyor, gürültüde işi bozuyordu. İki seçenek: ya essay'i yumuşatıp katmanı açık bırakmak, ya ölçüme uymak. Katmanı kapattım. Çünkü yeşil testler çoğu zaman senin varsayımını doğrular, gerçekliği değil. Bir şeyi eklemek kolay; kendi ölçümün çürüttüğü için geri kapatmak — işte o disiplin.
