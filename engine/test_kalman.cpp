@@ -42,6 +42,27 @@ int main() {
     check(k.uncertainty() > 0.01, "uncertainty grows during occlusion (engine knows it is guessing)");
   }
 
+  // ── DÖNÜŞ NOKTASINDA occlusion (CS-dekan bulgusu): rep bir kosinüs; tepe/dip'te
+  // hız yön değiştirir. Constant-velocity öngörücü tam orada AŞAR (yanlış tarafa
+  // devam eder). Bunu ÖLÇ: dönüş noktasında occlusion olursa hata sınırlı mı,
+  // ve coasting penceresi (~0.5s) o hatayı makul tutuyor mu. ──
+  {
+    Kalman1D k; k.q = 40.0; k.r = 4e-4;
+    double dt = 1.0 / 30, t = 0;
+    // kosinüs squat: theta = 130 + 50*cos(w t), dip w t = pi civarı (hız ~0, döner)
+    auto theta = [](double tt) { return 130.0 + 50.0 * std::cos(2.0 * M_PI * 0.5 * tt); };
+    // dibe kadar besle (yaklaşık yarım periyot: 0.5Hz -> 1s'te dip)
+    for (int i = 0; i < 30; i++) { t += dt; k.predict(dt); k.correct(theta(t)); }
+    // tam dönüş noktasında 6 kare occlusion (ölçüm yok, sadece predict)
+    double errMax = 0;
+    for (int i = 0; i < 6; i++) { t += dt; k.predict(dt); errMax = std::max(errMax, std::fabs(k.x - theta(t))); }
+    // constant-velocity dönüşte aşar ama coasting kısa olduğu için hata SINIRLI kalmalı.
+    check(errMax < 25.0, "occlusion across a turnaround: constant-velocity overshoot stays bounded (<25deg)");
+    // ölçüm dönünce hızla toparlar
+    for (int i = 0; i < 10; i++) { t += dt; k.predict(dt); k.correct(theta(t)); }
+    check(std::fabs(k.x - theta(t)) < 3.0, "recovers quickly once measurements return after a turnaround occlusion");
+  }
+
   // gürültü bastırma: gürültülü ölçümlerin ortalamasına yakınsar, saçılmaz
   {
     Kalman1D k; k.q = 0.5; k.r = 0.05;
