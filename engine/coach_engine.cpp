@@ -273,6 +273,8 @@ MoveSpec builtinMove(const std::string& name) {
   // taban güvenlik ağı olarak kalır — adaptif eşik ondan daha derin olmaz.
   s.adaptiveBottom = true;
   s.adaptiveDrop = 42.0;
+  // masada oturan kullanıcı squat yapamaz; sessiz kalma, dürüstçe söyle.
+  s.framingCue = "stand up and step back so your knees and hips are in frame - squats need your legs";
   // form kuralları: veri. gövde dikeyden 55°'den fazla eğilmesin (her görüşte);
   // dizler bilek genişliğinin %72'sinden fazla içe çökmesin (sadece önden okunur).
   s.rules = {
@@ -287,6 +289,7 @@ void Engine::setCalibration(bool on) {
   calibrated_ = false;
   calibCount_ = 0;
   calibRetries_ = 0;
+  ratioMissStreak_ = 0;
   for (auto& v : calibSamples_) v.clear();
   for (auto& v : boneSamples_) v.clear();
   for (int i = 0; i < kBoneN; i++) { boneLen_[i] = 0; boneUsable_[i] = false; }
@@ -340,6 +343,7 @@ void Engine::reset() {
   calibrated_ = false;
   calibCount_ = 0;
   calibRetries_ = 0;
+  ratioMissStreak_ = 0;
   for (auto& v : calibSamples_) v.clear();
   phaseTop_ = true;
   topRest_ = -1.0; bottomLive_ = -1.0; topLive_ = -1.0;   // adaptif eşik yeniden öğrenilir
@@ -969,10 +973,18 @@ Reading Engine::update(const std::vector<Landmark>& p,
           tested++;
           if (std::fabs(ratios[i] - bodyRatio_[i]) / bodyRatio_[i] > 0.30) bad++;
         }
+        // KİLİT KAYMASI DÜZELTMESİ (denetçi/gerçek-kullanıcı dersi): tek gürültülü
+        // kare (MediaPipe kenar/occlusion titremesi) tracking'i düşürüp "kilit
+        // kaydı" hissi veriyordu. Artık 5 ARDIŞIK uyumsuz kare gerek — gerçek
+        // yabancı 5+ kare düşer, gerçek kullanıcının tek titremesi düşmez.
         if (tested >= 2 && bad * 3 >= tested * 2) {
-          r.tracking = false;
-          r.message = "that read did not match your body - skipped it";
-          return r;
+          if (++ratioMissStreak_ >= 5) {
+            r.tracking = false;
+            r.message = "that read did not match your body - skipped it";
+            return r;
+          }
+        } else {
+          ratioMissStreak_ = 0;
         }
       }
     } else if (!calibrated_) {

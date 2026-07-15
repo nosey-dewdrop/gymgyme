@@ -296,7 +296,7 @@ const HOLD_POSITION_ONLY = new Set(["superman"]);
 // press = ayakta bası, bel ekstansiyonu + eksenel yük (yüksek Valsalva) → eklendi.
 // glutebridge düşük riskli → çıkarıldı (yanlış alarm dürüstlüğü bozar).
 const LUMBAR_LOAD = new Set(["situp", "superman", "hollowhold", "press"]);
-let move = MOVES.squat;
+let move = MOVES.armraise;   // varsayılan: masada oturan kullanıcı da HEMEN sayabilsin (denetçi dersi)
 
 // derin bağlantı: coach.html?move=squat → o hareketle açıl (11).
 const wantMove = new URLSearchParams(location.search).get("move");

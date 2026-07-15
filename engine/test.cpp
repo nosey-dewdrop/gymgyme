@@ -542,12 +542,13 @@ int main() {
     for (int i = 0; i < 10; i++) r = e.update(pose(true), worldPose(true), (t += 33));
     for (int i = 0; i < 14; i++) r = e.update(pose(false), worldPose(false), (t += 33));
     check(r.reps == 1, "counting works after calibration, bending does not break the lock");
-    // bacakları yarıya inmiş sahte vücut: bu okuma reddedilir
+    // bacakları yarıya inmiş sahte vücut: SÜREKLİ farklı olduğu için 5 ardışık
+    // kare sonra reddedilir (tek kare titremesi düşürmez — kilit-kayması dersi).
     std::vector<Landmark> shrunk = worldPose(false);
     shrunk[25].y = 0.20; shrunk[26].y = 0.20;   // dizler yukarı: uyluk yarıya iner
     shrunk[27].y = 0.40; shrunk[28].y = 0.40;   // bilekler de: baldır yarıya iner
-    r = e.update(pose(false), shrunk, (t += 33));
-    check(!r.tracking, "a body that does not match the calibration is rejected");
+    for (int i = 0; i < 6; i++) r = e.update(pose(false), shrunk, (t += 33));
+    check(!r.tracking, "a sustained wrong body is rejected after a few frames (not one jitter spike)");
     // kalibrasyonsuz motor aynı okumayı kabul ederdi (kilit gerçekten kalibrasyondan)
     Engine e2(builtinMove("squat"));
     Reading r2;

@@ -308,6 +308,7 @@ class Engine {
   bool calibrated_ = false;
   int calibCount_ = 0;
   int calibRetries_ = 0;   // kalibrasyon kalite kapısı: kirli örnekle bir kez yeniden öğren
+  int ratioMissStreak_ = 0;  // kilit kayması: tek gürültülü kare değil, 5 ardışık uyumsuzlukta düş
   std::vector<double> calibSamples_[kRatioN];
   double bodyRatio_[kRatioN] = {0, 0, 0, 0, 0};
   bool ratioUsable_[kRatioN] = {false, false, false, false, false};
