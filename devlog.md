@@ -7,24 +7,33 @@ IG için hook'lu 30-60 sn reel scriptleri. İlk cümle KANCA. Damla seslendirir.
 ## İKİ TEMPLATE — devlog ikisini de tutar
 
 Bu dosyada iki tür kayıt var. Biri sosyal-medya (reels), biri teknik günlük. İkisi de burada yaşar.
+NOT: reels malzemesini ne zaman düşüreceğine CLAUDE karar verir (Damla'ya sormaz) — aklına uygun bir an/konu geldiğinde stoğa atar. Sınır yok.
 
-### TEMPLATE A — BUILD-IN-PUBLIC (reels · sosyal medya · Damla seslendirir)
+### TEMPLATE A — REELS (sosyal medya · Damla seslendirir · hepsi tek tür)
+
+Reels tek türdür. İçinde üç kaynak var ama HEPSİ reel: (1) build anı — o loop'ta/sistemde ne yaptım. (2) kavram/açıklama — wasm, pose estimation gibi terimi mala öğretir gibi. (3) konu/sohbet — teknoloji, sosyoloji, marketing ya da günlük hayattan aklına düşen görüş. "Vlog" diye ayrı bir şey YOK; sohbet reel'leri de bu template.
+
+DETAY + BOLLUK ŞART: içerik DETAYLI ve ÇOK olmalı. Bir sistem ne kadar büyükse o kadar çok reel çıkar — stitchu bir oyun motoru + SaaS (API), böyle bir proje 6-9 reel'e SIĞMAZ. Her sistem, her mimari karar, her alt-özellik, her downfall/pivot kendi reel'ini hak eder. "Birkaç reel yeter" YANLIŞ; derinlemesine ve bol üret. Küçük parça = ayrı reel.
+
+TR/EN İKİ VERSİYON: her reel'in bir de İngilizce karşılığı olur.
+- **TR** → konuşarak (seslendirme rahat). Hook + anlatı Damla'nın sesiyle.
+- **EN** → VARSAYILAN "text-on-video" (çekim + üstüne yazı; Damla EN konuşurken utanıyor). Yani EN'de ekranda kısa güçlü YAZI cümleleri olur, sesli anlatı şart değil. Bazen EN'de de konuşabilir ama default yazı.
 
 ```
-## Reel — [kısa başlık, konu ne] (loop XX)
+## Reel — [kısa başlık, konu ne]  (build ise: (loop XX / sistem adı))
 
-**Hook (ilk 2 sn):** "[Merak uyandıran, ters köşe ilk cümle. 'Şu sanılıyor ama aslında bu.']"
+**Hook (ilk 2 sn):** "[Merak uyandıran, ters köşe ilk cümle.]"
 
-**Anlatı (~30-45 sn):** [Damla'nın dili. Akış: neyi değiştirdim → çünkü şu sorun vardı → nasıl çözdüm → ders. Terim geçerse sıfırdan aç, izleyen bilmeyebilir.]
+**Anlatı (~30-60 sn):** [TR · Damla'nın sesi. Build ise: neyi değiştirdim → çünkü şu sorun vardı → nasıl çözdüm → ders. Konu/sohbet ise: net görüş + neden + kendi deneyiminden örnek. Terim geçerse sıfırdan aç.]
+
+**EN (text-on-video):** [aynı reel'in İngilizcesi ama EKRAN YAZISI olarak — kısa, güçlü, ardışık cümleler. Konuşma metni değil, üstüne bindirilecek yazı. Örn: "your camera counts. / nothing leaves your phone. / no server. no upload."]
 
 **Format:** reel   (ya da: reel / carousel)
 ```
 
-Kurallar: ilk cümle KANCA (sıkıcıysa kimse izlemez) · 30-60sn kısa · gerçek tarihçeden "şunu değiştirdim çünkü şu sorun vardı" · terimi mala öğretir gibi aç · Damla seslendirir · sınır yok, biriktir.
+Kurallar: ilk cümle KANCA · 30-60sn kısa · gerçek tarihçeden/gerçek görüşten · terimi mala öğretir gibi aç · net duruş al (ortada durma) · TR konuşma + EN text-on-video · DETAYLI ve BOL · sınır yok, biriktir.
 
-TON — DERS DEĞİL, SOHBET: Damla dünyanın eğitimcisi değil; bir insan build ediyor. Eğlence, espri, iç geçirme, "of yine mi bu bug", "3 saat uğraştım meğer noktalı virgülmüş" tarzı gerçek anlar önemli — asıl bağ orada kurulur. Düşünce akışı, kafadan geçenler, küçük zaferler/hüsranlar, arada laf sokma. Öğretme kısmı espinin/hikâyenin İÇİNE gömülü olsun, ders gibi başlamasın. Her reel bilgi vermek zorunda değil — bazısı sadece bir an, bir düşünce, bir gülümseme.
-
-İki alt-tip: (1) LOOP reel'i — o loop'ta ne yaptım, başlıkta `(loop XX)`. (2) STOK/açıklama reel'i — kavram anlatan, loop'a bağsız → "TECH/AI/CV STOĞU" bölümüne.
+TON — DERS DEĞİL, SOHBET: Damla dünyanın eğitimcisi değil; bir insan build ediyor. Eğlence, espri, iç geçirme, "of yine mi bu bug", "3 saat uğraştım meğer noktalı virgülmüş" tarzı gerçek anlar önemli — asıl bağ orada kurulur. Düşünce akışı, kafadan geçenler, küçük zaferler/hüsranlar, arada laf sokma. Öğretme kısmı espinin/hikâyenin İÇİNE gömülü olsun. Her reel bilgi vermek zorunda değil — bazısı sadece bir an, bir düşünce, bir gülümseme.
 
 ### TEMPLATE B — TECH DEVİNİM (developer diary · düz teknik kayıt · sosyal medya DEĞİL)
 
@@ -42,31 +51,14 @@ Bu sosyal medya için değil — kendi teknik günlüğün. Ne yaptım, neden, n
 
 Kurallar: dürüst (çalışmayan çalışmadı yazılır) · sayıyla konuş (test geçti/benchmark X) · kısa ama izlenebilir · gelecekteki Damla'ya not gibi.
 
-### TEMPLATE C — SOSYAL DEVİNİM / VLOG (görüş · sohbet · projeye bağsız)
-
-Build-in-public "işte projem"dir; bu ise senin KAFANDAKİ konu. Projeye bağlı olmak zorunda değil — geniş görüş, gözlem, tartışma açan sohbet. "Yapay zekayla kod yazmak nasıl bir şey", "slop uygulama nasıl anlaşılır", "vibecoding iş görür mü", "junior mühendis AI çağında ne yapmalı" gibi. Sen konuşuyorsun, izleyen düşünüyor.
-
-```
-## Vlog — [konu / soru]
-
-**Kanca:** "[tartışma açan, iddialı ya da merak uyandıran giriş]"
-
-**Görüş / sohbet (~1-3 dk):** [Damla'nın gerçek görüşü. Bir tez + neden + örnek. Kendi deneyiminden konuş (kendi app'lerin, kendi build sürecin). Net bir duruş al, "belki şöyle belki böyle" değil.]
-
-**Neden ben söylüyorum:** [gerçek CS öğrencisi + gerçek ürün build eden biri olarak yetkin — bu satır izleyene 'niye dinleyeyim'i verir]
-
-**Format:** vlog / talking-head   (reels'ten uzun olabilir)
-```
-
-Kurallar: net duruş al (ortada durma) · kendi deneyiminden örnek ver · didaktik değil, sohbet · tartışma davet et (yorumlarda konuşulsun) · sınır yok, biriktir.
-
-STOK KONULAR (aklına geldikçe büyür):
+STOK KONU FİKİRLERİ (reel için · Claude aklına geldikçe büyütür):
 - yapay zekayla kod yazmak: asistan mı, koltuk değneği mi, çoğaltıcı mı? gerçek deneyim.
 - slop uygulama nasıl anlaşılır — 5 işaret (backend yok, hepsi localStorage, aynı gradient, CRUD'un yarısı, "coming soon"lar).
 - vibecoding gerçekten iş görür mü, nerede duvara çarpar (motor/mimari gerektiren yerde).
 - AI kodu yazarken senin işin ne kalıyor: karar, mimari, "bu doğru mu"yu ölçmek.
 - bir CS öğrencisi olarak AI çağında ne öğreniyorum / öğrenmiyorum.
 - "her şeyi AI yazsın" ile "hiçbir şeye güvenme" arasında sağlıklı yer neresi.
+- (teknoloji / sosyoloji / marketing / günlük hayat — sınır yok)
 
 ---
 
