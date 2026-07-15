@@ -1,44 +1,44 @@
-# gymgyme
+# gymgyme 💪
 
-tamamen tarayıcında çalışan bir personal trainer. bilgisayarlı görü senin cihazında tekrarlarını sayıyor, formunu 0-100 puanlıyor, duruşunu 3d'de düzeltiyor — hiçbir kare hiçbir yere yüklenmiyor. evde tek başına spor yapan, "doğru mu yapıyorum" diye soran herkes için.
+a personal trainer that runs entirely in your browser. computer vision counts your reps on your own device, scores your form 0-100 and corrects your posture in 3d. not a single frame is uploaded anywhere. for everyone working out alone at home asking "am i doing this right?"
 
-canlı: https://gymgyme.noseydewdrop.com
+live: https://gymgyme.noseydewdrop.com
 
-## nasıl çalışıyor — bunun için neler kullandım
+## how it works and what i used for it
 
-asıl iş `engine/` klasöründeki, elle yazılıp webassembly'ye derlenmiş c++ motorunda dönüyor. her karede mediapipe'ın pose landmarker'ı gpu'da 33 vücut noktasını okuyor; benim motorum o gürültülü noktaları alıp asıl koçluğu yapıyor:
+the real work happens in the c++ engine in `engine/`, hand-written and compiled to webassembly. every frame, mediapipe's pose landmarker reads 33 body points on the gpu. my engine takes those noisy points and does the actual coaching:
 
-- **eklem-açısı uzayında one euro filtresi** — parametreleri hisle değil, bir ölçüm bench'iyle seçtim
-- **kemik-kilidi iskelet**: kalibrasyon senin kemik uzunluklarını metrik dünya koordinatında öğreniyor, sonra her karede iskeleti yeniden oturtuyor
-- **kişi kilidi**: kadraja başkası girerse motor onu koçlamayı reddediyor
-- **hareket-öncülü kapılama**: fiziksel olarak mümkün açısal hız her hareketin kendi spec'inden türetiliyor — squat yaparken squat fiziği
-- **histerezisli tekrar sayımı**, yarım-tekrar tespiti, 0-100 puanlama (derinlik/tempo/kontrol) ve her tekrardan sonra tek satır koç yorumu
+- **one euro filter in joint-angle space**. i picked the parameters with a measurement bench, not by feel
+- **bone-lock skeleton**: calibration learns your bone lengths in metric world coordinates, then refits the skeleton every frame
+- **person lock**: if someone else walks into the frame, the engine refuses to coach them
+- **motion-prior gating**: the physically possible angular velocity is derived from each move's own spec. squat physics while you squat
+- **rep counting with hysteresis**, half-rep detection, 0-100 scoring (depth/tempo/control) and a one-line coach comment after every rep
 
-motorun etrafında bir sinema-marquee dünyası: 188 hareketlik kütüphane, beğenilen hareketler, tek dokunuşla programlar, contribution graph gibi boyanan bir devamlılık takvimi ve toplulukça derlenen evde-spor link dizini.
+around the engine there is a cinema-marquee world: a 188-move library, liked moves, one-tap programs, a streak calendar that fills in like a contribution graph, and a community-curated directory of home training links.
 
-## ölçüm / accuracy — iddia değil, benchmark
+## measurement and accuracy, benchmark not claims 📏
 
-- **kemik uzunluğu varyansı: ham ~%5 → %0.00** (kemik-kilidi iskelet). eklemler artık kayamıyor.
-- **kötü ışıkta jitter: 5.0° → 2.3°** (one euro filtresi, sweep ile seçilen parametreler). ilk sweep 100 ms gecikme getirdi, gecikme cezası ekleyip yakaladım.
-- **120+ native birim testi** (`engine/test.sh`) + sentetik doğru-referanslı ölçüm bench'i (`engine/bench.sh`: jitter, rmse, gecikme, kemik varyansı, iki-kişi senaryoları).
-- offline değerlendirme için landmark akışını yakalayan gizli bir `?rec=1` kaydedici var — hisle değil kayıtla ölçüyorum.
+- **bone length variance: raw ~5% → 0.00%** (bone-lock skeleton). joints can no longer drift.
+- **jitter in bad light: 5.0° → 2.3°** (one euro filter, parameters chosen by sweep). the first sweep introduced 100 ms of latency, i caught it by adding a latency penalty.
+- **120+ native unit tests** (`engine/test.sh`) plus a synthetic ground-truth measurement bench (`engine/bench.sh`: jitter, rmse, latency, bone variance, two-person scenarios).
+- there is a hidden `?rec=1` recorder that captures the landmark stream for offline evaluation. i measure with recordings, not with feelings.
 
-## teknolojiler
+## tech
 
-c++17 → webassembly (emscripten) motor + statik html/css/js (build adımı yok) + mediapipe tasks (vendored, cihaz üstünde) + supabase (hesap + antrenman sayıları, rls korumalı). vercel'de barınıyor. pwa.
+c++17 → webassembly (emscripten) engine plus static html/css/js (no build step) plus mediapipe tasks (vendored, on-device) plus supabase (accounts and workout counts, rls protected). hosted on vercel. pwa.
 
-**ücretsiz, reklam yok, takip yok. antrenman sayıların (asla video) sadece giriş yaparsan senkronlanıyor.**
+**free, no ads, no tracking. your workout counts (never video) sync only if you sign in.**
 
-## neden yaptım
+## why i built it ❤️
 
-evde spor yapmaya çalışan herkesin sorunu aynı: doğru mu yapıyorum bilmiyorsun, sayan yok, düzelten yok. spor salonundaki hoca cebinde olsun istedim ama kamera görüntüsünü buluta gönderen bir şey değil — mahremiyeti fizik zorlasın, ben söz vererek değil. o yüzden kamera görüntüsü cihazdan hiç çıkmıyor, çıkamıyor: en katı gizlilik politikası fiziğin dayattığıdır.
+everyone trying to work out at home has the same problem: you do not know if you are doing it right, nobody counts, nobody corrects you. i wanted the gym coach in your pocket, but not something that sends your camera feed to the cloud. privacy should be enforced by physics, not by my promises. so the camera image never leaves the device and it cannot: the strictest privacy policy is the one physics imposes.
 
-## katkı
+## contributing
 
-sitedeki öneri formunu kullan. gönderdiğin isim sayfada girdiyle birlikte yayınlanıyor; istersen takma ad kullan.
+use the suggestion form on the site. the name you submit is published next to your entry, use a nickname if you want.
 
-## kurulum notları
+## setup notes
 
-- `supabase/migration.sql` — tablo, rls politikaları ve seed satırları; supabase sql editörüne bir kere yapıştır.
-- `config.js` — supabase url + anon key (bilerek public, her şeyi rls koruyor).
-- domain bağlandıktan sonra: `index.html`'deki canonical/og:url'yi güncelle, gerçek domain'le robots.txt + sitemap.xml ekle.
+- `supabase/migration.sql` tables, rls policies and seed rows. paste it once into the supabase sql editor.
+- `config.js` supabase url plus anon key (intentionally public, rls protects everything).
+- after the domain binds: update the canonical/og:url in `index.html`, add robots.txt plus sitemap.xml with the real domain.
