@@ -1,7 +1,7 @@
 // gymgyme service worker: ana ekrana kurulan personal trainer offline da açılsın.
 // kamera + motor zaten cihazda çalışıyor; burada sadece dosyaları önbelleğe alıyoruz.
 // vendor/ ya da engine/ değişirse CACHE sürümünü artır — eski önbellek silinir.
-const CACHE = "gg-pwa-v60";  // v35: hold hareketleri motora bagli (plank/wall-sit sure+kalite), 386 hareket, kalman, ik, simetri
+const CACHE = "gg-pwa-v61";  // v35: hold hareketleri motora bagli (plank/wall-sit sure+kalite), 386 hareket, kalman, ik, simetri
 
 const CORE = [
   "coach.html",
@@ -51,13 +51,17 @@ self.addEventListener("fetch", (e) => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;       // supabase vb. dışarıda kalır
 
-  // büyük ve nadiren değişen dosyalar: önce önbellek (offline + hız)
-  if (url.pathname.includes("/vendor/") || url.pathname.includes("/engine/")) {
+  // vendor MediaPipe (3. taraf, hiç değişmez): önce önbellek (hız + offline).
+  if (url.pathname.includes("/vendor/")) {
     e.respondWith(caches.match(req).then((hit) => hit || fetch(req)));
     return;
   }
+  // MOTOR (engine/): ARTIK ÖNCE AĞ — motor.wasm/js sık değişiyordu ve önbellek
+  // eski motoru veriyordu (Damla: değişiklik gelmiyor). güncellik şart, offline
+  // fallback yeter. HTML/JS/CSS zaten aşağıda önce-ağ.
 
-  // geri kalan her şey: önce ağ (güncellik), düşerse önbellek (offline)
+  // geri kalan HER ŞEY (html/js/css/engine): önce AĞ (daima güncel),
+  // düşerse önbellek (offline). değişiklikler artık ANINDA gelir.
   e.respondWith(
     fetch(req)
       .then((res) => {
