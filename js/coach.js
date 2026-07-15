@@ -228,9 +228,13 @@ if (trainSearch && trainSuggest) {
         });
         trainSuggest.appendChild(d);
       };
-      // once motorun saydigi 14 (durustluk: bunlar tekrar tekrar sayilir)
-      for (const o of [...moveSel.options].filter((o) => o.textContent.toLowerCase().includes(v)).slice(0, 5))
-        add(o.textContent, "counts reps · add", { move: o.value, reps: 10, sets: 3 });
+      // once motorun izledigi hareketler: rep-based sayar, hold-based sure tutar
+      // (durustluk: her biri kendi dogru etiketiyle gelir).
+      for (const o of [...moveSel.options].filter((o) => o.textContent.toLowerCase().includes(v)).slice(0, 5)) {
+        const isHold = HOLD_MOVES.has(o.value);
+        add(o.textContent, isHold ? "coached hold · add" : "counts reps · add",
+          isHold ? { move: o.value, reps: 30, sets: 1 } : { move: o.value, reps: 10, sets: 3 });
+      }
       // sonra kutuphanenin tamami: kamera izler, SURE tutar — sayiyorum numarasi yok
       if (typeof MOVE_DB !== "undefined") {
         const engineNames = new Set([...moveSel.options].map((o) => o.textContent.toLowerCase()));
@@ -274,7 +278,16 @@ const MOVES = {
   calfraise:      { joint: "ankle",    top: "on toes",   bottom: "flat",     down: "lowering",      up: "rising" },
   jumpingjack:    { joint: "shoulder", top: "arms up",   bottom: "arms down", down: "coming down",  up: "jumping" },
   armraise:       { joint: "shoulder", top: "raised",    bottom: "down",     down: "lowering",      up: "raising" },
+  // ── HOLD (izometrik) hareketler: faz kelimesi yok, "tutuyorsun" dili. motor
+  // rep saymaz, hedef bantta geçen SÜRE + kararlılık ölçer. ──
+  plank:          { joint: "body line", hold: true },
+  sideplank:      { joint: "body line", hold: true },
+  wallsit:        { joint: "knee",      hold: true },
+  hollowhold:     { joint: "body line", hold: true },
+  superman:       { joint: "back line", hold: true },
 };
+// hangi hareketler HOLD (süre-tabanlı): search etiketi + plan dili buna bakar.
+const HOLD_MOVES = new Set(Object.keys(MOVES).filter((k) => MOVES[k].hold));
 let move = MOVES.squat;
 
 // derin bağlantı: coach.html?move=squat → o hareketle açıl (11).
@@ -528,10 +541,12 @@ function stop() {
   if (s) s.getTracks().forEach((t) => t.stop());
   video.srcObject = null;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  // yarıda durdurulan hareketin sayılmış tekrarları da kaybolmasın
+  // yarıda durdurulan hareketin sayılmış tekrarları (ya da tutulan süresi) kaybolmasın
   if (engine && !sessionLogged) {
     const cur = engine.summary();
-    if (cur && cur.reps > 0) { doneSummaries.push({ move: moveSel.value, s: cur }); logSession(cur); }
+    if (cur && (cur.reps > 0 || (cur.isHold && cur.heldSeconds > 0))) {
+      doneSummaries.push({ move: moveSel.value, s: cur }); logSession(cur);
+    }
   }
   showSummary();                 // reset'ten ÖNCE: özet bu seansın verisinden
   if (engine) engine.reset();
@@ -716,7 +731,10 @@ function renderPlan(r) {
     doneChime();
     wasComplete = true;
     const s = engine ? engine.summary() : null;
-    if (s && s.reps > 0) { doneSummaries.push({ move: moveSel.value, s }); logSession(s); }
+    // rep hareketinde reps, hold hareketinde tutulan süre "yapıldı" sayılır.
+    if (s && (s.reps > 0 || (s.isHold && s.heldSeconds > 0))) {
+      doneSummaries.push({ move: moveSel.value, s }); logSession(s);
+    }
     if (progIdx < program.items.length - 1) { advanceMove(); return; }  // sıradaki hareket
     showSummary();
   }
@@ -796,12 +814,15 @@ async function flushQueue() {
 }
 
 function logSession(s) {
-  if (sessionLogged || !s || s.reps === 0) return;
+  // rep hareketi reps>0 ise, hold hareketi süre tutulduysa kaydedilir.
+  if (sessionLogged || !s || (s.reps === 0 && !(s.isHold && s.heldSeconds > 0))) return;
   sessionLogged = true;
   // her zaman cihaza yaz: offline çalışsın + dizin takvimi bugünü yansıtsın.
   try {
     const list = JSON.parse(localStorage.getItem(SESS_KEY)) || [];
-    list.push({ move: moveSel.value, reps: s.reps, sets: s.setsCompleted, avg: s.avgScore, date: isoToday(), t: Date.now() });
+    // hold seansında "reps" yerine tutulan saniyeyi yaz (geçmişte anlamlı görünsün).
+    const repsVal = s.isHold ? Math.round(s.heldSeconds || 0) : s.reps;
+    list.push({ move: moveSel.value, reps: repsVal, sets: s.setsCompleted, avg: s.isHold ? s.holdQualityPct : s.avgScore, hold: !!s.isHold, date: isoToday(), t: Date.now() });
     localStorage.setItem(SESS_KEY, JSON.stringify(list.slice(-50)));
     const days = JSON.parse(localStorage.getItem(DAYS_KEY)) || [];
     if (!days.includes(isoToday())) { days.push(isoToday()); localStorage.setItem(DAYS_KEY, JSON.stringify(days)); }
@@ -810,9 +831,11 @@ function logSession(s) {
   if (!sb || !u) { setSyncState("local"); return; }
   // created_at'i biz koyuyoruz: satır kuyruğa düşüp yarın gönderilse bile
   // seansın gerçek zamanı korunur.
+  // hold seansı mevcut şemaya sığar: reps = tutulan saniye, avg_score = hold
+  // kalitesi. yeni kolon eklemeden geçmiş/istatistik anlamlı kalır.
   const row = {
-    move: moveSel.value, reps: s.reps, sets: s.setsCompleted,
-    avg_score: s.avgScore, best_score: s.bestScore, clean_reps: s.cleanReps,
+    move: moveSel.value, reps: s.isHold ? Math.round(s.heldSeconds || 0) : s.reps, sets: s.setsCompleted,
+    avg_score: s.isHold ? s.holdQualityPct : s.avgScore, best_score: s.bestScore, clean_reps: s.cleanReps,
     half_reps: s.halfReps, duration_sec: s.durationSec, workout_complete: s.workoutComplete,
     created_at: new Date().toISOString()
   };
@@ -835,13 +858,29 @@ function showSummary() {
     if (s.avgScore >= 0) { wsum += s.avgScore * s.reps; wn += s.reps; }
     if (s.bestScore > best) best = s.bestScore;
     complete = complete && s.workoutComplete;
-    perMove.push(moveLabel(d.move) + " - " + s.reps + " reps" + (s.avgScore >= 0 ? ", avg " + s.avgScore : ""));
+    // HOLD hareketi: "reps" değil tutulan SÜRE (motor süreyi ölçtü).
+    if (s.isHold) {
+      const held = Math.round(s.heldSeconds || 0), bestHold = Math.round(s.bestHoldSeconds || 0);
+      perMove.push(moveLabel(d.move) + " - held " + held + "s" +
+        (bestHold > 0 ? " (best streak " + bestHold + "s)" : "") +
+        (s.holdQualityPct >= 0 ? ", quality " + s.holdQualityPct : ""));
+    } else {
+      perMove.push(moveLabel(d.move) + " - " + s.reps + " reps" + (s.avgScore >= 0 ? ", avg " + s.avgScore : ""));
+    }
   }
   const mins = Math.floor(dur / 60), secs = Math.round(dur % 60);
   const time = mins > 0 ? mins + " min " + secs + "s" : secs + "s";
   const lines = [];
-  lines.push(reps + " reps" + (sets > 0 ? " across " + sets + " sets" : "") + ", in " + time + ".");
-  if (doneSummaries.length > 1) perMove.forEach((l) => lines.push(l));
+  const allHold = doneSummaries.every((d) => d.s.isHold);
+  if (allHold) {
+    // hold-only seans: baş satır süre der, tek hareket olsa da dökümü göster.
+    const totalHeld = Math.round(doneSummaries.reduce((a, d) => a + (d.s.heldSeconds || 0), 0));
+    lines.push("held for " + totalHeld + "s total, in " + time + ".");
+    perMove.forEach((l) => lines.push(l));
+  } else {
+    lines.push(reps + " reps" + (sets > 0 ? " across " + sets + " sets" : "") + ", in " + time + ".");
+    if (doneSummaries.length > 1) perMove.forEach((l) => lines.push(l));
+  }
   if (wn > 0) lines.push("they averaged " + Math.round(wsum / wn) + " out of 100, your best was " + best + ".");
   if (clean > 0) lines.push(clean + " came with clean form.");
   if (half > 0) lines.push(half + " did not count - go all the way down next time.");
@@ -903,6 +942,42 @@ async function loadHistory() {
 function render(r) {
   renderPlan(r);
   if (switching) return;   // hareket-arası geri sayım yazısını bu karenin geri kalanı ezmesin
+
+  // ── HOLD modu: rep sayısı yerine TUTULAN SÜRE + kararlılık. motor izometrik
+  // tutuşu gerçekten koçluyor (aptal kronometre değil): bantta mısın, ne kadar
+  // tuttun, ne kadar temiz. ──
+  if (r.isHold) {
+    const secs = Math.floor(r.heldSeconds || 0);
+    repCountEl.textContent = secs;
+    halfNoteEl.textContent = "seconds held";
+    if (r.inHold) {
+      phaseWord.textContent = "holding - steady";
+      if (r.repTick) { repTick(); }   // banda ilk girişte tık
+    } else {
+      phaseWord.textContent = r.heldSeconds > 0 ? "get back into the hold" : "get into position";
+    }
+    const q = Math.round((r.holdQuality || 0) * 100);
+    scoreLineEl.innerHTML = "";
+    if (r.heldSeconds > 0.5) {
+      const b = document.createElement("span");
+      b.className = "big"; b.textContent = "hold quality " + q;
+      scoreLineEl.appendChild(b);
+    }
+    if (r.formCue) { msgEl.textContent = r.formCue; msgEl.classList.add("loud"); }
+    else if (r.message) { msgEl.textContent = r.message; msgEl.classList.remove("loud"); }
+    else { msgEl.textContent = ""; msgEl.classList.remove("loud"); }
+    depthFill.style.width = Math.round((r.holdQuality || 0) * 100) + "%";
+    confFill.style.width = Math.round((r.confidence || 0) * 100) + "%";
+    framingFill.style.width = Math.round((r.framing || 0) * 100) + "%";
+    if (angleRows) {
+      angleRows.tracked.textContent = r.tracking ? Math.round(r.smoothAngle) + "°" : "–";
+      angleRows.knee.textContent = deg(r.leftKnee) + "  /  " + deg(r.rightKnee);
+      angleRows.hip.textContent = deg(r.leftHip) + "  /  " + deg(r.rightHip);
+      angleRows.elbow.textContent = deg(r.leftElbow) + "  /  " + deg(r.rightElbow);
+    }
+    return;
+  }
+
   phaseWord.textContent = phraseFor(r);
   repCountEl.textContent = r.reps;
   if (r.repTick) {
