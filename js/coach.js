@@ -1233,7 +1233,12 @@ function loop() {
 }
 
 // seçici artık aday hareketi tutar (programa "add" ile girer); motorunkini kuyruk yönetir.
-moveSel.addEventListener("change", () => { move = MOVES[moveSel.value] || MOVES.squat; });
+moveSel.addEventListener("change", () => {
+  move = MOVES[moveSel.value] || MOVES.squat;
+  // hold hareketi seçilince plan hedefi SANİYE (30) olur, rep hareketinde tekrar (10).
+  // motor targetReps'i hold'da saniye yorumlar; giriş de ona göre başlasın.
+  if (HOLD_MOVES.has(moveSel.value)) { planReps.value = 30; planSets.value = 1; }
+});
 
 // dinlenme süresi programın ortak ayarı — değişince kaydedilir.
 planRest.addEventListener("change", () => { program.rest = readRestInput(); saveProgram(); });
