@@ -59,7 +59,7 @@ body.running #intro, body.running #progCard { display: none; }
 /* hareket seçici + plan - beyaz kartın içinde beyaz kutular, ince pembe kenar */
 .move-row { margin: 2px 0 8px; }
 .move-row label { font-size: 12px; opacity: 0.7; margin-right: 8px; }
-#moveSel { font-family: inherit; font-size: 16px; font-weight: bold; color: #33000E; background: #fff; border: none; box-shadow: 0 1px 5px rgba(51, 0, 14, 0.12); border-radius: 12px; padding: 6px 12px; cursor: pointer; }
+#moveSel { font-family: inherit; font-size: 16px; font-weight: bold; color: #33000E; background: rgba(255,255,255,0.55); border: none; box-shadow: 0 1px 5px rgba(51, 0, 14, 0.12); border-radius: 12px; padding: 6px 12px; cursor: pointer; }
 
 .prog-lead { font-size: 13px; opacity: 0.75; margin: 0 0 8px; line-height: 1.5; }
 .prog-list { margin: 2px 0 10px; }
@@ -68,7 +68,7 @@ body.running #intro, body.running #progCard { display: none; }
 .prog-empty { font-size: 13px; opacity: 0.6; padding: 2px 0 4px; }
 .plan-row { margin: 4px 0 2px; font-size: 13px; line-height: 2.1; }
 .plan-lead { opacity: 0.7; margin-right: 6px; }
-.plan-num { font-family: inherit; font-size: 15px; font-weight: bold; color: #33000E; background: #fff; border: none; box-shadow: 0 1px 5px rgba(51, 0, 14, 0.12); border-radius: 12px; width: 48px; padding: 5px 6px; text-align: center; margin: 0 3px; -moz-appearance: textfield; }
+.plan-num { font-family: inherit; font-size: 15px; font-weight: bold; color: #33000E; background: rgba(255,255,255,0.55); border: none; box-shadow: 0 1px 5px rgba(51, 0, 14, 0.12); border-radius: 12px; width: 48px; padding: 5px 6px; text-align: center; margin: 0 3px; -moz-appearance: textfield; }
 .plan-num::-webkit-outer-spin-button, .plan-num::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .plan-row label { opacity: 0.7; margin-right: 2px; }
 .plan-x { opacity: 0.55; margin: 0 3px; }
@@ -81,7 +81,7 @@ body.running #intro, body.running #progCard { display: none; }
 .authbar { font-size: 13px; }
 .auth-who { opacity: 0.8; margin-right: 10px; }
 .auth-lead { opacity: 0.75; margin: 0 0 6px; }
-.auth-in { font-family: inherit; font-size: 15px; color: #33000E; background: #fff; border: none; box-shadow: 0 1px 5px rgba(51, 0, 14, 0.12); border-radius: 12px; padding: 8px 10px; margin: 0 6px 6px 0; width: 200px; max-width: 60%; }
+.auth-in { font-family: inherit; font-size: 15px; color: #33000E; background: rgba(255,255,255,0.55); border: none; box-shadow: 0 1px 5px rgba(51, 0, 14, 0.12); border-radius: 12px; padding: 8px 10px; margin: 0 6px 6px 0; width: 200px; max-width: 60%; }
 .auth-in::placeholder { color: #7a0a24; opacity: 0.6; }
 .auth-btn, .auth-link { font-family: inherit; font-size: 14px; font-weight: bold; color: #A61B42; background: none; border: none; cursor: pointer; padding: 6px 0; margin-right: 14px; }
 .auth-msg { min-height: 16px; color: #7a0a24; margin: 4px 0 0; }
@@ -134,7 +134,7 @@ body.running #intro, body.running #progCard { display: none; }
 }
 /* içteki beyaz kart — yüzen pencere */
 .consent .consent-box {
-  background: #fff; border-radius: 16px; padding: 26px 24px 22px;
+  background: rgba(255,255,255,0.55); border-radius: 16px; padding: 26px 24px 22px;
   max-width: 460px; width: 100%; text-align: left;
   box-shadow: 0 24px 60px rgba(51, 0, 14, .35);
 }
@@ -186,7 +186,7 @@ body.running #intro, body.running #progCard { display: none; }
 
 /* ── marquee dönüşümü (14 tem): fiş + presetler + tabela kontrolleri ── */
 /* set listesi FİŞİ: eğik, tırtıklı, sürüklenir - Damla'nın bayıldığı mekanik */
-.receipt { position: absolute; left: 4%; top: 56px; width: 264px; background: #fff; color: var(--cherry); font-family: "Courier New", Courier, monospace; font-size: 12.5px; padding: 20px 16px 22px; transform: rotate(-4deg); cursor: grab; box-shadow: 0 14px 26px rgba(51,0,14,.32); z-index: 30; touch-action: none;
+.receipt { position: absolute; left: 4%; top: 56px; width: 264px; background: rgba(255,255,255,0.55); color: var(--cherry); font-family: "Courier New", Courier, monospace; font-size: 12.5px; padding: 20px 16px 22px; transform: rotate(-4deg); cursor: grab; box-shadow: 0 14px 26px rgba(51,0,14,.32); z-index: 30; touch-action: none;
   clip-path: polygon(0 0,100% 0,100% calc(100% - 8px),95% 100%,90% calc(100% - 8px),85% 100%,80% calc(100% - 8px),75% 100%,70% calc(100% - 8px),65% 100%,60% calc(100% - 8px),55% 100%,50% calc(100% - 8px),45% 100%,40% calc(100% - 8px),35% 100%,30% calc(100% - 8px),25% 100%,20% calc(100% - 8px),15% 100%,10% calc(100% - 8px),5% 100%,0 calc(100% - 8px)); }
 .receipt[hidden] { display: none; }
 .receipt.dragging { cursor: grabbing; box-shadow: 0 24px 44px rgba(51,0,14,.4); }
@@ -204,7 +204,7 @@ body.running #intro, body.running #progCard { display: none; }
 .receipt .rtotal { display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; }
 .receipt .rnote { text-align: center; font-size: 10.5px; margin-top: 8px; line-height: 1.5; opacity: .8; }
 .receipt .rempty { font-size: 11px; text-align: center; opacity: .75; padding: 4px 0; margin: 0; }
-.receipt-tab { position: fixed; right: 3vw; top: 130px; font: bold 12px Arial; background: #fff; color: var(--cherry); border: none; padding: 9px 13px; cursor: pointer; transform: rotate(-3deg); box-shadow: 0 6px 12px rgba(51,0,14,.25); z-index: 30; }
+.receipt-tab { position: fixed; right: 3vw; top: 130px; font: bold 12px Arial; background: rgba(255,255,255,0.55); color: var(--cherry); border: none; padding: 9px 13px; cursor: pointer; transform: rotate(-3deg); box-shadow: 0 6px 12px rgba(51,0,14,.25); z-index: 30; }
 .receipt-tab[hidden] { display: none; }
 @media (max-width: 700px) { .receipt { width: 220px; right: 2vw; top: auto; bottom: 16px; } .receipt-tab { top: auto; bottom: 16px; } }
 
@@ -260,3 +260,13 @@ body.running #intro, body.running #progCard { display: none; }
 /* framing rehberi: kamera acilmadan nerede duracagini soyler (Pilatess jury) */
 .camstage .framehint { max-width: 78%; font-size: 12px; opacity: .82; line-height: 1.5; margin-top: 2px; }
 .camstage .framehint b { font-size: 12px; }
+
+/* ── AÇILIR-KAPANIR kayıt/geçmiş (Damla: onboardingde kayıt açılır-kapanır olacak,
+   beyaz kart değil). native <details>, pembe zemine gömülü, gölgesiz. ── */
+.foldcard { background: rgba(255,255,255,0.22); border-radius: var(--r); margin: 12px 0; padding: 0; box-shadow: none; overflow: hidden; }
+.foldcard[hidden] { display: none; }
+.foldcard-head { list-style: none; cursor: pointer; font-weight: bold; color: var(--cherry); padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; user-select: none; }
+.foldcard-head::-webkit-details-marker { display: none; }
+.foldcard .fold-chev { transition: transform .2s; font-size: 12px; opacity: .7; }
+.foldcard[open] .fold-chev { transform: rotate(180deg); }
+.foldcard > *:not(summary) { padding: 0 18px 16px; }

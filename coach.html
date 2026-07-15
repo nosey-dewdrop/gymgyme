@@ -167,15 +167,15 @@
 
 
 <div class="coach-foot">
-<div class="history card" id="history" role="region" aria-label="your workouts" hidden>
-  <div class="history-title">your workouts</div>
+<details class="foldcard" id="history" role="region" aria-label="your workouts" hidden>
+  <summary class="foldcard-head">your workouts <span class="fold-chev">▾</span></summary>
   <div class="history-list" id="histList"></div>
-</div>
+</details>
 
-<div class="card">
-  <p class="card-title">your account</p>
+<details class="foldcard" id="accountFold">
+  <summary class="foldcard-head">your account <span class="fold-chev">▾</span></summary>
   <div id="authbar" class="authbar"></div>
-</div>
+</details>
 </div><!-- /coach-foot -->
 
 <p class="private" id="private" hidden>the pose and all the math run inside your browser. the camera image never leaves this device - there is no upload. if you are signed in, only your workout numbers (never the video) are saved to your account. <a href="gizlilik.html">your data</a>.</p>
