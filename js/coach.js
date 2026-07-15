@@ -1179,8 +1179,10 @@ function loop() {
       // iskelet omurgası. Damla "adet iskelet" demişti — artık dolu bir vücut,
       // iskelet sadece onun üstünde okunur bir çizgi. Konum yumuşatılmış pozdan
       // (drawLm), derinlik ham dedektörden (rawPicked, z var). ──
+      // CV AĞ tek dil: parlak nokta-düğüm + ışıltılı ip örgüsü (mesh.js drawBody).
+      // eski çöp-adam iskeleti (drawSkeleton3D) KALDIRILDI — Pilatess: iki iskelet
+      // üst üste = gürültü, "not a stick figure" hedefini bozuyordu. ağ tek başına.
       drawBody(ctx, drawLm, rawPicked, canvas.width, canvas.height);
-      drawSkeleton3D(drawLm, rawPicked, skeletonColor);
       drawBanner(stageBanner);
 
       // ── CGI yüz + el mesh: dolgulu deri + kavisli dudak/göz/kaş + gerçek

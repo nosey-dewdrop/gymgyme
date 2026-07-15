@@ -27,20 +27,28 @@ function shade(t, a) {
   return "rgba(" + r + "," + g + "," + b + "," + (a == null ? 1 : a) + ")";
 }
 
-// ── GÖVDE: çizgi değil hacim. Landmark'lardan kapalı bir kabuk (gövde poligonu +
-// uzuvlar boru gibi kalın) çizilir, derinlikle gölgelenir. İskelet çizgisi bunun
-// ÜSTÜNE ince bir omurga gibi biner — artık "adet iskelet" değil, dolu bir figür. ──
+// ── GÖVDE: çizgi değil hacim, AMA saydam bir AURA (Pilatess dersi 15 tem: opak
+// dolgu vücudu kapatıyordu, "kendimi göremiyorum" = kırık his). Artık düşük
+// alfa + kenar konturu: gerçek video görünür, mesh onun üstünde ışıltılı bir
+// hacim kabuğu + ince mürekkep silüet. Ayna hissi korunur. ──
+const BODY_ALPHA = 0.30;   // gövde/uzuv dolgusu saydamlığı (video görünsün)
 const L = { LSHO:11, RSHO:12, LELB:13, RELB:14, LWRI:15, RWRI:16,
             LHIP:23, RHIP:24, LKNE:25, RKNE:26, LANK:27, RANK:28,
             LHEEL:29, RHEEL:30, LFT:31, RFT:32 };
 
-// bir uzvu kapsül (yuvarlak uçlu kalın boru) olarak doldur — kas hacmi hissi.
+const VIS_FILL = 0.55;   // dolu uzuv daha katı: düşük güvende çizme (Pilatess: yakın/kesik kadrajda snap)
+
+// bir uzvu kapsül (yuvarlak uçlu kalın boru) — SAYDAM aura + ince mürekkep kontur.
 function limbCapsule(ctx, a, b, W, H, wA, wB, t) {
-  if (!a || !b || (a.visibility ?? 1) < 0.4 || (b.visibility ?? 1) < 0.4) return;
+  const va = (a && (a.visibility ?? 1)), vb = (b && (b.visibility ?? 1));
+  if (!a || !b || va < VIS_FILL || vb < VIS_FILL) return;
   const ax = a.x * W, ay = a.y * H, bx = b.x * W, by = b.y * H;
   const dx = bx - ax, dy = by - ay;
   const len = Math.hypot(dx, dy) || 1;
   const nx = -dy / len, ny = dx / len;   // dike birim
+  // güvene göre alfa sönümle (Pilatess: sert on/off yerine yumuşak çöz)
+  const conf = Math.min(va, vb);
+  const alpha = BODY_ALPHA * Math.max(0.4, Math.min(1, (conf - VIS_FILL) / 0.3 + 0.6));
   ctx.beginPath();
   ctx.moveTo(ax + nx * wA, ay + ny * wA);
   ctx.lineTo(bx + nx * wB, by + ny * wB);
@@ -48,20 +56,23 @@ function limbCapsule(ctx, a, b, W, H, wA, wB, t) {
   ctx.lineTo(ax - nx * wA, ay - ny * wA);
   ctx.arc(ax, ay, wA, Math.atan2(-ny, -nx), Math.atan2(ny, nx), false);
   ctx.closePath();
-  // yüzey ışığı: uzvun ekseni boyunca aydınlıktan koyuya gradyan
   const grd = ctx.createLinearGradient(ax + nx * wA, ay + ny * wA, ax - nx * wA, ay - ny * wA);
-  grd.addColorStop(0, shade(Math.min(1, t + 0.25), 0.92));
-  grd.addColorStop(0.5, shade(t, 0.92));
-  grd.addColorStop(1, shade(Math.max(0, t - 0.3), 0.92));
+  grd.addColorStop(0, shade(Math.min(1, t + 0.25), alpha));
+  grd.addColorStop(0.5, shade(t, alpha));
+  grd.addColorStop(1, shade(Math.max(0, t - 0.3), alpha));
   ctx.fillStyle = grd;
   ctx.fill();
+  // ince mürekkep kontur: silüeti tanımlar (Pilatess: dolgu-kontursuz = pembe sosis)
+  ctx.strokeStyle = "rgba(51,0,14," + (0.35 + 0.35 * t) + ")";
+  ctx.lineWidth = 1.4;
+  ctx.stroke();
 }
 
-// gövde gövdesi: omuz-omuz-kalça-kalça dörtgeni, dolu.
+// gövde gövdesi: omuz-omuz-kalça-kalça dörtgeni — saydam + konturlu.
 function torsoShell(ctx, lm, W, H, t) {
   const p = (i) => lm[i];
   const need = [L.LSHO, L.RSHO, L.LHIP, L.RHIP];
-  if (need.some((i) => !p(i) || (p(i).visibility ?? 1) < 0.4)) return;
+  if (need.some((i) => !p(i) || (p(i).visibility ?? 1) < VIS_FILL)) return;
   ctx.beginPath();
   ctx.moveTo(p(L.LSHO).x * W, p(L.LSHO).y * H);
   ctx.lineTo(p(L.RSHO).x * W, p(L.RSHO).y * H);
@@ -70,50 +81,82 @@ function torsoShell(ctx, lm, W, H, t) {
   ctx.closePath();
   const cx = (p(L.LSHO).x + p(L.RHIP).x) / 2 * W, cy = (p(L.LSHO).y + p(L.RHIP).y) / 2 * H;
   const grd = ctx.createRadialGradient(cx, cy, 4, cx, cy, Math.max(W, H) * 0.3);
-  grd.addColorStop(0, shade(Math.min(1, t + 0.2), 0.9));
-  grd.addColorStop(1, shade(Math.max(0, t - 0.2), 0.9));
+  grd.addColorStop(0, shade(Math.min(1, t + 0.2), BODY_ALPHA));
+  grd.addColorStop(1, shade(Math.max(0, t - 0.2), BODY_ALPHA));
   ctx.fillStyle = grd;
   ctx.fill();
+  ctx.strokeStyle = "rgba(51,0,14,0.4)";
+  ctx.lineWidth = 1.4;
+  ctx.stroke();
 }
 
 // ── gövde figürünü DOLU çiz. Uzuvlar uzak→yakın sıralı (yakın uzuv üste biner). ──
 export function drawBody(ctx, lm, zsrc, W, H) {
   const zs = zsrc || lm;
   const dep = (i) => depthOf(zs[i] ? zs[i].z : 0);
-  const bodyDepth = (dep(L.LSHO) + dep(L.RSHO) + dep(L.LHIP) + dep(L.RHIP)) / 4;
+  const vis = (i) => (lm[i] ? (lm[i].visibility ?? 1) : 0);
+  const px = (i) => lm[i].x * W, py = (i) => lm[i].y * H;
 
-  // uzuv listesi: [a, b, kalınlıkA, kalınlıkB]. kalınlık gövde ölçeğine oranlı.
-  const shoulderW = Math.hypot((lm[L.LSHO].x - lm[L.RSHO].x) * W, (lm[L.LSHO].y - lm[L.RSHO].y) * H) || 60;
-  const u = shoulderW * 0.16;   // temel uzuv yarıçapı
-  const limbs = [
-    [L.LHIP, L.LKNE, u * 1.15, u * 0.95], [L.LKNE, L.LANK, u * 0.9, u * 0.6],
-    [L.RHIP, L.RKNE, u * 1.15, u * 0.95], [L.RKNE, L.RANK, u * 0.9, u * 0.6],
-    [L.LSHO, L.LELB, u * 0.85, u * 0.7],  [L.LELB, L.LWRI, u * 0.65, u * 0.5],
-    [L.RSHO, L.RELB, u * 0.85, u * 0.7],  [L.RELB, L.RWRI, u * 0.65, u * 0.5],
+  // ── CV AĞ (Damla, 15 tem: "bir ağ gibi görünsün — parmakla sakız sündüren
+  // interaktif kurulum gibi"): dolu blob DEĞİL. Vücut bir NET: düğümler arası
+  // ışıltılı ipler (üçgen örgü) + parlak glow düğümler. Video ardından görünür;
+  // ağ onun üstünde canlı, derinlikle parlayan bir enerji örgüsü. ──
+  // ağ kenarları: gerçek vücut topolojisi + üçgenleyen çapraz bağlar (net hissi).
+  const EDGES = [
+    // gövde dörtgeni + köşegenler (üçgen örgü)
+    [L.LSHO, L.RSHO], [L.LHIP, L.RHIP], [L.LSHO, L.LHIP], [L.RSHO, L.RHIP],
+    [L.LSHO, L.RHIP], [L.RSHO, L.LHIP],
+    // kollar
+    [L.LSHO, L.LELB], [L.LELB, L.LWRI], [L.RSHO, L.RELB], [L.RELB, L.RWRI],
+    // bacaklar
+    [L.LHIP, L.LKNE], [L.LKNE, L.LANK], [L.RHIP, L.RKNE], [L.RKNE, L.RANK],
+    // omuz-kalça çapraz örgüsü (ağı sıklaştırır)
+    [L.LSHO, L.RELB], [L.RSHO, L.LELB],
+    // boyun/baş bağı
+    [L.LSHO, 0], [L.RSHO, 0],
   ];
-  // derinliğe göre sırala: uzak uzuvlar önce çizilir
-  limbs.sort((A, B) => (dep(A[0]) + dep(A[1])) - (dep(B[0]) + dep(B[1])));
 
   ctx.save();
-  ctx.lineJoin = "round";
-  torsoShell(ctx, lm, W, H, bodyDepth);
-  for (const [a, b, wa, wb] of limbs) {
-    const t = (dep(a) + dep(b)) / 2;
-    limbCapsule(ctx, lm[a], lm[b], W, H, wa, wb, t);
+  ctx.lineCap = "round"; ctx.lineJoin = "round";
+
+  // 1) ipler: her kenar derinliğe göre parlayan bir çizgi (yakın kalın+parlak).
+  //    additive değil ama yarı-saydam ki video kaybolmasın.
+  const edges = [];
+  for (const [a, b] of EDGES) {
+    if (vis(a) < 0.4 || vis(b) < 0.4) continue;
+    edges.push({ a, b, t: (dep(a) + dep(b)) / 2 });
   }
-  // eklem yuvarlakları — kabuğu pürüzsüz bağlar
-  const joints = [L.LSHO, L.RSHO, L.LELB, L.RELB, L.LWRI, L.RWRI,
-                  L.LHIP, L.RHIP, L.LKNE, L.RKNE, L.LANK, L.RANK];
-  for (const i of joints) {
-    const q = lm[i];
-    if (!q || (q.visibility ?? 1) < 0.4) continue;
-    const t = dep(i);
-    ctx.beginPath();
-    ctx.arc(q.x * W, q.y * H, u * 0.75, 0, Math.PI * 2);
-    ctx.fillStyle = shade(t, 0.9);
-    ctx.fill();
+  edges.sort((p, q) => p.t - q.t);   // uzak ip önce, yakın üstte
+  for (const e of edges) {
+    const t = e.t;
+    // dış hâle (yumuşak glow)
+    ctx.strokeStyle = "rgba(255,150,190," + (0.10 + 0.14 * t) + ")";
+    ctx.lineWidth = 5 + 5 * t;
+    ctx.beginPath(); ctx.moveTo(px(e.a), py(e.a)); ctx.lineTo(px(e.b), py(e.b)); ctx.stroke();
+    // iç parlak tel
+    ctx.strokeStyle = "rgba(255,220,235," + (0.5 + 0.4 * t) + ")";
+    ctx.lineWidth = 1 + 1.6 * t;
+    ctx.beginPath(); ctx.moveTo(px(e.a), py(e.a)); ctx.lineTo(px(e.b), py(e.b)); ctx.stroke();
   }
-  // ince kontur: figürün kenarına mürekkep — çizimin "hand-drawn" kimliği kalsın
+
+  // 2) düğümler: her eklem parlak bir nokta (yakın büyük+beyaz çekirdek).
+  const nodes = [L.LSHO, L.RSHO, L.LELB, L.RELB, L.LWRI, L.RWRI,
+                 L.LHIP, L.RHIP, L.LKNE, L.RKNE, L.LANK, L.RANK, 0];
+  const shoulderW = Math.hypot((lm[L.LSHO].x - lm[L.RSHO].x) * W, (lm[L.LSHO].y - lm[L.RSHO].y) * H) || 60;
+  const r0 = Math.max(3, shoulderW * 0.05);
+  for (const i of nodes) {
+    if (vis(i) < 0.4) continue;
+    const t = dep(i), x = px(i), y = py(i), r = r0 * (0.7 + 0.7 * t);
+    // hâle
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r * 2.6);
+    g.addColorStop(0, "rgba(255,180,210," + (0.5 + 0.4 * t) + ")");
+    g.addColorStop(1, "rgba(255,150,190,0)");
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(x, y, r * 2.6, 0, Math.PI * 2); ctx.fill();
+    // parlak çekirdek
+    ctx.fillStyle = "rgba(255,246,250," + (0.7 + 0.3 * t) + ")";
+    ctx.beginPath(); ctx.arc(x, y, r * 0.55, 0, Math.PI * 2); ctx.fill();
+  }
   ctx.restore();
 }
 
