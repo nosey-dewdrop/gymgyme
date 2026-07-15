@@ -22,20 +22,25 @@ struct JointLimit {
   double minDeg, maxDeg; // fiziksel aralık
 };
 
-// ── standart insan eklem limitleri (MediaPipe landmark indeksleri). Aralıklar
-// gerçek insan eklem hareket açıklığından (ROM) türetilmiş, kenarlara küçük pay
-// bırakılmış (dedektör bir tık dışarı taşabilir, patolojik gürültüyü kırpalım). ──
+// ── SEZGİSEL güvenlik kırpma sınırları (biyomekanik ROM tablosu DEĞİL — dürüst
+// olalım, bunlar atıfsız heuristik). Amaç dar bir "gerçek açı"yı düzeltmek değil;
+// yalnız FİZİKSEL OLARAK İMKANSIZ okumayı (dedektör gürültüsü dizi geriye büken)
+// reddetmek. O yüzden sınırlar GENİŞ tutulur: gerçek derin bir tekrar (dizin 20°,
+// dirsek 25°) kırpma bandının içinde kalır, dokunulmaz. Yalnız <geniş-alt> ve
+// >~185 gibi anatomik olarak olamayacak uçlar kırpılır. Gerçek ROM istenirse
+// atıflı bir tabloyla değiştirilecek; şimdilik "imkansızı ele" güvenlik ağı. ──
 inline const JointLimit* humanLimits(int& count) {
   static const JointLimit L[] = {
-    // dizler: ~0° (tam bükülü) .. ~183° (hafif geri-esnek pay). Geriye bükülmez.
-    {23, 25, 27,  15.0, 183.0},   // sol diz (kalça-diz-bilek)
-    {24, 26, 28,  15.0, 183.0},   // sağ diz
-    // dirsekler: ~25° (tam bükülü) .. ~185°. Geriye kırılmaz.
-    {11, 13, 15,  20.0, 185.0},   // sol dirsek (omuz-dirsek-bilek)
-    {12, 14, 16,  20.0, 185.0},   // sağ dirsek
-    // kalçalar: geniş ROM ama gövde-uyluk açısı ~30°..~200° (öne fleksiyon..ekstansiyon)
-    {11, 23, 25,  25.0, 205.0},   // sol kalça (omuz-kalça-diz)
-    {12, 24, 26,  25.0, 205.0},   // sağ kalça
+    // dizler: 5°'nin altı ya da 185°'nin üstü fiziken olamaz (geriye bükülme).
+    {23, 25, 27,  5.0, 185.0},   // sol diz (kalça-diz-bilek)
+    {24, 26, 28,  5.0, 185.0},   // sağ diz
+    // dirsekler: 5°'nin altı ya da 188°'nin üstü olamaz. Gerçek tam-büküm ~25-40°
+    // bandın rahat içinde — push-up dibi kırpılMAZ.
+    {11, 13, 15,  5.0, 188.0},   // sol dirsek (omuz-dirsek-bilek)
+    {12, 14, 16,  5.0, 188.0},   // sağ dirsek
+    // kalça (gövde-uyluk iç açısı): geniş; yalnız uç saçmalık kırpılır.
+    {11, 23, 25,  10.0, 210.0},   // sol kalça (omuz-kalça-diz)
+    {12, 24, 26,  10.0, 210.0},   // sağ kalça
   };
   count = sizeof(L) / sizeof(L[0]);
   return L;
@@ -96,11 +101,20 @@ inline bool clampJoint(double* P, const JointLimit& j) {
 }
 
 // tüm insan limitlerini uygula, kaç eklem düzeltildiğini döndür.
+// ── Eklemler ZİNCİRDE bağlı: kalçayı kırpmak dizi (paylaşılan nokta) oynatır,
+// bu da az önce kırpılan diz açısını yeniden bozabilir. Tek geçiş global-yasal
+// bir iskelet garanti etmez. O yüzden YAKINSAYANA kadar (ya da en çok 4 geçiş)
+// tekrarla — hiçbir eklem değişmediğinde dur. ──
 inline int clampHumanLimits(double* P) {
   int n = 0; const JointLimit* lim = humanLimits(n);
-  int fixed = 0;
-  for (int i = 0; i < n; i++) if (clampJoint(P, lim[i])) fixed++;
-  return fixed;
+  int totalFixed = 0;
+  for (int pass = 0; pass < 4; pass++) {
+    int fixedThisPass = 0;
+    for (int i = 0; i < n; i++) if (clampJoint(P, lim[i])) fixedThisPass++;
+    totalFixed += fixedThisPass;
+    if (fixedThisPass == 0) break;   // yakınsadı: tüm eklemler aynı anda yasal
+  }
+  return totalFixed;
 }
 
 }  // namespace coach

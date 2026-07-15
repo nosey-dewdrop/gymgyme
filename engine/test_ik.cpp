@@ -34,16 +34,16 @@ int main() {
     double P[99] = {0};
     P[23*3]=0; P[23*3+1]=0; P[23*3+2]=0;         // kalça
     P[25*3]=0; P[25*3+1]=-0.4; P[25*3+2]=0;      // diz
-    // bilek kalçaya çok yakın -> diz açısı çok küçük
-    P[27*3]=0.03; P[27*3+1]=-0.05; P[27*3+2]=0;
+    // bilek kalça yönüne neredeyse geri katlanmış -> diz açısı ~2° (imkansız, <5° sınır)
+    P[27*3]=0.005; P[27*3+1]=-0.01; P[27*3+2]=0;
     double before = ikAngle(P[23*3],P[23*3+1],P[23*3+2], P[25*3],P[25*3+1],P[25*3+2], P[27*3],P[27*3+1],P[27*3+2]);
     double shinBefore = dist(P, 25, 27);
     int fixed = clampHumanLimits(P);
     double after = ikAngle(P[23*3],P[23*3+1],P[23*3+2], P[25*3],P[25*3+1],P[25*3+2], P[27*3],P[27*3+1],P[27*3+2]);
     double shinAfter = dist(P, 25, 27);
-    check(before < 15.0, "test setup: impossible over-bent knee starts below the limit");
+    check(before < 5.0, "test setup: impossible over-bent knee starts below the 5deg limit");
     check(fixed >= 1, "the impossible joint is reported as corrected");
-    check(after >= 14.0 && after <= 20.0, "the over-bent knee is pulled back to its limit");
+    check(after >= 4.0 && after <= 10.0, "the over-bent knee is pulled back to its limit");
     check(std::fabs(shinBefore - shinAfter) < 1e-6, "clamping preserves the shin bone length");
   }
 
@@ -63,6 +63,39 @@ int main() {
     if (before > 183.0) { check(after <= 184.0, "a hyperextended knee is pulled back under the limit"); }
     else check(true, "knee already within range (setup did not exceed hyperextension)");
     (void)fixed;
+  }
+
+  // gerçek DERİN tekrar kırpma ile DEĞİŞMEMELİ (CS-dekan: geniş güvenlik bandı,
+  // meşru derin push-up/squat'ı bozma). dirsek ~30° (gerçek tam büküm) korunmalı.
+  {
+    double P[99] = {0};
+    // omuz üstte, dirsek altta; bilek dirsekten omuza doğru dar açıyla geri katlı.
+    P[11*3]=0.0;  P[11*3+1]=0.0;   P[11*3+2]=0;   // omuz
+    P[13*3]=0.0;  P[13*3+1]=-0.30; P[13*3+2]=0;   // dirsek (omuzun altında)
+    // bilek: dirsekten yukarı-yana, omuz yönüne dar açı (~30°)
+    P[15*3]=0.14; P[15*3+1]=-0.02; P[15*3+2]=0;
+    double before = ikAngle(P[11*3],P[11*3+1],P[11*3+2], P[13*3],P[13*3+1],P[13*3+2], P[15*3],P[15*3+1],P[15*3+2]);
+    clampHumanLimits(P);
+    double after = ikAngle(P[11*3],P[11*3+1],P[11*3+2], P[13*3],P[13*3+1],P[13*3+2], P[15*3],P[15*3+1],P[15*3+2]);
+    check(before > 20 && before < 50, "test setup: a real deep elbow bend (~30deg)");
+    check(std::fabs(before - after) < 0.5, "a real deep bend is NOT altered by the safety clamp (wide band)");
+  }
+
+  // ZİNCİR YAKINSAMA (CS-dekan): diz VE kalça aynı anda ihlal → kırpma sonrası
+  // İKİSİ de yasal olmalı (tek geçiş birini bozabilirdi, iterasyon çözer).
+  {
+    double P[99] = {0};
+    // sol bacak zinciri: omuz(11)-kalça(23)-diz(25)-bilek(27)
+    P[11*3]=0.0; P[11*3+1]=-0.5; P[11*3+2]=0;
+    P[23*3]=0.0; P[23*3+1]=0.0;  P[23*3+2]=0;
+    P[25*3]=0.0; P[25*3+1]=0.4;  P[25*3+2]=0;
+    // diz aşırı bükülü (bilek kalçaya çok yakın) + kalça aşırı kapalı olacak şekilde kur
+    P[27*3]=0.02; P[27*3+1]=0.05; P[27*3+2]=0;   // diz açısı çok küçük
+    clampHumanLimits(P);
+    double knee = ikAngle(P[23*3],P[23*3+1],P[23*3+2], P[25*3],P[25*3+1],P[25*3+2], P[27*3],P[27*3+1],P[27*3+2]);
+    double hip  = ikAngle(P[11*3],P[11*3+1],P[11*3+2], P[23*3],P[23*3+1],P[23*3+2], P[25*3],P[25*3+1],P[25*3+2]);
+    check(knee >= 4.0 && knee <= 186.0, "after clamp: knee is within limits");
+    check(hip >= 9.0 && hip <= 211.0, "after clamp: hip is ALSO within limits (chain converged)");
   }
 
   std::printf(failed ? "\n%d ik test FAILED\n" : "\nall ik tests passed\n", failed);

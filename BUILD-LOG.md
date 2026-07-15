@@ -388,3 +388,10 @@ noted but deferred honestly: world-kalman + one-euro are now two smoothers in se
 
 ## the CGI overlay is now a NET, not a blob (jul 15, deep night)
 Damla: "make the CV look like a net - like those interactive installations where you stretch light between your fingers." and the jury's harshest finding backed it: the old body fill was a ~90% opaque cherry blob painted OVER the video - you literally couldn't see yourself, reads as "the filter broke". replaced the whole body render: no fill. the body is now a NET - glowing threads (a triangulated weave: torso quad + diagonals + limb edges + shoulder-elbow cross-lacing) with a soft halo and a bright inner filament, plus glowing nodes at every joint (radial-gradient halo + white core), all depth-lit so near threads are brighter/thicker. the real video shows through - it's an energy weave on top of you, not a mask. also removed the second stick-figure skeleton that was drawn over the fill (jury: two skeletons stacked = noise, brought the stick figure back). one visual language now. sw v38.
+
+## IK honesty pass: relabel, widen, iterate to convergence (jul 15, jury response)
+the CS dean caught three real things about the joint limits, all fair:
+1. the numbers were presented as "derived from human ROM" with no citation - they were educated guesses. relabeled honestly as HEURISTIC SAFETY clamps whose only job is to reject the physically impossible, not to correct a real angle.
+2. the bands were too tight (knee 15, elbow 20) - a legitimately deep bend could get rotated OUT and corrupt a real rep. widened to reject only the impossible (knee/elbow <5 or >185-188); a test proves a real ~30deg elbow bend is left untouched.
+3. clamping coupled joints in one pass doesn't guarantee a globally-legal skeleton - fixing the hip moves the knee back out. now iterates to a fixed point (<=4 passes); a test builds an over-bent knee AND over-closed hip and asserts BOTH are legal after clamping.
+180 native tests.
