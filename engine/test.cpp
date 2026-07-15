@@ -499,6 +499,30 @@ int main() {
     check(r.reps == 1, "counting still works with the spike gate on");
   }
 
+  // ── DÖNÜŞ NOKTASINDA occlusion, ENGINE seviyesi (CS-dekan: Kalman1D testi
+  // vardı ama rep FSM occlusion altında sınanmamıştı). Dip anında bir bacak
+  // noktası birkaç kare görünmez olsa bile rep sayısı bozulmamalı: ne phantom
+  // (fazla), ne miss (eksik). ──
+  {
+    Engine e(builtinMove("squat"));
+    Reading r;
+    // dip pozunun bir kopyası ama sağ bilek (28) görünmez — occlusion
+    auto poseBentOccluded = []() {
+      std::vector<Landmark> p = pose(true);
+      p[28].visibility = 0.0;   // sağ bilek kaybolur (dipte sık: en çok kapanan)
+      return p;
+    };
+    for (int i = 0; i < 6; i++) r = e.update(pose(false));
+    for (int i = 0; i < 4; i++) r = e.update(pose(true));          // dibe in
+    for (int i = 0; i < 4; i++) r = e.update(poseBentOccluded());  // dipte occlusion
+    for (int i = 0; i < 12; i++) r = e.update(pose(false));        // üste dön
+    check(r.reps == 1, "occlusion at the turnaround: exactly one rep, no phantom, no miss");
+    // ikinci temiz tekrar da normal sayılmalı (occlusion kalıcı hasar bırakmadı)
+    for (int i = 0; i < 10; i++) r = e.update(pose(true));
+    for (int i = 0; i < 12; i++) r = e.update(pose(false));
+    check(r.reps == 2, "counting recovers cleanly after a turnaround occlusion");
+  }
+
   // ── kalibrasyon: önce vücudu öğren, sayma o sırada dursun, sonra kilitlen ──
   {
     Engine e(builtinMove("squat"));
