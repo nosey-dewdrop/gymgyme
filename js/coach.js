@@ -1253,14 +1253,15 @@ function loop() {
         // karede eski landmark'ı çizersek video oynamışken maske yüzer. O yüzden
         // yalnız TAZE algılamanın olduğu karede çiz — arada mesh çizilmez (sabit
         // maske değil, hiç maske; gövde ağı zaten her kare akıyor).
+        // yüz/el HER KARE algılanır (Pilatess: yarı-fps'te blink, stale maskeden
+        // de kötü). Modeller ucuz; fps <20'ye düşerse zaten TÜM mesh uyur
+        // (meshFaceHandsSleep). Yani ya her kare taze (blink yok) ya hiç.
         let freshMesh = false;
-        if (meshFrame % 2 === 0) {
-          try {
-            lastFace = faceLandmarker.detectForVideo(video, performance.now());
-            lastHands = handLandmarker.detectForVideo(video, performance.now());
-            freshMesh = true;
-          } catch (_) { /* mesh dusse de gövde ağı yasar */ }
-        }
+        try {
+          lastFace = faceLandmarker.detectForVideo(video, performance.now());
+          lastHands = handLandmarker.detectForVideo(video, performance.now());
+          freshMesh = true;
+        } catch (_) { /* mesh dusse de gövde ağı yasar */ }
         if (freshMesh && lastFace && lastFace.faceLandmarks) {
           // kavisli özellikler: [connector listesi, çizgi kalınlığı, renk]
           const feats = [
@@ -1289,8 +1290,10 @@ function loop() {
       // fps koruması (histerezis): yüz/el iki modeli fps'i yerse uykuya al; gövde
       // dolgusu + iskelet pozdan gelir, hep akıcı. toparlayınca geri uyanır.
       if (MESH_FACE_HANDS) {
-        if (!meshFaceHandsSleep && fps < 20) meshFaceHandsSleep = true;
-        else if (meshFaceHandsSleep && fps > 26) meshFaceHandsSleep = false;
+        // yüz/el artık her kare koştuğundan (blink yok) biraz daha ağır — guard
+        // eşiği yükseldi: <24'te uyu, >28'de uyan (histerezis). gövde ağı hep akar.
+        if (!meshFaceHandsSleep && fps < 24) meshFaceHandsSleep = true;
+        else if (meshFaceHandsSleep && fps > 28) meshFaceHandsSleep = false;
       }
       fpsEl.textContent = fps + " fps  ·  all math on your device" +
         (meshFaceHandsSleep ? "  ·  face/hand detail paused for speed" : "");
