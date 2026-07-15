@@ -296,6 +296,17 @@ Teknoloji/yapay zeka/CV üzerine reel fikirleri. Kanca + "şu sanılıyor ama as
 
 ---
 
+## Reel — üç kere çirkin overlay yaptım, dördüncüsü kendi eski kodumdu (loop 02)
+
+**Hook (ilk 2 sn):** "Aynı ekranı dört kere yaptım. En güzeli benim iki gün önce sildiğim versiyondu."
+
+**Anlatı (~40 sn):** kamera seni izlerken üstüne bir "overlay" çizilir — vücudunun neresine baktığını gösteren çizgiler. İlk hali ham iskelet çizgisiydi, "CS ödevi" gibi. Yeniledim: dönük dikdörtgenler → uzuvları sarmadı, kırık tel kafesi çıktı. Bir tane daha: parlayan düğümler → spagetti oldu. Damla ikisine de "çok çirkin" dedi, haklıydı. Sonra dedi ki "sabah bir versiyon vardı, kutular vişne renginde, ince ve zariftti — onu bulabilir misin?" Git geçmişine daldım, iki gün önce yazıp sonra "sadeleştirmek" için sildiğim bir commit vardı: her vücut parçasını köşe-çentikli ince bir kutuyla saran, gerçek CV motoru hissi veren bir overlay. Onu geri getirdim, üstüne şunu ekledim: izlediğin eklem — mesela kol kaldırınca kolun — formun doğruysa nane yeşili "good", düzeltmen gerekiyorsa vişne "fix" diye yanıp söner. Bir bug daha: yazılar ayna görüntüsünde ters okunuyordu ("good" → "boog"). Metni ayna-geri çevirdim. Ders: her yeni fikir daha iyi değil. Bazen en iyi tasarım, senin bir hafta önce beğenmeyip sildiğin şeydir.
+
+**Görsel:** dört overlay yan yana (kafes → spagetti → kirli kutu → temiz vişne kutu + "good/fix" rozeti); "the winner was in my git history".
+**Format:** reel
+
+---
+
 ## Reel — iki iOS uygulaması gömdüm, fikir web'de dirildi
 
 **Hook (ilk 2 sn):** "Bu proje aslında bir iPhone uygulamasıydı. İki tane yaptım, ikisi de öldü."

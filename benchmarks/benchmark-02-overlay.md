@@ -1,6 +1,6 @@
 # LOOP 02 — OVERLAY (ham iskelet → premium renk-kodlu his)
 
-STATUS: TODO
+STATUS: IN PROGRESS
 GRUP: A (görünür değer)
 BAĞIMLILIK: 01 bittikten sonra.
 
@@ -31,4 +31,16 @@ Müşteri "formumu düzeltiyor" hissini iskeletten almaz; DÜZELTMENİN KENDİS�
 - Yeni sekme → benchmark-03-declutter.md.
 
 ## LOOP GÜNLÜĞÜ
-- (henüz başlamadı)
+- 15 tem: kör başlamadı — Damla referans verdi. Önce iki prototip yan yana (A kutu / B düğüm)
+  çip'le canlıda gösterildi → ikisi de kötü (kutular uzvu sarmıyordu, düğüm spagetti).
+- Damla referansı: "sabah bir html vardı, kutular vişne, ince ve zarif." Bulundu: commit dd85ef2
+  ("real CV-engine look: labeled detection boxes per body part"). O köşe-işaretli vişne
+  bounding-box overlay'i geri getirildi + LOOP 02 renk-kodu eklendi (izlenen eklem: form
+  iyi=nane, düzelt=vişne pulse). Yüz mesh yok. A/B çip kaldırıldı, tek overlay.
+- Kamera testi (Damla, 22:37): kutu tuttu AMA iki bug: (1) etiket yazıları ayna-ters
+  ("good"→"boog"), (2) parça etiketleri üst üste biniyor = kare kare kirli.
+- Çözüm (Damla kararı: "küçük tek etiket"): parça adları + güven % kaldırıldı. Sadece izlenen
+  parçaya küçük "good/fix" rozeti, ctx.scale(-1,1) ile ayna-geri (düz okunur). Çakışma bitti.
+- AÇIK: son sürüm YERELDE hazır, Damla kamerada henüz onaylamadı. Vercel deploy limiti dolu →
+  CANLIDA DEĞİL. DONE değil. Sonraki oturum: limit açılınca push, Damla kamerada "premium,
+  çirkin değil" onayı → DONE. drawBody (mesh.js) artık render'da kullanılmıyor (import duruyor).
