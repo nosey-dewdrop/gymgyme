@@ -18,7 +18,9 @@
 }
 
 /* beyaz yumuşak kart - sayfanın yapı taşı (pembe-tonlu gölge = premium) */
-.card { background: var(--card); border-radius: var(--r); padding: 18px 22px; max-width: 560px; margin: 12px 0; box-shadow: var(--sh-2); }
+/* BEYAZ KART YOK (Damla): kartlar beyaz kutu değil, pembe zemine gömülü saydam
+   yüzey. gölge ve beyaz kalktı, sitenin diline uydu. */
+.card { background: rgba(255,255,255,0.28); border-radius: var(--r); padding: 18px 22px; max-width: 560px; margin: 12px 0; box-shadow: none; }
 .card-title { font-size: 12px; font-weight: bold; letter-spacing: 0.04em; text-transform: uppercase; color: var(--cherry); margin: 0 0 10px; }
 
 /* onboarding: işte motorumuz */

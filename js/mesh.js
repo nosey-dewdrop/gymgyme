@@ -116,25 +116,25 @@ export function drawBody(ctx, lm, zsrc, W, H) {
   edges.sort((p, q) => p.t - q.t);   // uzak tel önce, yakın üstte
   for (const e of edges) {
     const t = e.t, f = e.f;
-    // yumuşak hâle (ince): telin etrafında hafif ışıltı
-    ctx.strokeStyle = "rgba(255,150,190," + ((0.06 + 0.10 * t) * f) + ")";
-    ctx.lineWidth = 3 + 3 * t;
-    ctx.beginPath(); ctx.moveTo(px(e.a), py(e.a)); ctx.lineTo(px(e.b), py(e.b)); ctx.stroke();
-    // parlak ince tel (asıl ağ çizgisi)
-    ctx.strokeStyle = "rgba(255,225,238," + ((0.55 + 0.35 * t) * f) + ")";
-    ctx.lineWidth = 0.8 + 1.0 * t;
+    // İLK HALİN RENGİ (Damla): vişne/mürekkep — beyaz-pembe parlak glow değil.
+    // yakın segment koyu vişne (166,27,66), uzak soluk; derinlikle kalınlaşır.
+    ctx.strokeStyle = "rgba(140,20,52," + ((0.4 + 0.45 * t) * f) + ")";
+    ctx.lineWidth = 1.2 + 2.2 * t;
     ctx.beginPath(); ctx.moveTo(px(e.a), py(e.a)); ctx.lineTo(px(e.b), py(e.b)); ctx.stroke();
   }
 
-  // eklemlerde TOP değil, minik soluk kavşak noktası (ağ düğümü hissi, patlama yok).
+  // eklemlerde minik vişne kavşak noktası (mürekkep, patlama yok).
   const joints = [L.LSHO, L.RSHO, L.LELB, L.RELB, L.LWRI, L.RWRI,
                   L.LHIP, L.RHIP, L.LKNE, L.RKNE, L.LANK, L.RANK];
   for (const i of joints) {
     const f = vfade(vis(i));
     if (f <= 0) continue;
     const t = dep(i);
-    ctx.fillStyle = "rgba(255,235,245," + (0.5 * f) + ")";
-    ctx.beginPath(); ctx.arc(px(i), py(i), 1.6 + 1.4 * t, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "rgba(51,0,14," + (0.7 * f) + ")";
+    ctx.beginPath(); ctx.arc(px(i), py(i), 2 + 2 * t, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = "rgba(255,255,255," + (0.5 * f) + ")";
+    ctx.lineWidth = 1;
+    ctx.stroke();
   }
   ctx.restore();
 }
