@@ -15,11 +15,12 @@ int main() {
     for (int i = 0; i < 60; i++) {
       double phase = std::sin(i * 0.3);
       double knee = 130 + 50 * phase;   // 80..180 salınım
-      c.feed(knee, 175, 170, 20, 10.0); // dirsek/kalça sabit, tilt dik
+      // asimetri BESLENİR (simetrik, ~3°): squat/lunge çakışması çözülür, güven yüksek.
+      c.feed(knee, 175, 170, 20, 10.0, 3.0);
     }
     double conf; std::string m = c.classify(conf);
-    check(m == "squat", "oscillating knee + upright -> squat");
-    check(conf > 0.5, "squat classification has decent confidence");
+    check(m == "squat", "oscillating knee + upright + symmetric -> squat");
+    check(conf > 0.5, "squat with asymmetry measured has decent confidence");
   }
 
   // salınan DİRSEK, yatay gövde -> pushup
@@ -91,6 +92,20 @@ int main() {
     }
     double c2; std::string m2 = lu.classify(c2);
     check(m2 == "lunge", "asymmetric knee movement -> lunge (asymmetry dimension separates them)");
+  }
+
+  // ── ÇAKIŞAN İMZA (CS-dekan tur-4): situp ve glutebridge aynı 4-tuple'ı
+  // paylaşır (Hip, horizontal, rep, symmetric). Motor ayıramaz — ama artık
+  // %100 güvenle YANLIŞ demez: berabere cezası güveni kırar (nudge susar). ──
+  {
+    MoveClassifier c;
+    for (int i = 0; i < 60; i++) {
+      double hip = 110 + 40 * std::sin(i * 0.3);   // kalça salınır (hip-dominant)
+      c.feed(175, 175, hip, 20, 85.0, 3.0);        // yatay gövde, simetrik
+    }
+    double conf; std::string m = c.classify(conf);
+    check(m == "situp" || m == "glutebridge", "colliding hip move resolves to one of the pair");
+    check(conf < 0.6, "a colliding-signature move gets LOW confidence, not false certainty");
   }
 
   // yetersiz veri -> boş (motor emin değil)

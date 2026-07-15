@@ -315,7 +315,12 @@ class Engine {
   static constexpr int kBoneN = 4;          // uyluk, baldır, üst kol, ön kol
   bool boneLockOn_ = true;
   bool ikOn_ = true;   // anatomik eklem limitleri (ik.hpp) — kemik kilidi sonrası açı kırpma
-  bool worldRefineOn_ = true;   // world (3B) Kalman iyileştirme (bench ile ölçülebilsin)
+  // world-refine VARSAYILAN KAPALI (CS-dekan tur-4 + kendi bench'im): synthcal
+  // kötü ışıkta refine ON jitter'ı KÖTÜLEŞTİRİYOR (2.14→2.21). İkinci Kalman
+  // One Euro üstüne faz gecikmesi ekliyor; gürültüde tahmini bayat hıza çekiyor.
+  // Ölçüm iddiayı çürüttü → kapatıyorum (kanıtla iddia etme). Katman DURUYOR
+  // (occlusion-recovery için); gerçek golden-clip kazanç GÖSTERİRSE geri açılır.
+  bool worldRefineOn_ = false;
   double wkfQ_ = 10.0, wkfR_ = 2e-4;   // world-Kalman q/r — bench kalmansweep ile seçildi
                                        // (jitter+rmse+gecikme, 8/8 rep; el kararı DEĞİL)
   std::vector<double> boneSamples_[kBoneN];

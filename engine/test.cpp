@@ -880,6 +880,8 @@ int main() {
       return p;
     };
     Engine e(builtinMove("squat"));
+    e.setWorldRefine(true);   // katman VARSAYILAN KAPALI (kötü ışıkta zarar); açıkken
+                              // temiz-z senaryosunda stabilize ettiğini doğrula (yetenek çalışıyor).
     Reading r;
     double t = 0, rawSum = 0, refSum = 0, rawMean = 0, refMean = 0;
     std::vector<double> raws, refs;

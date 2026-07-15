@@ -125,11 +125,28 @@ class MoveClassifier {
       if (asymMeasured && sig.asymmetric == asymmetric) sc += 1.5;
       if (sc > bestScore) { bestScore = sc; bestName = sig.name; }
     }
+    // ── BERABERE TESPİTİ (CS-dekan tur-4): bazı hareketler AYNI imzayı paylaşır
+    // (situp/glutebridge, jumpingjack/armraise bu 4 boyutta ayırt edilemez).
+    // Kaç imza kazananla ~eşit puanda? Birden çoksa bu bir tahmin değil yazı-tura;
+    // güveni sert kır — "emin gibi yanlış" (nudge'ı yanlış tetikleyen) olmasın. ──
+    int tied = 0;
+    for (const auto& sig : knownSignatures()) {
+      double sc = 0;
+      if (sig.joint == dominant) sc += 3.0;
+      if (avgTilt >= 0 && sig.horizontal == horizontal) sc += 1.5;
+      if (sig.isHold == isHold) sc += 1.5;
+      if (asymMeasured && sig.asymmetric == asymmetric) sc += 1.5;
+      if (bestScore - sc < 0.01) tied++;
+    }
     // güven: alınan puanın maksimuma oranı (asimetri ölçüldüyse 7.5, yoksa 6.0)
     double maxScore = asymMeasured ? 7.5 : 6.0;
     double clarity = std::min(1.0, bestAmp / 40.0);
     if (isHold) clarity = std::min(1.0, 0.5 + (12.0 - std::min(12.0, bestAmp)) / 24.0);
     confidence = (bestScore / maxScore) * (0.5 + 0.5 * clarity);
+    // berabere cezası: 2 imza eşitse güveni yarıla, 3+ ise üçe böl — bu bir
+    // yazı-tura, "emin" gösterme (nudge sadece >0.72'de tetiklenir, kırılan
+    // güven yanlış öneriyi susturur).
+    if (tied >= 2) confidence /= (double)tied;
     return bestName;
   }
 
