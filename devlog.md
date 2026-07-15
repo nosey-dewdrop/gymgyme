@@ -82,3 +82,9 @@ IG için hook'lu 30-60 sn reel scriptleri. İlk cümle KANCA. Damla seslendirir.
 **Hook (ilk 2 sn):** "Squat yaparken farkında olmadan bir bacağına daha çok yükleniyorsun. Motorum bunu görüyor."
 
 **Anlatı (~40 sn):** Çoğu insan bir tarafına telafi yapar — sakatlık sonrası, ya da sadece alışkanlıktan. Gözle fark edilmez ama sakatlık sebebidir. Motora sol ve sağ tarafın açısını aynı anda ölçüp farkı tutmayı öğrettim. Bir taraf diğerinden belirgin fazla çalışıyorsa koç söylüyor: "saydım ama bir tarafın daha çok çalışıyor". Bu fizyoterapistlerin izlediği tam o telafi paterni. Ve dürüst: yandan durduğunda iki tarafı göremezse uydurmuyor, ölçemediğini söylemiyor.
+
+## Reel — kendi kodumu yerden yere vuran bir jüri kurdum
+
+**Hook (ilk 2 sn):** "Kendi kodumu değerlendirmesi için, benden nefret eden beş kişilik bir jüri kurdum."
+
+**Anlatı (~50 sn):** Bir motoru büyütürken en tehlikeli an 'oldu' dediğin andır. O yüzden bir jüri kurdum — bir CS dekanı mühendisliği yerden yere vursun, iki pilates uzmanı hareketleri denetlesin, bir VC paneli 'buna gerek yok, feature bu şirket değil' desin, ve bir nihilist hiçbir şeyi beğenmesin. Sonra bu jüriyi gerçekten koduma saldım, her bulguyu bağımsız doğrulattım. Utandırıcı derecede işe yaradı. En büyüğü: yeni eklediğim bir Kalman katmanının, testler geçmesine rağmen ana yolda bypass edildiğini buldular — faydasını almadan maliyetini ödüyordum. Düzelttim. Sonra dekanın sorusuna kendi silahıyla cevap verdim: katmanın kazancını ölçtüm, ve ölçüm alçakgönüllüydü — saklamadım, commit'e yazdım. İyi mühendislik 'çalışıyor' demek değil, 'yanıldığım yeri aradım ve buldum' demek.
