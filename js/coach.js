@@ -937,6 +937,16 @@ function showSummary() {
   if (wn > 0) lines.push("they averaged " + Math.round(wsum / wn) + " out of 100, your best was " + best + ".");
   if (clean > 0) lines.push(clean + " came with clean form.");
   if (half > 0) lines.push(half + " did not count - go all the way down next time.");
+  // sol-sağ denge (fizyo/klinik değer): belirgin telafi varsa raporla.
+  {
+    let asymSum = 0, asymN = 0;
+    for (const d of doneSummaries) if (d.s.avgAsymmetry >= 0) { asymSum += d.s.avgAsymmetry; asymN++; }
+    if (asymN > 0) {
+      const a = Math.round(asymSum / asymN);
+      if (a > 12) lines.push("your left and right sides differed by about " + a + "° on average - one side is compensating.");
+      else lines.push("your left and right sides stayed balanced (within " + a + "°).");
+    }
+  }
   sumTitle.textContent = complete && doneSummaries.length === program.items.length ? "that's a workout" : "nice work";
   sumBody.innerHTML = "";
   lines.forEach((l) => { const d = document.createElement("div"); d.textContent = l; sumBody.appendChild(d); });

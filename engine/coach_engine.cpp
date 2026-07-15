@@ -348,6 +348,7 @@ void Engine::reset() {
   repMinT_ = 0;
   repMaxAsym_ = 0;
   lastRepAsym_ = -1;
+  asymRepSum_ = 0; asymRepN_ = 0;
   classifier_.reset();
   lastScore_ = -1;
   lastRepSec_ = 0;
@@ -374,6 +375,7 @@ Summary Engine::summary() const {
   s.avgScore = reps_ > 0 ? (int)std::lround(scoreSum_ / reps_) : -1;
   s.bestScore = bestScore_;
   s.cleanReps = cleanReps_;
+  s.avgAsymmetry = asymRepN_ > 0 ? (int)std::lround(asymRepSum_ / asymRepN_) : -1;
   s.workoutComplete = workoutDone_;
   s.durationSec = startT_ >= 0 ? std::max(0.0, (lastT_ - startT_) / 1000.0) : 0.0;
   if (targetReps_ > 0)
@@ -1208,6 +1210,7 @@ Reading Engine::update(const std::vector<Landmark>& p,
       lastRepSec_ = durSec;
       // simetri: bu tekrarda görülen en büyük sol-sağ farkı sakla (rapor + ipucu).
       lastRepAsym_ = repMaxAsym_ > 0 ? (int)std::lround(repMaxAsym_) : -1;
+      if (lastRepAsym_ >= 0) { asymRepSum_ += lastRepAsym_; asymRepN_++; }   // seans ortalaması
       // belirgin dengesizlik (>15°) form sorunundan sonra ama depth/tempo
       // yorumlarından ÖNCE gelir: telafi, "biraz daha in"den önemli bir uyarı.
       if (lastRepAsym_ > 15 && lastFormIssues_ == 0)

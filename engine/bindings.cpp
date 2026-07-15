@@ -60,6 +60,7 @@ struct JsSummary {
   bool isHold;
   double heldSeconds, bestHoldSeconds;
   int holdQualityPct;
+  int avgAsymmetry;
 };
 static JsSummary toJsSummary(const coach::Summary& s) {
   JsSummary j;
@@ -69,6 +70,7 @@ static JsSummary toJsSummary(const coach::Summary& s) {
   j.durationSec = s.durationSec; j.workoutComplete = s.workoutComplete;
   j.isHold = s.isHold; j.heldSeconds = s.heldSeconds;
   j.bestHoldSeconds = s.bestHoldSeconds; j.holdQualityPct = s.holdQualityPct;
+  j.avgAsymmetry = s.avgAsymmetry;
   return j;
 }
 
@@ -308,7 +310,8 @@ EMSCRIPTEN_BINDINGS(coach) {
       .field("isHold", &JsSummary::isHold)
       .field("heldSeconds", &JsSummary::heldSeconds)
       .field("bestHoldSeconds", &JsSummary::bestHoldSeconds)
-      .field("holdQualityPct", &JsSummary::holdQualityPct);
+      .field("holdQualityPct", &JsSummary::holdQualityPct)
+      .field("avgAsymmetry", &JsSummary::avgAsymmetry);
 
   class_<WebEngine>("Engine")
       .constructor<std::string>()

@@ -190,6 +190,8 @@ struct Summary {
   int avgScore = -1;        // ortalama tekrar puanı 0..100 (-1 = tekrar yok)
   int bestScore = -1;       // en iyi tekrar puanı
   int cleanReps = 0;        // form sorunu olmayan tekrar sayısı
+  int avgAsymmetry = -1;    // seans ortalaması sol-sağ dengesizlik (derece; -1 = ölçülemedi)
+                            // fizyo/klinik değer: telafi paterni bir sayıda
   double durationSec = 0;   // ilk kareden son kareye seans süresi
   bool workoutComplete = false;
   // ── HOLD modu özeti ──
@@ -373,6 +375,8 @@ class Engine {
   double repMinT_ = 0;         // o derinliğin zamanı (iniş/çıkış süresi ayrımı)
   double repMaxAsym_ = 0;      // bu tekrar penceresinde görülen en büyük sol-sağ açı farkı
   int lastRepAsym_ = -1;       // son tamamlanan tekrarın asimetrisi (derece)
+  double asymRepSum_ = 0;      // asimetri ölçülen tekrarların toplamı (seans ortalaması için)
+  int asymRepN_ = 0;           // asimetri ölçülen tekrar sayısı
   MoveClassifier classifier_;  // hareket sınıflandırıcı (motor ne yapıldığını tahmin eder)
   int lastScore_ = -1;
   double lastRepSec_ = 0;
