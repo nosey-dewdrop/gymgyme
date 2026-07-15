@@ -77,68 +77,31 @@ export function drawBody(ctx, lm, zsrc, W, H) {
   const vis = (i) => (lm[i] ? (lm[i].visibility ?? 1) : 0);
   const px = (i) => lm[i].x * W, py = (i) => lm[i].y * H;
 
-  // ── GERÇEK CV MOTORU GÖRÜNÜMÜ (Damla: "beni kutu kutu seç, sağ kol sol kol
-  // bel torso diye etiketle, gerçek cv motoru hissi versin"). Her vücut parçası
-  // = bir tespit kutusu (bounding box) + köşe işaretleri + etiket. YOLO/detection
-  // hissi. Ağ/dolgu YOK; video net görünür, üstünde takip kutuları oynar. ──
-  const vfade = (v) => Math.max(0, Math.min(1, (v - 0.25) / 0.25));
-
-  // her parça: etiket + o parçayı çevreleyen landmark noktaları.
-  const PARTS = [
-    { label: "torso",     pts: [L.LSHO, L.RSHO, L.LHIP, L.RHIP] },
-    { label: "right arm", pts: [L.RSHO, L.RELB, L.RWRI] },   // ayna: kullanıcının sağı
-    { label: "left arm",  pts: [L.LSHO, L.LELB, L.LWRI] },
-    { label: "right leg", pts: [L.RHIP, L.RKNE, L.RANK] },
-    { label: "left leg",  pts: [L.LHIP, L.LKNE, L.LANK] },
+  // ── SADE İSKELET (müşteri için doğrusu: video net kalsın, üstünde çok ince
+  // sakin bir takip çizgisi — kutu yok, ağ yok, etiket yok. Müşteri kendini
+  // görsün, boğulmasın; motorun onu gördüğünü ince çizgi hissettirir). ──
+  const vfade = (v) => Math.max(0, Math.min(1, (v - 0.3) / 0.25));
+  const BONES = [
+    [L.LSHO, L.RSHO], [L.LSHO, L.LHIP], [L.RSHO, L.RHIP], [L.LHIP, L.RHIP],
+    [L.LSHO, L.LELB], [L.LELB, L.LWRI], [L.RSHO, L.RELB], [L.RELB, L.RWRI],
+    [L.LHIP, L.LKNE], [L.LKNE, L.LANK], [L.RHIP, L.RKNE], [L.RKNE, L.RANK],
   ];
-
   ctx.save();
-  ctx.lineJoin = "miter"; ctx.lineCap = "butt";
-
-  for (const part of PARTS) {
-    // görünür noktalardan kutu sınırlarını çıkar
-    let minx = 1e9, miny = 1e9, maxx = -1e9, maxy = -1e9, vsum = 0, n = 0;
-    for (const i of part.pts) {
-      const f = vfade(vis(i));
-      if (f <= 0) continue;
-      const x = px(i), y = py(i);
-      minx = Math.min(minx, x); miny = Math.min(miny, y);
-      maxx = Math.max(maxx, x); maxy = Math.max(maxy, y);
-      vsum += f; n++;
-    }
-    if (n < 2) continue;   // parça yeterince görünmüyor
-    const conf = vsum / part.pts.length;      // "güven" (0..1): kaç nokta net
-    const alpha = 0.35 + 0.55 * Math.min(1, conf);
-    // kutuya biraz pay ver (parçayı sarsın)
-    const pad = 14;
-    minx -= pad; miny -= pad; maxx += pad; maxy += pad;
-    const bw = maxx - minx, bh = maxy - miny;
-
-    // 1) köşe işaretli tespit kutusu (klasik detection köşeleri)
-    ctx.strokeStyle = "rgba(166,27,66," + alpha + ")";
-    ctx.lineWidth = 1.5;
-    const cl = Math.min(22, bw * 0.28, bh * 0.28);   // köşe uzunluğu
-    const corner = (cx, cy, dx, dy) => {
-      ctx.beginPath();
-      ctx.moveTo(cx + dx * cl, cy); ctx.lineTo(cx, cy); ctx.lineTo(cx, cy + dy * cl);
-      ctx.stroke();
-    };
-    corner(minx, miny, 1, 1); corner(maxx, miny, -1, 1);
-    corner(minx, maxy, 1, -1); corner(maxx, maxy, -1, -1);
-    // ince tam çerçeve (soluk)
-    ctx.strokeStyle = "rgba(166,27,66," + (alpha * 0.28) + ")";
-    ctx.lineWidth = 1;
-    ctx.strokeRect(minx, miny, bw, bh);
-
-    // 2) etiket sekmesi (parça adı + güven yüzdesi) — sol üst köşede
-    const tag = part.label + "  " + Math.round(conf * 100) + "%";
-    ctx.font = "600 12px 'Courier New', monospace";
-    const tw = ctx.measureText(tag).width;
-    ctx.fillStyle = "rgba(166,27,66," + alpha + ")";
-    ctx.fillRect(minx, miny - 17, tw + 12, 17);
-    ctx.fillStyle = "rgba(255,240,246," + Math.min(1, alpha + 0.2) + ")";
-    ctx.textBaseline = "middle";
-    ctx.fillText(tag, minx + 6, miny - 17 + 9);
+  ctx.lineCap = "round"; ctx.lineJoin = "round";
+  for (const [a, b] of BONES) {
+    const f = Math.min(vfade(vis(a)), vfade(vis(b)));
+    if (f <= 0) continue;
+    ctx.strokeStyle = "rgba(166,27,66," + (0.55 * f) + ")";
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(px(a), py(a)); ctx.lineTo(px(b), py(b)); ctx.stroke();
+  }
+  // eklemlerde küçük sakin nokta
+  for (const i of [L.LSHO, L.RSHO, L.LELB, L.RELB, L.LWRI, L.RWRI, L.LHIP, L.RHIP, L.LKNE, L.RKNE, L.LANK, L.RANK]) {
+    const f = vfade(vis(i));
+    if (f <= 0) continue;
+    ctx.fillStyle = "rgba(255,255,255," + (0.85 * f) + ")";
+    ctx.beginPath(); ctx.arc(px(i), py(i), 2.5, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = "rgba(166,27,66," + (0.7 * f) + ")"; ctx.lineWidth = 1.5; ctx.stroke();
   }
   ctx.restore();
 }
