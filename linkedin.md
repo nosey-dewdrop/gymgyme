@@ -148,3 +148,51 @@ Motora "world-refine" diye bir katman eklemiştim: MediaPipe'ın gürültülü d
 Bunu neden önemli buluyorum: bir mühendisin kendine söylediği en tatlı yalan, "ekledim, testler geçti, demek ki iyileştirdim"dir. Ama yeşil testler çoğu zaman senin kendi varsayımını doğrular, gerçekliği değil. Bu katmanı sentetik veride test etmiştim ve sentetik veride kusursuz görünüyordu. Onu gerçek gürültü rejiminde ölçen tek şey, bench'in kötü-ışık senaryosuydu — ve o benim duymak istemediğimi söyledi.
 
 Kendine düşman bir jüri kurmanın bütün değeri bu. Nihilist hiçbir şeyi beğenmiyor, VC reddetmek için geliyor, dekan her sayıyı sahte kabul ediyor. Çoğu zaman haksızlar. Ama arada bir, senin görmezden geldiğin gerçeği söylüyorlar, ve o an değerlidir. İyi mühendislik "çalışıyor" demek değil; "yanıldığım yeri aradım, buldum, ve düzelttim — düzeltmek onu SİLMEK anlamına gelse bile" demektir. Bir katmanı eklemek kolaydır. Onu, kendi ölçümün çürüttüğü için geri kapatmak — işte o disiplindir.
+
+## İki iOS uygulaması gömdüm, sonra fikri web'de yeniden doğurdum
+
+1. gymgyme diye başlayan şeyin ilk hali bir iOS uygulamasıydı — hatta iki. Evde antrenman için native bir app yaptım, sonra bir v2 daha. Araştırması sağlamdı: kadınlara özel, küçük grup hesap verebilirliği olan, kaçırılan günü cezalandırmayan bir fitness app'i piyasada yoktu. Boşluk gerçekti. Ama iki sürüm de mezara gitti. İtiraf: sorun fikir değildi, benim onu taşıdığım kaptı. Native bir app kurmak, App Store'a sokmak, güncelleme döngüsü — hepsi, ben ürünü daha kanıtlamadan üstüme yüklenen bir ağırlıktı.
+
+2. O yüzden ilk büyük kararı verdim: platformu değiştirdim. Aynı fikri — evde antrenman + topluluk + şefkatli tasarım — web'e taşıdım. Neden? Çünkü web'de bir fikri yayınlamak ile gömmek arasında bir "review süreci" yok. Bir push, bir canlı URL. Yanlışsam saatler içinde öğreniyorum, aylar içinde değil. Native'in bütün güzelliği fikrimi kanıtlamadan önce bana lazım değildi.
+
+3. Web'de ilk hali bir topluluk dizini oldu: pembe, kenarsız, evde yapılan hareketlerin kaynaklı bir listesi. Sonra üstüne bir "bana program yap" üreteci koydum — saf formül, zaman bütçesi, kas dengesi, esneme soğuması. Backend bile yoktu; öneriler mailto ile gidiyordu, veri localStorage'da yaşıyordu. Bilinçliydi: bir aracın işe yarayıp yaramadığını, sunucu maliyeti almadan önce öğrenmek istedim.
+
+4. Ama dürüst olmam gerekirse, o dizin hâlâ biraz slopware kokuyordu — güzel bir liste, evet, ama "başka bir statik site" hissi. Onu gerçek bir ürün yapan şey sonra geldi: kamera motoru. Bir link listesi herkesin yapabileceği şeydi; kameranla squat'ını sayan, formunu 3B'de yargılayan, hiçbir kareyi cihazdan çıkarmayan bir motor değildi. İşte pivotun asıl anlamı buydu: platform değişimi (iOS→web) sadece kabuğu değiştirmedi, beni "araç" olmaktan "motor" olmaya iten yolun başıydı.
+
+5. Bu yolculuktan çıkardığım ders şu: bir fikri gömmek fikrin ölümü değil. İki iOS app'i öldü ama tez yaşadı. Yanlış olan tezin kendisi değil, onu kanıtlamak için seçtiğim en ağır yoldu. Doğru platform, fikri en ucuz ve en hızlı yanlışlayabildiğin platformdur — ve gymgyme gerçek bir ürüne ancak o hafif zeminde, üstüne gerçek bir mühendislik çekirdeği koyabildiğimde dönüştü. Önce hafifle, sonra derinleş.
+
+## Ana sayfamı bir sinema afişine çevirdim — ve bunun bir bedeli vardı
+
+1. gymgyme bir noktada teknik olarak hazırdı ama görsel olarak ruhsuzdu: beyaz kartlar, standart yerleşim, "başka bir web app". Damla'nın kuralı net: default gri, robotik arayüz yasak. O yüzden büyük bir redesign yaptım — siteyi bir sinema/tiyatro afişi dünyasına taşıdım. Ana sayfa bir "marquee", ışıklı bir sinema tabelası oldu: "starring you", "admit one". Program listesi bir tiyatro fişine dönüştü. Hareket kütüphanesi bir "acts" listesi. Takvim bir "residency calendar" oldu — GitHub katkı grafiği gibi, yoğunluğa göre boyanan.
+
+2. Bu kararın altında bir inanç var: insanlar bir koda değil, bir dünyaya bağlanır. Bir fitness aracı sıkıcı olmak zorunda değil. Sinema metaforu bir amaç taşıyordu — kullanıcıyı sahnenin yıldızı yapmak, antrenmanı bir performansa çevirmek. His olarak çalıştı, hâlâ da seviyorum.
+
+3. Ama dürüst olmam gereken bir bedeli vardı. Bir arkadaşım siteye girip "bu tam olarak ne yapıyor?" dedi — ve haklıydı. Bütün o afiş süslemesi, değer cümlesini gömmüştü. "Kameran seni sayar, puanlar" cümlesi üçüncü satırda, dekoratif yazının altında kayboluyordu. İnsan bir sayfaya iki saniye bakar; o iki saniyede süsleme değil, sonuç görmeli. Estetik, iletişimi boğmuştu.
+
+4. Çözüm redesign'ı geri almak değildi — afişi silmek yanlış olurdu, o siteye ruhunu veriyordu. Bunun yerine başlığın hemen altına, süssüz, çıplak bir değer cümlesi koydum: "kameran repini sayar, formunu 100 üzerinden puanlar ve düzeltir; canlı, cihazında, ücretsiz." Afişin önüne net bir çapa attım. Dünya kaldı, mesaj öne çıktı.
+
+5. Ders: whimsy ve netlik rakip değil, ama sıralaması var. Önce kullanıcı iki saniyede NE olduğunu anlamalı, sonra dünyanın büyüsüne kapılmalı. Tasarımın ruhu iletişimin önüne geçtiği an, güzel ama işe yaramaz bir vitrin olursun. Marquee'yi tuttum çünkü doğruydu; değer cümlesini ekledim çünkü gerekiyordu. İyi ürün ikisini de yapar — önce anlaşılır, sonra unutulmaz.
+
+## İki kişi kameraya girdiğinde koç kimi çalıştıracak?
+
+1. Kamera motoru tek kişi için düzgün çalışıyordu. Sonra gerçek bir senaryo geldi: odada iki kişi var, ya da arkada biri geçiyor. MediaPipe kareyi görüyor ama "hangi iskelet senin antrenmanı yapan kişi?" sorusuna cevap vermiyor. Motor yanlış kişiyi seçerse, senin tekrarını saymak yerine arkadaki adamın hareketini sayar — koç, seni bırakıp yabancıyı çalıştırır. Bu komik ama ürünü çöpe atan bir hata.
+
+2. İlk çözüm en büyük/en ortadaki gövdeyi seçmekti. Yetersiz: kamera açısına göre yabancı daha büyük görünebilir, ya da sen kenara kayabilirsin. Kişiyi "en belirgin" diye seçmek kırılgan bir kural. Kimlik, kareden kareye tutarlı olmalı — motor bir kez "sen busun" dedikten sonra, sen hareket etsen de o kilidi kaybetmemeli.
+
+3. O yüzden kimlik kilidini kalibrasyona bağladım. İlk saniyelerde motor senin kemik uzunluklarını ölçüp kilitliyor (bu zaten form doğruluğu için vardı). Aynı kilit kimlik için de çalışıyor: her karede aday iskeletlerin oranlarını, kalibre edilmiş senin oranlarınla kıyaslıyor. En iyi eşleşen sensin. Yabancının vücut oranları tutmaz, o yüzden seçilmez.
+
+4. Sonra "hard lock" diye bir katman ekledim: en kötü kemik oranı sapması bir eşiği aşarsa o aday tamamen veto edilir. Yalnız bir yabancı — kalibrasyonuyla hiç eşleşmeyen biri — asla koçlanmaz. Bunu bir "ışınlanma testi"yle kanıtladım: bir iskeleti sahnede zıplatıp motorun onu reddedip gerçek kullanıcıya kilitli kaldığını ölçtüm. Sonuç: 0 yanlış kare.
+
+5. Ders şu: gerçek dünya tek kullanıcılı bir laboratuvar değil. Bir motoru "çalışıyor" saymadan önce, onu kirli senaryoda — iki kişi, geçen biri, kötü açı — test etmek zorundasın. Kimlik problemi teknik olarak "çok kişi seçimi" gibi görünüyor ama aslında bir güven problemi: kullanıcı, koçun kendisini çalıştırdığından emin olmalı. Ve bu güveni, ancak yabancıyı görünür şekilde reddederek kazanıyorsun.
+
+## Motoru bir gecede büyüttüm, sabah müşteri gözüyle açtım ve kötüydü
+
+1. Bir gece boyunca gymgyme'nin kamera motorunu 2837 satırdan 4700 satıra çıkardım. One Euro filtre, Kalman occlusion kurtarma, IK anatomik limitler, simetri analizi, hareket sınıflandırıcı — 191 native test, hepsi yeşil. Mühendislik olarak gurur duyulacak bir geceydi. Build-log şişti, essay stoğu doldu.
+
+2. Sabah Damla telefonu açıp kamerayı çalıştırdı. Ve ürün kötüydü. Görsel çirkindi, yerleşim bozuktu, ve — en acısı — kolunu kaldırdığında rep saymıyordu. Motor içeride 4700 satır zekaydı; dışarıda, gerçek bir insanın gözünde, işe yaramayan bir ekran. Bu, kariyerimin en net derslerinden biriydi ve canımı yaktı.
+
+3. Ders şu: motoru büyütmek, işe yarar bir ürün yapmaz. İkisi farklı eksenler. Bütün gece "daha doğru ölçen" bir motor kovaladım ama hiç durup "müşteri bunu açınca ne görüyor, ne hissediyor?" diye sormadım. Test sayısı 191'di ama bunların hiçbiri "Damla telefonu açtı, kolunu kaldırdı, saydı mı, güzel miydi, tekrar açar mı?" sorusunu ölçmüyordu. Yeşil testler mühendisi rahatlatır, müşteriyi değil.
+
+4. O yüzden yönü tamamen değiştirdim: müşteri gözü döngüsü. CS hocası, VC, PM gözüyle değil — "bu ürün işime yarıyor mu?" diyen sıradan insan gözüyle. Her turda ürünü gerçek bir kullanıcı gibi açıp kırılanı buldum: default hareket squat'tı ve oturan biri sayamıyordu (arm raise yaptım — oturan da sayabilsin), kilit 5 karede kayıyordu, takvim grid'i eksikti, debug paneli müşteriye CS ödevi gibi görünüyordu, fiş videoyu örtüyordu. Hiçbiri "motoru daha akıllı yap" değildi; hepsi "bu işe yarıyor mu" idi.
+
+5. Kalıcı ders: bir motorun doğruluğu, ürünün değeri değildir — sadece bir bileşenidir. Bir feature'ı bitirdim demeden önce, onu yabancı bir kullanıcı gibi açıp yürümek zorundasın. "191 test geçti" bir cümle; "açtım, kolumu kaldırdım, saydı, gülümsedim, tekrar açtım" başka bir cümle. Ürünü satan ikincisidir. Mühendis olarak en zor öğrendiğim şey buydu: kendi motoruma değil, müşterinin gözüne güvenmek.

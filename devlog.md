@@ -293,3 +293,63 @@ Teknoloji/yapay zeka/CV üzerine reel fikirleri. Kanca + "şu sanılıyor ama as
 
 **Görsel:** afiş süslemesi bulanık → ortada net değer cümlesi keskinleşiyor; "the info was there, just buried".
 **Format:** reel
+
+---
+
+## Reel — iki iOS uygulaması gömdüm, fikir web'de dirildi
+
+**Hook (ilk 2 sn):** "Bu proje aslında bir iPhone uygulamasıydı. İki tane yaptım, ikisi de öldü."
+
+**Anlatı (~45 sn):** gymgyme diye başlayan şeyin ilk hali native bir iOS app'ti. Sonra bir v2 daha yaptım. İkisi de mezara gitti. Ama itiraf edeyim: sorun fikir değildi — araştırma sağlamdı, evde antrenman + kadın topluluğu + kaçan günü cezalandırmayan tasarım, böyle bir şey piyasada yoktu. Sorun benim onu taşıdığım kaptı. Native app kurmak, App Store review'u, güncelleme döngüsü — hepsi ben fikri daha kanıtlamadan üstüme binen ağırlıktı. O yüzden platformu değiştirdim, aynı fikri web'e taşıdım. Web'de bir fikri yayınlamak bir push, bir canlı link. Yanlışsam saatler içinde öğreniyorum, aylar değil. Bir fikri gömmek fikrin ölümü değil — iki app öldü ama tez yaşadı. Yanlış olan tez değildi, onu kanıtlamak için seçtiğim en ağır yoldu.
+
+**EN (text-on-video):** "this started as an iOS app. / i buried two of them. / the idea wasn't wrong. / the platform was too heavy to test it. / i moved it to the web. / one push, one live link. / burying an app isn't burying the idea."
+
+**Format:** reel
+
+---
+
+## Reel — sitem güzeldi ama ne yaptığı belli değildi
+
+**Hook (ilk 2 sn):** "Ana sayfamı bir sinema afişine çevirdim. Herkes 'güzel' dedi. Kimse ne işe yaradığını anlamadı."
+
+**Anlatı (~45 sn):** Site teknik olarak hazırdı ama ruhsuzdu — beyaz kartlar, standart yerleşim, başka bir web app. O yüzden büyük bir redesign yaptım: siteyi ışıklı bir sinema tabelası dünyasına taşıdım. "Starring you", "admit one", program bir tiyatro fişi, takvim katkı grafiği gibi boyanan bir residency. His olarak bayıldım. Ama bir arkadaşım girip "bu tam olarak ne yapıyor?" dedi ve haklıydı. Bütün o afiş süslemesi değer cümlesini gömmüştü — "kameran seni sayar, puanlar" cümlesi üçüncü satırda, süsün altında kaybolmuştu. İnsan bir sayfaya iki saniye bakar; o iki saniyede süs değil sonuç görmeli. Afişi silmedim, o siteye ruhunu veriyordu. Sadece başlığın altına çıplak bir cümle koydum. Ders: whimsy ve netlik rakip değil ama sırası var — önce anlaşıl, sonra unutulmaz ol.
+
+**EN (text-on-video):** "i turned my homepage into a cinema poster. / everyone said 'pretty'. / nobody knew what it did. / the decoration buried the value line. / people look for 2 seconds. / they need the result, not the sparkle. / kept the world. added one bare sentence."
+
+**Format:** reel
+
+---
+
+## Reel — arkadan biri geçince koç yabancıyı çalıştırıyordu
+
+**Hook (ilk 2 sn):** "Odaya ikinci biri girince koç seni bırakıp onu saymaya başlıyordu."
+
+**Anlatı (~45 sn):** Motor tek kişi için düzgündü. Sonra gerçek senaryo geldi: odada iki kişi, ya da arkada biri geçiyor. Kamera kareyi görüyor ama 'hangi iskelet antrenmanı yapan kişi?' bilmiyor. Yanlış kişiyi seçince senin yerine arkadaki adamın hareketini sayıyor. Komik ama ürünü çöpe atan bir hata. İlk çözüm 'en büyük gövdeyi seç'ti — kırılgan, çünkü açıya göre yabancı daha büyük görünebilir. O yüzden kimliği kalibrasyona bağladım: ilk saniyelerde senin kemik oranlarını kilitliyorum, her karede adayları o oranla kıyaslıyorum, en iyi eşleşen sensin. Sonra bir 'hard lock' ekledim — oranı hiç tutmayan yabancı tamamen veto edilir, yalnız bir yabancı asla koçlanmaz. Bunu bir iskeleti sahnede zıplatıp motorun onu reddettiğini ölçerek kanıtladım: sıfır yanlış kare. Ders: gerçek dünya tek kullanıcılı bir laboratuvar değil.
+
+**EN (text-on-video):** "someone walks behind you. / the coach starts counting THEM. / 'pick the biggest body' was fragile. / so i locked identity to your calibration. / your bone ratios are your fingerprint. / a lone stranger is never coached. / 0 wrong frames."
+
+**Format:** reel
+
+---
+
+## Reel — motoru bir gecede büyüttüm, sabah kötüydü
+
+**Hook (ilk 2 sn):** "Bir gecede motora 2000 satır ekledim. 191 test geçti. Sabah açtım, berbattı."
+
+**Anlatı (~50 sn):** Bir gece boyunca motoru 2837'den 4700 satıra çıkardım. One Euro filtre, Kalman, IK limitleri, simetri analizi, hareket sınıflandırıcı — 191 test, hepsi yeşil. Mühendislik olarak gurur gecesiydi. Sonra sabah telefonu açıp kamerayı çalıştırdım. Ürün kötüydü. Görsel çirkin, yerleşim bozuk, ve kolumu kaldırınca saymıyordu. İçeride 4700 satır zeka, dışarıda işe yaramayan bir ekran. En net dersim buydu ve canımı yaktı: motoru büyütmek işe yarar ürün yapmaz, ikisi farklı eksen. 191 testin hiçbiri 'açtım, kolumu kaldırdım, saydı mı, tekrar açar mıyım' sorusunu ölçmüyordu. Yeşil testler mühendisi rahatlatır, müşteriyi değil. O yüzden yönü değiştirdim — müşteri gözü döngüsü, 'bu işime yarıyor mu' diyen sıradan insan gözü. Motorun doğruluğu ürünün değeri değil, sadece bir parçası.
+
+**EN (text-on-video):** "i added 2000 lines to the engine overnight. / 191 tests, all green. / opened the camera in the morning. / it was bad. / raised my arm — it didn't count. / a smarter engine is not a better product. / green tests calm the engineer, not the user."
+
+**Format:** reel
+
+---
+
+## Reel — link listesinden gerçek bir motora
+
+**Hook (ilk 2 sn):** "İlk hali sadece güzel bir liste sitesiydi. Onu gerçek yapan şey sonra geldi."
+
+**Anlatı (~40 sn):** Web'e taşıdığımda gymgyme önce bir topluluk diziniydi: pembe, kenarsız, evde yapılan hareketlerin kaynaklı bir listesi. Üstüne bir 'bana program yap' üreteci koydum — saf formül, zaman bütçesi, kas dengesi. Backend bile yoktu, öneriler mailto ile gidiyordu, veri localStorage'da. Bilinçliydi: bir aracın işe yarayıp yaramadığını sunucu maliyeti almadan öğrenmek istedim. Ama dürüst olayım, o dizin hâlâ biraz slop kokuyordu — güzel bir liste, ama 'başka bir statik site' hissi. Onu gerçek ürün yapan şey kamera motoruydu: bir link listesi herkesin yapabileceği şeydi, kameranla squat'ını sayan bir motor değildi. Pivotun asıl anlamı buydu — önce hafifle, sonra derinleş.
+
+**EN (text-on-video):** "it started as a pretty link directory. / then a formula-based program generator. / no backend, mailto suggestions, localStorage. / but it still smelled like slop. / a list is something anyone can build. / a camera engine that counts your squat is not. / get light first. then go deep."
+
+**Format:** reel
