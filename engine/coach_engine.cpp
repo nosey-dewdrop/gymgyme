@@ -780,7 +780,10 @@ Reading Engine::update(const std::vector<Landmark>& p,
   // verisi önce Kalman'dan geçirilir (refineWorld): kare-kare z gürültüsü açıya
   // sızmasın — tüm açı/sayma/form buradan okuduğu için temeli sağlamlaştırır. ──
   const bool hasWorld = world.size() >= 33;
-  if (hasWorld) refineWorld(world, t, refinedWorld_);
+  if (hasWorld) {
+    if (worldRefineOn_) refineWorld(world, t, refinedWorld_);
+    else refinedWorld_ = world;   // kapalı: ham world (bench karşılaştırması için)
+  }
   const std::vector<Landmark>& g = hasWorld ? refinedWorld_ : p;
 
   // ── Aşama 5: kadraj doluluğu — bu hareketin İZLEDİĞİ noktaların kaçı görünüyor

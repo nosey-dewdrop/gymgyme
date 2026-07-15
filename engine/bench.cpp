@@ -360,13 +360,14 @@ static int runSynthCal() {
     {"normal kamera (sigma 0.004, %1 isinlanma)", 0.004, 0.010},
     {"kotu isik    (sigma 0.008, %3 isinlanma)", 0.008, 0.030},
   };
-  for (const auto& c : cases) {
-    std::printf("\n%s\n", c.label);
-    auto clip = makeSynth(c.sigma, c.spike, 42);
+  // world-refine (3B Kalman) AÇIK vs KAPALI — katmanın açı stabilitesine
+  // ölçülebilir katkısı var mı, aynı klip aynı tohum. (CS-dekan sorusu: iddia
+  // değil ölçüm.) Aynı zamanda çift-filtreleme gecikme cezasını da gösterir.
+  auto runOne = [](const std::vector<Frame>& clip, bool refine) {
     Engine e(builtinMove("squat"));
     e.setCalibration(true);
-    RunResult r;
-    bool was = false;
+    e.setWorldRefine(refine);
+    RunResult r; bool was = false;
     for (const auto& f : clip) {
       Reading rd = e.update(f.screen, f.world, f.t);
       r.angle.push_back(rd.tracking ? rd.smoothAngle : -1.0);
@@ -374,8 +375,16 @@ static int runSynthCal() {
       was = rd.tracking;
       r.reps = rd.reps; r.halfReps = rd.halfReps;
     }
-    printRow("kilitli", clip, r);
+    return r;
+  };
+  for (const auto& c : cases) {
+    std::printf("\n%s\n", c.label);
+    auto clip = makeSynth(c.sigma, c.spike, 42);
+    printRow("refine OFF", clip, runOne(clip, false));
+    printRow("refine ON ", clip, runOne(clip, true));
   }
+  std::printf("\nnot: refine ON = world-Kalman acik (uretim). jitter/lag farki katmanin\n"
+              "gercek katkisi; ON'da jitter dusmeli, lag artmamali (cift filtre kontrolu).\n");
   return 0;
 }
 

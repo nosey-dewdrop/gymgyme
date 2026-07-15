@@ -259,6 +259,8 @@ class Engine {
   // uzunluklara hiyerarşik projeksiyonla oturtulur ve açılar KİLİTLİ iskeletten
   // ölçülür: kemik uzayamaz, eklem kayamaz. Kalibrasyon kapalıysa etkisiz. ──
   void setBoneLock(bool on) { boneLockOn_ = on; }
+  // world-refine (3B metrik Kalman) aç/kapa — bench ile kazancını ÖLÇMEK için.
+  void setWorldRefine(bool on) { worldRefineOn_ = on; }
   // son karenin kilitli dünya iskeleti (boş = bu karede çözüm yok). ölçüm/bench için.
   const std::vector<Landmark>& solvedWorld() const { return solvedWorld_; }
   // son karenin çizim iskeleti: ekran noktaları, nokta başına One Euro ile
@@ -308,6 +310,7 @@ class Engine {
   static constexpr int kBoneN = 4;          // uyluk, baldır, üst kol, ön kol
   bool boneLockOn_ = true;
   bool ikOn_ = true;   // anatomik eklem limitleri (ik.hpp) — kemik kilidi sonrası açı kırpma
+  bool worldRefineOn_ = true;   // world (3B) Kalman iyileştirme (bench ile ölçülebilsin)
   std::vector<double> boneSamples_[kBoneN];
   double boneLen_[kBoneN] = {0, 0, 0, 0};
   bool boneUsable_[kBoneN] = {false, false, false, false};
