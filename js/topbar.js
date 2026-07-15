@@ -3,7 +3,7 @@
 (function () {
   // gorunur surum etiketi (Damla kurali: github.io testinde hangi surume
   // baktigin belli olsun) - sw.js cache surumuyle birlikte elle guncellenir.
-  const GG_V = "v59";
+  const GG_V = "v60";
   const bar = document.querySelector(".topbar");
   if (bar) {
     const v = document.createElement("span");
@@ -11,6 +11,14 @@
     v.textContent = GG_V;
     bar.appendChild(v);
   }
+  // HER SAYFANIN ALTINA da görünür sürüm (Damla: aşağı kaydırınca da görülsün,
+  // cache eski mi anlaşılsın). sayfa sonuna küçük bir satır.
+  window.addEventListener("DOMContentLoaded", function () {
+    const f = document.createElement("p");
+    f.textContent = "gymgyme " + GG_V;
+    f.style.cssText = "text-align:center;font-size:11px;opacity:.5;color:#7a0a24;margin:18px 0 14px;";
+    document.body.appendChild(f);
+  });
 
   const KEY = "gg_mymoves";
 
