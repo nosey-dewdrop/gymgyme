@@ -574,6 +574,88 @@ int main() {
     check(builtinMove("squat").adaptiveBottom, "adaptive is on for squat");
   }
 
+  // ── HOLD (izometrik) motoru: plank/wall-sit gibi tutuşlarda salınım yok,
+  // hedef açı bandında geçirilen SÜRE + form kararlılığı ölçülür ──
+  {
+    // plank spec: hold modu, omuz-kalça-diz hattı ~180°
+    MoveSpec ps = builtinMove("plank");
+    check(ps.kind == MoveKind::Hold, "plank is a hold-type move");
+    check(builtinMove("wallsit").kind == MoveKind::Hold, "wall-sit is a hold-type move");
+    check(builtinMove("squat").kind == MoveKind::Rep, "squat stays a rep-type move");
+
+    // düz plank pozu: omuz-kalça-diz tek çizgi (~180°). yatay gövde.
+    auto posePlank = [](bool sagging) {
+      std::vector<Landmark> p(33);
+      auto set = [&](int i, double x, double y) { p[i].x = x; p[i].y = y; p[i].z = 0; p[i].visibility = 1; };
+      set(11, 0.25, 0.45); set(12, 0.25, 0.47);   // omuzlar (solda)
+      set(13, 0.25, 0.60); set(14, 0.25, 0.62);   // dirsekler (yerde destek)
+      if (!sagging) { set(23, 0.55, 0.45); set(24, 0.55, 0.47); }   // kalça omuz hizasında -> düz
+      else          { set(23, 0.55, 0.58); set(24, 0.55, 0.60); }   // kalça sarkmış -> hat kırık
+      set(25, 0.75, 0.45); set(26, 0.75, 0.47);   // dizler omuz-kalça hizasında
+      set(27, 0.90, 0.45); set(28, 0.90, 0.47);   // bilekler
+      return p;
+    };
+    Engine e(builtinMove("plank"));
+    Reading r;
+    double t = 0;
+    // düz plank tut: süre birikmeli
+    for (int i = 0; i < 10; i++) { t += 100; r = e.update(posePlank(false), t); }
+    check(r.isHold, "hold reading is flagged");
+    check(r.inHold && r.heldSeconds > 0.5, "holding in the band accumulates held seconds");
+    double held1 = r.heldSeconds;
+    for (int i = 0; i < 10; i++) { t += 100; r = e.update(posePlank(false), t); }
+    check(r.heldSeconds > held1, "held seconds keep growing while in the band");
+    double heldClean = r.heldSeconds;
+
+    // banttan çık: plank'ı bozup pike'a geç (kalça yukarı, omuz-kalça-diz açısı
+    // bandın altına düşer) — down dog gibi. hip açısı ~90 -> banttan çıkar, süre DURMALI.
+    auto posePike = []() {
+      std::vector<Landmark> p(33);
+      auto set = [&](int i, double x, double y) { p[i].x = x; p[i].y = y; p[i].z = 0; p[i].visibility = 1; };
+      set(11, 0.25, 0.60); set(12, 0.25, 0.62);   // omuzlar aşağıda (eller yerde)
+      set(13, 0.25, 0.72); set(14, 0.25, 0.74);
+      set(23, 0.55, 0.25); set(24, 0.55, 0.27);   // kalça YUKARI (pike tepesi)
+      set(25, 0.75, 0.55); set(26, 0.75, 0.57);   // dizler aşağı -> omuz-kalça-diz keskin açı
+      set(27, 0.90, 0.75); set(28, 0.90, 0.77);
+      return p;
+    };
+    for (int i = 0; i < 5; i++) { t += 100; r = e.update(posePike(), t); }
+    check(!r.inHold, "leaving the band stops the hold");
+    check(std::fabs(r.heldSeconds - heldClean) < 0.15, "held total is preserved when the band is left, not reset");
+
+    e.reset();
+    r = e.update(posePlank(false), (t += 100));
+    check(r.heldSeconds < 0.2, "reset clears held seconds");
+
+    // 3B form: sarkmış plank kalitesi düşer (HipSag kuralı hold boyunca izlenir).
+    // dünya pozu: düz hat vs sarkmış hat
+    auto worldPlank = [](bool sagging) {
+      std::vector<Landmark> p(33);
+      auto set = [&](int i, double x, double y, double z) { p[i].x = x; p[i].y = y; p[i].z = z; p[i].visibility = 1; };
+      // yan görüş (side): derinlik ekseninde omuz/kalça yayılmış degil; duz yatay govde
+      set(11, -0.40, 0.0, 0); set(12, -0.40, 0.02, 0);
+      if (!sagging) { set(23, 0.0, 0.0, 0); set(24, 0.0, 0.02, 0); }       // duz
+      else          { set(23, 0.0, 0.14, 0); set(24, 0.0, 0.16, 0); }      // sarkmis
+      set(25, 0.30, 0.0, 0); set(26, 0.30, 0.02, 0);
+      set(27, 0.55, 0.0, 0); set(28, 0.55, 0.02, 0);
+      set(13, -0.40, 0.15, 0); set(14, -0.40, 0.17, 0);
+      return p;
+    };
+    Engine cq(builtinMove("plank"));
+    double t2 = 0; Reading rq;
+    for (int i = 0; i < 12; i++) { t2 += 100; rq = cq.update(posePlank(false), worldPlank(false), t2); }
+    double cleanQ = rq.holdQuality;
+    Engine sq(builtinMove("plank"));
+    double t3 = 0; Reading rs2;
+    for (int i = 0; i < 12; i++) { t3 += 100; rs2 = sq.update(posePlank(true), worldPlank(true), t3); }
+    check(cleanQ > rs2.holdQuality, "a sagging plank scores lower hold quality than a clean one");
+
+    // hold özeti
+    Summary hs = cq.summary();
+    check(hs.isHold && hs.heldSeconds > 0.5, "hold summary reports held seconds");
+    check(hs.holdQualityPct >= 0, "hold summary reports a quality percent");
+  }
+
   // ── Faz 2: kemik kilidi — kalibre uzunluklar sabitlenir, gerilen kemik
   // çözülmüş iskelette gerilemez; açılar kilitli iskeletten ölçülür ──
   {

@@ -192,6 +192,57 @@ MoveSpec builtinMove(const std::string& name) {
     return s;
   }
 
+  // ── HOLD (izometrik) hareketler: salınım yok, hedef açı bandında geçirilen
+  // SÜRE + form kararlılığı ölçülür. plank line, wall-sit knee, hollow, superman. ──
+  if (name == "plank" || name == "frontplank" || name == "front-plank") {
+    s.name = "plank"; s.kind = MoveKind::Hold;
+    s.holdJoint = {L_SHO, L_HIP, L_KNE};   // omuz-kalça-diz hattı (düz olmalı)
+    s.primaryLeft = {L_SHO, L_HIP, L_KNE}; s.primaryRight = {R_SHO, R_HIP, R_KNE};   // güven+açı kapısı
+    s.holdMin = 155.0; s.holdMax = 195.0;  // gövde tek çizgi (~180°); sarkma/pike dışarı
+    s.framingPoints = {L_SHO, R_SHO, L_HIP, R_HIP, L_KNE, R_KNE, L_ANK, R_ANK};
+    s.framingCue = "get side-on so i can see your shoulders, hips and ankles in one line";
+    s.rules = {{RuleKind::HipSag, 160.0, View::Unknown, "hips are dropping - lift them into the line"}};
+    return s;
+  }
+  if (name == "sideplank" || name == "side-plank" || name == "sidebridge" || name == "side bridge") {
+    s.name = "sideplank"; s.kind = MoveKind::Hold;
+    s.holdJoint = {L_SHO, L_HIP, L_ANK};   // omuz-kalça-ayak hattı (düz)
+    s.primaryLeft = {L_SHO, L_HIP, L_ANK}; s.primaryRight = {R_SHO, R_HIP, R_ANK};
+    s.holdMin = 155.0; s.holdMax = 195.0;
+    s.framingPoints = {L_SHO, L_HIP, L_KNE, L_ANK};
+    s.framingCue = "face me side-on with your shoulder, hip and ankle stacked";
+    s.rules = {{RuleKind::HipSag, 160.0, View::Unknown, "keep your hip up - don't let it sink"}};
+    return s;
+  }
+  if (name == "wallsit" || name == "wall-sit" || name == "wall sit") {
+    s.name = "wallsit"; s.kind = MoveKind::Hold;
+    s.holdJoint = {L_HIP, L_KNE, L_ANK};   // diz ~90° tutulmalı
+    s.primaryLeft = {L_HIP, L_KNE, L_ANK}; s.primaryRight = {R_HIP, R_KNE, R_ANK};
+    s.holdMin = 75.0; s.holdMax = 110.0;
+    s.framingPoints = {L_HIP, R_HIP, L_KNE, R_KNE, L_ANK, R_ANK};
+    s.framingCue = "side-on so i can see your hips, knees and ankles - knees at ninety";
+    s.rules = {{RuleKind::TorsoLean, 30.0, View::Unknown, "sit tall against the wall - back flat"}};
+    return s;
+  }
+  if (name == "hollowhold" || name == "hollow hold" || name == "hollow body hold" || name == "hollow-body-hold") {
+    s.name = "hollowhold"; s.kind = MoveKind::Hold;
+    s.holdJoint = {L_SHO, L_HIP, L_KNE};   // gövde-bacak hafif kapalı (dishing)
+    s.primaryLeft = {L_SHO, L_HIP, L_KNE}; s.primaryRight = {R_SHO, R_HIP, R_KNE};
+    s.holdMin = 120.0; s.holdMax = 165.0;
+    s.framingPoints = {L_SHO, R_SHO, L_HIP, R_HIP, L_KNE, R_KNE};
+    s.framingCue = "lie side-on so i can see your torso and legs";
+    return s;
+  }
+  if (name == "superman" || name == "superman-hold" || name == "supermanhold") {
+    s.name = "superman"; s.kind = MoveKind::Hold;
+    s.holdJoint = {L_SHO, L_HIP, L_KNE};   // sırt ekstansiyonu: gövde-bacak hattı açık+kalkık
+    s.primaryLeft = {L_SHO, L_HIP, L_KNE}; s.primaryRight = {R_SHO, R_HIP, R_KNE};
+    s.holdMin = 160.0; s.holdMax = 200.0;
+    s.framingPoints = {L_SHO, R_SHO, L_HIP, R_HIP, L_KNE, R_KNE};
+    s.framingCue = "lie facedown side-on so i can see your back line";
+    return s;
+  }
+
   // squat — varsayılan; bilinmeyen isim de güvenle buraya düşer.
   s.name = "squat";
   s.primaryLeft  = {L_HIP, L_KNE, L_ANK};   // diz = kalça-diz-ayakbileği
@@ -266,6 +317,8 @@ void Engine::reset() {
   for (auto& v : calibSamples_) v.clear();
   phaseTop_ = true;
   topRest_ = -1.0; bottomLive_ = -1.0; topLive_ = -1.0;   // adaptif eşik yeniden öğrenilir
+  heldSec_ = 0; holdInBand_ = false; holdQualitySum_ = 0; holdFrames_ = 0;
+  bestHoldSec_ = 0; curHoldRunSec_ = 0;   // hold modu sıfırla
   reps_ = 0;
   halfReps_ = 0;
   inExcursion_ = false;
@@ -305,6 +358,13 @@ Summary Engine::summary() const {
   s.durationSec = startT_ >= 0 ? std::max(0.0, (lastT_ - startT_) / 1000.0) : 0.0;
   if (targetReps_ > 0)
     s.setsCompleted = workoutDone_ ? totalSets_ : (currentSet_ - 1 + (resting_ ? 1 : 0));
+  // HOLD özeti
+  s.isHold = spec_.kind == MoveKind::Hold;
+  if (s.isHold) {
+    s.heldSeconds = heldSec_;
+    s.bestHoldSeconds = bestHoldSec_;
+    s.holdQualityPct = holdFrames_ > 0 ? (int)std::lround(100.0 * holdQualitySum_ / holdFrames_) : -1;
+  }
   return s;
 }
 
@@ -824,8 +884,11 @@ Reading Engine::update(const std::vector<Landmark>& p,
 
   // ── Aşama 9: form kuralları — hareketin anlamlı bölümünde (derinlik > 0.4),
   // sadece 3B veri varken değerlendirilir: emin olmadan form yargılanmaz.
-  // Görüşe bağlı kural yanlış açıdan hiç bakılmaz (valgus yandan görünmez). ──
-  if (hasWorld && r.depth > 0.4) {
+  // Görüşe bağlı kural yanlış açıdan hiç bakılmaz (valgus yandan görünmez).
+  // HOLD modunda kurallar SÜREKLİ değerlendirilir (derinlik yok, tutuş boyunca
+  // form izlenir); rep modunda yalnız hareketin anlamlı derininde (depth>0.4). ──
+  const bool evalRules = hasWorld && (spec_.kind == MoveKind::Hold || r.depth > 0.4);
+  if (evalRules) {
     for (unsigned i = 0; i < spec_.rules.size() && i < 32; i++) {
       const FormRule& rule = spec_.rules[i];
       if (rule.view != View::Unknown && rule.view != r.view) continue;
@@ -864,6 +927,55 @@ Reading Engine::update(const std::vector<Landmark>& p,
   // SAYILMAZ — mola sırasında yaptığın hareket sıradaki setin hanesine yazılmaz.
   // kalibrasyon sürerken tekrar sayılmaz: motor daha kimin vücudu olduğunu öğreniyor.
   const bool countingPaused = resting_ || workoutDone_ || r.calibrating;
+
+  // ── HOLD modu: rep salınımı yerine hedef açı bandında geçirilen SÜRE +
+  // form kararlılığı. Takip edilen açı [holdMin, holdMax] bandındaysa süre
+  // birikir; formCue varsa o karenin kalitesi düşer. Banttan çıkınca kesintisiz
+  // tutuş biter (en uzunu bestHoldSec_'e yazılır) ama toplam heldSec_ korunur. ──
+  if (spec_.kind == MoveKind::Hold) {
+    r.isHold = true;
+    double holdA = smooth_;   // takip edilen açı (holdJoint boşsa primary kullanıldı)
+    if (spec_.holdJoint.a != spec_.holdJoint.b) {
+      double hj = angleAt(g, spec_.holdJoint);
+      if (hj >= 0) holdA = hj;
+    }
+    const bool inBand = holdA >= spec_.holdMin && holdA <= spec_.holdMax;
+    if (inBand && !countingPaused) {
+      heldSec_ += dtSec;
+      curHoldRunSec_ += dtSec;
+      if (curHoldRunSec_ > bestHoldSec_) bestHoldSec_ = curHoldRunSec_;
+      // canlı kalite: bu karede form temiz mi (formCue boşsa 1, doluysa 0.4)
+      double frameQ = r.formCue.empty() ? 1.0 : 0.4;
+      holdQualitySum_ += frameQ; holdFrames_++;
+      r.inHold = true;
+      if (!holdInBand_) r.repTick = true;   // banda İLK girişte "tık" (haptik/ses)
+    } else {
+      curHoldRunSec_ = 0;   // banttan çıktı: kesintisiz tutuş sıfırlanır
+      r.inHold = false;
+      if (holdInBand_ && !inBand) {
+        // az önce banttaydı, şimdi çıktı: neden çıktığını söyle
+        if (holdA < spec_.holdMin) r.message = "you're breaking the hold - get back into position";
+        else if (holdA > spec_.holdMax) r.message = "ease back into the hold";
+      }
+    }
+    holdInBand_ = inBand;
+    r.heldSeconds = heldSec_;
+    r.holdQuality = holdFrames_ > 0 ? holdQualitySum_ / holdFrames_ : 0.0;
+    // set/plan: hold'da "reps" yerine hedef SÜRE (targetReps_ saniye yorumlanır).
+    // hedef süreye ulaşınca set biter — rep akışıyla aynı plan mantığı.
+    if (targetReps_ > 0 && !countingPaused && heldSec_ >= targetReps_ && !workoutDone_) {
+      r.setTick = true;
+      if (currentSet_ >= totalSets_) workoutDone_ = true;
+      else { resting_ = true; restEndT_ = t + restSec_ * 1000.0; heldSec_ = 0; curHoldRunSec_ = 0; }
+    }
+    // hold modu rep state machine'ini ATLAR — okuma tazelenip döner.
+    r.reps = reps_; r.halfReps = halfReps_;
+    r.currentSet = currentSet_; r.repsInSet = repsInSet_;
+    r.resting = resting_; r.restRemaining = resting_ ? std::max(0.0, (restEndT_ - t) / 1000.0) : 0.0;
+    r.workoutComplete = workoutDone_;
+    return r;
+  }
+
   if (phaseTop_) {
     if (smooth_ < bottomTh) phaseTop_ = false;
   } else if (smooth_ > topTh) {

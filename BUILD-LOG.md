@@ -350,3 +350,13 @@ three complaints from Damla in one message, tackled in her order: mesh, lock, co
 **"i bend, it sees me bend, but it doesn't count the squat."** — the real bug. counting keyed on a FIXED 120° knee threshold. front-facing, perspective flattens the knee angle, so a real deep squat never touches 120 - zero reps, even though the depth bar fills. fix: an ADAPTIVE bottom threshold. the engine learns your actual standing angle, then sets "bottom" at 42° below YOUR rest - so counting keys off your real range, not a constant. the fixed 120 stays as a floor (safety net, never asks impossible depth). proved with a test: a ~130° squat (above the old fixed threshold) now counts.
 
 120 native tests, wasm rebuilt, sw v34.
+
+## the engine grows real capabilities: hold motor, kalman, +198 moves (jul 15, deep night)
+Damla's push: "this is a real product to be sold, not a kid's toy - make the engine bigger, don't be timid."  she's right that 2800 lines is thin for a "CV engine". so i started adding REAL capability, not filler lines - each one tested.
+
+- HOLD MOTOR (isometric): the engine could only count rep oscillations (squat down-up). planks, wall-sits, side-planks, supermans, hollow holds have NO oscillation - they were silently a dumb 45s stopwatch. added a MoveKind::Hold path: the engine accumulates seconds spent inside a target angle band and grades hold quality live from the form rules (a sagging plank scores lower than a clean one). leaving the band stops the timer; the best unbroken hold is remembered.
+- a real insight fell out of debugging: the engine can't tell "standing" from "plank" by joint angle alone (both have a straight hip). it needs gravity-aware body orientation - next.
+- KALMAN FILTER (engine/kalman.hpp): One Euro smooths one signal but has no model of the future - if a landmark drops for a frame it goes silent. a constant-velocity Kalman holds each point's position AND velocity: predict (keeps flowing on predicted velocity through an occlusion - the skeleton doesn't jump when a hand passes behind the body), update (optimally blends measurement vs process noise by the Kalman gain). 12 tests prove the math: convergence, velocity learning, occlusion coasting, noise suppression, confidence-weighted updates. this is the same math mocap/AR solvers (Vision Pro, mediapipe internals) are built on.
+- LIBRARY 188 -> 386 moves: expanded MOVE_DB with 198 real, fact-checked home/bodyweight exercises across all 7 muscle groups (no fabrication - a verify pass removed anything gym-only or invented).
+- gitattributes: marked the data files as generated so github linguist stops calling this a JS project - it's a C++ vision engine with a thin web binding.
+- 143 native tests (131 engine + 12 kalman).

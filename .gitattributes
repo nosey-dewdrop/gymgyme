@@ -4,3 +4,10 @@ vendor/** linguist-vendored
 engine/motor.js linguist-generated
 engine/motor.wasm linguist-generated
 mockups/** linguist-documentation
+# saf VERI dosyalari (kod degil): hareket kutuphanesi + icerik. dil sayimina girmesin.
+data/moves-db.js linguist-generated
+data/*.json linguist-generated
+# bu proje bir C++ gorme motoru + onu tarayiciya baglayan ince web katmani.
+# motor asil urun; C++ dilin one cikmasi projenin dogru tarifi.
+*.cpp linguist-detectable
+*.hpp linguist-detectable

@@ -30,6 +30,11 @@ enum class Phase { Top, Bottom };            // durum makinesi
 enum class Motion { Down, Up, Hold };        // yumuşatılmış sinyalin yönü
 enum class View { Unknown, Front, Side };    // kamera vücudu nereden görüyor (3B veri varsa)
 
+// ── hareketin sayım TÜRÜ. Rep = açı salınımı (squat, push-up); Hold = izometrik
+// tutuş (plank, wall-sit): salınım yok, hedef açı bandında GEÇİRİLEN SÜRE + form
+// kararlılığı ölçülür. Aynı motor, farklı sayım ekseni. ──
+enum class MoveKind { Rep, Hold };
+
 // form kuralı çeşitleri. Kural = VERİ: hangi ölçüm, hangi eşik, hangi görüşte
 // anlamlı, ihlalde ne söylenir. Yeni kural türü kod ister ama yeni hareketin
 // kuralları sadece veri.
@@ -84,6 +89,14 @@ struct MoveSpec {
   double goodRepSecMax = 8.0;   // bundan yavaşı da tam puan almaz (takılma/duraksama)
   std::vector<FormRule> rules;  // form kuralları (Aşama 9) — hepsi veri
   std::string framingCue;       // kadraj yetersizken hareketin KENDİ cümlesi ("" = genel mesaj)
+  // ── HOLD (izometrik) modu: plank, wall-sit, superman, hollow hold. Salınım
+  // yok; motor takip edilen açının [holdMin, holdMax] bandında GEÇİRDİĞİ süreyi
+  // biriktirir ve o süre boyunca form kurallarını (HipSag vb) izler. Banttan
+  // çıkınca sayaç DURUR (tekrar girince kaldığı yerden değil — kararlılık ödülü).
+  MoveKind kind = MoveKind::Rep;
+  double holdMin = 0.0;         // hedef açı bandı alt sınırı (derece)
+  double holdMax = 0.0;         // hedef açı bandı üst sınırı (derece)
+  JointRef holdJoint;           // hold'da izlenen açı (boşsa primaryLeft/Right kullanılır)
 };
 
 // altı büyük eklem açısı (gösterim + ileri aşamalar). -1 = okunamadı.
@@ -137,6 +150,11 @@ struct Reading {
   // ── kalibrasyon: motor önce vücudu tanır, sonra ona kilitlenir ──
   bool calibrating = false;  // şu an vücut ölçüleri öğreniliyor (sayma duraklatılır)
   double calibProgress = 0;  // 0..1
+  // ── HOLD modu çıktıları (kind == Hold ise anlamlı) ──
+  bool isHold = false;       // bu hareket izometrik bir tutuş mu
+  bool inHold = false;       // şu an hedef bantta ve süre birikiyor mu
+  double heldSeconds = 0;    // bu tutuşta hedef bantta geçirilen toplam süre
+  double holdQuality = 0;    // 0..1: banttaki kararlılık + form temizliği (canlı)
 };
 
 // ── Aşama 14: seans özeti — antrenman bitince (ya da durunca) yapılandırılmış
@@ -152,6 +170,11 @@ struct Summary {
   int cleanReps = 0;        // form sorunu olmayan tekrar sayısı
   double durationSec = 0;   // ilk kareden son kareye seans süresi
   bool workoutComplete = false;
+  // ── HOLD modu özeti ──
+  bool isHold = false;      // bu hareket izometrik tutuş muydu
+  double heldSeconds = 0;   // hedef bantta biriken toplam süre
+  double bestHoldSeconds = 0; // en uzun kesintisiz tutuş
+  int holdQualityPct = -1;  // ortalama tutuş kalitesi 0..100 (-1 = hold değil)
 };
 
 // hazır hareket kütüphanesi. bilinmeyen isim → squat döner.
@@ -271,6 +294,15 @@ class Engine {
   // ── Faz 2: zaman-farkında ışınlanma kapısı için önceki kare zamanı ──
   double prevFrameT_ = -1;
   bool phaseTop_ = true;
+  // ── HOLD modu durumu (spec_.kind == Hold). heldSec_ = hedef bantta biriken
+  // süre; holdInBand_ = son kare banttaydı mı; holdFormSum_/holdFrames_ =
+  // canlı kalite ortalaması için form-temizliği birikimi. ──
+  double heldSec_ = 0;
+  bool holdInBand_ = false;
+  double holdQualitySum_ = 0;
+  int holdFrames_ = 0;
+  double bestHoldSec_ = 0;   // özet için en uzun kesintisiz tutuş
+  double curHoldRunSec_ = 0; // şu anki kesintisiz tutuş süresi
   // ── adaptif dip eşiği durumu (spec_.adaptiveBottom açıksa). topRest_ = kişinin
   // gözlenen en açık (rahat/üst) açısı, sürekli güncellenir; bottomLive_/topLive_
   // = ondan türetilen çalışan eşikler. -1 = henüz öğrenilmedi (spec sabiti kullanılır).
