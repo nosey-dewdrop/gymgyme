@@ -692,7 +692,12 @@ void Engine::kalmanApply(const std::vector<Landmark>& screen, double tMs, std::v
   out = screen;
   const int kMaxOccludeFrames = 15;   // ~0.5s @30fps: sonrasında tahmine güvenme
   for (int i = 0; i < 33; i++) {
-    kf_[i].setParams(60.0, 2e-3);   // ekran uzayı (0..1): hızlı harekete uyum + titreme bastırma
+    // ekran uzayı (0..1) Kalman: hızlı harekete uyum + titreme bastırma. DÜRÜSTLÜK
+    // (CS-dekan): world Kalman kalmansweep ile ölçüldü ama BU (ekran) filtre el
+    // ayarlı — çünkü ÇİZİM iskeletini besliyor (occlusion'da akma), sayma/açıya
+    // GİRMİYOR. O yüzden jitter/gecikme optimalliği ürünün çekirdek sayısını
+    // etkilemez; görsel sükunet için "yeterince iyi" kabul edildi, ölçülmedi.
+    kf_[i].setParams(60.0, 2e-3);
     kf_[i].predict(dt);
     const double vis = screen[i].visibility;
     if (vis >= 0.3) {
