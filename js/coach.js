@@ -288,6 +288,10 @@ const MOVES = {
 };
 // hangi hareketler HOLD (süre-tabanlı): search etiketi + plan dili buna bakar.
 const HOLD_MOVES = new Set(Object.keys(MOVES).filter((k) => MOVES[k].hold));
+// kuralı olan hold'lar gerçek "kalite" ölçer (form kapısı var); kuralsızlar
+// (superman) yalnız pozisyonda-kalma ölçer — dürüstlük: ölçemediğin formu
+// "kalite" diye satma (Pilates Princess jüri dersi). Bu son grup "in position".
+const HOLD_POSITION_ONLY = new Set(["superman"]);
 let move = MOVES.squat;
 
 // derin bağlantı: coach.html?move=squat → o hareketle açıl (11).
@@ -720,10 +724,27 @@ function doneChime() {
 }
 
 let cueUntil = 0;   // takip sürerken gelen koç mesajı (örn. "yarım kaldı") kısa süre ekranda kalsın
+// ── count-up: sayılar anlık zıplamaz, hedefe doğru YUMUŞAK sayar (Damla'nın
+// premium-akıcı standardı; Pilatess: hard-swap gym-timer hissi). Gösterilen
+// değeri her karede hedefe biraz yaklaştırır. ──
+const counters = {};   // el -> {shown, target}
+function countTo(el, target) {
+  if (!el) return;
+  let c = counters[el.id];
+  if (!c) { c = counters[el.id] = { shown: target, target }; el.textContent = String(target); return; }
+  c.target = target;
+  // ani büyük düşüş (reset) anında otur; artışta yumuşak say
+  if (target < c.shown) { c.shown = target; el.textContent = String(target); return; }
+  const step = Math.max(1, (c.target - c.shown) * 0.28);
+  c.shown = Math.min(c.target, c.shown + step);
+  const disp = Math.round(c.shown);
+  if (el.textContent !== String(disp)) el.textContent = String(disp);
+}
 // ── did-you-mean nudge: motor kendi tahmin ettiği hareket (detectedMove) seçili
 // olandan farklı ve güvenliyse, kullanıcıya BİR KEZ nazikçe önerir. Motor izliyor
 // ve anlıyor — ama karar kullanıcının, o yüzden dayatmaz, sadece nudge. ──
 let nudgeShownFor = "";   // hangi hareket seçiliyken nudge gösterildi (tekrar etmesin)
+let nudgeUntil = 0;       // nudge'ın subEl'de kalma süresi (form cue'dan ayrı slot)
 // motorun kısa adlarını insan diline çevir (öneri cümlesi için).
 const MOVE_HUMAN = {
   squat: "a squat", lunge: "a lunge", pushup: "a push-up", press: "a press",
@@ -972,7 +993,7 @@ function render(r) {
   // tuttun, ne kadar temiz. ──
   if (r.isHold) {
     const secs = Math.floor(r.heldSeconds || 0);
-    repCountEl.textContent = secs;
+    countTo(repCountEl, secs);   // saniye yumuşak sayar
     halfNoteEl.textContent = "seconds held";
     if (r.inHold) {
       phaseWord.textContent = "holding - steady";
@@ -984,7 +1005,10 @@ function render(r) {
     scoreLineEl.innerHTML = "";
     if (r.heldSeconds > 0.5) {
       const b = document.createElement("span");
-      b.className = "big"; b.textContent = "hold quality " + q;
+      // kuralsız hold (superman): "in position" — ölçemediğimiz formu kalite diye
+      // satmayız; kurallı hold'larda gerçek "hold quality".
+      b.className = "big";
+      b.textContent = (HOLD_POSITION_ONLY.has(moveSel.value) ? "in position " : "hold quality ") + q;
       scoreLineEl.appendChild(b);
     }
     if (r.formCue) { msgEl.textContent = r.formCue; msgEl.classList.add("loud"); }
@@ -1003,7 +1027,7 @@ function render(r) {
   }
 
   phaseWord.textContent = phraseFor(r);
-  repCountEl.textContent = r.reps;
+  countTo(repCountEl, r.reps);   // rep sayısı yumuşak sayar (premium akıcı his)
   if (r.repTick) {
     repTick();
     // faz 3: koç her tekrardan sonra cümle kurar; ~4 sn ekranda kalır
@@ -1030,20 +1054,27 @@ function render(r) {
 
   // ── did-you-mean nudge: motor başka bir hareket görüyorsa (yüksek güven,
   // henüz tekrar sayılmadı) bir kez nazikçe sor. Dayatmaz — karar kullanıcının. ──
+  // did-you-mean nudge: motor başka hareket görüyorsa (reps<=1, yüksek güven)
+  // bir kez öner. AYRI SLOT (subEl) — form cue'yu (msgEl) ezmez, çakışmaz
+  // (Pilatess jüri dersi). reps<=1: ilk tekrar sayıldıysa da hâlâ yakalar.
   const sel = moveSel.value;
-  if (r.tracking && r.reps === 0 && !r.isHold &&
+  let nudgeActive = false;
+  if (r.tracking && r.reps <= 1 && !r.isHold &&
       r.detectedMove && r.detectedMove !== sel && r.detectedConfidence > 0.72 &&
       MOVE_HUMAN[r.detectedMove] && nudgeShownFor !== sel) {
     nudgeShownFor = sel;
-    msgEl.textContent = "that looks like " + MOVE_HUMAN[r.detectedMove] + " - switch? tap the move above";
-    msgEl.classList.remove("loud");
-    cueUntil = performance.now() + 3500;
+    nudgeUntil = performance.now() + 3500;
   }
+  nudgeActive = performance.now() < nudgeUntil && !r.isHold;
 
   if (r.tracking) {
-    subEl.textContent =
-      move.joint + " " + Math.round(r.smoothAngle) + "°   ·   moving " + r.motion + "   ·   phase " + r.phase +
-      (r.view !== "unknown" ? "   ·   view " + r.view : "");
+    if (nudgeActive) {
+      subEl.textContent = "that looks like " + (MOVE_HUMAN[r.detectedMove] || "another move") + " - switch? tap the move above";
+    } else {
+      subEl.textContent =
+        move.joint + " " + Math.round(r.smoothAngle) + "°   ·   moving " + r.motion + "   ·   phase " + r.phase +
+        (r.view !== "unknown" ? "   ·   view " + r.view : "");
+    }
     const cue = r.message || r.formCue;      // yarım uyarısı > form düzeltmesi
     if (cue) {
       msgEl.textContent = cue;

@@ -395,3 +395,9 @@ the CS dean caught three real things about the joint limits, all fair:
 2. the bands were too tight (knee 15, elbow 20) - a legitimately deep bend could get rotated OUT and corrupt a real rep. widened to reject only the impossible (knee/elbow <5 or >185-188); a test proves a real ~30deg elbow bend is left untouched.
 3. clamping coupled joints in one pass doesn't guarantee a globally-legal skeleton - fixing the hip moves the knee back out. now iterates to a fixed point (<=4 passes); a test builds an over-bent knee AND over-closed hip and asserts BOTH are legal after clamping.
 180 native tests.
+
+## jury polish: honest hold label, count-up, nudge own slot (jul 15, jury response)
+three more jury findings fixed:
+- pilates princess: don't print a "quality %" for a hold whose form you can't measure. superman (no form rule) now shows "in position N" instead of "hold quality N" - honest about what the geometry can back.
+- pilatess princess: the rep count and hold seconds hard-swapped like a gym timer. added a count-up tween (numbers climb smoothly to target, snap down on reset) - Damla's premium-flow standard.
+- pilatess princess: the did-you-mean nudge wrote into the same element as form cues and got clobbered / only fired at reps===0. moved it to its own slot (subEl, separate from the msg cue) and it now fires through reps<=1. sw v39.
