@@ -339,7 +339,8 @@ class Engine {
   // ── HOLD modu durumu (spec_.kind == Hold). heldSec_ = hedef bantta biriken
   // süre; holdInBand_ = son kare banttaydı mı; holdFormSum_/holdFrames_ =
   // canlı kalite ortalaması için form-temizliği birikimi. ──
-  double heldSec_ = 0;
+  double heldSec_ = 0;       // BU SETTE biriken süre (targetReps hedefiyle kıyaslanır, set başı sıfırlanır)
+  double totalHeldSec_ = 0;  // seans boyunca TOPLAM tutulan süre (set başında sıfırlanMAZ — özet bunu okur)
   bool holdInBand_ = false;
   double holdQualitySum_ = 0;
   int holdFrames_ = 0;

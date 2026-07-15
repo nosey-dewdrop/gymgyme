@@ -99,6 +99,8 @@ MoveSpec builtinMove(const std::string& name) {
     s.goodRepSecMin = 0.8;
     s.framingPoints = {L_SHO, R_SHO, L_ELB, R_ELB, L_WRI, R_WRI};
     s.framingCue = "i need your arms and shoulders in the frame";
+    // form: gövde dik kalsın — bel yaslanıp bacakla itme (arka planda squat-press).
+    s.rules = {{RuleKind::TorsoLean, 25.0, View::Unknown, "keep your torso upright - press with your arms, not your back"}};
     return s;
   }
 
@@ -178,6 +180,7 @@ MoveSpec builtinMove(const std::string& name) {
     s.goodRepSecMax = 3.0;
     s.framingPoints = {L_SHO, R_SHO, L_ELB, R_ELB, L_HIP, R_HIP};
     s.framingCue = "i need your arms and torso in the frame";
+    s.rules = {{RuleKind::TorsoLean, 30.0, View::Unknown, "stay tall - don't lean as you jump"}};
     return s;
   }
   if (name == "armraise") {
@@ -189,6 +192,8 @@ MoveSpec builtinMove(const std::string& name) {
     s.goodRepSecMin = 1.0;
     s.framingPoints = {L_SHO, R_SHO, L_ELB, R_ELB, L_HIP, R_HIP};
     s.framingCue = "i need your arms and torso in the frame";
+    // form: gövde dik kalsın — momentum için sallanma, kolu izole et.
+    s.rules = {{RuleKind::TorsoLean, 25.0, View::Unknown, "keep still - raise with your shoulder, no body swing"}};
     return s;
   }
 
@@ -235,6 +240,8 @@ MoveSpec builtinMove(const std::string& name) {
     s.holdTiltMin = 45.0; s.holdTiltMax = 135.0;   // sırtüstü, gövde yataya yakın
     s.framingPoints = {L_SHO, R_SHO, L_HIP, R_HIP, L_KNE, R_KNE};
     s.framingCue = "lie side-on so i can see your torso and legs";
+    // form: gövde-bacak çizgisi çok açılmasın (bel yerden kopmasın = hollow bozulur).
+    s.rules = {{RuleKind::HipSag, 175.0, View::Unknown, "keep your lower back pressed down - don't let it arch up"}};
     return s;
   }
   if (name == "superman" || name == "superman-hold" || name == "supermanhold") {
@@ -327,7 +334,7 @@ void Engine::reset() {
   for (auto& v : calibSamples_) v.clear();
   phaseTop_ = true;
   topRest_ = -1.0; bottomLive_ = -1.0; topLive_ = -1.0;   // adaptif eşik yeniden öğrenilir
-  heldSec_ = 0; holdInBand_ = false; holdQualitySum_ = 0; holdFrames_ = 0;
+  heldSec_ = 0; totalHeldSec_ = 0; holdInBand_ = false; holdQualitySum_ = 0; holdFrames_ = 0;
   bestHoldSec_ = 0; curHoldRunSec_ = 0;   // hold modu sıfırla
   reps_ = 0;
   halfReps_ = 0;
@@ -374,7 +381,7 @@ Summary Engine::summary() const {
   // HOLD özeti
   s.isHold = spec_.kind == MoveKind::Hold;
   if (s.isHold) {
-    s.heldSeconds = heldSec_;
+    s.heldSeconds = totalHeldSec_;   // TÜM setlerin toplamı (heldSec_ set başı sıfırlanır)
     s.bestHoldSeconds = bestHoldSec_;
     s.holdQualityPct = holdFrames_ > 0 ? (int)std::lround(100.0 * holdQualitySum_ / holdFrames_) : -1;
   }
@@ -787,15 +794,17 @@ Reading Engine::update(const std::vector<Landmark>& p,
   // kamera vücudu nereden görüyor: omuz+kalça hattı ekran düzleminde mi (önden)
   // yoksa derinlik ekseninde mi (yandan) yayılmış — form kuralları buna bakacak.
   if (hasWorld) {
-    double dx = std::fabs(world[L_SHO].x - world[R_SHO].x) + std::fabs(world[L_HIP].x - world[R_HIP].x);
-    double dz = std::fabs(world[L_SHO].z - world[R_SHO].z) + std::fabs(world[L_HIP].z - world[R_HIP].z);
+    // view/tilt REFINED world'den (g): açılarla aynı kaynak — tutarlılık + tilt
+    // gate (plank/wall-sit) kare-kare z gürültüsüyle titremesin.
+    double dx = std::fabs(g[L_SHO].x - g[R_SHO].x) + std::fabs(g[L_HIP].x - g[R_HIP].x);
+    double dz = std::fabs(g[L_SHO].z - g[R_SHO].z) + std::fabs(g[L_HIP].z - g[R_HIP].z);
     r.view = dx >= dz ? View::Front : View::Side;
     // ── yerçekimi-farkında gövde tilt'i: gövde ekseni (kalça ortası → omuz
     // ortası) ile DİKEY (y ekseni, world'de yerçekimi) arasındaki açı. 0 =
     // dimdik, 90 = yatay. Plank'ı ayakta durmaktan ayıran ölçü bu. ──
-    double tx = (world[L_SHO].x + world[R_SHO].x) / 2.0 - (world[L_HIP].x + world[R_HIP].x) / 2.0;
-    double ty = (world[L_SHO].y + world[R_SHO].y) / 2.0 - (world[L_HIP].y + world[R_HIP].y) / 2.0;
-    double tz = (world[L_SHO].z + world[R_SHO].z) / 2.0 - (world[L_HIP].z + world[R_HIP].z) / 2.0;
+    double tx = (g[L_SHO].x + g[R_SHO].x) / 2.0 - (g[L_HIP].x + g[R_HIP].x) / 2.0;
+    double ty = (g[L_SHO].y + g[R_SHO].y) / 2.0 - (g[L_HIP].y + g[R_HIP].y) / 2.0;
+    double tz = (g[L_SHO].z + g[R_SHO].z) / 2.0 - (g[L_HIP].z + g[R_HIP].z) / 2.0;
     double tm = std::sqrt(tx * tx + ty * ty + tz * tz);
     if (tm > 1e-6) r.torsoTilt = std::acos(std::min(1.0, std::fabs(ty) / tm)) * 180.0 / M_PI;
   }
@@ -910,7 +919,10 @@ Reading Engine::update(const std::vector<Landmark>& p,
   // uzunluklarına hiyerarşik projeksiyonla oturtulur ve TÜM açılar kilitli
   // iskeletten yeniden ölçülür. Dedektörün uzunluk gürültüsü açıya giremez. ──
   if (boneLockOn_ && calibrated_ && hasWorld) {
-    solveBones(world, p, solvedWorld_);
+    // kemik kilidi REFINED world'den çözülür (raw değil): world-Kalman'ın
+    // sönümlediği z gürültüsü kilitli iskelete de geçsin, yoksa refineWorld ana
+    // yolda boşa giderdi (kilit raw yön vektörü kullanıp gürültüyü geri sokardı).
+    solveBones(refinedWorld_, p, solvedWorld_);
     const std::vector<Landmark>& s = solvedWorld_;
     r.angles.leftKnee   = angleAt(s, {L_HIP, L_KNE, L_ANK});
     r.angles.rightKnee  = angleAt(s, {R_HIP, R_KNE, R_ANK});
@@ -1025,17 +1037,18 @@ Reading Engine::update(const std::vector<Landmark>& p,
       if (rule.view != View::Unknown && rule.view != r.view) continue;
       bool bad = false;
       if (rule.kind == RuleKind::TorsoLean) {
-        double tx = (world[L_SHO].x + world[R_SHO].x) / 2.0 - (world[L_HIP].x + world[R_HIP].x) / 2.0;
-        double ty = (world[L_SHO].y + world[R_SHO].y) / 2.0 - (world[L_HIP].y + world[R_HIP].y) / 2.0;
-        double tz = (world[L_SHO].z + world[R_SHO].z) / 2.0 - (world[L_HIP].z + world[R_HIP].z) / 2.0;
+        // REFINED world (g): açı/tilt ile aynı kaynak, form cue z-gürültüsüyle titremesin
+        double tx = (g[L_SHO].x + g[R_SHO].x) / 2.0 - (g[L_HIP].x + g[R_HIP].x) / 2.0;
+        double ty = (g[L_SHO].y + g[R_SHO].y) / 2.0 - (g[L_HIP].y + g[R_HIP].y) / 2.0;
+        double tz = (g[L_SHO].z + g[R_SHO].z) / 2.0 - (g[L_HIP].z + g[R_HIP].z) / 2.0;
         double m = std::sqrt(tx * tx + ty * ty + tz * tz);
         if (m > 1e-6) {
           double lean = std::acos(std::min(1.0, std::fabs(ty) / m)) * 180.0 / M_PI;
           bad = lean > rule.param;
         }
       } else if (rule.kind == RuleKind::KneeValgus) {
-        double knees  = std::fabs(world[L_KNE].x - world[R_KNE].x);
-        double ankles = std::fabs(world[L_ANK].x - world[R_ANK].x);
+        double knees  = std::fabs(g[L_KNE].x - g[R_KNE].x);
+        double ankles = std::fabs(g[L_ANK].x - g[R_ANK].x);
         if (ankles > 1e-3) bad = knees < rule.param * ankles;
       } else if (rule.kind == RuleKind::HipSag) {
         double hl = angleAt(g, {L_SHO, L_HIP, L_KNE});
@@ -1077,10 +1090,18 @@ Reading Engine::update(const std::vector<Landmark>& p,
     const bool inBand = holdA >= spec_.holdMin && holdA <= spec_.holdMax && tiltOk;
     if (inBand && !countingPaused) {
       heldSec_ += dtSec;
+      totalHeldSec_ += dtSec;   // seans toplamı (set başı sıfırlanmaz)
       curHoldRunSec_ += dtSec;
       if (curHoldRunSec_ > bestHoldSec_) bestHoldSec_ = curHoldRunSec_;
-      // canlı kalite: bu karede form temiz mi (formCue boşsa 1, doluysa 0.4)
-      double frameQ = r.formCue.empty() ? 1.0 : 0.4;
+      // canlı kalite: iki bileşen. (a) form temizliği (formCue varsa düşük),
+      // (b) bant MERKEZİNE yakınlık — tam ortada tutuş 1.0, kenarda (kırılmaya
+      // yakın) düşer. Bu ikincisi kural GEREKTİRMEZ, her hold için çalışır
+      // (superman gibi form kuralı olmayanda bile kalite anlamlı kalır). ──
+      double formQ = r.formCue.empty() ? 1.0 : 0.4;
+      double mid = (spec_.holdMin + spec_.holdMax) / 2.0;
+      double halfBand = std::max(1.0, (spec_.holdMax - spec_.holdMin) / 2.0);
+      double centerQ = 1.0 - std::min(1.0, std::fabs(holdA - mid) / halfBand);   // 1 orta, 0 kenar
+      double frameQ = 0.6 * formQ + 0.4 * (0.4 + 0.6 * centerQ);   // form ağır, merkez destek
       holdQualitySum_ += frameQ; holdFrames_++;
       r.inHold = true;
       if (!holdInBand_) r.repTick = true;   // banda İLK girişte "tık" (haptik/ses)

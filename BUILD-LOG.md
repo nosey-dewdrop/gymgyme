@@ -375,3 +375,13 @@ until now the engine watched the move the user PICKED. a real coach recognizes w
 
 ## 2d->3d metric pose refinement: steadying the ground all angles stand on (jul 15, deep night)
 every angle, every rep, every form rule reads from MediaPipe's world (3d metric) landmarks. but world-z is the noisiest channel - it jumps frame to frame, and that jitter leaked straight into the angle. added refineWorld(): each world point runs through its own 3d Kalman (predict + confidence-weighted correct) before any angle is measured. z gets the most benefit since it's the noisiest axis. the angles now stand on a temporally-consistent metric skeleton. proved it with a variance test: inject frame-to-frame z noise, and the refined knee angle is measurably steadier than the raw world angle (caught a squaring-symmetry trap in the test setup along the way - signed-symmetric z noise doesn't move the angle, so the test had to use asymmetric noise). 175 native tests. wasm 80kb.
+
+## second-pass audit: 6 real bugs the growth introduced, all fixed (jul 15, deep night)
+ran an adversarial gap-hunt over the grown engine (3 dimensions, each finding verified by an independent skeptic). it found 6 confirmed major bugs - the kind that hide exactly where new code meets old:
+1. refineWorld was BYPASSED in steady state: once calibrated, bone-lock solved from RAW world, throwing away the z-smoothing i'd just added. now solveBones consumes the refined world - the feature actually works on the main path.
+2/3. mixed raw/refined within a frame: angles read refined but tilt, view, torso-lean and valgus read raw. now all read the refined skeleton - counting, orientation and form cues agree, and the plank/wall-sit tilt gate stops chattering on z-jitter.
+4. hold plan showed "0 of 30 reps" and "0 reps" completion - the rep-based set line leaking into hold mode. now shows seconds: "set 1 of 2 · 12s of 30s".
+5. multi-set hold summary reported only the LAST set's seconds (heldSec_ zeroed each set but summary read it). added a lifetime accumulator; a test proves a 2-set hold now sums both.
+6. hold quality couldn't drop for hollowhold/superman (no form rules). added a rule where it fit and made hold quality also reward staying near the CENTER of the band - works for every hold without needing a rule.
+also gave press/jumpingjack/armraise the form rules they were missing. 176 native tests. sw v37.
+noted but deferred honestly: world-kalman + one-euro are now two smoothers in series; the one-euro params were bench-tuned for the old pipeline. re-tuning needs a real golden clip (Damla's) - i won't blind-tweep filter params.

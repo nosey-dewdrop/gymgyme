@@ -655,6 +655,23 @@ int main() {
     check(hs.isHold && hs.heldSeconds > 0.5, "hold summary reports held seconds");
     check(hs.holdQualityPct >= 0, "hold summary reports a quality percent");
 
+    // ── çok-set hold TOPLAMI (bulgu #5): iki seti tutunca özet toplam süreyi
+    // göstermeli, sadece son seti değil (heldSec_ set başı sıfırlanır ama
+    // totalHeldSec_ korunur). plan: 2s hedef, 2 set. ──
+    {
+      Engine ms(builtinMove("plank"));
+      ms.setPlan(2, 2, 1.0);   // 2 saniye hedef, 2 set, 1s mola
+      double tm = 0; Reading rm;
+      // 1. set: ~2.5s tut (hedefi geç, mola başlar)
+      for (int i = 0; i < 25; i++) { tm += 100; rm = ms.update(posePlank(false), tm); }
+      // mola geçsin (1s), 2. sete geç
+      for (int i = 0; i < 15; i++) { tm += 100; rm = ms.update(posePlank(false), tm); }
+      // 2. set: ~2.5s daha tut
+      for (int i = 0; i < 25; i++) { tm += 100; rm = ms.update(posePlank(false), tm); }
+      Summary mss = ms.summary();
+      check(mss.heldSeconds > 3.5, "multi-set hold summary sums ALL sets, not just the last");
+    }
+
     // ── yerçekimi-farkında oryantasyon: plank YATAY gövde ister; ayakta dururken
     // (dik gövde) aynı düz hip açısı olsa bile plank SAYILMAZ. ──
     auto worldHorizontal = []() {   // yatay gövde: omuz-kalça y'de düz, x'te yayılmış

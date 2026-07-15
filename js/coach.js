@@ -766,6 +766,20 @@ function renderPlan(r) {
 
   if (!planned) { setLineEl.hidden = true; return; }
   setLineEl.hidden = false;
+  // HOLD planında hedef SANİYE (rep değil): set satırı süre bazlı yazılır,
+  // yoksa "0 of 30 reps" gibi kırık görünürdü (motor hold'da rep saymaz).
+  if (r.isHold) {
+    const held = Math.floor(r.heldSeconds || 0);
+    if (r.workoutComplete) {
+      setLineEl.textContent = "hold complete - " + r.totalSets + " set" + (r.totalSets > 1 ? "s" : "") + " of " + r.targetReps + "s";
+    } else if (r.resting) {
+      setLineEl.textContent = "set " + r.currentSet + " of " + r.totalSets + " held";
+    } else {
+      setLineEl.textContent = "set " + r.currentSet + " of " + r.totalSets +
+        "   ·   " + held + "s of " + r.targetReps + "s";
+    }
+    return;
+  }
   if (r.workoutComplete) {
     setLineEl.textContent = "workout complete - " + r.reps + " reps in " + r.totalSets + " sets";
   } else if (r.resting) {
