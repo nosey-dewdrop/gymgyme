@@ -145,6 +145,8 @@ MoveSpec builtinMove(const std::string& name) {
     s.goodRepSecMin = 0.8;
     s.framingPoints = {L_SHO, R_SHO, L_HIP, R_HIP, L_KNE, R_KNE};
     s.framingCue = "on all fours, side-on so i can see your torso and legs";
+    // form: bacağı kaldırırken bel sarkmasın/kavis yapmasın — gövde çizgisi düz.
+    s.rules = {{RuleKind::TorsoLean, 25.0, View::Unknown, "keep your back flat - don't let it arch as you lift"}};
     return s;
   }
   if (name == "birddog") {
@@ -156,6 +158,8 @@ MoveSpec builtinMove(const std::string& name) {
     s.goodRepSecMin = 1.0;
     s.framingPoints = {L_SHO, R_SHO, L_HIP, R_HIP, L_KNE, R_KNE};
     s.framingCue = "on all fours, side-on so i can see your torso and legs";
+    // form: uzatırken gövde sabit + düz kalsın (bird-dog dengeyi test eder).
+    s.rules = {{RuleKind::TorsoLean, 22.0, View::Unknown, "stay level - don't rotate or arch as you reach out"}};
     return s;
   }
   if (name == "calfraise") {
@@ -168,6 +172,8 @@ MoveSpec builtinMove(const std::string& name) {
     s.goodRepSecMin = 0.8;
     s.framingPoints = {L_KNE, R_KNE, L_ANK, R_ANK, L_FT, R_FT};
     s.framingCue = "i need your knees, ankles and feet - point the camera lower";
+    // form: dik dur, öne düşme — denge için gövdeyi eğmek yükselişi çalar.
+    s.rules = {{RuleKind::TorsoLean, 25.0, View::Unknown, "stay tall - rise straight up, don't lean forward"}};
     return s;
   }
   if (name == "jumpingjack") {

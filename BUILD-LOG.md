@@ -432,3 +432,6 @@ the jury's biggest open question is business, not code: who pays and why. the st
 - lumbar warning added 'press' (highest Valsalva/axial-load) and dropped glute-bridge (low risk) - coverage matches real risk now.
 - deleted dead torsoShell() left by the net rewrite; updated mesh.js header to describe the net, and to state plainly the net is cosmetic - the depth is in the engine, the glow is over the same 33 landmarks.
 185 native tests, sw v44.
+
+## form-rule coverage: from ~6 moves to 16 (jul 15, nihilist+pilates finding)
+the '3d form correction' claim was thin - 11 of 14 rep moves had zero form rules, so most were rep-counters with a mesh, not coaches. added real biomechanical rules where the geometry supports one: calf raise (stay tall, don't lean to cheat the rise), kickback (keep your back flat, don't arch as you lift), bird-dog (stay level, don't rotate/arch as you reach). 16 moves now carry at least one real form rule. the three still rule-less (glute bridge, sit-up, superman) are horizontal/spinal moves the current rule kinds (TorsoLean/KneeValgus/HipSag) can't judge safely - forcing a rule there would misfire, so they stay honestly counting-only rather than get a fake cue. 187 native tests.
