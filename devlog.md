@@ -4,21 +4,69 @@ IG için hook'lu 30-60 sn reel scriptleri. İlk cümle KANCA. Damla seslendirir.
 
 ---
 
-## FORMAT (her reel bunu takip eder)
+## İKİ TEMPLATE — devlog ikisini de tutar
+
+Bu dosyada iki tür kayıt var. Biri sosyal-medya (reels), biri teknik günlük. İkisi de burada yaşar.
+
+### TEMPLATE A — BUILD-IN-PUBLIC (reels · sosyal medya · Damla seslendirir)
 
 ```
 ## Reel — [kısa başlık, konu ne] (loop XX)
 
 **Hook (ilk 2 sn):** "[Merak uyandıran, ters köşe ilk cümle. 'Şu sanılıyor ama aslında bu.']"
 
-**Anlatı (~30-45 sn):** [Damla'nın dili, mala öğretir gibi. Akış: neyi değiştirdim → çünkü şu sorun vardı → nasıl çözdüm → ders. Terim geçerse sıfırdan aç, izleyen bilmeyebilir.]
+**Anlatı (~30-45 sn):** [Damla'nın dili. Akış: neyi değiştirdim → çünkü şu sorun vardı → nasıl çözdüm → ders. Terim geçerse sıfırdan aç, izleyen bilmeyebilir.]
 
-**Görsel:** [ekranda ne görünsün + alt yazı fikri]
 **Format:** reel   (ya da: reel / carousel)
 ```
 
-Kurallar: ilk cümle KANCA (sıkıcıysa kimse izlemez) · 30-60sn kısa · gerçek tarihçeden "şunu değiştirdim çünkü şu sorun vardı" (senaryo değil) · terimi mala öğretir gibi aç · Damla seslendirir (cümleler onun ağzından) · sınır yok, biriktir.
-İki tip: (1) LOOP reel'i — o loop'ta ne yaptım, başlıkta `(loop XX)`. (2) STOK/açıklama reel'i — kavram anlatan, loop'a bağsız → aşağıdaki "TECH/AI/CV STOĞU" bölümüne.
+Kurallar: ilk cümle KANCA (sıkıcıysa kimse izlemez) · 30-60sn kısa · gerçek tarihçeden "şunu değiştirdim çünkü şu sorun vardı" · terimi mala öğretir gibi aç · Damla seslendirir · sınır yok, biriktir.
+
+TON — DERS DEĞİL, SOHBET: Damla dünyanın eğitimcisi değil; bir insan build ediyor. Eğlence, espri, iç geçirme, "of yine mi bu bug", "3 saat uğraştım meğer noktalı virgülmüş" tarzı gerçek anlar önemli — asıl bağ orada kurulur. Düşünce akışı, kafadan geçenler, küçük zaferler/hüsranlar, arada laf sokma. Öğretme kısmı espinin/hikâyenin İÇİNE gömülü olsun, ders gibi başlamasın. Her reel bilgi vermek zorunda değil — bazısı sadece bir an, bir düşünce, bir gülümseme.
+
+İki alt-tip: (1) LOOP reel'i — o loop'ta ne yaptım, başlıkta `(loop XX)`. (2) STOK/açıklama reel'i — kavram anlatan, loop'a bağsız → "TECH/AI/CV STOĞU" bölümüne.
+
+### TEMPLATE B — TECH DEVİNİM (developer diary · düz teknik kayıt · sosyal medya DEĞİL)
+
+Bu sosyal medya için değil — kendi teknik günlüğün. Ne yaptım, neden, nasıl; ilerde "burada ne düşünmüştüm" diye dönüp bakılan kayıt. Hook yok, espri şart değil, net ve dürüst.
+
+```
+## Devinim — [tarih] · [ne üstünde çalıştım]
+
+**Ne yaptım:** [somut değişiklik — dosya/fonksiyon/parametre]
+**Neden:** [hangi sorun/karar bunu getirdi]
+**Nasıl:** [yaklaşım, seçtiğim yol + elediğim alternatif]
+**Sonuç/kanıt:** [test/benchmark/render — sayıyla, iddia değil]
+**Takıldığım / açık kalan:** [varsa; ileriye not]
+```
+
+Kurallar: dürüst (çalışmayan çalışmadı yazılır) · sayıyla konuş (test geçti/benchmark X) · kısa ama izlenebilir · gelecekteki Damla'ya not gibi.
+
+### TEMPLATE C — SOSYAL DEVİNİM / VLOG (görüş · sohbet · projeye bağsız)
+
+Build-in-public "işte projem"dir; bu ise senin KAFANDAKİ konu. Projeye bağlı olmak zorunda değil — geniş görüş, gözlem, tartışma açan sohbet. "Yapay zekayla kod yazmak nasıl bir şey", "slop uygulama nasıl anlaşılır", "vibecoding iş görür mü", "junior mühendis AI çağında ne yapmalı" gibi. Sen konuşuyorsun, izleyen düşünüyor.
+
+```
+## Vlog — [konu / soru]
+
+**Kanca:** "[tartışma açan, iddialı ya da merak uyandıran giriş]"
+
+**Görüş / sohbet (~1-3 dk):** [Damla'nın gerçek görüşü. Bir tez + neden + örnek. Kendi deneyiminden konuş (kendi app'lerin, kendi build sürecin). Net bir duruş al, "belki şöyle belki böyle" değil.]
+
+**Neden ben söylüyorum:** [gerçek CS öğrencisi + gerçek ürün build eden biri olarak yetkin — bu satır izleyene 'niye dinleyeyim'i verir]
+
+**Format:** vlog / talking-head   (reels'ten uzun olabilir)
+```
+
+Kurallar: net duruş al (ortada durma) · kendi deneyiminden örnek ver · didaktik değil, sohbet · tartışma davet et (yorumlarda konuşulsun) · sınır yok, biriktir.
+
+STOK KONULAR (aklına geldikçe büyür):
+- yapay zekayla kod yazmak: asistan mı, koltuk değneği mi, çoğaltıcı mı? gerçek deneyim.
+- slop uygulama nasıl anlaşılır — 5 işaret (backend yok, hepsi localStorage, aynı gradient, CRUD'un yarısı, "coming soon"lar).
+- vibecoding gerçekten iş görür mü, nerede duvara çarpar (motor/mimari gerektiren yerde).
+- AI kodu yazarken senin işin ne kalıyor: karar, mimari, "bu doğru mu"yu ölçmek.
+- bir CS öğrencisi olarak AI çağında ne öğreniyorum / öğrenmiyorum.
+- "her şeyi AI yazsın" ile "hiçbir şeye güvenme" arasında sağlıklı yer neresi.
 
 ---
 
