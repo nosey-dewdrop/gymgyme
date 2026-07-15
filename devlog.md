@@ -100,3 +100,64 @@ IG için hook'lu 30-60 sn reel scriptleri. İlk cümle KANCA. Damla seslendirir.
 **Hook (ilk 2 sn):** "Motor seni tanırken 2 saniye kıpırdarsan, öğrendiği vücut yanlış olur. Bunu düzelttim."
 
 **Anlatı (~35 sn):** Kimlik kilidi kalibrasyonla başlar — motor ilk 2 saniyede vücut oranlarını öğrenip sana kilitlenir. Ama bir kalite kapısı yoktu: o 2 saniyede kıpırdarsan kirli ölçüler medyana giriyor, ve sonraki her "bu sen misin" kontrolü bozuk bir ölçüye dayanıyordu. Bir tutarlılık kapısı ekledim: her ölçünün yeterli örneği OLMALI ama saçılmamış da olmalı. Çok oynayan bir ölçü (hareket ettin) güvenilmez işaretlenip kilide alınmıyor. Ve hiç sağlam ölçü çıkmazsa motor çöpe kilitlenmiyor — "bir saniye sabit dur" deyip yeniden öğreniyor. Kilit artık gerçekten sabit olan ölçülere dayanıyor.
+
+---
+
+# TECH / AI / CV STOĞU (aklıma geldikçe biriktir)
+
+gymgyme'ın CV motorundan doğal çıkan tech/yapay zeka/CV konulu reels fikirleri. Z-kuşağı formatı: ilk cümle kanca, kısa, "şu sanılıyor ama aslında bu" çevirmesi. Damla seslendirir. Çekilmeye hazır oldukça yukarı numaralı Reel'e taşınır.
+
+---
+
+## Stok — "AI spor yapamaz, o yüzden nasıl öğreniyor?"
+
+**Hook:** "Bir yapay zekaya squat'ı nasıl öğretirsin? Kendisi spor yapamıyor ki."
+
+**Anlatı (~45 sn):** Kamerası olan bir spor koçu yazıyorum. Ama garip bir duvara çarptım: modeli 'eğitmek' için birinin doğru ve yanlış squat'ı göstermesi lazım. Ben gidip binlerce squat yapamam. AI hiç yapamaz. İnternette milyar spor videosu var diyeceksin — ama hiçbiri etiketli değil: hangisi kaç tekrar, hangisinde bel yanlış, belli değil. Etiketsiz veriyle doğruluğu ÖLÇEMEZSİN. Çözüm şu: az sayıda temiz "altın" klip çekiyorum, sonra onları programla bozuyorum — sol omzu 15 derece düşür, tempoyu hızlandır, bir eklemi kaybet. Tek doğru hareketten yüzlerce etiketli yanlış üretiyorum. AI'nın spor yapmasına gerek yok; ben ona hatayı tarif ediyorum.
+
+**Görsel:** tek temiz iskelet → yanına programla bozulmuş 5 varyant beliriyor; "1 doğru = 500 etiketli test".
+**Format:** reel / carousel
+
+---
+
+## Stok — "milyar video var ama işine yaramaz"
+
+**Hook:** "YouTube'da milyar spor videosu var. Yapay zeka eğitmek için hiçbiri işe yaramıyor. İşte sebebi."
+
+**Anlatı (~40 sn):** İçgüdün diyor ki: bu kadar video varken veri sorunu mu olur? Ama bir modelin öğrenmesi için veriye 'cevap anahtarı' lazım — bu klipte 8 tekrar var, bu kişinin dizi içeri kaçıyor. Ham video bunu söylemez. Etiketsiz milyar saat, ölçemediğin için sıfır değerinde. Üstüne telif ve gizlilik: başkasının bedenini iznisiz eğitim verisi yapamazsın. O yüzden büyük veriyi kovalamak yerine küçük ama etiketli veriyi seçtim — akademik mocap setleri (iskelet, video değil) artı kendi çektiğim altın klipler. Az ama doğru, çok ama kör'den iyidir.
+
+**Görsel:** "1.000.000.000 video" üstüne kırmızı çarpı; yanında "212 etiketli iskelet" yeşil tik.
+**Format:** reel
+
+---
+
+## Stok — "titreme mi yoksa gerçek hareket mi?" (One Euro filtre)
+
+**Hook:** "Kamera her karede vücudunu titretiyor. Koç bunu 'sen titredin' sanırsa sayacı bozar."
+
+**Anlatı (~45 sn):** Poz tahmini gürültülüdür — el sabit dursa bile ekranda milimetrelerce zıplar. Basit çözüm: yumuşat. Ama fazla yumuşatırsan gerçek hareketin gecikir, koç 'geç' olur. İşte One Euro filtre bu ikilemi çözer: yavaş hareket ederken agresif yumuşatır (titreme gider), hızlı hareket ederken bırakır (gecikme olmaz). Hıza göre kendini ayarlayan bir filtre. Ben bir de üstüne 'kemik kilidi' koydum — uzuv uzunlukların sabit, o yüzden gerçek insan anatomisiyle çelişen her sıçramayı eledim. Sonuç: sayaç titremeden, gecikmeden sayıyor.
+
+**Görsel:** ham zıplayan iskelet vs filtreli akıcı iskelet yan yana; "adapts to your speed".
+**Format:** reel
+
+---
+
+## Stok — "gözünü hazır aldım, beynini kendim yazdım"
+
+**Hook:** "Yapay zeka projemin yarısını Google yaptı. Diğer yarısı — asıl kısım — bende."
+
+**Anlatı (~40 sn):** Dürüst olmak gerekirse vücudu görüntüde bulan modeli ben eğitmedim — o Google'ın pose tahmini, milyonlarca görselle eğitilmiş dev bir ağ. Kendi sinir ağımı sıfırdan eğitmek aylar sürer ve o işi zaten birileri benden iyi yapmış. Benim değerim orada değil: o gözün üstüne kurduğum katmanda. Açıyı ölçen, tekrarı sayan, formu yargılayan, 'bu yeterince derin mi' diye karar veren mantık — moat bu. Herkes aynı gözü kullanabilir; farkı yaratan gözün üstündeki ölçülebilir doğruluk. Doğru araç seçmek de mühendisliktir; her şeyi sıfırdan yazmak değil.
+
+**Görsel:** "göz = hazır model" / "beyin = benim motor" iki katman; altında "the moat is the layer on top".
+**Format:** reel / carousel
+
+---
+
+## Stok — "%100 arayan koç insanı delirtir" (%60 eşiği)
+
+**Hook:** "Kusursuzluk arayan bir form kontrolü, ilk günde silinir. İşte neden %60'ı hedefledim."
+
+**Anlatı (~40 sn):** İlk motor mantığı acımasızdı: ya kitaptaki gibi ya hiç. Ama insan vücudu kitap değil — nefes alırsın, bir an sallanırsan, kas-yağ oranın kadraja başka düşer. Robot gibi %100 arayan bir koç seni sürekli 'yanlış' der, ve sen uygulamayı silersin. O yüzden bir hata payı koydum: hareket yeterince doğruysa — eşik %60 — tekrar sayılır ve puanını alır. Çöp tekrar (yarım squat) sayılmaz, ama nefes payı olan gerçek bir tekrar cezalandırılmaz. İyi ürün, insanı mükemmelliğe zorlamaz; onu ilerlemeye bırakır.
+
+**Görsel:** slider %100'de "kimse geçemez" kırmızı → %60'da "gerçek insan" yeşil.
+**Format:** reel
