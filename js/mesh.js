@@ -77,64 +77,68 @@ export function drawBody(ctx, lm, zsrc, W, H) {
   const vis = (i) => (lm[i] ? (lm[i].visibility ?? 1) : 0);
   const px = (i) => lm[i].x * W, py = (i) => lm[i].y * H;
 
-  // ── CV AĞ (Damla, 15 tem: "bir ağ gibi görünsün — parmakla sakız sündüren
-  // interaktif kurulum gibi"): dolu blob DEĞİL. Vücut bir NET: düğümler arası
-  // ışıltılı ipler (üçgen örgü) + parlak glow düğümler. Video ardından görünür;
-  // ağ onun üstünde canlı, derinlikle parlayan bir enerji örgüsü. ──
-  // ── DÜĞÜM (parlak top) YOK (Damla: "toplar olmasın, vücudum da ağ gibi
-  // görünsün"). Sadece ince ışıltılı üçgen ağ örgüsü — gövde SIK üçgenlenir,
-  // uzuvlar ince tel. Yüze düğüm/top asla. ──
-  // ağ kenarları: gerçek vücut topolojisi + gövdeyi SIKLAŞTIRAN üçgen köşegenler.
-  const EDGES = [
-    // gövde dörtgeni + iki köşegen (X) → dört üçgen (sık ağ hissi)
-    [L.LSHO, L.RSHO], [L.LHIP, L.RHIP], [L.LSHO, L.LHIP], [L.RSHO, L.RHIP],
-    [L.LSHO, L.RHIP], [L.RSHO, L.LHIP],
-    // gövde ortası: omuz-orta ve kalça-orta arası dikey tel (ağı böler)
-    // kollar
-    [L.LSHO, L.LELB], [L.LELB, L.LWRI], [L.RSHO, L.RELB], [L.RELB, L.RWRI],
-    // bacaklar
-    [L.LHIP, L.LKNE], [L.LKNE, L.LANK], [L.RHIP, L.RKNE], [L.RKNE, L.RANK],
-    // omuz-dirsek-kalça üçgenleri (ağı sıklaştırır, kol gövdeye bağlanır)
-    [L.LELB, L.LHIP], [L.RELB, L.RHIP],
-    // diz-diz ve dirsek-dirsek çapraz (alt ve üst ağı kapatır)
-    [L.LKNE, L.RKNE], [L.LELB, L.RELB],
+  // ── GERÇEK CV MOTORU GÖRÜNÜMÜ (Damla: "beni kutu kutu seç, sağ kol sol kol
+  // bel torso diye etiketle, gerçek cv motoru hissi versin"). Her vücut parçası
+  // = bir tespit kutusu (bounding box) + köşe işaretleri + etiket. YOLO/detection
+  // hissi. Ağ/dolgu YOK; video net görünür, üstünde takip kutuları oynar. ──
+  const vfade = (v) => Math.max(0, Math.min(1, (v - 0.25) / 0.25));
+
+  // her parça: etiket + o parçayı çevreleyen landmark noktaları.
+  const PARTS = [
+    { label: "torso",     pts: [L.LSHO, L.RSHO, L.LHIP, L.RHIP] },
+    { label: "right arm", pts: [L.RSHO, L.RELB, L.RWRI] },   // ayna: kullanıcının sağı
+    { label: "left arm",  pts: [L.LSHO, L.LELB, L.LWRI] },
+    { label: "right leg", pts: [L.RHIP, L.RKNE, L.RANK] },
+    { label: "left leg",  pts: [L.LHIP, L.LKNE, L.LANK] },
   ];
 
   ctx.save();
-  ctx.lineCap = "round"; ctx.lineJoin = "round";
+  ctx.lineJoin = "miter"; ctx.lineCap = "butt";
 
-  // görünürlük→alfa yumuşak sönüm: nokta görünmezse ip soluklaşarak kaybolur (blink yok).
-  const vfade = (v) => Math.max(0, Math.min(1, (v - 0.3) / 0.28));
+  for (const part of PARTS) {
+    // görünür noktalardan kutu sınırlarını çıkar
+    let minx = 1e9, miny = 1e9, maxx = -1e9, maxy = -1e9, vsum = 0, n = 0;
+    for (const i of part.pts) {
+      const f = vfade(vis(i));
+      if (f <= 0) continue;
+      const x = px(i), y = py(i);
+      minx = Math.min(minx, x); miny = Math.min(miny, y);
+      maxx = Math.max(maxx, x); maxy = Math.max(maxy, y);
+      vsum += f; n++;
+    }
+    if (n < 2) continue;   // parça yeterince görünmüyor
+    const conf = vsum / part.pts.length;      // "güven" (0..1): kaç nokta net
+    const alpha = 0.35 + 0.55 * Math.min(1, conf);
+    // kutuya biraz pay ver (parçayı sarsın)
+    const pad = 14;
+    minx -= pad; miny -= pad; maxx += pad; maxy += pad;
+    const bw = maxx - minx, bh = maxy - miny;
 
-  // ipler: her kenar derinliğe göre parlayan İNCE bir tel. Top yok, sadece ağ.
-  const edges = [];
-  for (const [a, b] of EDGES) {
-    const fa = vfade(vis(a)), fb = vfade(vis(b));
-    if (fa <= 0 || fb <= 0) continue;
-    edges.push({ a, b, t: (dep(a) + dep(b)) / 2, f: Math.min(fa, fb) });
-  }
-  edges.sort((p, q) => p.t - q.t);   // uzak tel önce, yakın üstte
-  for (const e of edges) {
-    const t = e.t, f = e.f;
-    // İLK HALİN RENGİ (Damla): vişne/mürekkep — beyaz-pembe parlak glow değil.
-    // yakın segment koyu vişne (166,27,66), uzak soluk; derinlikle kalınlaşır.
-    ctx.strokeStyle = "rgba(140,20,52," + ((0.4 + 0.45 * t) * f) + ")";
-    ctx.lineWidth = 1.2 + 2.2 * t;
-    ctx.beginPath(); ctx.moveTo(px(e.a), py(e.a)); ctx.lineTo(px(e.b), py(e.b)); ctx.stroke();
-  }
-
-  // eklemlerde minik vişne kavşak noktası (mürekkep, patlama yok).
-  const joints = [L.LSHO, L.RSHO, L.LELB, L.RELB, L.LWRI, L.RWRI,
-                  L.LHIP, L.RHIP, L.LKNE, L.RKNE, L.LANK, L.RANK];
-  for (const i of joints) {
-    const f = vfade(vis(i));
-    if (f <= 0) continue;
-    const t = dep(i);
-    ctx.fillStyle = "rgba(51,0,14," + (0.7 * f) + ")";
-    ctx.beginPath(); ctx.arc(px(i), py(i), 2 + 2 * t, 0, Math.PI * 2); ctx.fill();
-    ctx.strokeStyle = "rgba(255,255,255," + (0.5 * f) + ")";
+    // 1) köşe işaretli tespit kutusu (klasik detection köşeleri)
+    ctx.strokeStyle = "rgba(166,27,66," + alpha + ")";
+    ctx.lineWidth = 1.5;
+    const cl = Math.min(22, bw * 0.28, bh * 0.28);   // köşe uzunluğu
+    const corner = (cx, cy, dx, dy) => {
+      ctx.beginPath();
+      ctx.moveTo(cx + dx * cl, cy); ctx.lineTo(cx, cy); ctx.lineTo(cx, cy + dy * cl);
+      ctx.stroke();
+    };
+    corner(minx, miny, 1, 1); corner(maxx, miny, -1, 1);
+    corner(minx, maxy, 1, -1); corner(maxx, maxy, -1, -1);
+    // ince tam çerçeve (soluk)
+    ctx.strokeStyle = "rgba(166,27,66," + (alpha * 0.28) + ")";
     ctx.lineWidth = 1;
-    ctx.stroke();
+    ctx.strokeRect(minx, miny, bw, bh);
+
+    // 2) etiket sekmesi (parça adı + güven yüzdesi) — sol üst köşede
+    const tag = part.label + "  " + Math.round(conf * 100) + "%";
+    ctx.font = "600 12px 'Courier New', monospace";
+    const tw = ctx.measureText(tag).width;
+    ctx.fillStyle = "rgba(166,27,66," + alpha + ")";
+    ctx.fillRect(minx, miny - 17, tw + 12, 17);
+    ctx.fillStyle = "rgba(255,240,246," + Math.min(1, alpha + 0.2) + ")";
+    ctx.textBaseline = "middle";
+    ctx.fillText(tag, minx + 6, miny - 17 + 9);
   }
   ctx.restore();
 }
