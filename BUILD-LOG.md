@@ -404,3 +404,9 @@ three more jury findings fixed:
 
 ## classifier can now tell squat from lunge (jul 15, jury response)
 the CS dean's sharpest classifier finding: squat and lunge had IDENTICAL signatures (both Knee/upright/rep), so claiming "the engine recognizes what you're doing" while it provably couldn't separate the two most common leg moves was inflated. fixed it for real, not by scoping down: added an ASYMMETRY dimension. a squat is symmetric (left knee = right knee); a lunge is one leg forward = a large left-right angle gap the engine already measures. the classifier now feeds mean asymmetry and separates the pair - a test proves symmetric knee motion -> squat, asymmetric knee motion -> lunge. the claim is now true. 182 native tests.
+
+## pilates safety: breath cue + lumbar warning (jul 15, jury response)
+two safety findings from the pilates instructor, both real and cheap:
+- no breath cue anywhere. holding your breath (Valsalva) during a plank/wall-sit spikes blood pressure - dangerous for some. every hold now rotates "keep breathing - don't hold your breath" into the phase text every ~6s. costs nothing, removes a real liability.
+- lumbar-loading moves (sit-up, superman, hollow hold, glute bridge) were offered to anyone with no warning. now each shows a one-time cue on load: "this move loads your lower back - skip or keep it small if you have back pain". the instructor's exact ask for a fragile-back client.
+sw v40.

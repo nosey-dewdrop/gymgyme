@@ -292,6 +292,8 @@ const HOLD_MOVES = new Set(Object.keys(MOVES).filter((k) => MOVES[k].hold));
 // (superman) yalnız pozisyonda-kalma ölçer — dürüstlük: ölçemediğin formu
 // "kalite" diye satma (Pilates Princess jüri dersi). Bu son grup "in position".
 const HOLD_POSITION_ONLY = new Set(["superman"]);
+// bel yükleyen hareketler: kötü bel için modifiye/atla uyarısı (Pilates güvenlik jüri).
+const LUMBAR_LOAD = new Set(["situp", "superman", "hollowhold", "glutebridge"]);
 let move = MOVES.squat;
 
 // derin bağlantı: coach.html?move=squat → o hareketle açıl (11).
@@ -466,6 +468,12 @@ function loadItem(i) {
   move = MOVES[it.move] || MOVES.squat;
   if (engine) { engine.setMove(it.move); applyPlan(); buildAngleRows(); }
   setStatus("move " + (i + 1) + " of " + program.items.length + ": " + moveLabel(it.move));
+  // bel yükleyen harekette bir kez güvenlik notu (Pilates jüri: fragile back).
+  if (LUMBAR_LOAD.has(it.move) && msgEl) {
+    msgEl.textContent = "this move loads your lower back - skip or keep it small if you have back pain";
+    msgEl.classList.remove("loud");
+    cueUntil = performance.now() + 4000;
+  }
   renderProgram();   // fişte sıradaki satır işaretlenir
 }
 
@@ -996,7 +1004,10 @@ function render(r) {
     countTo(repCountEl, secs);   // saniye yumuşak sayar
     halfNoteEl.textContent = "seconds held";
     if (r.inHold) {
-      phaseWord.textContent = "holding - steady";
+      // nefes hatırlatması (Pilates jüri / güvenlik): tutuşta Valsalva = tansiyon
+      // fırlar, tehlikeli. ~her 6 sn'de "keep breathing" rotasyonu.
+      const held = Math.floor(r.heldSeconds || 0);
+      phaseWord.textContent = (held > 0 && held % 6 < 3) ? "keep breathing - don't hold your breath" : "holding - steady";
       if (r.repTick) { repTick(); }   // banda ilk girişte tık
     } else {
       phaseWord.textContent = r.heldSeconds > 0 ? "get back into the hold" : "get into position";
