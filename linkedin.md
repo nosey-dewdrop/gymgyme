@@ -1,6 +1,37 @@
 # linkedin — damla-essays
 
-Mühendislik kararlarının "neden"i. Her biri 300-500 kelime, LinkedIn / blog için. Kaynak: BUILD-LOG.md. Dil şimdilik Türkçe (İngilizce isteniyorsa çevrilir).
+Mühendislik kararlarının "neden"i + kariyer/duruş yazıları. LinkedIn / blog için. Kaynak: BUILD-LOG.md. Dil şimdilik Türkçe (İngilizce isteniyorsa çevrilir).
+
+---
+
+## TEMPLATE — DAMLA-ESSAY (inşa yolculuğu · numaralı zincir · 300-500+ kelime)
+
+Bir cümle koca bir yazı olamaz. Bu essay'ler İNŞA SÜRECİNİ gösterir: adım adım ne yaptım, her adımın altında hangi karar yatıyor, neden böyle yaptım. Numaralı zincir. Blog/LinkedIn paylaşımı olacak kadar dolu, 300-500 kelime (gerekirse daha uzun).
+
+Zincir şablonu (istediğin kadar uzat, her adım = bir karar):
+
+```
+## [Projenin dönüşümünü özetleyen başlık]
+
+1. [BAŞLANGIÇ: projeyi yazdım, amacı buydu — AMA slopware hissi verdi. Fikir nereden geldi, neyi çözmek istedim? İtiraf dürüst olsun.]
+
+2. [İLK EKLEME: o yüzden şunu ekledim. NEDEN? Hangi eksik/sorun bunu getirdi?]
+
+3. [PİVOT: fakat sonra şunu değiştirdim/attım. NEDEN? Hangi karar bu dönüşü zorladı? (yanlış giden neydi?)]
+
+4. [GERÇEK ÜRÜNE GİDEN YOL: slopware'den çıkmak için şunları yaptım. Her biri bir mühendislik/ürün kararı.]
+
+[…gerektiği kadar adım…]
+
+[KAPANIŞ: bu yolculuktan çıkan kalıcı ders / bu projeyi neyin gerçek ürün yaptığı.]
+```
+
+Kurallar:
+- Her adım bir KARAR anlatır — "ne yaptım" değil, "neden böyle yaptım, altında ne yatıyor".
+- Dürüst: slopware hissini, yanlış giden pivotu, bedeli sakla-ma. Gerçek inşa hikâyesi bu.
+- Numaralı zincir inşa sürecini görünür kılar — okuyan adım adım seninle düşünsün.
+- 300-500 kelime hedef; tek cümle/tek paragraf DEĞİL, dolu bir yazı.
+- Terim geçerse insan diliyle aç. Pazarlama değil, düşünce.
 
 ---
 
