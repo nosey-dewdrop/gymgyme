@@ -186,7 +186,7 @@ body.running #intro, body.running #progCard { display: none; }
 
 /* ── marquee dönüşümü (14 tem): fiş + presetler + tabela kontrolleri ── */
 /* set listesi FİŞİ: eğik, tırtıklı, sürüklenir - Damla'nın bayıldığı mekanik */
-.receipt { position: absolute; left: 4%; top: 56px; width: 264px; background: rgba(255,255,255,0.55); color: var(--cherry); font-family: "Courier New", Courier, monospace; font-size: 12.5px; padding: 20px 16px 22px; transform: rotate(-4deg); cursor: grab; box-shadow: 0 14px 26px rgba(51,0,14,.32); z-index: 30; touch-action: none;
+.receipt { position: absolute; left: 4%; top: 56px; width: 264px; background: #fff; color: var(--cherry); font-family: "Courier New", Courier, monospace; font-size: 12.5px; padding: 20px 16px 22px; transform: rotate(-4deg); cursor: grab; box-shadow: 0 14px 26px rgba(51,0,14,.32); z-index: 30; touch-action: none;
   clip-path: polygon(0 0,100% 0,100% calc(100% - 8px),95% 100%,90% calc(100% - 8px),85% 100%,80% calc(100% - 8px),75% 100%,70% calc(100% - 8px),65% 100%,60% calc(100% - 8px),55% 100%,50% calc(100% - 8px),45% 100%,40% calc(100% - 8px),35% 100%,30% calc(100% - 8px),25% 100%,20% calc(100% - 8px),15% 100%,10% calc(100% - 8px),5% 100%,0 calc(100% - 8px)); }
 .receipt[hidden] { display: none; }
 .receipt.dragging { cursor: grabbing; box-shadow: 0 24px 44px rgba(51,0,14,.4); }
@@ -204,7 +204,7 @@ body.running #intro, body.running #progCard { display: none; }
 .receipt .rtotal { display: flex; justify-content: space-between; font-weight: bold; font-size: 14px; }
 .receipt .rnote { text-align: center; font-size: 10.5px; margin-top: 8px; line-height: 1.5; opacity: .8; }
 .receipt .rempty { font-size: 11px; text-align: center; opacity: .75; padding: 4px 0; margin: 0; }
-.receipt-tab { position: fixed; right: 3vw; top: 130px; font: bold 12px Arial; background: rgba(255,255,255,0.55); color: var(--cherry); border: none; padding: 9px 13px; cursor: pointer; transform: rotate(-3deg); box-shadow: 0 6px 12px rgba(51,0,14,.25); z-index: 30; }
+.receipt-tab { position: fixed; right: 3vw; top: 130px; font: bold 12px Arial; background: #fff; color: var(--cherry); border: none; padding: 9px 13px; cursor: pointer; transform: rotate(-3deg); box-shadow: 0 6px 12px rgba(51,0,14,.25); z-index: 30; }
 .receipt-tab[hidden] { display: none; }
 @media (max-width: 700px) { .receipt { width: 220px; right: 2vw; top: auto; bottom: 16px; } .receipt-tab { top: auto; bottom: 16px; } }
 

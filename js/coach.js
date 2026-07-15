@@ -94,6 +94,11 @@ try {
   const p = JSON.parse(localStorage.getItem(PROG_KEY));
   if (p && Array.isArray(p.items)) program = { items: p.items, rest: p.rest ?? 45 };
 } catch (_) { /* kayıt yoksa boş programla başlanır */ }
+// eski squat-only kayıt takıldı kaldıysa temizle: ilk hareket masada oturan
+// kullanıcının YAPABİLECEĞİ arm raise olsun (denetçi dersi). tek-item squat ise sıfırla.
+if (program.items.length === 1 && program.items[0] && program.items[0].move === "squat") {
+  program.items = [];
+}
 let progIdx = 0;
 let switching = false;     // hareketler arası geri sayım — motor o karelerde dinlenir
 let timedAct = null;       // süreli hareket (motor saymaz, kamera izler, süre tutulur)
