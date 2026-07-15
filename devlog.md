@@ -94,3 +94,9 @@ IG için hook'lu 30-60 sn reel scriptleri. İlk cümle KANCA. Damla seslendirir.
 **Hook (ilk 2 sn):** "Motora bir katman ekledim, testler yeşildi, 'iyileştirdim' dedim. Sonra kendi ölçümüm beni yalancı çıkardı."
 
 **Anlatı (~45 sn):** Kameranın gürültülü derinlik tahminini ikinci bir Kalman filtresinden geçirdim, açılar daha kararlı olsun diye. Yeşil testler, güzel bir build-log yazısı, devam. Sonra kurduğum jürideki CS dekanı benim kendi ölçüm bandımı kötü ışıkta çalıştırdı — ve katman motoru KÖTÜLEŞTİRİYORDU. İkinci filtre gecikme ekliyor, gürültüde işi bozuyordu. İki seçenek: ya essay'i yumuşatıp katmanı açık bırakmak, ya ölçüme uymak. Katmanı kapattım. Çünkü yeşil testler çoğu zaman senin varsayımını doğrular, gerçekliği değil. Bir şeyi eklemek kolay; kendi ölçümün çürüttüğü için geri kapatmak — işte o disiplin.
+
+## Reel — "sabit dur" diyen kalibrasyon
+
+**Hook (ilk 2 sn):** "Motor seni tanırken 2 saniye kıpırdarsan, öğrendiği vücut yanlış olur. Bunu düzelttim."
+
+**Anlatı (~35 sn):** Kimlik kilidi kalibrasyonla başlar — motor ilk 2 saniyede vücut oranlarını öğrenip sana kilitlenir. Ama bir kalite kapısı yoktu: o 2 saniyede kıpırdarsan kirli ölçüler medyana giriyor, ve sonraki her "bu sen misin" kontrolü bozuk bir ölçüye dayanıyordu. Bir tutarlılık kapısı ekledim: her ölçünün yeterli örneği OLMALI ama saçılmamış da olmalı. Çok oynayan bir ölçü (hareket ettin) güvenilmez işaretlenip kilide alınmıyor. Ve hiç sağlam ölçü çıkmazsa motor çöpe kilitlenmiyor — "bir saniye sabit dur" deyip yeniden öğreniyor. Kilit artık gerçekten sabit olan ölçülere dayanıyor.

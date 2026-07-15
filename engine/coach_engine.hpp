@@ -307,6 +307,7 @@ class Engine {
   bool calibOn_ = false;
   bool calibrated_ = false;
   int calibCount_ = 0;
+  int calibRetries_ = 0;   // kalibrasyon kalite kapısı: kirli örnekle bir kez yeniden öğren
   std::vector<double> calibSamples_[kRatioN];
   double bodyRatio_[kRatioN] = {0, 0, 0, 0, 0};
   bool ratioUsable_[kRatioN] = {false, false, false, false, false};

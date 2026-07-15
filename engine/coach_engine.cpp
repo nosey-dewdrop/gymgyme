@@ -285,6 +285,7 @@ void Engine::setCalibration(bool on) {
   calibOn_ = on;
   calibrated_ = false;
   calibCount_ = 0;
+  calibRetries_ = 0;
   for (auto& v : calibSamples_) v.clear();
   for (auto& v : boneSamples_) v.clear();
   for (int i = 0; i < kBoneN; i++) { boneLen_[i] = 0; boneUsable_[i] = false; }
@@ -337,6 +338,7 @@ void Engine::reset() {
   // kalibrasyon: açık/kapalı ayarı KORUNUR, öğrenilen vücut yeniden öğrenilir
   calibrated_ = false;
   calibCount_ = 0;
+  calibRetries_ = 0;
   for (auto& v : calibSamples_) v.clear();
   phaseTop_ = true;
   topRest_ = -1.0; bottomLive_ = -1.0; topLive_ = -1.0;   // adaptif eşik yeniden öğrenilir
@@ -458,6 +460,18 @@ static bool bodyRatiosFrame(const std::vector<Landmark>& w,
 static double medianOf(std::vector<double> v) {
   std::nth_element(v.begin(), v.begin() + v.size() / 2, v.end());
   return v[v.size() / 2];
+}
+
+// bir örnek kümesinin varyasyon katsayısı (std/ortalama). Kalibrasyon kalite
+// kapısı: bu yüksekse örnekler saçılmış demektir (kişi kalibrasyon sırasında
+// hareket etmiş / kadraj oynamış) ve o ölçü GÜVENİLMEZ — kilide alınmamalı.
+static double coeffVar(const std::vector<double>& v) {
+  if (v.size() < 3) return 1e9;
+  double sum = 0; for (double x : v) sum += x;
+  double mean = sum / v.size();
+  if (std::fabs(mean) < 1e-9) return 1e9;
+  double s2 = 0; for (double x : v) s2 += (x - mean) * (x - mean);
+  return std::sqrt(s2 / v.size()) / std::fabs(mean);
 }
 
 // ── Faz 2: mutlak kemik uzunlukları (metre, dünya uzayı). İki taraf tek havuzda:
@@ -906,17 +920,38 @@ Reading Engine::update(const std::vector<Landmark>& p,
         r.calibProgress = (double)calibCount_ / kCalibFrames;
         r.message = "learning your body - one moment";
         if (calibCount_ >= kCalibFrames) {
+          // ── TUTARLILIK KAPISI (kalibrasyon güçlendirme): bir ölçü hem yeterli
+          // örneğe sahip olmalı HEM de saçılmamış olmalı. Varyasyon katsayısı
+          // eşiği aşarsa (kişi kalibrasyon sırasında hareket etti / kadraj
+          // oynadı) o ölçü GÜVENİLMEZ — kilide alınmaz. Böylece kirli bir örnek
+          // tüm kimlik kilidini bozmaz; kilit yalnız sağlam ölçülere dayanır. ──
+          const double kMaxRatioCV = 0.18;   // oran örnekleri: %18 saçılmadan fazlası kirli
+          const double kMaxBoneCV = 0.15;    // kemik uzunluğu (metrik): %15
+          int usableRatios = 0;
           for (int i = 0; i < kRatioN; i++) {
-            ratioUsable_[i] = calibSamples_[i].size() >= (size_t)(kCalibFrames * 3 / 5);
-            if (ratioUsable_[i]) bodyRatio_[i] = medianOf(calibSamples_[i]);
+            bool enough = calibSamples_[i].size() >= (size_t)(kCalibFrames * 3 / 5);
+            bool steady = coeffVar(calibSamples_[i]) <= kMaxRatioCV;
+            ratioUsable_[i] = enough && steady;
+            if (ratioUsable_[i]) { bodyRatio_[i] = medianOf(calibSamples_[i]); usableRatios++; }
             calibSamples_[i].clear();
           }
           for (int i = 0; i < kBoneN; i++) {
-            boneUsable_[i] = boneSamples_[i].size() >= (size_t)(kCalibFrames * 3 / 5);
+            bool enough = boneSamples_[i].size() >= (size_t)(kCalibFrames * 3 / 5);
+            bool steady = coeffVar(boneSamples_[i]) <= kMaxBoneCV;
+            boneUsable_[i] = enough && steady;
             if (boneUsable_[i]) boneLen_[i] = medianOf(boneSamples_[i]);
             boneSamples_[i].clear();
           }
-          calibrated_ = true;
+          // hiç güvenilir oran çıkmadıysa (kişi hep hareket etti) kalibrasyonu
+          // BİTİRME, yeniden öğren — "sabit dur" de. En çok bir kez uzatılır ki
+          // sonsuz döngü olmasın; ikinci turda ne çıkarsa onunla kilitlen.
+          if (usableRatios < 2 && calibRetries_ < 1) {
+            calibRetries_++;
+            calibCount_ = 0;
+            r.message = "hold still for a moment while i learn your body";
+          } else {
+            calibrated_ = true;
+          }
         }
       } else {
         // öğrenilen vücutla karşılaştır: test edilebilen oranların üçte ikisi

@@ -555,6 +555,33 @@ int main() {
     check(r2.tracking, "without calibration the same read is accepted");
   }
 
+  // ── kalibrasyon güçlendirme: TUTARLILIK KAPISI. Kişi kalibrasyon boyunca
+  // hareket ederse (oranlar saçılır) motor kirli örnekle kilitlenmez — yeniden
+  // öğrenir (bir kez uzatır). Temiz örnekte ise normal tamamlanır. ──
+  {
+    // KİRLİ kalibrasyon: her kare vücut oranları rastgele oynatılır (kişi hareketli).
+    // Motor ilk 60 karede güvenilir oran bulamayıp yeniden öğrenmeye geçmeli.
+    Engine e(builtinMove("squat"));
+    e.setCalibration(true);
+    Reading r;
+    double t = 0;
+    // kirli örnek üretmek için diz konumunu kare kare kaydır (uyluk/baldır oranı sapar)
+    for (int i = 0; i < 62; i++) {
+      std::vector<Landmark> w = worldPose(false);
+      double jitter = (i % 4 - 1.5) * 0.10;   // ±0.15 deterministik saçılma
+      w[25].y += jitter; w[26].y += jitter;    // dizler oynar -> uyluk/baldır oranı kirlenir
+      r = e.update(pose(false), w, (t += 33));
+    }
+    // 60 kare doldu ama oranlar kirli: motor "sabit dur" deyip yeniden öğrenmeli
+    // (calibrating hâlâ true, retry mesajı). En azından temiz-olmayan örnekle
+    // hemen "tamam" dememeli.
+    check(r.calibrating, "dirty calibration (moving body) does not lock immediately - it re-learns");
+
+    // aynı motora şimdi TEMİZ (sabit) örnek ver: ikinci turda kilitlenmeli
+    for (int i = 0; i < 62; i++) r = e.update(pose(false), worldPose(false), (t += 33));
+    check(!r.calibrating, "after re-learning on a steady body, calibration completes");
+  }
+
   // ── adaptif dip eşiği (Damla, 15 tem: "eğildiğimi görüyor ama squat saymıyor").
   // Kişinin gerçek çömelmesi, sabit 120° eşiğine değmese bile, kendi üst
   // duruşundan yeterince bükülüyorsa SAYILMALI. ──
