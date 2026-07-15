@@ -477,8 +477,41 @@ static int runSweep() {
   return 0;
 }
 
+// ── world-Kalman q/r ızgara taraması (CS-dekan: One Euro sweep'liydi, Kalman
+// el kararıydı — artık o da ölçümle). Her (q,r) için üretim yolunu koşar, en
+// düşük jitter+rmse'yi (rep doğruluğu korunarak) seçer. ──
+static int runKalmanSweep() {
+  std::printf("world-Kalman q/r taramasi (uretim yolu, dusuk jitter+rmse iyi, rep 8/8 sart)\n\n");
+  auto clip = makeSynth(0.004, 0.010, 42);   // normal kamera
+  const double qs[] = {10, 20, 40, 80, 160};
+  const double rs[] = {1e-4, 2e-4, 4e-4, 8e-4, 2e-3};
+  double bestScore = 1e18, bestQ = 0, bestR = 0;
+  for (double q : qs) for (double r : rs) {
+    Engine e(builtinMove("squat"));
+    e.setCalibration(true);
+    e.setWorldRefine(true);
+    e.setWorldKalmanParams(q, r);
+    RunResult res; bool was = false;
+    for (const auto& f : clip) {
+      Reading rd = e.update(f.screen, f.world, f.t);
+      res.angle.push_back(rd.tracking ? rd.smoothAngle : -1.0);
+      was = rd.tracking; res.reps = rd.reps;
+    }
+    double jit = holdJitter(clip, res.angle);
+    double lagMs, rms; lagAndRmse(clip, res.angle, lagMs, rms);
+    // rep 8/8 değilse ele; skor = jitter + rmse + gecikme cezası
+    double score = (res.reps == 8) ? (jit + rms + lagMs * 0.02) : 1e17;
+    std::printf("  q=%-5g r=%-6g  jitter %5.3f  rmse %5.3f  lag %4.1fms  reps %d/8%s\n",
+                q, r, jit, rms, lagMs, res.reps, (res.reps==8 && score<bestScore) ? "  <= best" : "");
+    if (score < bestScore) { bestScore = score; bestQ = q; bestR = r; }
+  }
+  std::printf("\nSECILEN: q=%g r=%g (varsayilan 40/4e-4). olcumle, el karariyla degil.\n", bestQ, bestR);
+  return 0;
+}
+
 int main(int argc, char** argv) {
   if (argc >= 2 && std::strcmp(argv[1], "synth") == 0) return runSynth();
+  if (argc >= 2 && std::strcmp(argv[1], "kalmansweep") == 0) return runKalmanSweep();
   if (argc >= 2 && std::strcmp(argv[1], "synthcal") == 0) return runSynthCal();
   if (argc >= 2 && std::strcmp(argv[1], "sweep") == 0) return runSweep();
   if (argc >= 2 && std::strcmp(argv[1], "bones") == 0) return runBones();

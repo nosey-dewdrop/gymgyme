@@ -261,6 +261,9 @@ class Engine {
   void setBoneLock(bool on) { boneLockOn_ = on; }
   // world-refine (3B metrik Kalman) aç/kapa — bench ile kazancını ÖLÇMEK için.
   void setWorldRefine(bool on) { worldRefineOn_ = on; }
+  // world-Kalman q/r'yi dışarıdan ayarla — bench sweep parametreyi ÖLÇÜMLE seçsin
+  // (CS-dekan: One Euro sweep'liydi, Kalman el kararıydı; artık o da sweep'lenir).
+  void setWorldKalmanParams(double q, double r) { wkfQ_ = q; wkfR_ = r; }
   // son karenin kilitli dünya iskeleti (boş = bu karede çözüm yok). ölçüm/bench için.
   const std::vector<Landmark>& solvedWorld() const { return solvedWorld_; }
   // son karenin çizim iskeleti: ekran noktaları, nokta başına One Euro ile
@@ -311,6 +314,8 @@ class Engine {
   bool boneLockOn_ = true;
   bool ikOn_ = true;   // anatomik eklem limitleri (ik.hpp) — kemik kilidi sonrası açı kırpma
   bool worldRefineOn_ = true;   // world (3B) Kalman iyileştirme (bench ile ölçülebilsin)
+  double wkfQ_ = 10.0, wkfR_ = 2e-4;   // world-Kalman q/r — bench kalmansweep ile seçildi
+                                       // (jitter+rmse+gecikme, 8/8 rep; el kararı DEĞİL)
   std::vector<double> boneSamples_[kBoneN];
   double boneLen_[kBoneN] = {0, 0, 0, 0};
   bool boneUsable_[kBoneN] = {false, false, false, false};
