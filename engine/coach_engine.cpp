@@ -721,7 +721,7 @@ void Engine::refineWorld(const std::vector<Landmark>& world, double tMs, std::ve
   wkfLastT_ = tMs;
   for (int i = 0; i < 33; i++) {
     // world uzayı metre ölçekli. q/r bench sweep ile seçilir (setWorldKalmanParams);
-    // varsayılan 40/4e-4 ama artık el kararı değil, ölçümle doğrulanabilir.
+    // varsayılan 10/2e-4 (bench kalmansweep ile seçildi), el kararı değil.
     wkf_[i].setParams(wkfQ_, wkfR_);
     wkf_[i].predict(dt);
     double vis = world[i].visibility;

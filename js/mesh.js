@@ -1,14 +1,15 @@
-// mesh.js — CGI-grade görsel katman. SADECE çizim; sayma/açı motoruna HİÇ girmez.
+// mesh.js — görsel katman. SADECE çizim; sayma/açı motoruna HİÇ girmez (bir
+// çizim bug'ı bir tekrarı bozamaz — motordan tam yalıtık).
 //
-// Damla (15 tem): "beni bir adet kol iskeleti gibi gösteriyor. parmaklarım 3 dallı
-// bir ağaç gibi. yüzüm dudağım bir çizgi. oysa dudağım kavisli, detayları var. çok
-// boyutlu integral gibi insanlarız." — bu dosya o şikayeti kapatır: çöp-adam değil,
-// dolgulu yüz mesh'i (kavisli dudak/göz/kaş), gerçek dolgulu eller (21 eklem), ve
-// gövdenin ÇİZGİ değil HACİM olarak render'ı (derinlik-gölgeli, kaslı kabuk).
+// Damla (15 tem): önce "adet iskelet / 3 dallı ağaç parmak / çizgi dudak"
+// şikayeti; sonra "bir AĞ gibi görünsün — parmakla ışık büken interaktif
+// kurulum gibi". Bu dosya gövdeyi bir NET olarak çizer: düğümler arası ışıltılı
+// ipler (üçgen örgü) + parlak glow düğümler, derinlikle (z) parlar. Gerçek video
+// ardından görünür — dolu blob DEĞİL (jüri: opak dolgu vücudu kapatıyordu).
+// Yüz hâlâ dolgulu mesh (kavisli dudak/göz/kaş), eller dolgulu (21 eklem).
 //
-// Tasarım kararı: her şey derinlik (z) ile gölgelenir. MediaPipe her noktanın z'sini
-// tahmin ediyor; yakın yüzey aydınlık ve dolgun, uzak yüzey koyu ve soluk. Böylece
-// düz 2B çizgi yığını değil, üç boyutlu bir yüzey hissi doğar — "CGI gibi".
+// NOT: burası "cila"dır, mühendislik derinliği coach_engine'de. Ağ, aynı 33
+// landmark'ın süslü çizimi — parlayan şey TAKİP değil, görüntü.
 
 // gymgyme paleti — vişne/gül tonları (site ile uyumlu).
 const SKIN_NEAR = [255, 190, 205];   // yakın yüzey (aydınlık)
@@ -68,27 +69,6 @@ function limbCapsule(ctx, a, b, W, H, wA, wB, t) {
   ctx.stroke();
 }
 
-// gövde gövdesi: omuz-omuz-kalça-kalça dörtgeni — saydam + konturlu.
-function torsoShell(ctx, lm, W, H, t) {
-  const p = (i) => lm[i];
-  const need = [L.LSHO, L.RSHO, L.LHIP, L.RHIP];
-  if (need.some((i) => !p(i) || (p(i).visibility ?? 1) < VIS_FILL)) return;
-  ctx.beginPath();
-  ctx.moveTo(p(L.LSHO).x * W, p(L.LSHO).y * H);
-  ctx.lineTo(p(L.RSHO).x * W, p(L.RSHO).y * H);
-  ctx.lineTo(p(L.RHIP).x * W, p(L.RHIP).y * H);
-  ctx.lineTo(p(L.LHIP).x * W, p(L.LHIP).y * H);
-  ctx.closePath();
-  const cx = (p(L.LSHO).x + p(L.RHIP).x) / 2 * W, cy = (p(L.LSHO).y + p(L.RHIP).y) / 2 * H;
-  const grd = ctx.createRadialGradient(cx, cy, 4, cx, cy, Math.max(W, H) * 0.3);
-  grd.addColorStop(0, shade(Math.min(1, t + 0.2), BODY_ALPHA));
-  grd.addColorStop(1, shade(Math.max(0, t - 0.2), BODY_ALPHA));
-  ctx.fillStyle = grd;
-  ctx.fill();
-  ctx.strokeStyle = "rgba(51,0,14,0.4)";
-  ctx.lineWidth = 1.4;
-  ctx.stroke();
-}
 
 // ── gövde figürünü DOLU çiz. Uzuvlar uzak→yakın sıralı (yakın uzuv üste biner). ──
 export function drawBody(ctx, lm, zsrc, W, H) {

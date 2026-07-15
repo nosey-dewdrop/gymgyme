@@ -293,7 +293,9 @@ const HOLD_MOVES = new Set(Object.keys(MOVES).filter((k) => MOVES[k].hold));
 // "kalite" diye satma (Pilates Princess jüri dersi). Bu son grup "in position".
 const HOLD_POSITION_ONLY = new Set(["superman"]);
 // bel yükleyen hareketler: kötü bel için modifiye/atla uyarısı (Pilates güvenlik jüri).
-const LUMBAR_LOAD = new Set(["situp", "superman", "hollowhold", "glutebridge"]);
+// press = ayakta bası, bel ekstansiyonu + eksenel yük (yüksek Valsalva) → eklendi.
+// glutebridge düşük riskli → çıkarıldı (yanlış alarm dürüstlüğü bozar).
+const LUMBAR_LOAD = new Set(["situp", "superman", "hollowhold", "press"]);
 let move = MOVES.squat;
 
 // derin bağlantı: coach.html?move=squat → o hareketle açıl (11).
@@ -1026,10 +1028,15 @@ function render(r) {
     scoreLineEl.innerHTML = "";
     if (r.heldSeconds > 0.5) {
       const b = document.createElement("span");
-      // kuralsız hold (superman): "in position" — ölçemediğimiz formu kalite diye
-      // satmayız; kurallı hold'larda gerçek "hold quality".
       b.className = "big";
-      b.textContent = (HOLD_POSITION_ONLY.has(moveSel.value) ? "in position " : "hold quality ") + q;
+      // Pilates jüri: kuralsız hold'da (superman) SAYI gösterme — o sayı sadece
+      // bant-merkez uzaklığı, formu ölçmüyor; 76-100 arası "quality" gibi
+      // görünür ve yalan olur. Sadece DURUM göster. Kurallı hold'da gerçek sayı.
+      if (HOLD_POSITION_ONLY.has(moveSel.value)) {
+        b.textContent = r.inHold ? "in position" : "find the position";
+      } else {
+        b.textContent = "hold quality " + q;
+      }
       scoreLineEl.appendChild(b);
     }
     if (r.formCue) { msgEl.textContent = r.formCue; msgEl.classList.add("loud"); }

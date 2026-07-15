@@ -423,3 +423,12 @@ the CS dean's most repeated jab: the one-euro params were grid-swept but the wor
 
 ## session-end left-right balance report (jul 15, toward the 'why pay' answer)
 the jury's biggest open question is business, not code: who pays and why. the strongest lead in Damla's own notes is physio B2B, and the real clinical signal there is COMPENSATION - left/right imbalance that a fixed-timer app can't see. the engine already measures per-rep asymmetry; now it accumulates a session average and reports it: "your left and right sides differed by about N° on average - one side is compensating" (or "stayed balanced"). exposed avgAsymmetry through the summary binding. this is the one differentiator a physio would actually pay to have flagged - not a feature for its own sake, a wedge toward a buyer. 185 native tests, sw v42.
+
+## round 3: pay off the honesty debts the jury found (jul 15)
+31 findings from the full 5-jury. the VC panel's verdict surprised in the right way: NOT a MediaPipe wrapper (grep proves the C++ core has zero mediapipe dependency - it's her 4200-line layer), a real on-device/zero-server wedge, conditionally investable as a MOTOR + audience play (not as the free directory). the nihilist marked the classifier and the IK honesty note "not-real" attacks - i surprised him. most of the rest were HONESTY DEBTS: the code got honest but the outward-facing text still quoted old numbers. paid them:
+- linkedin essay still claimed IK "ROM 15-185/25-205" the code no longer uses; rewrote it to say what the code does (heuristic lower-bound clamp, upper limits removed as false security).
+- cpp + bench comments still printed the old kalman default 40/4e-4; the swept winner and real default is 10/2e-4. fixed both.
+- 'in position' hold still showed a 76-100 number derived from band-centering - dressed-up quality for a form it can't see. now shows only a state ('in position' / 'find the position'), no fake number. real numeric quality stays for holds with real form rules.
+- lumbar warning added 'press' (highest Valsalva/axial-load) and dropped glute-bridge (low risk) - coverage matches real risk now.
+- deleted dead torsoShell() left by the net rewrite; updated mesh.js header to describe the net, and to state plainly the net is cosmetic - the depth is in the engine, the glow is over the same 33 landmarks.
+185 native tests, sw v44.

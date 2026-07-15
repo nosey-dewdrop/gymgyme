@@ -510,7 +510,7 @@ static int runKalmanSweep() {
                 q, r, jit, rms, lagMs, res.reps, (res.reps==8 && score<bestScore) ? "  <= best" : "");
     if (score < bestScore) { bestScore = score; bestQ = q; bestR = r; }
   }
-  std::printf("\nSECILEN: q=%g r=%g (varsayilan 40/4e-4). olcumle, el karariyla degil.\n", bestQ, bestR);
+  std::printf("\nSECILEN: q=%g r=%g (kod varsayilani 10/2e-4). olcumle, el karariyla degil.\n", bestQ, bestR);
   return 0;
 }
 
