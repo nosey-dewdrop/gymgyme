@@ -1,7 +1,7 @@
 // gymgyme service worker: ana ekrana kurulan personal trainer offline da açılsın.
 // kamera + motor zaten cihazda çalışıyor; burada sadece dosyaları önbelleğe alıyoruz.
 // vendor/ ya da engine/ değişirse CACHE sürümünü artır — eski önbellek silinir.
-const CACHE = "gg-pwa-v65";  // v65: 720p camera + active pose model + rec=1 diag panel
+const CACHE = "gg-pwa-v66";  // v66: %60 accept gate — sub-threshold reps rejected (engine change)
 
 const CORE = [
   "coach.html",

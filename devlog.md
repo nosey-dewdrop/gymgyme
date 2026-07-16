@@ -400,3 +400,15 @@ Teknoloji/yapay zeka/CV üzerine reel fikirleri. Kanca + "şu sanılıyor ama as
 **EN (text-on-video):** "i studied my competitors expecting bad news. / the famous one is paid and basically dead. / the serious one fled to B2B. / 'free + on-device + measured accuracy' — that seat is empty. / my product wasn't the problem. my storefront was."
 
 **Format:** reel
+
+---
+
+## Reel — koçum artık kötü tekrarı saymıyor
+
+**Hook (ilk 2 sn):** "Uygulamam bugüne kadar berbat squat'ları da sayıyordu. Bugün saymayı bıraktı."
+
+**Anlatı (~45 sn):** Motorumda utanç verici bir boşluk vardı: tekrar sayacı ile form skoru birbirinden habersizdi. Yerlere kadar inmeyen, beli bükük bir squat bile "1" diye sayılıyordu — skor düşüktü ama sayaç dönmüştü. Gerçek bir koç böyle yapmaz; "o olmadı, tekrar" der. Bugün kapıyı ekledim: her tekrar bittiği anda önce puanlanıyor, 100 üzerinden eşiğin altında kaldıysa SAYILMIYOR. Motor bunu sessizce de yapmıyor — "that one didn't count, form 42, need 60+" diye söylüyor, çünkü sessiz sıfır bu projede yasak. Eşik hareket başına ayrı: plank'ın dürüstlüğü ile squat'ın dürüstlüğü aynı sayı değil. En zor kısım eski testlerdi: bir test aceleci tekrarın "yavaşla" uyarısını sınıyordu, kapı o tekrarı artık reddettiği için test kırıldı — testi silmedim, o testin motoruna eşik sıfır verdim çünkü onun işi yorumu sınamak, kapıyı değil. 13 yeni test, toplam 204, hepsi yeşil. Ders: kullanıcıya dürüst olmayan sayaç, motivasyon değil yalan üretir.
+
+**EN (text-on-video):** "my rep counter used to count garbage squats. / today it stopped. / every rep is scored first — under the bar, it doesn't count. / and the coach says why. / honesty per move: plank ≠ squat. / 204 tests green. / a counter that lies isn't motivation."
+
+**Format:** reel

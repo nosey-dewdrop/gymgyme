@@ -351,6 +351,7 @@ void Engine::reset() {
   bestHoldSec_ = 0; curHoldRunSec_ = 0;   // hold modu sıfırla
   reps_ = 0;
   halfReps_ = 0;
+  rejectedReps_ = 0;
   inExcursion_ = false;
   excursionMin_ = 1e9;
   fakeT_ = 0;
@@ -794,6 +795,7 @@ Reading Engine::update(const std::vector<Landmark>& p,
   r.phase = phaseTop_ ? Phase::Top : Phase::Bottom;
   r.reps = reps_;
   r.halfReps = halfReps_;
+  r.rejectedReps = rejectedReps_;
   r.lastRepScore = lastScore_;
   r.lastRepSeconds = lastRepSec_;
   r.avgRepScore = reps_ > 0 ? (int)std::lround(scoreSum_ / reps_) : -1;
@@ -1203,7 +1205,8 @@ Reading Engine::update(const std::vector<Landmark>& p,
       else { resting_ = true; restEndT_ = t + restSec_ * 1000.0; heldSec_ = 0; curHoldRunSec_ = 0; }
     }
     // hold modu rep state machine'ini ATLAR — okuma tazelenip döner.
-    r.reps = reps_; r.halfReps = halfReps_;
+    // (rejectedReps hold'da hep 0; alan tutarlılığı için yine de taşınır.)
+    r.reps = reps_; r.halfReps = halfReps_; r.rejectedReps = rejectedReps_;
     r.currentSet = currentSet_; r.repsInSet = repsInSet_;
     r.resting = resting_; r.restRemaining = resting_ ? std::max(0.0, (restEndT_ - t) / 1000.0) : 0.0;
     r.workoutComplete = workoutDone_;
@@ -1218,29 +1221,15 @@ Reading Engine::update(const std::vector<Landmark>& p,
       // sayma durdu: pencereyi sessizce kapat, puanlama yapma.
       inRep_ = false; repMinA_ = 1e9; violMask_ = 0;
     } else {
-    reps_++;
-    r.repTick = true;
-
-    // ── Aşama 13: set ilerlemesi. Hedefli planda tekrar bu setin hanesine
-    // yazılır; hedefe ulaşınca set biter (setTick), son set değilse dinlenme
-    // başlar, son setse antrenman tamamlanır. ──
-    if (targetReps_ > 0) {
-      repsInSet_++;
-      if (repsInSet_ >= targetReps_) {
-        r.setTick = true;
-        if (currentSet_ >= totalSets_) {
-          workoutDone_ = true;
-        } else {
-          resting_ = true;
-          restEndT_ = t + restSec_ * 1000.0;
-        }
-      }
-    }
-
-    // tekrar bitti → puanla. Üç bileşen: derinlik (yarısı), tempo, kontrol.
-    // Kontrol = iniş serbest düşüş olmasın (eksantrik faz çıkışa göre çok kısaysa
-    // ağırlığı bırakıyorsun demektir). Hepsi MoveSpec verisinden beslenir.
+    // ── tekrar penceresi üstte kapandı. ÖNCE puanla, SONRA %60 kapısıyla
+    // saymaya karar ver. reps_++ artık koşulsuz DEĞİL: dibe inen ama formu
+    // eşiğin altında kalan rep SAYILMAZ (rejectedReps_), koç "o saymadı" der.
+    // Not: inRep_ yoksa (pencere açılmadan üste dönüş) eskiden de skorlanmazdı;
+    // o durumda ne sayılır ne reddedilir — sadece faz güncellenir. ──
     if (inRep_) {
+      // tekrar bitti → puanla. Üç bileşen: derinlik (yarısı), tempo, kontrol.
+      // Kontrol = iniş serbest düşüş olmasın (eksantrik faz çıkışa göre çok kısaysa
+      // ağırlığı bırakıyorsun demektir). Hepsi MoveSpec verisinden beslenir.
       double durSec  = (t - repStartT_) / 1000.0;
       double descSec = (repMinT_ - repStartT_) / 1000.0;
       double ascSec  = (t - repMinT_) / 1000.0;
@@ -1249,42 +1238,77 @@ Reading Engine::update(const std::vector<Landmark>& p,
       if (durSec < spec_.goodRepSecMin)      tempoS = clamp01(durSec / spec_.goodRepSecMin);
       else if (durSec > spec_.goodRepSecMax) tempoS = clamp01(spec_.goodRepSecMax / durSec);
       double controlS = ascSec <= 0.05 ? 1.0 : clamp01(descSec / (0.4 * ascSec));
-      lastScore_ = (int)std::lround(100.0 * (0.5 * depthS + 0.3 * tempoS + 0.2 * controlS));
+      int score = (int)std::lround(100.0 * (0.5 * depthS + 0.3 * tempoS + 0.2 * controlS));
       // form ihlali puandan düşer: farklı kural başına 12 puan.
-      lastFormIssues_ = __builtin_popcount(violMask_);
-      lastScore_ = std::max(0, lastScore_ - 12 * lastFormIssues_);
+      int formIssues = __builtin_popcount(violMask_);
+      score = std::max(0, score - 12 * formIssues);
       violMask_ = 0;
-      // ── Faz 3 katman 1: tekrar yorumu. Koç sayıyı söylemez, CÜMLE kurar —
-      // öncelik sırası: en çok neyi düzeltmesi gerekiyorsa onu duyar. ──
-      if (depthS >= 0.92 && tempoS >= 0.9 && controlS >= 0.85 && lastFormIssues_ == 0)
-        r.repComment = "textbook - deep and controlled";
-      else if (lastFormIssues_ > 0)
-        r.repComment = "counted - but fix your form first";
-      else if (depthS < 0.75)
-        r.repComment = "counted - sink deeper next time";
-      else if (durSec < spec_.goodRepSecMin)
-        r.repComment = "a bit rushed - slow it down";
-      else if (controlS < 0.6)
-        r.repComment = "you dropped into it - own the way down";
-      else if (durSec > spec_.goodRepSecMax)
-        r.repComment = "you stalled in there - keep it flowing";
-      else if (lastScore_ >= 85)
-        r.repComment = "clean rep";
-      else
-        r.repComment = "solid - tighten it up";
+      lastScore_ = score;
+      lastFormIssues_ = formIssues;
       lastRepSec_ = durSec;
       // simetri: bu tekrarda görülen en büyük sol-sağ farkı sakla (rapor + ipucu).
       lastRepAsym_ = repMaxAsym_ > 0 ? (int)std::lround(repMaxAsym_) : -1;
-      if (lastRepAsym_ >= 0) { asymRepSum_ += lastRepAsym_; asymRepN_++; }   // seans ortalaması
-      // belirgin dengesizlik (>15°) form sorunundan sonra ama depth/tempo
-      // yorumlarından ÖNCE gelir: telafi, "biraz daha in"den önemli bir uyarı.
-      if (lastRepAsym_ > 15 && lastFormIssues_ == 0)
-        r.repComment = "counted - but one side is doing more work than the other";
-      scoreSum_ += lastScore_;
-      if (lastScore_ > bestScore_) bestScore_ = lastScore_;   // Aşama 14
-      if (lastFormIssues_ == 0) cleanReps_++;
       inRep_ = false;
       repMinA_ = 1e9;
+
+      // ── %60 KABUL KAPISI (Loop 03): skor eşiğin altındaysa rep SAYILMAZ. ──
+      if (score < spec_.acceptPct) {
+        rejectedReps_++;
+        r.rejectTick = true;
+        r.lastRejectReason = "form " + std::to_string(score) + " < " + std::to_string(spec_.acceptPct);
+        r.repComment = "that one didn't count - form " + std::to_string(score)
+                     + ", need " + std::to_string(spec_.acceptPct) + "+";
+        r.message = "that one didn't count - clean it up, form was " + std::to_string(score);
+        // reddedilen rep skora/ortalamaya/sete girmez; simetri sayacına da girmez.
+      } else {
+        // ── SAYILDI ──
+        reps_++;
+        r.repTick = true;
+        if (lastRepAsym_ >= 0) { asymRepSum_ += lastRepAsym_; asymRepN_++; }   // seans ortalaması
+
+        // ── Faz 3 katman 1: tekrar yorumu. Koç sayıyı söylemez, CÜMLE kurar —
+        // öncelik sırası: en çok neyi düzeltmesi gerekiyorsa onu duyar. ──
+        if (depthS >= 0.92 && tempoS >= 0.9 && controlS >= 0.85 && formIssues == 0)
+          r.repComment = "textbook - deep and controlled";
+        else if (formIssues > 0)
+          r.repComment = "counted - but fix your form first";
+        else if (depthS < 0.75)
+          r.repComment = "counted - sink deeper next time";
+        else if (durSec < spec_.goodRepSecMin)
+          r.repComment = "a bit rushed - slow it down";
+        else if (controlS < 0.6)
+          r.repComment = "you dropped into it - own the way down";
+        else if (durSec > spec_.goodRepSecMax)
+          r.repComment = "you stalled in there - keep it flowing";
+        else if (score >= 85)
+          r.repComment = "clean rep";
+        else
+          r.repComment = "solid - tighten it up";
+        // belirgin dengesizlik (>15°) form sorunundan sonra ama depth/tempo
+        // yorumlarından ÖNCE gelir: telafi, "biraz daha in"den önemli bir uyarı.
+        if (lastRepAsym_ > 15 && formIssues == 0)
+          r.repComment = "counted - but one side is doing more work than the other";
+
+        scoreSum_ += score;
+        if (score > bestScore_) bestScore_ = score;   // Aşama 14
+        if (formIssues == 0) cleanReps_++;
+
+        // ── Aşama 13: set ilerlemesi. Hedefli planda tekrar bu setin hanesine
+        // yazılır; hedefe ulaşınca set biter (setTick), son set değilse dinlenme
+        // başlar, son setse antrenman tamamlanır. (Reddedilen rep sete girmez.) ──
+        if (targetReps_ > 0) {
+          repsInSet_++;
+          if (repsInSet_ >= targetReps_) {
+            r.setTick = true;
+            if (currentSet_ >= totalSets_) {
+              workoutDone_ = true;
+            } else {
+              resting_ = true;
+              restEndT_ = t + restSec_ * 1000.0;
+            }
+          }
+        }
+      }
     }
     }  // ── countingPaused değilse ── (Aşama 13)
   }
@@ -1317,6 +1341,7 @@ Reading Engine::update(const std::vector<Landmark>& p,
 
   r.reps = reps_;
   r.halfReps = halfReps_;
+  r.rejectedReps = rejectedReps_;
   r.lastRepScore = lastScore_;
   r.lastRepSeconds = lastRepSec_;
   r.avgRepScore = reps_ > 0 ? (int)std::lround(scoreSum_ / reps_) : -1;

@@ -841,8 +841,12 @@ int main() {
   }
 
   // ── Faz 3 katman 1: tekrar yorumu — koç her tekrardan sonra cümle kurar ──
+  // (bu blok YORUM motorunu sınar, %60 kapısını değil: kapıyı açık tutuyoruz
+  // ki "rushed" gibi düşük skorlu rep reddedilmeden yorumunu üretsin — Loop 03.)
   {
-    Engine e(builtinMove("squat"));
+    MoveSpec commentSpec = builtinMove("squat");
+    commentSpec.acceptPct = 0;   // yorum testi kapıya takılmasın
+    Engine e(commentSpec);
     Reading r;
     double t = 0;
     for (int i = 0; i < 6; i++) r = e.update(pose(false), (t += 100));
@@ -1083,6 +1087,76 @@ int main() {
     Engine s(builtinMove("pushup"));
     Reading rs = s.update(pose(false));       // sadece bacak görünür: kadraj yetmez
     check(rs.message.find("arms") != std::string::npos, "pushup framing cue asks for the arms");
+  }
+
+  // ── Loop 03: %60 KABUL KAPISI — form eşiğinin altındaki rep sayılmaz ──
+  {
+    // (a) skor eşik ALTI → rep sayılmaz, rejectedReps artar.
+    // Kapı mekaniğini skor modelinden bağımsız denemek için eşiği 95'e çekiyoruz:
+    // kusursuz kontrollü bir squat bile bu eşiğin altında kalır → reddedilir.
+    MoveSpec hard = builtinMove("squat");
+    hard.acceptPct = 101;   // hiçbir rep 100'ü geçemez → kesin reddedilir
+    Engine e(hard);
+    Reading r;
+    double t = 0;
+    auto step = [&](const std::vector<Landmark>& p, double dtMs) { t += dtMs; return e.update(p, t); };
+    for (int i = 0; i < 6; i++) r = step(pose(false), 100);
+    bool rejTicked = false;
+    std::string reason, comment;   // reddetme neden/yorum SADECE tık karesinde dolu (transient)
+    for (int i = 0; i < 10; i++) r = step(pose(true), 100);    // dibe iner (gerçek rep)
+    for (int i = 0; i < 12; i++) {
+      r = step(pose(false), 100);
+      if (r.rejectTick) { rejTicked = true; reason = r.lastRejectReason; comment = r.repComment; }
+    }
+    check(r.reps == 0, "gate: sub-threshold rep is NOT counted");
+    check(r.rejectedReps == 1, "gate: rejectedReps increments on a sub-threshold rep");
+    check(rejTicked, "gate: rejectTick fires on the rejecting frame");
+    check(reason.find("< 101") != std::string::npos, "gate: reject reason names the threshold");
+    check(comment.find("didn't count") != std::string::npos, "gate: coach says it didn't count");
+    check(r.halfReps == 0, "gate: a gated rep is not mislabeled as a half rep");
+    check(r.avgRepScore == -1, "gate: rejected rep does not enter the session average");
+
+    e.reset();
+    r = e.update(pose(false));
+    check(r.rejectedReps == 0, "gate: reset clears rejectedReps");
+  }
+  {
+    // (b) skor eşik ÜSTÜ → sayılır (default 60'lık kapı temiz repi geçirir).
+    Engine e(builtinMove("squat"));   // default acceptPct = 60
+    Reading r;
+    double t = 0;
+    auto step = [&](const std::vector<Landmark>& p, double dtMs) { t += dtMs; return e.update(p, t); };
+    for (int i = 0; i < 6; i++) r = step(pose(false), 100);
+    for (int i = 0; i < 10; i++) r = step(pose(true), 100);    // kontrollü iniş
+    for (int i = 0; i < 10; i++) r = step(pose(false), 100);   // kontrollü çıkış
+    check(r.reps == 1 && r.rejectedReps == 0, "gate: above-threshold clean rep IS counted");
+    check(r.lastRepScore >= 60, "gate: counted rep scored at or above the accept floor");
+  }
+  {
+    // (c) hareket başına acceptPct OVERRIDE çalışır: aynı rep, düşük eşikte
+    // sayılır, yüksek eşikte reddedilir. Aceleci/sığ bir rep kullanıyoruz.
+    auto rushRep = [](MoveSpec sp, Reading& out) {
+      Engine e(sp);
+      Reading r; double t = 0;
+      auto step = [&](const std::vector<Landmark>& p, double dtMs) { t += dtMs; return e.update(p, t); };
+      for (int i = 0; i < 6; i++) r = step(pose(false), 100);
+      for (int i = 0; i < 9; i++) r = step(pose(true), 20);    // ~0.36s aceleci iniş
+      for (int i = 0; i < 9; i++) r = step(pose(false), 20);   // aceleci çıkış
+      out = r;
+    };
+    // önce eşiksiz (0) ölç: gerçek skoru gör.
+    MoveSpec base = builtinMove("squat"); base.acceptPct = 0;
+    Reading rBase; rushRep(base, rBase);
+    check(rBase.reps == 1, "override: rushed rep counts when the gate is open (acceptPct 0)");
+    int rushScore = rBase.lastRepScore;
+    // aynı rep, eşik skorun 1 ÜSTÜNDE → reddedilmeli.
+    MoveSpec strict = builtinMove("squat"); strict.acceptPct = rushScore + 1;
+    Reading rStrict; rushRep(strict, rStrict);
+    check(rStrict.reps == 0 && rStrict.rejectedReps == 1, "override: higher per-move acceptPct rejects the same rep");
+    // aynı rep, eşik skorun ALTINDA → sayılmalı.
+    MoveSpec loose = builtinMove("squat"); loose.acceptPct = rushScore > 0 ? rushScore - 1 : 0;
+    Reading rLoose; rushRep(loose, rLoose);
+    check(rLoose.reps == 1 && rLoose.rejectedReps == 0, "override: lower per-move acceptPct accepts the same rep");
   }
 
   std::printf(failed ? "\n%d test FAILED\n" : "\nall tests passed\n", failed);

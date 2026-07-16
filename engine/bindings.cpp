@@ -28,6 +28,9 @@ struct JsReading {
   bool repTick;
   int halfReps;
   bool halfTick;
+  int rejectedReps;
+  bool rejectTick;
+  std::string lastRejectReason;
   int lastRepScore;
   double lastRepSeconds;
   int avgRepScore;
@@ -112,6 +115,9 @@ static JsReading toJs(const coach::Reading& r) {
   j.repTick = r.repTick;
   j.halfReps = r.halfReps;
   j.halfTick = r.halfTick;
+  j.rejectedReps = r.rejectedReps;
+  j.rejectTick = r.rejectTick;
+  j.lastRejectReason = r.lastRejectReason;
   j.lastRepScore = r.lastRepScore;
   j.lastRepSeconds = r.lastRepSeconds;
   j.avgRepScore = r.avgRepScore;
@@ -269,6 +275,9 @@ EMSCRIPTEN_BINDINGS(coach) {
       .field("repTick", &JsReading::repTick)
       .field("halfReps", &JsReading::halfReps)
       .field("halfTick", &JsReading::halfTick)
+      .field("rejectedReps", &JsReading::rejectedReps)
+      .field("rejectTick", &JsReading::rejectTick)
+      .field("lastRejectReason", &JsReading::lastRejectReason)
       .field("lastRepScore", &JsReading::lastRepScore)
       .field("lastRepSeconds", &JsReading::lastRepSeconds)
       .field("avgRepScore", &JsReading::avgRepScore)

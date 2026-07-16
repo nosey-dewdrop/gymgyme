@@ -90,6 +90,11 @@ struct MoveSpec {
   double adaptiveDrop = 0.0;    // üst duruştan dip eşiğine düşüş (derece)
   double goodRepSecMin = 1.2;   // bundan hızlı tekrar = momentum/sıçrama, tempo puanı düşer
   double goodRepSecMax = 8.0;   // bundan yavaşı da tam puan almaz (takılma/duraksama)
+  // ── %60 KABUL KAPISI (Loop 03). Dibe inen ama formu KÖTÜ rep sayılmasın. Bu
+  // FİLTRE DEĞİL (One Euro sinyali temizler); bu KABUL kararı: lastScore_ < acceptPct
+  // ise rep sayılmaz, rejectedReps_ artar, koç "o saymadı" der. Hareket başına
+  // ayarlanabilir (plank≠squat). Robot gibi %100 aranmaz — makul taban 60. ──
+  int acceptPct = 60;
   std::vector<FormRule> rules;  // form kuralları (Aşama 9) — hepsi veri
   std::string framingCue;       // kadraj yetersizken hareketin KENDİ cümlesi ("" = genel mesaj)
   // ── HOLD (izometrik) modu: plank, wall-sit, superman, hollow hold. Salınım
@@ -149,6 +154,11 @@ struct Reading {
   // ── Aşama 8: yarım tekrar ──
   int halfReps = 0;          // dibe ulaşmadan geri dönülen "sayılmadı" inişler
   bool halfTick = false;     // SADECE yarımın yakalandığı karede true
+  // ── %60 KABUL KAPISI (Loop 03): dibe indi ama form eşiğin altında → SAYILMADI.
+  // halfReps'ten AYRI kavram (o dipsiz iniş; bu dipli ama kötü rep). ──
+  int rejectedReps = 0;      // form eşiğinin altında kaldığı için sayılmayan tekrar
+  bool rejectTick = false;   // SADECE bir rep form kapısında reddedildiği karede true
+  std::string lastRejectReason;  // "form 42 < 60" gibi kısa neden (dolu = reddedildi)
   // ── Kalite skoru: her tekrar aynı değil ──
   int lastRepScore = -1;     // son tekrarın puanı 0..100 (-1 = henüz tekrar yok)
   double lastRepSeconds = 0; // son tekrarın süresi
@@ -371,6 +381,7 @@ class Engine {
   double topLive_ = -1.0;
   int reps_ = 0;
   int halfReps_ = 0;
+  int rejectedReps_ = 0;       // Loop 03: form eşiği altında kalıp sayılmayan tekrar
   bool inExcursion_ = false;   // üst fazdayken eşiğin altına sarkan bir iniş sürüyor mu
   double excursionMin_ = 1e9;  // o inişte görülen en derin (en küçük) açı
   // kalite skoru durumu

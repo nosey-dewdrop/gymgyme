@@ -1121,6 +1121,7 @@ async function loadHistory() {
 // hareket uyuşmazlığı → reddedilen rep → ok. ──
 let diagEl = null;
 let diagPrevHalf = 0;              // halfReps artışını yakalamak için önceki değer
+let diagPrevReject = 0;            // rejectedReps artışını yakalamak için önceki değer (Loop 03)
 let diagStickyUntil = 0;           // "REP REJECTED" 3 sn yapışkan kalır
 let diagStickyMsg = "";
 function diag(r) {
@@ -1139,6 +1140,12 @@ function diag(r) {
     diagStickyUntil = now + 3000;
   }
   diagPrevHalf = r.halfReps || 0;
+  // Loop 03: form KAPISI reddi — dibe indi ama skor eşiğin altında kaldı.
+  if ((r.rejectedReps || 0) > diagPrevReject) {
+    diagStickyMsg = "REP REJECTED — " + (r.lastRejectReason || "form below accept threshold");
+    diagStickyUntil = now + 3000;
+  }
+  diagPrevReject = r.rejectedReps || 0;
   let why;
   if (!r.tracking) {
     why = "NO SKELETON — tracking lost (conf " + (r.confidence || 0).toFixed(2) + ")";
@@ -1222,9 +1229,25 @@ function render(r) {
       commentUntil = performance.now() + 4000;
     }
   }
+  // ── %60 KABUL KAPISI (Loop 03): dibe indi ama form eşiğin altında → SAYILMADI.
+  // koç aynı yorum kanalından konuşur ("that one didn't count - form N, need 60+"),
+  // yarım rep gibi titrer. halfReps'ten AYRI sayaç. ──
+  if (r.rejectTick) {
+    halfBuzz();
+    if (r.repComment && repCommentEl) {
+      repCommentEl.textContent = r.repComment;
+      commentUntil = performance.now() + 4000;
+    }
+  }
   if (repCommentEl && performance.now() > commentUntil) repCommentEl.textContent = "";
   if (r.halfTick) halfBuzz();
-  halfNoteEl.textContent = r.halfReps > 0 ? "not counted: " + r.halfReps + " (too shallow)" : "";
+  // sayılmayanları tek satırda göster: hem sığ inişler (half) hem form-altı reddler.
+  {
+    const notes = [];
+    if (r.halfReps > 0) notes.push(r.halfReps + " too shallow");
+    if (r.rejectedReps > 0) notes.push(r.rejectedReps + " form too low");
+    halfNoteEl.textContent = notes.length ? "not counted: " + notes.join(", ") : "";
+  }
 
   if (r.lastRepScore >= 0) {
     scoreLineEl.innerHTML = "";
