@@ -3,3 +3,7 @@
 .env*
 CLAUDE.md
 CLAUDE.context.md
+
+# benchmark loop 04: raw dataset skeletons/labels stay out of the repo
+# (script + mapping + report are tracked; downloaded data is not)
+engine/data/
