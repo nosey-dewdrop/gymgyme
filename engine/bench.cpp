@@ -514,8 +514,34 @@ static int runKalmanSweep() {
   return 0;
 }
 
+// ── makeclip: sentetik squat akışını (makeSynth, normal kamera) coach
+// kaydedicisinin .ggclip formatında dosyaya yazar. Amaç: gerçek kayıt gelmeden
+// clip yolunun uçtan uca çalıştığını kanıtlamak (dal B replay provası). ──
+static int runMakeClip(const char* path) {
+  auto clip = makeSynth(0.004, 0.010, 42);   // normal kamera, 8 gerçek tekrar
+  std::ofstream out(path);
+  if (!out) { std::fprintf(stderr, "yazamadim: %s\n", path); return 1; }
+  out << "ggclip 1 squat\n";
+  char buf[64];
+  for (const auto& f : clip) {
+    out << (long long)f.t;
+    for (const auto& p : f.screen) {
+      std::snprintf(buf, sizeof buf, " %.5f %.5f %.5f %.3f", p.x, p.y, p.z, p.visibility);
+      out << buf;
+    }
+    for (const auto& p : f.world) {
+      std::snprintf(buf, sizeof buf, " %.5f %.5f %.5f %.3f", p.x, p.y, p.z, p.visibility);
+      out << buf;
+    }
+    out << "\n";
+  }
+  std::printf("yazildi: %s (%zu kare, 8 gercek tekrar, normal kamera gurultusu)\n", path, clip.size());
+  return 0;
+}
+
 int main(int argc, char** argv) {
   if (argc >= 2 && std::strcmp(argv[1], "synth") == 0) return runSynth();
+  if (argc >= 3 && std::strcmp(argv[1], "makeclip") == 0) return runMakeClip(argv[2]);
   if (argc >= 2 && std::strcmp(argv[1], "kalmansweep") == 0) return runKalmanSweep();
   if (argc >= 2 && std::strcmp(argv[1], "synthcal") == 0) return runSynthCal();
   if (argc >= 2 && std::strcmp(argv[1], "sweep") == 0) return runSweep();
