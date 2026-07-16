@@ -196,3 +196,27 @@ Kendine düşman bir jüri kurmanın bütün değeri bu. Nihilist hiçbir şeyi 
 4. O yüzden yönü tamamen değiştirdim: müşteri gözü döngüsü. CS hocası, VC, PM gözüyle değil — "bu ürün işime yarıyor mu?" diyen sıradan insan gözüyle. Her turda ürünü gerçek bir kullanıcı gibi açıp kırılanı buldum: default hareket squat'tı ve oturan biri sayamıyordu (arm raise yaptım — oturan da sayabilsin), kilit 5 karede kayıyordu, takvim grid'i eksikti, debug paneli müşteriye CS ödevi gibi görünüyordu, fiş videoyu örtüyordu. Hiçbiri "motoru daha akıllı yap" değildi; hepsi "bu işe yarıyor mu" idi.
 
 5. Kalıcı ders: bir motorun doğruluğu, ürünün değeri değildir — sadece bir bileşenidir. Bir feature'ı bitirdim demeden önce, onu yabancı bir kullanıcı gibi açıp yürümek zorundasın. "191 test geçti" bir cümle; "açtım, kolumu kaldırdım, saydı, gülümsedim, tekrar açtım" başka bir cümle. Ürünü satan ikincisidir. Mühendis olarak en zor öğrendiğim şey buydu: kendi motoruma değil, müşterinin gözüne güvenmek.
+
+## Neyi düzelteceğimi bilmiyordum — sonra ürünü katmanlara ayırdım
+
+1. gymgyme'de garip bir tıkanma yaşadım: iş çoktu, enerji vardı, ama her oturumda "bugün neye çalışmalıyım?" sorusu beni yoruyordu. Motor mu, tasarım mı, landing mi, akış mı? Hepsi biraz bozuktu ve hepsi birbirine değiyordu. Bir şeyi düzeltmeye başlıyordum, başka bir şeyin kırığına takılıp oraya kayıyordum.
+
+2. Teşhis için ürünü katmanlara ayırdım — bir binanın katları gibi: L1 marka/landing, L2 ürün akışı, L3 koç deneyimi ekranı, L4 kamera motoru, L5 veri/backend, L6 topluluk dizini, L7 içerik ve operasyon. Her katmana tek tek baktım: ne içeriyor, durumu ne, somut sorunu ne.
+
+3. Harita çıkınca tıkanmanın sebebi tek bakışta göründü: motor katmanı üründen iki kat öndeydi. C++ motor 104+ testle, kemik kilidiyle, filtreleriyle ligin üstünde; ama bir yabancı siteye girince iki kimlikli bir sayfa görüyor, koça girince debug paneliyle karşılaşıyor. Ben haftalardır L4'te kazıyordum, kırılma L2 ve L3'teydi. "Motor 2000 satır büyüdü ama sabah ürün kötüydü" krizim de aynı şeydi — o zaman adını koyamamıştım, katman haritası adını koydu.
+
+4. Daha da önemlisi: iş planımdaki 8 loop'u katmanlara eşleyince, en kritik katmanın — ürün akışının — hiçbir loop'a bağlanmamış olduğunu gördüm. Kararlar verilmişti, ama hiçbir dosyaya yazılmamıştı; o yüzden her oturum "acaba nereden başlasam" ile açılıyordu. Loop'suz katman, görünmez katmandır. Ona bir loop yazdım; artık o iş bir dosyada, sırada, ölçütleriyle duruyor.
+
+5. Kalıcı ders: "her şey biraz bozuk" hissi, teşhis değildir — haritasızlıktır. Ürünü katmanlara ayırmak sorunları çoğaltmaz, adreslerini verir. Ve en tehlikeli sorun en gürültülü olan değil, hiçbir listeye yazılmamış olandır.
+
+## Sitem flop hissi veriyordu — bir marka yöneticisine baktırdım
+
+1. gymgyme'nin motoru güçlüydü ama siteye giren biri bunu hissetmiyordu; kendi kelimemle "flop hissi" vardı ve nedenini kendim göremiyordum — çünkü ben siteye her gün bakıyordum, yabancı gözümü çoktan kaybetmiştim.
+
+2. O yüzden işi dışarı verdim: bir incelemeyi marka yöneticisi gözüyle yaptırdım — müşteri gibi girsin, rakiplerle kıyaslasın, business ve satış açısından baksın. Rakip listesi netti: Onyx, Kemtai, BetterMe, Nike Training Club.
+
+3. Bulgular acıttı ama hepsi somuttu. En güçlü cümlem — "kameran tekrarlarını sayar, formunu 100 üzerinden puanlar, canlı düzeltir" — sayfada vardı ama başlık değildi; başlıkta metafor vardı, değer alt satırda küçüktü. Sitede motorun çalıştığını gösteren tek bir görüntü yoktu: kameralı bir ürünün kanıtı kameradır, ben onu hiç göstermiyordum. Ve en somut flop kaynağı: "(0)" sayaçları. "my moves (0)", "articles (0)" — sıfırlar ilk ekranda "terk edilmiş proje" diye bağırıyordu.
+
+4. Rakip kıyası ise beklediğimin tersini söyledi: elim zayıf değil güçlüydü. Bu kategorideki en bilinen ürün paralıydı ve artık ölü sayılır; en ciddi rakip B2B'ye kaçmış. "Ücretsiz + görüntü cihazdan çıkmaz + kanıtlı doğruluk" konumu pazarda boş duruyor. Sorun ürün değilmiş; vitrinin hiyerarşisi ve kanıt eksikliğiymiş.
+
+5. Ders: "flop duruyor" bir duygu, ama duygular teşhis edilebilir. Yabancı göz kaybolduysa ödünç al — ve ona sadece "beğendin mi" değil, "beş saniyede ne anladın, rakibin yanında nasıl duruyor, neden güvenesin" sorularını sordur. Cevaplar duyguyu iş listesine çevirir.

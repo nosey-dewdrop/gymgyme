@@ -364,3 +364,39 @@ Teknoloji/yapay zeka/CV üzerine reel fikirleri. Kanca + "şu sanılıyor ama as
 **EN (text-on-video):** "it started as a pretty link directory. / then a formula-based program generator. / no backend, mailto suggestions, localStorage. / but it still smelled like slop. / a list is something anyone can build. / a camera engine that counts your squat is not. / get light first. then go deep."
 
 **Format:** reel
+
+---
+
+## Reel — hangi katman bozuk bilmiyordum, haritasını çıkardım
+
+**Hook (ilk 2 sn):** "Projemde her şey biraz bozuktu ve nereden başlayacağımı bilmiyordum."
+
+**Anlatı (~45 sn):** gymgyme'de her oturum aynı soruyla açılıyordu: bugün neye çalışsam? Motor mu, tasarım mı, ana sayfa mı? Hepsi biraz kırıktı. Çözüm bir yönetim numarası değil, bir mühendislik hamlesi oldu: ürünü katmanlara ayırdım. Bir binanın katları gibi — en üstte marka ve landing, altında ürün akışı, koç ekranı, kamera motoru, veri, topluluk, operasyon. Yedi katman. Her birine tek tek baktım: ne var, ne bozuk. Harita çıkınca tek bakışta göründü: motor katmanı üründen iki kat öndeydi. Ben haftalardır motoru parlatıyordum ama müşteri o motora hiç ulaşamıyordu — çünkü akış katmanı, yani "siteye giren adam kameraya nasıl varır" katmanı, hiçbir iş listesinde yoktu. En tehlikeli sorun en gürültülü olan değil, hiçbir listeye yazılmamış olanmış.
+
+**EN (text-on-video):** "everything felt a little broken. / i didn't know where to start. / so i sliced the product into 7 layers. / the engine layer was 2 floors ahead of the product. / the flow layer wasn't on any list. / the most dangerous problem is the one never written down."
+
+**Format:** reel
+
+---
+
+## Reel — sitemdeki sıfırlar "terk edilmiş proje" diye bağırıyordu
+
+**Hook (ilk 2 sn):** "Sitemin flop hissetmesinin bir numaralı sebebi iki karakterdi: (0)."
+
+**Anlatı (~45 sn):** gymgyme flop hissi veriyordu ve nedenini göremiyordum, çünkü siteye her gün bakan insan yabancı gözünü kaybediyor. O yüzden incelemeyi marka yöneticisi gözüyle yaptırdım: müşteri gibi gir, beş saniyede ne anladığını söyle, rakiplerle kıyasla. Sonuç listesi acıttı. En güçlü cümlem — kameran sayar, formunu 100 üzerinden puanlar — sayfada vardı ama başlık değildi, süsün altında kaybolmuştu. Kameralı bir ürün yapıyorum ama sitede motorun çalıştığını gösteren tek görüntü yoktu. Ve en fenası: "my moves (0)", "articles (0)". O sıfırlar ilk ekranda "burası terk edilmiş" diye bağırıyormuş. Ders basit: yeni kullanıcıya asla sıfır gösterme — sıfır senin için başlangıç, onun için ölüm sinyali.
+
+**EN (text-on-video):** "my site felt like a flop. / reason #1 was two characters: (0). / 'my moves (0)'. 'articles (0)'. / zeros scream 'abandoned project'. / never show a new user a zero. / to you it's a start. to them it's a death signal."
+
+**Format:** reel
+
+---
+
+## Reel — rakipleri inceledim, korktuğumun tersi çıktı
+
+**Hook (ilk 2 sn):** "Rakiplerimi inceledim ve beklediğim kötü haber gelmedi."
+
+**Anlatı (~40 sn):** Kameralı form koçu kategorisinde kimler var diye ciddi bir tarama yaptırdım: Onyx, Kemtai, BetterMe, Nike Training Club. Korkum, benim yaptığımı birinin çoktan daha iyi yapmış olmasıydı. Tablo tersini söyledi. Kategorinin en bilineni paralıydı ve artık ölü sayılır. En ciddi teknik rakip bireysel kullanıcıyı bırakıp şirketlere satışa kaçmış. Büyük fitness app'leri ise kamera işine hiç girmemiş — onlar video prodüksiyonla satıyor. Yani "ücretsiz, görüntün cihazından hiç çıkmıyor, doğruluğu ölçülmüş" konumu pazarda boş duruyor. Sorun ürünüm değil vitrinimmiş: değer cümlesi gömülü, kanıt görünmüyor. Rakip analizi bazen seni yıkmaz — sana boş duran koltuğu gösterir.
+
+**EN (text-on-video):** "i studied my competitors expecting bad news. / the famous one is paid and basically dead. / the serious one fled to B2B. / 'free + on-device + measured accuracy' — that seat is empty. / my product wasn't the problem. my storefront was."
+
+**Format:** reel
