@@ -8,7 +8,7 @@ Bu klasör her sorunu **ayrı bir loop** olarak tutar. Kural:
 
 ## DAL KURALI (Damla, 16 Tem — proje parmak izi)
 Loop içinde beklenmedik bir SORUN çıkarsa ana loop şişirilmez: **dala ayrılınır**. Dal = kendi mini dosyası (`benchmark-XX-dal-konu.md`), tek konuya odaklı, kendi DONE ölçütü var, **dal kendi başına teslim eder**, sonra ana loop kaldığı yerden devam eder. Bu loop+dal düzeni bizim ÖZGÜN desenimiz — moat, kopyalanamaz proje parmak izi. Her dalın sonucu dev-log'a (patch notes / DX içeriği) düşer: "şu loop'ta şu sorun çıktı, dala ayrıldık, dal bunu teslim etti."
-Dallar AYRI AGENT'lara ayrı promptlarla verilir (16 Tem): loop koşarken sorun/iş parçası çıkınca ayrı test/loop/prompt yazılır, agent'lar kendi dallarını bitirir; loop'un agent'ları bitince pencere CLEAR, sıradaki işe temiz geçilir.
+Dallar AYRI AGENT'lara ayrı promptlarla verilir ve agent'lar OPUS 4.8 ile koşar (Damla, 16 Tem): loop koşarken sorun/iş parçası çıkınca ayrı test/loop/prompt yazılır, agent'lar kendi dallarını bitirir; loop'un agent'ları bitince pencere CLEAR, sıradaki işe temiz geçilir.
 
 ## KAPANIŞ RİTÜELİ (her loop DONE olunca)
 1. Loop dosyası `STATUS: DONE`, README kutusu işaretle.
