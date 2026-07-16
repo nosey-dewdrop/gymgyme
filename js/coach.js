@@ -400,6 +400,7 @@ const wantMove = new URLSearchParams(location.search).get("move");
 if (wantMove && MOVES[wantMove]) { moveSel.value = wantMove; move = MOVES[wantMove]; }
 
 let poseLandmarker = null;
+let activePoseModel = "";      // hangi attempt tuttu: "full+seg" / "full" / "lite" — sessiz düşüş görünür olsun
 let motorMod = null;           // wasm modülü (_malloc / HEAPF32 için)
 let engine = null;             // C++ motor örneği
 let bufPtr = 0;                // heap'te ayrılmış landmark buffer'ı (ekran)
@@ -458,6 +459,7 @@ async function loadPose() {
     try {
       poseLandmarker = await makePose(vision, a.model, a.seg);
       segOn = a.seg;
+      activePoseModel = a.model + (a.seg ? "+seg" : "");
       break;
     } catch (e) {
       lastErr = e;
@@ -609,9 +611,11 @@ async function start() {
     summaryEl.hidden = true;                   // yeni seans, eski özet gitsin
     syncState = "none"; syncLineDiv = null;    // senkron satırı da sıfırdan
     setStatus("asking for the camera...");
-    // ön kamera, esnek çözünürlük — telefon dikey de verse motor kadraja uyar.
+    // ön kamera, esnek çözünürlük (ideal 720p, cihaz veremezse düşer) —
+    // telefon dikey de verse motor kadraja uyar. 640x480 iskeleti "roblox"
+    // yapıyordu; landmark hassasiyeti girdi çözünürlüğüyle birlikte artar.
     const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } }
+      video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } }
     });
     video.srcObject = stream;
     await video.play();
@@ -1111,7 +1115,54 @@ async function loadHistory() {
   histEl.hidden = false;
 }
 
+// ── ?rec=1 TEŞHİS PANELİ: "neden saymıyor" sorusunun insan-dili cevabı, her
+// karede. Normal kullanıcı ASLA görmez (recOn kapalıysa fonksiyon boş döner,
+// panel DOM'a hiç eklenmez). Öncelik sırası: iskelet yok → kadraj → güven →
+// hareket uyuşmazlığı → reddedilen rep → ok. ──
+let diagEl = null;
+let diagPrevHalf = 0;              // halfReps artışını yakalamak için önceki değer
+let diagStickyUntil = 0;           // "REP REJECTED" 3 sn yapışkan kalır
+let diagStickyMsg = "";
+function diag(r) {
+  if (!recOn) return;
+  if (!diagEl) {
+    diagEl = document.createElement("div");
+    diagEl.style.cssText =
+      "position:fixed;left:8px;bottom:8px;z-index:9999;pointer-events:none;" +
+      "font:bold 11px Arial;white-space:pre-line;max-width:340px;" +
+      "background:rgba(51,0,14,.85);color:#FFDCE9;border-radius:8px;padding:6px 9px;";
+    document.body.appendChild(diagEl);
+  }
+  const now = performance.now();
+  if (r.halfReps > diagPrevHalf) {
+    diagStickyMsg = "REP REJECTED — descent too shallow (depth " + (r.depth || 0).toFixed(2) + ")";
+    diagStickyUntil = now + 3000;
+  }
+  diagPrevHalf = r.halfReps || 0;
+  let why;
+  if (!r.tracking) {
+    why = "NO SKELETON — tracking lost (conf " + (r.confidence || 0).toFixed(2) + ")";
+  } else if (r.framing < 0.7) {
+    why = "FRAMING " + Math.round((r.framing || 0) * 100) + "% — body/legs out of frame, step back";
+  } else if (r.confidence < 0.5) {
+    why = "LOW CONFIDENCE " + (r.confidence || 0).toFixed(2) + " — skeleton unreliable" +
+      (activePoseModel.indexOf("lite") === 0 ? " (lite model!)" : "");
+  } else if (r.detectedMove && r.detectedMove !== moveSel.value && r.detectedConfidence > 0.72) {
+    why = "MOVE MISMATCH — engine sees '" + r.detectedMove + "' (" +
+      (r.detectedConfidence || 0).toFixed(2) + "), selected '" + moveSel.value + "' → silent zero risk";
+  } else if (now < diagStickyUntil) {
+    why = diagStickyMsg;
+  } else {
+    why = "ok — phase " + r.phase + " · depth " + (r.depth || 0).toFixed(2) +
+      " · conf " + (r.confidence || 0).toFixed(2);
+  }
+  diagEl.textContent =
+    "model " + (activePoseModel || "?") + " · " + video.videoWidth + "x" + video.videoHeight +
+    "\n" + why;
+}
+
 function render(r) {
+  diag(r);   // en başta: hold erken-return yolu da teşhis alsın
   renderPlan(r);
   if (switching) return;   // hareket-arası geri sayım yazısını bu karenin geri kalanı ezmesin
 

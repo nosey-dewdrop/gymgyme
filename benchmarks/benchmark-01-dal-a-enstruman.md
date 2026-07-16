@@ -1,6 +1,6 @@
 # benchmark-01 / dal A — teşhis enstrümanı + iskelet kalitesi
 
-STATUS: IN PROGRESS (agent'ta)
+STATUS: DONE (kod yerelde, commit yok — 16 Tem dal A agent). Yapılan: 720p ideal (coach.js ~617), activePoseModel (~403, ~462), diag(r) rec=1 paneli (~1118-1163, render başında çağrı ~1165), sw v65. esbuild ESM temiz.
 ANA LOOP: benchmark-01-algilama.md
 
 ## SORUN
