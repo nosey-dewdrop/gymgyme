@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>gymgyme — mock gymgyme-v3</title>
+<style>
+/* kendi dünyamız: styles.css + marquee.css tokenları birebir */
+:root{
+  --bg:#FFBDD4; --card:#ffffff; --tint:#FFE3EE; --tint-2:#FFD1E2;
+  --ink:#33000E; --ink-soft:#7A2647;
+  --cherry:#8E0038; --cherry-deep:#6E0030; --on-cherry:#FFDCE9;
+  --r:20px; --r-sm:12px;
+  --sh-1:0 2px 10px rgba(51,0,14,.10);
+  --sh-2:0 8px 22px rgba(51,0,14,.16);
+  --sh-btn:0 3px 12px rgba(142,0,56,.26);
+  --t:180ms cubic-bezier(.2,.7,.3,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
+
+/* üst bar — sitenin kendi topbar dili, sade */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 4vw}
+.brand{font-size:26px;font-weight:bold;color:var(--ink);text-decoration:none;letter-spacing:-.02em}
+.topbar .right{display:flex;gap:20px;align-items:center}
+.topbar .right a{color:var(--cherry);font-weight:bold;text-decoration:none;font-size:14px}
+.topbar .right a:hover{text-decoration:underline;text-underline-offset:4px}
+.herobtn,.herobtn:visited{display:inline-block;background:var(--cherry);color:var(--on-cherry);font-weight:bold;font-size:15px;
+  border-radius:var(--r-sm);padding:12px 22px;text-decoration:none;box-shadow:var(--sh-btn);
+  transition:transform var(--t),background var(--t),box-shadow var(--t)}
+.herobtn:hover{background:var(--cherry-deep);transform:translateY(-1px);box-shadow:0 8px 22px rgba(142,0,56,.34)}
+.herobtn.small{font-size:13px;padding:9px 16px}
+
+/* tabela: vişne pano + tente + ampuller (marquee.css birebir) */
+.marquee{background:var(--cherry);color:var(--on-cherry);padding:52px 4vw 50px;position:relative;overflow:hidden;
+  box-shadow:0 18px 32px rgba(51,0,14,.28),0 4px 8px rgba(51,0,14,.16)}
+.awning{position:absolute;top:0;left:0;right:0;display:flex;justify-content:center;pointer-events:none;overflow:hidden}
+.awning i{flex:none;width:30px;height:14px;border-radius:0 0 15px 15px;background:var(--on-cherry);opacity:.95}
+.awning i:nth-child(even){background:var(--tint-2)}
+.awning i:nth-child(4n){background:var(--bg)}
+.bulbs{position:absolute;left:10px;right:10px;display:flex;justify-content:space-between;pointer-events:none}
+.bulbs.b-top{top:22px}.bulbs.b-bot{bottom:8px}
+.bulbs i{width:8px;height:8px;border-radius:50%;background:var(--on-cherry);opacity:.35}
+.bulbs i:nth-child(odd){animation:ggblink 1.2s steps(1) infinite}
+.bulbs i:nth-child(even){animation:ggblink 1.2s steps(1) .6s infinite}
+@keyframes ggblink{0%,49%{opacity:.9}50%,100%{opacity:.25}}
+.tw{position:absolute;color:var(--on-cherry);opacity:.35;font-size:13px;pointer-events:none;animation:ggtwk 3.2s ease-in-out infinite}
+.tw:nth-of-type(2){animation-delay:.9s}.tw:nth-of-type(3){animation-delay:1.7s}.tw:nth-of-type(4){animation-delay:2.4s}
+@keyframes ggtwk{0%,100%{opacity:.18;transform:scale(.9)}50%{opacity:.6;transform:scale(1.15)}}
+
+.marquee .now{font-size:11px;font-weight:bold;letter-spacing:.16em;opacity:.8}
+.marquee h1{font-size:clamp(30px,4.4vw,56px);letter-spacing:-.02em;line-height:1.04;margin:8px 0 0;color:var(--on-cherry);max-width:20ch}
+.value-line{font-size:clamp(15px,1.7vw,19px);line-height:1.45;max-width:44ch;margin:14px 0 0;font-weight:bold}
+.mrow{display:flex;gap:5vw;align-items:center;flex-wrap:wrap;margin-top:8px}
+.mcol{flex:1 1 440px}
+.marquee .herobtn{background:var(--on-cherry);color:var(--cherry);margin-top:20px}
+.marquee .herobtn:hover{background:#fff}
+.quiet{color:var(--on-cherry);opacity:.85;font-size:13px;font-weight:bold;text-decoration:none;margin-left:16px}
+.quiet:hover{opacity:1;text-decoration:underline;text-underline-offset:4px}
+
+/* bilet koçanı (stub, birebir) */
+.stub{display:inline-flex;align-items:center;gap:10px;margin:22px 0 0;background:var(--on-cherry);color:var(--cherry);
+  font-size:11px;font-weight:bold;letter-spacing:.1em;padding:10px 14px;transform:rotate(-2deg);position:relative;
+  box-shadow:0 6px 12px rgba(51,0,14,.3)}
+.stub::before,.stub::after{content:"";position:absolute;top:50%;width:14px;height:14px;border-radius:50%;background:var(--cherry);transform:translateY(-50%)}
+.stub::before{left:-7px}.stub::after{right:-7px}
+.stub i{font-style:normal;border-left:2px dashed var(--cherry);padding-left:10px;font-weight:normal;letter-spacing:0}
+
+/* koçun sesi — kadro fotoğrafı yerine konuşan koç (insan figürü yok, kelimeler konuşur) */
+.voice{flex:0 1 420px;margin-left:auto;background:var(--on-cherry);color:var(--cherry);padding:22px 22px 18px;
+  transform:rotate(1.5deg);box-shadow:0 10px 18px rgba(51,0,14,.35),0 2px 5px rgba(51,0,14,.22);position:relative}
+.voice .vlbl{font-size:10px;font-weight:bold;letter-spacing:.14em;color:var(--cherry);opacity:.8}
+.voice .line{background:#fff;border-radius:10px;padding:9px 13px;font-weight:bold;font-size:14.5px;margin-top:10px;width:fit-content;max-width:100%;box-shadow:var(--sh-1);color:var(--ink)}
+.voice .line.count{background:var(--cherry);color:var(--on-cherry)}
+.voice .vmeta{display:flex;justify-content:space-between;align-items:baseline;margin-top:16px;font-weight:bold}
+.voice .vmeta .rep{font-size:30px}
+.voice .vmeta .rep small{font-size:10px;letter-spacing:.1em;margin-left:4px;color:var(--ink-soft)}
+.voice .vmeta .form em{font-style:normal;font-size:18px}
+.stamp{position:absolute;right:-20px;top:-26px;z-index:5;width:88px;height:88px;border:3px solid var(--on-cherry);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;text-align:center;font-size:9px;font-weight:bold;letter-spacing:.08em;
+  color:var(--on-cherry);transform:rotate(12deg);padding:10px;
+  box-shadow:0 0 0 2px var(--cherry),inset 0 0 0 2px var(--cherry),0 0 0 5px var(--on-cherry) inset;opacity:.95;pointer-events:none}
+
+/* açık şerit: qa-band dili */
+.tintband{background:var(--tint);padding:26px 4vw 30px}
+.lbl{font-size:11px;font-weight:bold;letter-spacing:.13em;color:var(--cherry);margin:0 0 14px}
+
+/* koç ne yapar: beyaz kartlar, sitenin kart dili, sağa-sola ritim */
+.does{display:flex;flex-direction:column;gap:10px;max-width:860px}
+.does .row{background:var(--card);border-radius:var(--r-sm);box-shadow:var(--sh-1);padding:16px 20px;font-weight:bold;font-size:15.5px;
+  display:flex;justify-content:space-between;align-items:baseline;gap:16px;transition:transform var(--t),box-shadow var(--t)}
+.does .row:hover{transform:translateY(-2px);box-shadow:var(--sh-2)}
+.does .row small{font-weight:normal;color:var(--ink-soft);font-size:12.5px;text-align:right}
+.does .row:nth-child(even){margin-left:46px}
+.does .row:nth-child(odd){margin-right:46px}
+
+/* sayılar: pembe dünyada vişne dev rakamlar */
+.numbers{padding:48px 4vw 54px;display:flex;gap:6vw;flex-wrap:wrap;align-items:flex-start}
+.numbers .head{flex:0 1 300px}
+.numbers h2{font-size:clamp(24px,3vw,36px);letter-spacing:-.02em;line-height:1.1}
+.numbers .head p{color:var(--ink-soft);font-size:14px;margin-top:10px;font-weight:bold;max-width:28ch}
+.numstack{flex:1 1 480px;display:flex;flex-direction:column;gap:30px}
+.num{display:flex;gap:26px;align-items:center}
+.num b{font-size:76px;line-height:1;color:var(--cherry);letter-spacing:-.03em;min-width:150px}
+.num p{font-weight:bold;font-size:15.5px;max-width:38ch}
+.num small{display:block;font-weight:normal;color:var(--ink-soft);font-size:12.5px;margin-top:3px}
+.num:nth-child(2){margin-left:52px}
+
+/* bu akşamki program: alt tabela + beyaz satırlar */
+.sub-sign{background:var(--cherry);color:var(--on-cherry);padding:34px 4vw 32px;position:relative;overflow:hidden;
+  box-shadow:0 18px 32px rgba(51,0,14,.28),0 4px 8px rgba(51,0,14,.16)}
+.sub-sign .now{font-size:11px;font-weight:bold;letter-spacing:.16em;opacity:.8}
+.sub-sign h2{font-size:clamp(24px,3.4vw,42px);letter-spacing:-.02em;line-height:1.05;margin:6px 0 0}
+.sub-sign p{font-size:14px;max-width:56ch;opacity:.95;margin:8px 0 0;font-weight:bold}
+.prog{padding:26px 4vw 34px;background:var(--tint)}
+.prog .filters{margin-bottom:16px}
+.prog .filters button{font:bold 12.5px Arial;background:var(--card);color:var(--cherry);border:none;border-radius:9px;
+  padding:8px 13px;margin:0 8px 8px 0;cursor:pointer;box-shadow:var(--sh-1);transition:transform var(--t)}
+.prog .filters button:hover{transform:translateY(-1px)}
+.prog .filters button.on{background:var(--cherry);color:var(--on-cherry)}
+.prog .mv{background:var(--card);border-radius:var(--r-sm);box-shadow:var(--sh-1);padding:15px 20px;font-weight:bold;font-size:15px;
+  display:flex;justify-content:space-between;align-items:baseline;max-width:760px;margin-bottom:10px;cursor:pointer;
+  transition:transform var(--t),box-shadow var(--t)}
+.prog .mv:hover{transform:translateX(6px);box-shadow:var(--sh-2)}
+.prog .mv small{font-weight:normal;color:var(--ink-soft);font-size:12px}
+.prog .mv em{font-style:normal;color:var(--cherry);font-size:12px;font-weight:bold}
+.prog .mv:nth-child(even){margin-left:40px}
+
+/* tezgahtan: patch notes köşesi, bilet estetiğiyle */
+.bench{padding:46px 4vw 54px;display:flex;gap:6vw;flex-wrap:wrap}
+.bench .head{flex:0 1 300px}
+.bench h2{font-size:clamp(24px,3vw,36px);letter-spacing:-.02em}
+.bench .head p{color:var(--ink-soft);font-size:14px;margin-top:10px;font-weight:bold;max-width:28ch}
+.notes{flex:1 1 480px;display:flex;flex-direction:column;gap:14px}
+.note{background:var(--card);border-radius:var(--r-sm);box-shadow:var(--sh-1);padding:20px 22px;max-width:560px}
+.note:nth-child(even){margin-left:52px}
+.note .date{font-size:10.5px;font-weight:bold;letter-spacing:.13em;color:var(--cherry)}
+.note b{display:block;font-size:16.5px;margin:6px 0 4px;letter-spacing:-.01em}
+.note p{color:var(--ink-soft);font-size:13.5px}
+
+/* kapanış tabelası */
+.finale{background:var(--cherry);color:var(--on-cherry);padding:64px 4vw;position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;
+  box-shadow:0 -14px 28px rgba(51,0,14,.18)}
+.finale h2{font-size:clamp(26px,3.6vw,46px);letter-spacing:-.02em;line-height:1.05;max-width:20ch}
+.finale .herobtn{background:var(--on-cherry);color:var(--cherry);font-size:17px;padding:16px 30px}
+.finale .herobtn:hover{background:#fff}
+
+/* sss: qa-band kolonları */
+.qa-grid{columns:3;column-gap:34px;max-width:1100px}
+.qa-grid .q{break-inside:avoid;padding:8px 0;border-bottom:1px solid var(--tint-2);font-size:13px;line-height:1.55}
+.qa-grid .q b{display:block;color:var(--cherry);font-size:14px;margin-bottom:2px}
+
+.footstrip{display:flex;gap:4vw;align-items:baseline;flex-wrap:wrap;padding:20px 4vw 26px;font-size:13px;color:var(--ink-soft)}
+.footstrip .legal{margin-left:auto;font-size:12px}
+.footstrip a{color:var(--cherry);font-weight:bold;text-decoration:none}
+.vtag{position:fixed;bottom:10px;right:12px;font-size:10px;background:var(--ink);color:#fff;padding:4px 10px;border-radius:999px;opacity:.8;z-index:9}
+
+@media(max-width:900px){
+  .qa-grid{columns:1}
+  .voice{margin:26px 0 0}
+  .does .row:nth-child(even){margin-left:0}
+  .does .row:nth-child(odd){margin-right:0}
+  .num:nth-child(2){margin-left:0}
+  .prog .mv:nth-child(even){margin-left:0}
+  .note:nth-child(even){margin-left:0}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="brand" href="#">gymgyme</a>
+  <div class="right">
+    <a href="#">log in</a>
+    <a class="herobtn small" href="#">open the camera</a>
+  </div>
+</div>
+
+<div class="marquee">
+  <div class="awning">
+    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+  </div>
+  <div class="bulbs b-top"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <span class="tw" style="top:34%;left:6%">✦</span>
+  <span class="tw" style="top:22%;right:9%">✦</span>
+  <span class="tw" style="bottom:26%;left:40%">✦</span>
+  <span class="tw" style="bottom:18%;right:24%">✦</span>
+
+  <div class="mrow">
+    <div class="mcol">
+      <div class="now">NOW SHOWING</div>
+      <h1>personal trainer, starring you — every rep counted, live!</h1>
+      <p class="value-line">your camera counts your reps, scores your form out of 100 and corrects it while you move. free, and nothing ever leaves your device.</p>
+      <a class="herobtn" href="#">open the camera</a>
+      <a class="quiet" href="#">browse 386 home moves</a>
+      <br>
+      <span class="stub">ADMIT ONE <i>free forever · no equipment</i></span>
+    </div>
+
+    <div class="voice">
+      <div class="stamp">COUNTED<br>LIVE</div>
+      <div class="vlbl">YOUR TRAINER, LIVE</div>
+      <div class="line">in position? let's go!</div>
+      <div class="line">good depth. that's 6!</div>
+      <div class="line">chest up a little… there.</div>
+      <div class="line count">7 — that one counted.</div>
+      <div class="vmeta">
+        <span class="rep">7<small>REPS</small></span>
+        <span class="form">form <em>84</em>/100</span>
+      </div>
+    </div>
+  </div>
+  <div class="bulbs b-bot"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+</div>
+
+<div class="tintband">
+  <p class="lbl">WHAT SHE DOES</p>
+  <div class="does">
+    <div class="row">counts every rep — no freebies! <small>sloppy reps don't count</small></div>
+    <div class="row">scores your form out of 100 <small>every single rep</small></div>
+    <div class="row">corrects you mid-move <small>"chest up" — before the next rep, not after</small></div>
+    <div class="row">learns your body in seconds <small>and never coaches a stranger</small></div>
+    <div class="row">never uploads a single frame <small>the camera stays yours</small></div>
+  </div>
+</div>
+
+<div class="numbers">
+  <div class="head">
+    <h2>built to be trusted</h2>
+    <p>she earns your reps with rules, not promises.</p>
+  </div>
+  <div class="numstack">
+    <div class="num"><b>100</b><p>every rep is scored out of 100 — you earn your reps!<small>form gate, per move</small></p></div>
+    <div class="num"><b>386</b><p>home moves in the library, from squats to holds.<small>no equipment needed</small></p></div>
+    <div class="num"><b>30s</b><p>from opening the page to your first counted rep.<small>no signup required to try</small></p></div>
+  </div>
+</div>
+
+<div class="sub-sign">
+  <div class="now">TONIGHT'S PROGRAMME</div>
+  <h2>pick a move — she takes it from there</h2>
+  <p>every camera-coached move is counted and scored. the rest are honest references, clearly marked.</p>
+</div>
+<div class="prog">
+  <div class="filters">
+    <button class="on">featured</button><button>legs</button><button>core</button><button>arms</button><button>holds</button>
+  </div>
+  <div class="mv">squat <span><em>camera-coached</em> <small>· counted + scored</small></span></div>
+  <div class="mv">plank <span><em>hold</em> <small>· timed + form checked</small></span></div>
+  <div class="mv">lunge <span><em>camera-coached</em> <small>· counted + scored</small></span></div>
+  <div class="mv">arm raise <span><em>camera-coached</em> <small>· great first move!</small></span></div>
+  <div class="mv">wall sit <span><em>hold</em> <small>· timed + form checked</small></span></div>
+</div>
+
+<div class="bench">
+  <div class="head">
+    <h2>from the projection room</h2>
+    <p>we build this in the open — every week she gets a little sharper.</p>
+  </div>
+  <div class="notes">
+    <div class="note">
+      <div class="date">THIS WEEK</div>
+      <b>she stopped losing you</b>
+      <p>when someone walked behind you, the camera used to switch to them. now she locks onto your body and never coaches a stranger.</p>
+    </div>
+    <div class="note">
+      <div class="date">LAST WEEK</div>
+      <b>squats count deeper, fairer</b>
+      <p>the depth rule now adapts to your body instead of one fixed number — shorter or taller, your squat counts when it should.</p>
+    </div>
+  </div>
+</div>
+
+<div class="finale">
+  <h2>lights on. ready when you are!</h2>
+  <a class="herobtn" href="#">open the camera</a>
+</div>
+
+<div class="tintband">
+  <p class="lbl">QUESTIONS, ANSWERED</p>
+  <div class="qa-grid">
+    <div class="q"><b>does my video get uploaded?</b><span>no. everything runs on your device, in your browser — no photo or video ever leaves your phone. it's not a setting, it's how the engine is built.</span></div>
+    <div class="q"><b>do i need an account to try it?</b><span>no! open the camera and do one move. an account only matters when you want your progress saved.</span></div>
+    <div class="q"><b>what do i need at home?</b><span>a phone and about two steps of space. no equipment, no mat required.</span></div>
+    <div class="q"><b>is it really free?</b><span>yes. no paywall, no trial timer.</span></div>
+  </div>
+</div>
+
+<div class="footstrip">
+  <span>gymgyme · a noseydewdrop product</span>
+  <span class="legal"><a href="#">privacy</a> · <a href="#">terms</a></span>
+</div>
+
+<div class="vtag">mock gymgyme-v3</div>
+</body>
+</html>
