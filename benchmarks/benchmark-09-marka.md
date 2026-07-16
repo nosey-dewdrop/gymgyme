@@ -4,6 +4,12 @@ STATUS: TODO
 KATMAN: L1 (marka / landing)
 KAYNAK: 16 Tem marka yöneticisi agent incelemesi (rakipler: Onyx, Kemtai, BetterMe, NTC, Peloton). Rapor: reports/2026-07-16-gymgyme-katman-teshisi.md
 
+## KUZEY YILDIZI (Damla, 16 Tem — agent önerisinin ÜSTÜNE yazar)
+- His: **BetterMe / Headspace** — siteye giren insan "iyi bir yerdeyim" demeli. Sıcak, sakin, insana iyi gelen bir yer; teknik demo değil.
+- **Fiş-kanıt bandı REDDEDİLDİ** ("yine slop cs projesi gibi duracak"). Test sayısı / landmark sayısı gibi mühendislik kanıtları vitrine ÇIKMAZ; güven hissi sıcaklıktan ve üründen gelir, spec dökümünden değil.
+- Aşağıdaki ADIMLAR'dan 5 (fiş-kanıt bandı) İPTAL; kalanlar bu kuzey yıldızına göre yeniden yorumlanır.
+- İnşaata başlamadan ÖNCE: BetterMe + Headspace ekranlarından somut referans seti toplanır, tek ekran mockup Damla'ya sunulur, onaysız kod yazılmaz (mockup = kontrat).
+
 ## SORUN
 Ana sayfa 5 saniyede ürünü söylemiyor: H1 metafor ("✨ personal trainer 🎀 - starring you"), asıl değer cümlesi ("your camera counts your reps, scores your form out of 100...") alt satırda küçük. Motorun çalıştığını gösteren tek video/görüntü yok — kameralı ürünün kanıtı kameradır. "(0)" sayaçları ve "loading the good stuff…" ölü-site sinyali veriyor. Güven sinyalleri (92 test, 33 landmark, 0 upload) FAQ içine gömülü. "14 of these live today, and it is still in training" zayıflık diliyle yazılmış. Flop hissi bunların toplamı.
 

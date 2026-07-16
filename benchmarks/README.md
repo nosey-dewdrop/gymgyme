@@ -63,4 +63,11 @@ Tam teşhis: reports/2026-07-16-gymgyme-katman-teshisi.md
 - [ ] **benchmark-07-dataset.md** — Açık etiketli mocap setleri indir+dönüştür (REHAB24-6, EC3D, MM-Fit) → iskelet JSON, motor formatına. Golden = kapsama boşluğunu Damla doldurur.
 - [ ] **benchmark-08-bench.md** — Otonom doğruluk loop'u: bench.cpp seti geçirir → rep-doğruluk/form-precision/recall tablosu repoya. Parametre taraması regresyonla.
 
-**Not:** GRUP A önce biter (Damla kamerada premium his görür), sonra B, en son C. C'nin çıktısı A/B'yi doğrular ama A/B görünür değeri C'den önce teslim eder.
+**Not:** ESKİ sıra (A önce) 16 Tem'de Damla tarafından İPTAL edildi: "kamera hareketleri görmüyo, 14 hareket sınırı var, loop bunları kapatmaya yönelik tut."
+
+## GÜNCEL SIRA (16 Tem — YETENEK ÖNCE, CİLA SONRA)
+1. **benchmark-10-algilama.md** — kamera hareketi GERÇEKTEN görsün; red nedeni görünür, sessiz sıfır yok. BİR NUMARALI KUSUR.
+2. **benchmark-06-coverage.md** — 14 sınırı kalkar: tüm REP+HOLD hareketlerine kural (~200), stretch'ler dürüstçe "reference".
+3. **benchmark-04-gate.md** — %60 kabul kapısı.
+4. **benchmark-07-dataset.md** + **benchmark-08-bench.md** — doğruluk ölçülür, iddia edilmez.
+5. Sonra görünür cila: 03 declutter → 00 flow → 09 marka (kuzey yıldızı: BetterMe/Headspace hissi, fiş-kanıt bandı RED) → 05 skor rozeti. Loop 02 overlay yerelde bekler, Damla istemeden gösterilmez.
