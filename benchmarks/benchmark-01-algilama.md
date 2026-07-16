@@ -1,6 +1,8 @@
 # benchmark-01-algilama — kamera hareketi GERÇEKTEN görsün (L4)
 
-STATUS: TODO
+STATUS: IN PROGRESS — dal A + dal B DONE (16 Tem, opus agentlar), KALAN: Damla kaydı
+GÜNLÜK 16 Tem: dal A teslim — kamera 720p (roblox hassasiyeti şüpheli #1: 640x480 idi), aktif model artık görünür (full→lite sessiz düşüş yakalanır), ?rec=1 teşhis paneli her karede NEDEN söylüyor (iskelet yok / kadraj / güven / hareket uyuşmazlığı / sığ iniş). dal B teslim — .ggclip replay yolu uçtan uca kanıtlı: bench.sh makeclip sentetik squat üretir, bench.sh clip metrik tablosu basar (8/8 rep), 191 test yeşil.
+DAMLA'DAN İSTENEN (2 dakika): telefonda coach.html'i ?rec=1 ile aç, 5-6 squat + 5-6 arm raise yap (iki ayrı seans), inen .ggclip dosyalarını at. Ekranın sol altındaki koyu teşhis panelinde ne yazdığına bir bak — o satır muhtemelen teşhisin kendisi. Kayıt gelince: bench.sh clip ile kopuk halka bulunur, düzeltilir, replay testi olarak repoya girer.
 KATMAN: L4 (motor)
 KAYNAK: Damla, 16 Tem: "kamera hareketleri görmüyo, hareket algılamıyo". 15 Tem sabahı da aynı şikayet vardı (kol kalktı, saymadı). Bu ürünün BİR NUMARALI kusuru — bu kapanmadan hiçbir cila loop'u öne geçemez.
 
