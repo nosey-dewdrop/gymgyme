@@ -27,7 +27,7 @@ Yabancı 5 saniyede "kamera formumu puanlayan ücretsiz koç" desin, 60 saniyede
 - GÜNCELLEME (16 Tem akşam): "rengi/konsepti koru" şartı ESNEDİ — o şart premium hissi öldürüyorsa renk ve konsept DEĞİŞEBİLİR ("ısrar etmiyorum"). Premium his (BetterMe/Headspace "iyi bir yerdeyim") kazanır. Değişiklik yine somut referans + mockup onayıyla gider.
 - ASLA-YAPMA listesi MUTLAK, hiçbir esneme yok:
   - ortada istiflenen, iki yanı boş generic SaaS landing düzeni
-  - slop CS projesi / teknik demo hissi (hero'da spec dökümü, debug görünümü, ham iskelet)
+  - slop CS projesi hissi — TANIMI (Damla, 16 Tem): kötü dizilmiş, müşteri gözüyle kurgulanmamış web 1.0 sayfalar; ÖLÜ hissiyatı veren bu. (Spec dökümü/debug metreleri ayrı birer madde ama CS-ödevi hissinin özü YERLEŞİM ve müşteri gözü eksikliği)
   - mor, gradient, pill badge, emoji-bullet, renkli-tek-kelime, krem zemin
   - ölü boşluk; "(0)" sayaçları ve "loading…" ölü-site sinyalleri
   - H1/CTA'da dekoratif emoji yığını
