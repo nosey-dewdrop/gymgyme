@@ -32,12 +32,27 @@ MOVE_DB'de **386 hareket** var ama hepsi koçlanamaz. Üç sınıf:
 
 ---
 
+## KATMAN HARİTASI (16 Tem teşhisi — her loop bir katmana bağlıdır)
+Tam teşhis: reports/2026-07-16-gymgyme-katman-teshisi.md
+
+- **L1 marka/landing** — index.html, styles.css, marquee, FAQ. Sorun: H1 metafor değer değil, görsel kanıt (demo klip) yok, "(0)" sayaçları flop sinyali. → loop 01 (DONE), **loop 09**
+- **L2 ürün akışı/nav** — topbar, sayfa geçişleri, iki hareket kaynağı (seed.js dizini vs MOVE_DB). Sorun: dizin+trainer köprüsüz yarışıyor, "just try it" yolu yok. EN KRİTİK LOOP'SUZ KATMANDI. → **loop 00**
+- **L3 koç deneyimi UI** — coach.html, js/coach.js (1479 satır tek dosya), css/coach.css. Sorun: debug paneli müşteriye açık, fiş videoyu örtüyor. → loop 02 (IN PROGRESS), 03, 05
+- **L4 CV motoru doğruluk** — engine/ (16 dosya, coach_engine.cpp 1744 satır, 104+ test). En olgun katman AMA %60 kapısı yok, 386 vitrin / ~14 kurallı hareket, doğruluk iddiası ölçümsüz. → loop 04, 06, 07, 08
+- **L5 veri/backend** — Supabase, auth, sw.js, KVKK bandı. En sağlam katman. Açık: hold planı "reps" değil saniye olmalı; SW bump manuel disiplin. → loop'suz, karar bekliyor
+- **L6 dizin/topluluk** — seed.js, script.js, suggest. Sahipsiz; trainer'la konuşmuyor. Köprü işi loop 00'ın içinde; "dizin ürün mü arşiv mi" kararı Damla'da.
+- **L7 içerik/büyüme/operasyon** — devlog/linkedin ritüeli işliyor. Sorun: deploy disiplini (limit yakma) + canlıda sıfır ölçüm. → kural: loop başına ≤ 2 deploy
+
+**TEŞHİS ÖZETİ:** Motor (L4) üründen 2 katman önde. 15 Tem krizi ("motor 4700 satır büyüdü, ürün kötü") tam bu: iş L4'te yapılıyordu, kırılma L2/L3'teydi. "Hangi layerda çalışacağımı bilmiyorum" hissinin kaynağı L2'nin loop'suz kalmasıydı — artık loop 00 var. Sıradaki iş L4'ü büyütmek DEĞİL, Grup A'yı bitirmek.
+
 ## LOOP SIRASI
 
 ### GRUP A — MÜŞTERİ NEDEN BURADA (görünür değer, önce bu)
-- [x] **benchmark-01-value.md** — Ana sayfa + coach girişinde net değer cümlesi. "Adam neden burada, ne kullanıyor, ne elde edecek."
-- [ ] **benchmark-02-overlay.md** — Ham iskelet → yumuşak renk-kodlu eklem overlay (doğru=nane, düzelt=vişne). Premium his. (referans/birlikte iterasyon)
-- [ ] **benchmark-03-declutter.md** — Debug metreleri (açı/fps/confidence) müşteriden gizle (`?rec=1` arkası). Fiş videoyu örtmesin. CS-ödevi hissini kaldır.
+- [x] **benchmark-01-value.md** — Ana sayfa + coach girişinde net değer cümlesi. "Adam neden burada, ne kullanıyor, ne elde edecek." (L1)
+- [ ] **benchmark-02-overlay.md** — Ham iskelet → yumuşak renk-kodlu eklem overlay (doğru=nane, düzelt=vişne). Premium his. (referans/birlikte iterasyon) (L3)
+- [ ] **benchmark-03-declutter.md** — Debug metreleri (açı/fps/confidence) müşteriden gizle (`?rec=1` arkası). Fiş videoyu örtmesin. CS-ödevi hissini kaldır. (L3)
+- [ ] **benchmark-00-flow.md** — Ürün akışı: directory'yi moves'a birleştir, "just try it" hızlı kamera yolu, koçlanabilirden koça link. Damla'nın 15 Tem kararları #1+#6. (L2)
+- [ ] **benchmark-09-marka.md** — Premium marka/landing: H1 = değer (emojisiz), motor demo klibi marquee perdesi, fiş-kanıt bandı, sıfır avı, rakip yan-yana kıyas. 16 Tem marka agent'ı yazdı. (L1)
 
 ### GRUP B — SONUÇ GÜVENİLİR Mİ (skor + kapı)
 - [ ] **benchmark-04-gate.md** — %60 kabul kapısı: rep sadece accuracy ≥ eşik olunca sayılır. Eşik MoveSpec'te (hareket başına). Filtre ≠ eşik ayrımı korunur.
