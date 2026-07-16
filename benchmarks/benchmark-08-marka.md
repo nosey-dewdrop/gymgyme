@@ -21,12 +21,18 @@ Ana sayfa 5 saniyede ürünü söylemiyor: H1 metafor ("✨ personal trainer �
 - Wow demo = canlı rep sayma + form skoru overlay'i; marquee'nin "perdesi" gerçek motor kaydı oynatır ("now showing" gerçek gösterime dönüşür).
 
 ## HEDEF
-Yabancı 5 saniyede "kamera formumu puanlayan ücretsiz koç" desin, 60 saniyede ilk wow'u yaşasın. Vişne/fiş/marquee kimliği KORUNUR, premium kullanılır.
+Yabancı 5 saniyede "kamera formumu puanlayan ücretsiz koç" desin, 60 saniyede ilk wow'u yaşasın, ve "iyi bir yerdeyim" hissi alsın. Mevcut kimlik öğeleri (vişne/fiş/marquee) premium hisse hizmet ediyorsa kalır, etmiyorsa değişir — karar mockup turunda Damla'nın.
 
 ## TASARIM YASASI (Damla, 16 Tem — bu loop'ta KANUN)
-- Renkler ve dil DEĞİŞMEZ; değişen şey tasarımın premium hissetmesi.
-- ASLA generik olmayacak: sağı solu boş kalıp içeriğin ortada istiflendiği SaaS landing düzeni YASAK.
-- Zekice kurgulanmış layout'lar: asimetri, katmanlı yerleşim, marquee/fiş öğelerinin kompozisyonda gerçek rol aldığı düzen — tam genişlik akıllıca kullanılır.
+- GÜNCELLEME (16 Tem akşam): "rengi/konsepti koru" şartı ESNEDİ — o şart premium hissi öldürüyorsa renk ve konsept DEĞİŞEBİLİR ("ısrar etmiyorum"). Premium his (BetterMe/Headspace "iyi bir yerdeyim") kazanır. Değişiklik yine somut referans + mockup onayıyla gider.
+- ASLA-YAPMA listesi MUTLAK, hiçbir esneme yok:
+  - ortada istiflenen, iki yanı boş generic SaaS landing düzeni
+  - slop CS projesi / teknik demo hissi (hero'da spec dökümü, debug görünümü, ham iskelet)
+  - mor, gradient, pill badge, emoji-bullet, renkli-tek-kelime, krem zemin
+  - ölü boşluk; "(0)" sayaçları ve "loading…" ölü-site sinyalleri
+  - H1/CTA'da dekoratif emoji yığını
+  - zayıflık dili ("still in training" tonu)
+- Zekice kurgulanmış layout'lar: asimetri, katmanlı yerleşim, tam genişlik akıllıca kullanılır.
 - Kör iterasyon yasağı geçerli: 2-3 turdan sonra dur, layout eskizini/screenshot'ını Damla'ya göster, onayla ilerle.
 
 ## ADIMLAR
@@ -34,7 +40,7 @@ Yabancı 5 saniyede "kamera formumu puanlayan ücretsiz koç" desin, 60 saniyede
 2. Motor demo klibi: overlay'li 8-10 sn ekran kaydı (img/trailer.webm, <1.5MB, poster'lı muted loop) marquee perdesi olarak. Golden klip Damla'da — ondan kesilir; klip yoksa bu adım Damla klibi verene kadar bekler.
 3. CTA tekilleştirme: tek birincil "open the camera", altında sessiz "browse moves" linki.
 4. Sıfır avı: hiçbir sayaç "(0)" ya da "…" render etmez; >0 olana kadar gizlenir ya da gerçek seed sayısı basılır (topbar.js, script.js, seed.js).
-5. Fiş-kanıt bandı: "92 tests · 33 landmarks · 0 uploads · X measured moves" receipt tipografisiyle hero altına; FAQ detay kalır. Fiş = güven aracı.
+5. İPTAL (fiş-kanıt bandı RED) → yerine: patch notes / dev-log köşesi — oyunlardaki gibi "bu hafta neyi düzelttik" tonunda, sıcak dille, kendi köşesinde/sayfasında. Bağ kuran öğe, spec dökümü değil.
 6. Tipografi pası: marquee başlıklarına tiyatro-afişi display hissi (css/marquee.css), gövde değişmez.
 7. coach.html ilk ekran: playlist kurucusundan önce tek satır vaat + "try one move — 30 seconds" hızlı başlat (benchmark-07-flow ile ortak iş, hangisi önce gelirse yapar).
 8. moves.html reframe: "X camera-coached · new moves weekly · 386 total" — zayıflık dili çıkar, rozet diline döner.
@@ -45,6 +51,6 @@ Yabancı 5 saniyede "kamera formumu puanlayan ücretsiz koç" desin, 60 saniyede
 - Fold üstünde tek birincil CTA; H1'de emoji yok.
 - Sitede hiçbir yerde "(0)" görünmez.
 - Demo klip <1.5MB, <2 sn'de oynamaya başlar (klip Damla'dan geldiyse).
-- Fiş-kanıt bandı canlıda görünür.
+- Patch-notes/dev-log köşesi canlıda görünür ve sıcak dille yazılmış.
 - Yan yana rakip kıyasını Damla onaylar.
 - Push'lu + canlı URL'de hard refresh ile doğrulanmış, sürüm etiketi güncel.
