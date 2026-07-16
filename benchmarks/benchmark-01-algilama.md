@@ -1,4 +1,4 @@
-# benchmark-10-algilama — kamera hareketi GERÇEKTEN görsün (L4)
+# benchmark-01-algilama — kamera hareketi GERÇEKTEN görsün (L4)
 
 STATUS: TODO
 KATMAN: L4 (motor)

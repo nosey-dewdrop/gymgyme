@@ -35,39 +35,31 @@ MOVE_DB'de **386 hareket** var ama hepsi koçlanamaz. Üç sınıf:
 ## KATMAN HARİTASI (16 Tem teşhisi — her loop bir katmana bağlıdır)
 Tam teşhis: reports/2026-07-16-gymgyme-katman-teshisi.md
 
-- **L1 marka/landing** — index.html, styles.css, marquee, FAQ. Sorun: H1 metafor değer değil, görsel kanıt (demo klip) yok, "(0)" sayaçları flop sinyali. → loop 01 (DONE), **loop 09**
-- **L2 ürün akışı/nav** — topbar, sayfa geçişleri, iki hareket kaynağı (seed.js dizini vs MOVE_DB). Sorun: dizin+trainer köprüsüz yarışıyor, "just try it" yolu yok. EN KRİTİK LOOP'SUZ KATMANDI. → **loop 00**
-- **L3 koç deneyimi UI** — coach.html, js/coach.js (1479 satır tek dosya), css/coach.css. Sorun: debug paneli müşteriye açık, fiş videoyu örtüyor. → loop 02 (IN PROGRESS), 03, 05
-- **L4 CV motoru doğruluk** — engine/ (16 dosya, coach_engine.cpp 1744 satır, 104+ test). En olgun katman AMA %60 kapısı yok, 386 vitrin / ~14 kurallı hareket, doğruluk iddiası ölçümsüz. → loop 04, 06, 07, 08
+- **L1 marka/landing** — index.html, styles.css, marquee, FAQ. Sorun: H1 metafor değer değil, görsel kanıt (demo klip) yok, "(0)" sayaçları flop sinyali. → loop 00-value (DONE), **loop 08-marka**
+- **L2 ürün akışı/nav** — topbar, sayfa geçişleri, iki hareket kaynağı (seed.js dizini vs MOVE_DB). Sorun: dizin+trainer köprüsüz yarışıyor, "just try it" yolu yok. EN KRİTİK LOOP'SUZ KATMANDI. → **loop 07-flow**
+- **L3 koç deneyimi UI** — coach.html, js/coach.js (1479 satır tek dosya), css/coach.css. Sorun: debug paneli müşteriye açık, fiş videoyu örtüyor. → loop 06-declutter, 09-scorebadge, 10-overlay (kod yerelde hazır)
+- **L4 CV motoru doğruluk** — engine/ (16 dosya, coach_engine.cpp 1744 satır, 104+ test). En olgun katman AMA %60 kapısı yok, 386 vitrin / ~14 kurallı hareket, doğruluk iddiası ölçümsüz. → loop 01-algilama, 02-coverage, 03-gate, 04-dataset, 05-bench
 - **L5 veri/backend** — Supabase, auth, sw.js, KVKK bandı. En sağlam katman. Açık: hold planı "reps" değil saniye olmalı; SW bump manuel disiplin. → loop'suz, karar bekliyor
-- **L6 dizin/topluluk** — seed.js, script.js, suggest. Sahipsiz; trainer'la konuşmuyor. Köprü işi loop 00'ın içinde; "dizin ürün mü arşiv mi" kararı Damla'da.
+- **L6 dizin/topluluk** — seed.js, script.js, suggest. Sahipsiz; trainer'la konuşmuyor. Köprü işi loop 07-flow'un içinde; "dizin ürün mü arşiv mi" kararı Damla'da.
 - **L7 içerik/büyüme/operasyon** — devlog/linkedin ritüeli işliyor. Sorun: deploy disiplini (limit yakma) + canlıda sıfır ölçüm. → kural: loop başına ≤ 2 deploy
 
-**TEŞHİS ÖZETİ:** Motor (L4) üründen 2 katman önde. 15 Tem krizi ("motor 4700 satır büyüdü, ürün kötü") tam bu: iş L4'te yapılıyordu, kırılma L2/L3'teydi. "Hangi layerda çalışacağımı bilmiyorum" hissinin kaynağı L2'nin loop'suz kalmasıydı — artık loop 00 var. Sıradaki iş L4'ü büyütmek DEĞİL, Grup A'yı bitirmek.
+**TEŞHİS ÖZETİ:** Motor (L4) üründen 2 katman önde. 15 Tem krizi ("motor 4700 satır büyüdü, ürün kötü") tam bu: iş L4'te yapılıyordu, kırılma L2/L3'teydi. "Hangi layerda çalışacağımı bilmiyorum" hissinin kaynağı L2'nin loop'suz kalmasıydı — artık loop 07-flow var. 16 Tem güncellemesi: Damla kararıyla sıra YETENEK ÖNCE (motor gerçekten görsün + kapsama), cila sonra — çünkü kamera hareket algılamıyor, en temel kusur orada.
 
-## LOOP SIRASI
+## LOOP SIRASI (16 Tem YENİDEN NUMARALANDI — numara = çalışma sırası)
+Damla kuralı: "kamera hareketleri görmüyo, 14 hareket sınırı var, loop bunları kapatmaya yönelik tut." YETENEK ÖNCE, CİLA SONRA. Eski grup düzeni ve eski numaralar İPTAL.
 
-### GRUP A — MÜŞTERİ NEDEN BURADA (görünür değer, önce bu)
-- [x] **benchmark-01-value.md** — Ana sayfa + coach girişinde net değer cümlesi. "Adam neden burada, ne kullanıyor, ne elde edecek." (L1)
-- [ ] **benchmark-02-overlay.md** — Ham iskelet → yumuşak renk-kodlu eklem overlay (doğru=nane, düzelt=vişne). Premium his. (referans/birlikte iterasyon) (L3)
-- [ ] **benchmark-03-declutter.md** — Debug metreleri (açı/fps/confidence) müşteriden gizle (`?rec=1` arkası). Fiş videoyu örtmesin. CS-ödevi hissini kaldır. (L3)
-- [ ] **benchmark-00-flow.md** — Ürün akışı: directory'yi moves'a birleştir, "just try it" hızlı kamera yolu, koçlanabilirden koça link. Damla'nın 15 Tem kararları #1+#6. (L2)
-- [ ] **benchmark-09-marka.md** — Premium marka/landing: H1 = değer (emojisiz), motor demo klibi marquee perdesi, fiş-kanıt bandı, sıfır avı, rakip yan-yana kıyas. 16 Tem marka agent'ı yazdı. (L1)
+- [x] **benchmark-00-value.md** — DONE. Ana sayfa + coach girişinde net değer cümlesi. (L1)
 
-### GRUP B — SONUÇ GÜVENİLİR Mİ (skor + kapı)
-- [ ] **benchmark-04-gate.md** — %60 kabul kapısı: rep sadece accuracy ≥ eşik olunca sayılır. Eşik MoveSpec'te (hareket başına). Filtre ≠ eşik ayrımı korunur.
-- [ ] **benchmark-05-scorebadge.md** — 0-100 skorun müşteriye premium sunumu (rozet/count-up, ham sayı değil). "Sonuç" hissi.
+### FAZ 1 — MOTOR GERÇEK OLSUN
+- [ ] **benchmark-01-algilama.md** — BİR NUMARALI KUSUR: kamera hareketi GERÇEKTEN görsün. Kopuk halka kayıtla teşhis, red nedeni görünür, sessiz sıfır yok. (L4)
+- [ ] **benchmark-02-coverage.md** — 14 sınırı kalkar: tüm REP+HOLD hareketlerine MoveSpec kuralı (~200), stretch'ler dürüstçe "reference". (L4)
+- [ ] **benchmark-03-gate.md** — %60 kabul kapısı: rep sadece accuracy ≥ eşik olunca sayılır, eşik MoveSpec'te. Filtre ≠ eşik ayrımı korunur. (L4)
+- [ ] **benchmark-04-dataset.md** — Açık etiketli mocap setleri (REHAB24-6, EC3D, MM-Fit) indir + motor formatına dönüştür. Golden boşluğunu Damla doldurur. (L4)
+- [ ] **benchmark-05-bench.md** — Otonom doğruluk loop'u: bench.cpp seti geçirir, rep-doğruluk/precision/recall tablosu repoya, regresyonlu. (L4)
 
-### GRUP C — MOTOR GERÇEKTEN ÖĞRENSİN (görünmez sağlamlık)
-- [ ] **benchmark-06-coverage.md** — Tüm koçlanabilir REP+HOLD hareketlerine MoveSpec form kuralı (14 değil, hepsi). Stretch'ler "reference".
-- [ ] **benchmark-07-dataset.md** — Açık etiketli mocap setleri indir+dönüştür (REHAB24-6, EC3D, MM-Fit) → iskelet JSON, motor formatına. Golden = kapsama boşluğunu Damla doldurur.
-- [ ] **benchmark-08-bench.md** — Otonom doğruluk loop'u: bench.cpp seti geçirir → rep-doğruluk/form-precision/recall tablosu repoya. Parametre taraması regresyonla.
-
-**Not:** ESKİ sıra (A önce) 16 Tem'de Damla tarafından İPTAL edildi: "kamera hareketleri görmüyo, 14 hareket sınırı var, loop bunları kapatmaya yönelik tut."
-
-## GÜNCEL SIRA (16 Tem — YETENEK ÖNCE, CİLA SONRA)
-1. **benchmark-10-algilama.md** — kamera hareketi GERÇEKTEN görsün; red nedeni görünür, sessiz sıfır yok. BİR NUMARALI KUSUR.
-2. **benchmark-06-coverage.md** — 14 sınırı kalkar: tüm REP+HOLD hareketlerine kural (~200), stretch'ler dürüstçe "reference".
-3. **benchmark-04-gate.md** — %60 kabul kapısı.
-4. **benchmark-07-dataset.md** + **benchmark-08-bench.md** — doğruluk ölçülür, iddia edilmez.
-5. Sonra görünür cila: 03 declutter → 00 flow → 09 marka (kuzey yıldızı: BetterMe/Headspace hissi, fiş-kanıt bandı RED) → 05 skor rozeti. Loop 02 overlay yerelde bekler, Damla istemeden gösterilmez.
+### FAZ 2 — GÖRÜNÜR CİLA
+- [ ] **benchmark-06-declutter.md** — Debug metreleri müşteriden gizle (`?rec=1` arkası), fiş videoyu örtmesin, CS-ödevi hissi biter. (L3)
+- [ ] **benchmark-07-flow.md** — Directory moves'a birleşir, "just try it" hızlı kamera yolu, koçlanabilirden koça link. Damla'nın 15 Tem kararları #1+#6. (L2)
+- [ ] **benchmark-08-marka.md** — Premium landing. KUZEY YILDIZI: BetterMe/Headspace "iyi bir yerdeyim" hissi; H1 = değer (emojisiz), "(0)" sayaçları ölür, patch notes / dev-log köşesi (fiş-kanıt bandı RED), renk/dil değişmez, generic/ortada-istif YASAK, mockup onaysız kod yok. (L1)
+- [ ] **benchmark-09-scorebadge.md** — 0-100 skorun premium sunumu (rozet/count-up). "Sonuç" hissi. (L3)
+- [ ] **benchmark-10-overlay.md** — Vişne köşe-kutu + renk kod (iyi=nane, düzelt=vişne). Kod YERELDE hazır; Damla istemeden gösterilmez, sırası gelince canlıya. (L3)

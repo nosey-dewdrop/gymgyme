@@ -1,4 +1,4 @@
-# benchmark-09-marka — premium marka / landing (L1)
+# benchmark-08-marka — premium marka / landing (L1)
 
 STATUS: TODO
 KATMAN: L1 (marka / landing)
@@ -36,7 +36,7 @@ Yabancı 5 saniyede "kamera formumu puanlayan ücretsiz koç" desin, 60 saniyede
 4. Sıfır avı: hiçbir sayaç "(0)" ya da "…" render etmez; >0 olana kadar gizlenir ya da gerçek seed sayısı basılır (topbar.js, script.js, seed.js).
 5. Fiş-kanıt bandı: "92 tests · 33 landmarks · 0 uploads · X measured moves" receipt tipografisiyle hero altına; FAQ detay kalır. Fiş = güven aracı.
 6. Tipografi pası: marquee başlıklarına tiyatro-afişi display hissi (css/marquee.css), gövde değişmez.
-7. coach.html ilk ekran: playlist kurucusundan önce tek satır vaat + "try one move — 30 seconds" hızlı başlat (benchmark-00-flow ile ortak iş, hangisi önce gelirse yapar).
+7. coach.html ilk ekran: playlist kurucusundan önce tek satır vaat + "try one move — 30 seconds" hızlı başlat (benchmark-07-flow ile ortak iş, hangisi önce gelirse yapar).
 8. moves.html reframe: "X camera-coached · new moves weekly · 386 total" — zayıflık dili çıkar, rozet diline döner.
 9. Yan yana kıyas: yeni hero screenshot'u Onyx + Kemtai hero'larıyla tek görselde, Damla'ya sunulur.
 
