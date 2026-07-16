@@ -6,6 +6,9 @@ Bu klasör her sorunu **ayrı bir loop** olarak tutar. Kural:
 - Her loop tek konuya odaklıdır — context şişmez, iş tıkır tıkır ilerler.
 - Her loop `STATUS: TODO | IN PROGRESS | DONE` taşır. Yeni sekme açılınca önce bu README'ye bakılır, ilk `TODO/IN PROGRESS` olan loop'a girilir.
 
+## DAL KURALI (Damla, 16 Tem — proje parmak izi)
+Loop içinde beklenmedik bir SORUN çıkarsa ana loop şişirilmez: **dala ayrılınır**. Dal = kendi mini dosyası (`benchmark-XX-dal-konu.md`), tek konuya odaklı, kendi DONE ölçütü var, **dal kendi başına teslim eder**, sonra ana loop kaldığı yerden devam eder. Bu loop+dal düzeni bizim ÖZGÜN desenimiz — moat, kopyalanamaz proje parmak izi. Her dalın sonucu dev-log'a (patch notes / DX içeriği) düşer: "şu loop'ta şu sorun çıktı, dala ayrıldık, dal bunu teslim etti."
+
 ## KAPANIŞ RİTÜELİ (her loop DONE olunca)
 1. Loop dosyası `STATUS: DONE`, README kutusu işaretle.
 2. **devlog.md** — HER loop'ta (büyük/küçük fark etmez): ufak Z-kuşağı reels parçaları düşer (hook zorunlu, 30-60sn, "şunu değiştirdim çünkü şu sorun vardı" tonu, gerçek tarihçeden, sınırsız içerik). Bazıları AÇIKLAMALI olsun — tech stack / terim (wasm, pose estimation, on-device, false positive, benchmark...) sıfırdan, "mala öğretir gibi" sıcak dille; izleyen bilmeyebilir. Ton hep bu. Stok aklına geldikçe, farklı alanlardan da büyür (devlog.md sonundaki "TECH/AI/CV STOĞU" bölümü).

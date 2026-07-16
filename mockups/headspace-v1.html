@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>gymgyme — mock headspace-v1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#fdfbf7;
+  --ink:#2d2a26;
+  --ink-soft:#5d574f;
+  --cherry:#a83a55;
+  --cherry-deep:#8d2e46;
+  --mint:#7fd3b3;
+  --mint-ink:#1e5c47;
+  --blush:#f9ece6;
+  --card:#f6f1e9;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Nunito',system-ui,sans-serif;background:var(--paper);color:var(--ink);line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+
+/* header: no nav — logo + one door */
+header{display:flex;justify-content:space-between;align-items:center;padding:26px 0}
+.logo{font-weight:900;font-size:24px;letter-spacing:-.5px;display:flex;align-items:center;gap:10px}
+.logo .dot{width:26px;height:26px;border-radius:50%;background:var(--cherry)}
+.head-right{display:flex;align-items:center;gap:26px}
+.quiet-link{color:var(--ink-soft);text-decoration:none;font-weight:700;font-size:15px}
+.quiet-link:hover{color:var(--ink)}
+.btn{display:inline-block;background:var(--cherry);color:#fff;text-decoration:none;font-weight:800;
+  padding:16px 34px;border-radius:999px;font-size:17px;transition:transform .15s ease, background .15s ease;
+  box-shadow:0 6px 18px rgba(168,58,85,.25)}
+.btn:hover{transform:translateY(-2px);background:var(--cherry-deep)}
+.btn:active{transform:translateY(0) scale(.98)}
+.btn.small{padding:12px 26px;font-size:15px}
+
+/* hero */
+.hero{text-align:center;padding:64px 0 30px}
+.eyebrow{font-weight:800;color:var(--cherry);font-size:16px;letter-spacing:.4px}
+h1{font-weight:900;font-size:clamp(38px,5.4vw,64px);line-height:1.08;letter-spacing:-1.5px;margin:14px auto 0;max-width:16ch}
+.checks{display:flex;gap:34px;justify-content:center;flex-wrap:wrap;margin:30px 0 34px;color:var(--ink-soft);font-weight:700;font-size:16px}
+.checks span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--mint);margin-right:9px}
+.hero .browse{display:block;margin-top:18px}
+
+/* product window */
+.stage{display:flex;justify-content:center;padding:34px 0 78px}
+.cam{width:min(680px,92%);aspect-ratio:16/10;background:var(--blush);border-radius:28px;position:relative;overflow:hidden;
+  box-shadow:0 24px 60px rgba(45,42,38,.12)}
+.cam .coachline{position:absolute;top:22px;left:26px;font-weight:800;color:var(--ink-soft);font-size:15px}
+.cam .rep{position:absolute;top:16px;right:24px;font-weight:900;font-size:44px;color:var(--cherry)}
+.cam .rep small{display:block;font-size:12px;color:var(--ink-soft);font-weight:800;text-align:right;letter-spacing:.5px}
+.figure{position:absolute;left:50%;bottom:-4px;transform:translateX(-50%);width:190px;height:290px}
+.box{position:absolute;border:2.5px solid var(--cherry);border-radius:8px;opacity:.9}
+.box.good{border-color:var(--mint)}
+.b1{width:74px;height:64px;left:58px;top:16px}
+.b2{width:110px;height:96px;left:40px;top:92px}
+.b3{width:44px;height:98px;left:28px;top:190px;transform:rotate(6deg)}
+.b4{width:44px;height:98px;left:118px;top:190px;transform:rotate(-6deg)}
+.tag{position:absolute;left:158px;top:104px;background:var(--mint);color:var(--mint-ink);font-weight:900;font-size:13px;
+  padding:5px 12px;border-radius:999px}
+.score{position:absolute;bottom:22px;left:26px;font-weight:900;font-size:20px}
+.score em{font-style:normal;color:var(--cherry)}
+
+/* marquee band */
+.band{background:var(--cherry);color:#fff;overflow:hidden;padding:20px 0;white-space:nowrap}
+.band .inner{display:inline-block;font-weight:900;font-size:26px;letter-spacing:-.3px;animation:slide 22s linear infinite}
+.band .inner span{margin-right:64px;opacity:.95}
+@keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* benefits */
+.section{padding:88px 0}
+h2{font-weight:900;font-size:clamp(30px,3.6vw,44px);letter-spacing:-1px;text-align:center}
+.sub{color:var(--ink-soft);text-align:center;max-width:52ch;margin:14px auto 0;font-weight:600;font-size:17px}
+.benefits{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:46px}
+.brow{background:#fff;border:1.5px solid #eee6da;border-radius:18px;padding:26px 24px;display:flex;align-items:center;
+  justify-content:space-between;font-weight:800;font-size:18px;transition:transform .15s ease, box-shadow .15s ease;cursor:default}
+.brow:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(45,42,38,.08)}
+.brow .ico{width:38px;height:38px;border-radius:50%;flex:none;margin-left:14px}
+.i1{background:var(--cherry)} .i2{background:var(--mint)} .i3{background:var(--blush);border:2px solid var(--cherry)}
+.i4{background:var(--ink)} .i5{background:var(--mint-ink)} .i6{background:var(--cherry-deep)}
+
+/* stat cards */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:46px}
+.stat{background:var(--card);border-radius:22px;padding:38px 30px;text-align:center}
+.stat .big{font-weight:900;font-size:72px;color:var(--cherry);line-height:1}
+.stat.alt .big{color:var(--mint-ink)}
+.stat p{margin-top:12px;font-weight:700;font-size:17px}
+.stat small{display:block;margin-top:10px;color:var(--ink-soft);font-weight:600}
+
+/* library */
+.chips{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:34px}
+.chip{padding:12px 24px;border-radius:999px;background:#fff;border:1.5px solid #eee6da;font-weight:800;font-size:15px;cursor:pointer}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:34px}
+.mcard{aspect-ratio:4/5;border-radius:22px;padding:22px;display:flex;flex-direction:column;justify-content:flex-end;
+  color:#fff;font-weight:900;font-size:20px;letter-spacing:-.3px;transition:transform .15s ease}
+.mcard:hover{transform:translateY(-4px)}
+.mcard small{font-weight:700;font-size:13px;opacity:.85;margin-top:4px}
+.c1{background:var(--cherry)} .c2{background:var(--mint);color:var(--mint-ink)} .c3{background:var(--ink)} .c4{background:var(--cherry-deep)}
+
+/* workbench / dev log */
+.bench{background:var(--blush)}
+.notes{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:42px}
+.note{background:#fff;border-radius:20px;padding:28px}
+.note .date{font-weight:800;color:var(--cherry);font-size:13px;letter-spacing:.6px}
+.note h3{font-weight:900;font-size:20px;margin:8px 0 8px;letter-spacing:-.3px}
+.note p{color:var(--ink-soft);font-weight:600;font-size:15px}
+
+/* big cta */
+.cta{background:var(--mint);text-align:center;padding:120px 28px}
+.cta .btn{font-size:clamp(26px,3.4vw,40px);padding:34px 72px;box-shadow:0 18px 44px rgba(141,46,70,.3)}
+
+/* faq */
+details{border-bottom:1.5px solid #eee6da;padding:26px 6px}
+details:first-of-type{border-top:1.5px solid #eee6da;margin-top:44px}
+summary{font-weight:800;font-size:20px;cursor:pointer;list-style:none;display:flex;justify-content:space-between}
+summary::after{content:"+";font-weight:900;color:var(--cherry);font-size:24px}
+details[open] summary::after{content:"–"}
+details p{margin-top:14px;color:var(--ink-soft);font-weight:600;max-width:70ch}
+
+footer{padding:54px 0;color:var(--ink-soft);font-weight:700;font-size:14px;display:flex;justify-content:space-between;flex-wrap:gap:14px}
+.ver{position:fixed;bottom:12px;right:14px;background:var(--ink);color:#fff;font-weight:800;font-size:11px;
+  padding:5px 12px;border-radius:999px;opacity:.85}
+@media(max-width:900px){
+  .benefits,.stats{grid-template-columns:1fr}
+  .cards{grid-template-columns:repeat(2,1fr)}
+  .notes{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="logo"><span class="dot"></span>gymgyme</div>
+    <div class="head-right">
+      <a class="quiet-link" href="#">log in</a>
+      <a class="btn small" href="#">open the camera</a>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="eyebrow">your home personal trainer</div>
+    <h1>your camera counts every rep and fixes your form. live.</h1>
+    <div class="checks">
+      <span>free forever</span>
+      <span>nothing leaves your device</span>
+      <span>no equipment needed</span>
+    </div>
+    <a class="btn" href="#">open the camera</a>
+    <a class="quiet-link browse" href="#">or browse 386 home moves</a>
+  </section>
+
+  <div class="stage">
+    <div class="cam">
+      <div class="coachline">nice depth. keep your chest up.</div>
+      <div class="rep">7<small>REPS</small></div>
+      <div class="figure">
+        <div class="box good b1"></div>
+        <div class="box good b2"></div>
+        <div class="box b3"></div>
+        <div class="box good b4"></div>
+        <div class="tag">good</div>
+      </div>
+      <div class="score">form <em>84</em>/100</div>
+    </div>
+  </div>
+</div>
+
+<div class="band" aria-hidden="true">
+  <div class="inner">
+    <span>one more rep</span><span>good form</span><span>one more rep</span><span>good form</span>
+    <span>one more rep</span><span>good form</span><span>one more rep</span><span>good form</span>
+  </div>
+</div>
+
+<div class="wrap">
+  <section class="section">
+    <h2>a coach that actually watches</h2>
+    <p class="sub">not a video you copy. the camera sees you, counts you, and tells you what to fix — while you move.</p>
+    <div class="benefits">
+      <div class="brow">counts every rep <span class="ico i1"></span></div>
+      <div class="brow">scores your form out of 100 <span class="ico i2"></span></div>
+      <div class="brow">corrects you live <span class="ico i3"></span></div>
+      <div class="brow">learns your body <span class="ico i4"></span></div>
+      <div class="brow">works in your living room <span class="ico i5"></span></div>
+      <div class="brow">private by design <span class="ico i6"></span></div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0">
+    <h2>built to be trusted</h2>
+    <div class="stats">
+      <div class="stat"><div class="big">100</div><p>every rep is scored out of 100 — bad form doesn't count.</p><small>you earn your reps</small></div>
+      <div class="stat alt"><div class="big">386</div><p>home moves in the library, from squats to holds.</p><small>no equipment needed</small></div>
+      <div class="stat"><div class="big">30s</div><p>from opening the page to your first counted rep.</p><small>no signup required to try</small></div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0">
+    <h2>explore the moves</h2>
+    <div class="chips">
+      <div class="chip on">featured</div><div class="chip">legs</div><div class="chip">core</div>
+      <div class="chip">arms</div><div class="chip">holds</div>
+    </div>
+    <div class="cards">
+      <div class="mcard c1">squat<small>camera-coached</small></div>
+      <div class="mcard c2">plank<small>hold · timed</small></div>
+      <div class="mcard c3">lunge<small>camera-coached</small></div>
+      <div class="mcard c4">arm raise<small>great first move</small></div>
+    </div>
+  </section>
+</div>
+
+<div class="bench">
+  <div class="wrap section">
+    <h2>from the workbench</h2>
+    <p class="sub">we build this in the open. every week the coach gets a little sharper — here's what changed.</p>
+    <div class="notes">
+      <div class="note">
+        <div class="date">THIS WEEK</div>
+        <h3>the coach stopped losing you</h3>
+        <p>when someone walked behind you, the camera used to switch to them. now it locks onto your body and never coaches a stranger.</p>
+      </div>
+      <div class="note">
+        <div class="date">LAST WEEK</div>
+        <h3>squats count deeper, fairer</h3>
+        <p>the depth threshold now adapts to your body instead of one fixed rule — shorter or taller, your squat counts when it should.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="cta">
+  <a class="btn" href="#">find your form</a>
+</div>
+
+<div class="wrap">
+  <section class="section" style="padding-top:64px">
+    <h2>questions, answered</h2>
+    <details><summary>does my video get uploaded anywhere?</summary><p>no. everything runs on your device, in your browser. no photo or video ever leaves your phone — that's not a setting, it's how the engine is built.</p></details>
+    <details><summary>do i need an account to try it?</summary><p>no. open the camera and do one move. an account only comes in when you want your progress saved.</p></details>
+    <details><summary>what do i need at home?</summary><p>a phone and about two steps of space. no equipment, no mat required.</p></details>
+    <details><summary>is it really free?</summary><p>yes. no paywall, no trial timer.</p></details>
+  </section>
+
+  <footer>
+    <span>gymgyme · a noseydewdrop product</span>
+    <span>privacy · terms</span>
+  </footer>
+</div>
+
+<div class="ver">mock headspace-v1</div>
+</body>
+</html>
