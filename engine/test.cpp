@@ -621,9 +621,87 @@ int main() {
     // kaldığını görmek için sığ üst duruşlu bir seri sürmek yeterli — davranışın
     // sabit motorla ÇELİŞMEDİĞİNİ zaten yukarıdaki tam-tekrar testleri kanıtlıyor.
 
-    // adaptif KAPALI hareket (pushup) eskisi gibi sabit eşikle çalışır
-    check(!builtinMove("pushup").adaptiveBottom, "adaptive is off for non-squat moves");
+    // adaptif band ROM-sıkışan hareketlerde açık (squat/lunge/pushup — kameraya
+    // dönük perspektif hepsinin açı aralığını sıkıştırır); yerde/side-on çekilen
+    // ve sıkışmayan hareketlerde (glutebridge) kapalı, sabit eşikle çalışır.
+    check(!builtinMove("glutebridge").adaptiveBottom, "adaptive is off for non-compressed moves");
     check(builtinMove("squat").adaptiveBottom, "adaptive is on for squat");
+    check(builtinMove("pushup").adaptiveBottom, "adaptive is on for pushup (same ROM-compression root)");
+  }
+
+  // ── adaptif band: ROM SIKIŞMASI (dal C). Monoküler/perspektif veride kişinin
+  // diz açısı asla spec.topAngle'a (155°) çıkmaz — sıkışmış bir bantta kalır
+  // (mmfit squat: standing ~96°). Sabit üst eşiğe çakılı motor döngüyü hiç
+  // kapatamaz, SESSİZ SIFIR sayar. Adaptif band, eşikleri kişinin GÖZLENEN
+  // bandının içine koyup döngüyü başlatmalı — ama geniş/sağlıklı ROM'da
+  // davranışı değiştirmemeli, ve minik titreşimi rep saymamalı. ──
+  {
+    // sıkışmış diz pozu üretici: hip(0.45,0.50)-knee(0.45,0.70)-ankle konumuyla
+    // diz açısını yaklaşık verilen değere getirir. ankle'ı diz hizasından yatay+
+    // dikey kaydırarak açıyı sıkıştırıyoruz (perspektif kısalması taklidi).
+    auto squatAtAngle = [](double ankDx, double ankDy) {
+      std::vector<Landmark> p(33);
+      auto set = [&](int i, double x, double y) { p[i].x = x; p[i].y = y; p[i].z = 0; p[i].visibility = 1; };
+      set(11, 0.45, 0.20); set(12, 0.55, 0.20);
+      set(23, 0.45, 0.50); set(24, 0.55, 0.50);
+      set(25, 0.45, 0.70); set(26, 0.55, 0.70);
+      set(27, 0.45 + ankDx, 0.70 + ankDy); set(28, 0.55 + ankDx, 0.70 + ankDy);
+      return p;
+    };
+    // sıkışmış üst (standing görünmeyen ~95°) ve sıkışmış dip (~55°). Hiçbiri
+    // 155°'ye ulaşmaz → sabit motor sayamaz; band bunları kişinin ROM'u sayar.
+    auto compTop = [&]() { return squatAtAngle(0.20, 0.02); };   // diz ~95° (sıkışmış üst)
+    auto compBot = [&]() { return squatAtAngle(0.15, -0.12); };  // diz ~51° (sıkışmış dip)
+    // önce açıların gerçekten sıkışmış bantta (ikisi de <155, biri >120 sabit dip)
+    {
+      Engine c1(builtinMove("squat")); Reading a = c1.update(compTop());
+      Engine c2(builtinMove("squat")); Reading b = c2.update(compBot());
+      check(a.angles.leftKnee > 0 && a.angles.leftKnee < 130.0,
+            "compressed: the 'top' angle never reaches the fixed 155 threshold");
+      check(b.angles.leftKnee > 0 && b.angles.leftKnee < a.angles.leftKnee,
+            "compressed: the 'bottom' angle is below the compressed top");
+    }
+    // KANIT 1: sıkışmış bantta adaptif band döngüyü BAŞLATIR ve sayar.
+    {
+      Engine e(builtinMove("squat"));
+      Reading r;
+      for (int rep = 0; rep < 4; rep++) {                 // 4 sıkışmış tekrar
+        for (int i = 0; i < 12; i++) r = e.update(compTop());
+        for (int i = 0; i < 12; i++) r = e.update(compBot());
+      }
+      for (int i = 0; i < 12; i++) r = e.update(compTop());
+      // ilk 1-2 tekrar bandı doldurmaya feda edilebilir; sonrası oturur → ≥2 say.
+      check(r.reps >= 2, "compressed ROM: adaptive band starts the cycle and counts reps");
+      check(r.adaptiveActive, "compressed ROM: engine reports adaptive thresholds are active");
+      check(r.activeTopTh < builtinMove("squat").topAngle,
+            "compressed ROM: active top threshold dropped below the fixed spec top");
+    }
+    // KANIT 2: minik titreşim (bandın çok altına inmeyen ~2° salınım) rep SAYILMAZ.
+    {
+      Engine e(builtinMove("squat"));
+      Reading r;
+      auto jitterHi = [&]() { return squatAtAngle(0.20, 0.02); };   // ~95°
+      auto jitterLo = [&]() { return squatAtAngle(0.205, 0.018); }; // ~93° (kıpırtı)
+      for (int rep = 0; rep < 6; rep++) {
+        for (int i = 0; i < 5; i++) r = e.update(jitterHi());
+        for (int i = 0; i < 5; i++) r = e.update(jitterLo());
+      }
+      check(r.reps == 0, "compressed ROM: a tiny 2-degree jitter is not counted as a rep");
+    }
+    // KANIT 3: GENİŞ/sağlıklı ROM'da davranış DEĞİŞMEZ — tam açılıma ulaşan squat
+    // eski sabit yolu kullanır (adaptif band eşikleri saptırmaz), 8 tekrar = 8.
+    {
+      Engine e(builtinMove("squat"));
+      Reading r;
+      for (int rep = 0; rep < 8; rep++) {
+        for (int i = 0; i < 10; i++) r = e.update(pose(false));  // ~180° tam açılım
+        for (int i = 0; i < 10; i++) r = e.update(pose(true));   // ~90° derin dip
+      }
+      for (int i = 0; i < 12; i++) r = e.update(pose(false));
+      check(r.reps == 8, "wide ROM: full-extension squat still counts every rep (unchanged)");
+      check(!r.adaptiveActive || r.activeTopTh >= builtinMove("squat").topAngle - 1.0,
+            "wide ROM: adaptive band does not distort thresholds when ROM is healthy");
+    }
   }
 
   // ── HOLD (izometrik) motoru: plank/wall-sit gibi tutuşlarda salınım yok,

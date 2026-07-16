@@ -412,3 +412,15 @@ Teknoloji/yapay zeka/CV üzerine reel fikirleri. Kanca + "şu sanılıyor ama as
 **EN (text-on-video):** "my rep counter used to count garbage squats. / today it stopped. / every rep is scored first — under the bar, it doesn't count. / and the coach says why. / honesty per move: plank ≠ squat. / 204 tests green. / a counter that lies isn't motivation."
 
 **Format:** reel
+
+---
+
+## Reel — gerçek veri motorumu ilk kez yere serdi, iyi ki
+
+**Hook (ilk 2 sn):** "Motorum testlerde kusursuzdu. Gerçek insan verisi verdim: 10 squat'tan 0'ını saydı."
+
+**Anlatı (~50 sn):** Aylardır kamerada "hareket algılamıyor" diye bir hayalet kovalıyordum — bende oluyordu ama laboratuvarda üretilemiyordu. Sonra açık bir fitness veri setini (MM-Fit) motorumun formatına çevirip etiketli 10 squat'ı motordan geçirdim. Sonuç: sıfır. Aynı motor kendi sentetik klibinde 8/8. İşte o an hayalet ete kemiğe büründü: motorun "ayakta duruş" eşiği mutlak bir açıya çakılıymış (~155°). Gerçek dünyanın gürültülü iskeletinde o açı hiç görünmüyor; motor kişiyi hiç "ayakta" görmüyor, sayma döngüsü hiç başlamıyor. Sessiz sıfır. Çözüm: faz eşikleri artık kişinin o seansta gösterdiği hareket aralığından öğreniliyor — ama form PUANI hâlâ mutlak anatomik referansta, çünkü dürüstlük adapte olmaz. Sonuç: gerçek veride 0/10 → 9/10, sentetik hâlâ 8/8, 213 test yeşil. Ders: yeşil testler seni kendi varsayımlarının içinde test eder; gerçek veri varsayımın kendisini test eder.
+
+**EN (text-on-video):** "my engine was perfect in tests. / fed it real human data: 0 of 10 squats counted. / the 'standing' threshold was hardcoded at 155°. / real skeletons never show it. / silent zero. / now phase thresholds learn YOUR range — scoring stays absolute. / 0/10 → 9/10. tests test your assumptions. real data tests the assumption itself."
+
+**Format:** reel

@@ -1163,9 +1163,16 @@ function diag(r) {
     why = "ok — phase " + r.phase + " · depth " + (r.depth || 0).toFixed(2) +
       " · conf " + (r.confidence || 0).toFixed(2);
   }
+  // aktif faz eşikleri: adaptif band açıksa motorun BU seansta kullandığı
+  // top/bottom açıları; "neden saydı/saymadı" bunlarla açıklanır (ROM sıkışması).
+  let thLine = "";
+  if (typeof r.activeBottomTh === "number" && r.activeBottomTh >= 0) {
+    thLine = "\nangle " + Math.round(r.smoothAngle) + "° · top≥" + Math.round(r.activeTopTh) +
+      "° bottom≤" + Math.round(r.activeBottomTh) + "°" + (r.adaptiveActive ? " (adaptive ROM)" : " (fixed)");
+  }
   diagEl.textContent =
     "model " + (activePoseModel || "?") + " · " + video.videoWidth + "x" + video.videoHeight +
-    "\n" + why;
+    "\n" + why + thLine;
 }
 
 function render(r) {

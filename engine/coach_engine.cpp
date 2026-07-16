@@ -53,6 +53,8 @@ MoveSpec builtinMove(const std::string& name) {
     s.primaryRight = {R_SHO, R_ELB, R_WRI};
     s.bottomAngle = 95.0;
     s.topAngle = 150.0;
+    s.adaptiveBottom = true; s.adaptiveDrop = 42.0;   // dirsek açısı da kameraya dönük
+                                                      // şınavda perspektifle sıkışır (aynı ROM kökü)
     s.goodRepSecMin = 1.0;
     s.framingPoints = {L_SHO, R_SHO, L_ELB, R_ELB, L_WRI, R_WRI, L_HIP, R_HIP};
     s.framingCue = "i need your arms and torso in the frame - your legs can stay out";
@@ -346,7 +348,7 @@ void Engine::reset() {
   ratioMissStreak_ = 0;
   for (auto& v : calibSamples_) v.clear();
   phaseTop_ = true;
-  topRest_ = -1.0; bottomLive_ = -1.0; topLive_ = -1.0;   // adaptif eşik yeniden öğrenilir
+  topRest_ = -1.0; obsHigh_ = -1.0; obsLow_ = -1.0; bottomLive_ = -1.0; topLive_ = -1.0;   // adaptif band yeniden öğrenilir
   heldSec_ = 0; totalHeldSec_ = 0; holdInBand_ = false; holdQualitySum_ = 0; holdFrames_ = 0;
   bestHoldSec_ = 0; curHoldRunSec_ = 0;   // hold modu sıfırla
   reps_ = 0;
@@ -1059,26 +1061,55 @@ Reading Engine::update(const std::vector<Landmark>& p,
   double bottomTh = spec_.bottomAngle;
   double topTh = spec_.topAngle;
   if (spec_.adaptiveBottom) {
-    // üst duruşu yalnız üst fazdayken ve hareket ~durgunken öğren/güncelle:
-    // en açık açının medyanına yakın kalması için yavaş yukarı, hızlı toparlama.
+    // ── İKİ ayrı üst-uç izleyici, çünkü iki yol iki farklı şey ister:
+    // (1) topRest_ = ESKİ semantik, yalnız ÜST fazda + yavaş sönümlü. Kişinin
+    //     "rahat duruş" açısıdır; sıkışmamış yolun dip eşiğini (drop) sürer.
+    //     Sığ-ama-gerçek squat testinin dayandığı davranış budur — DEĞİŞMEZ.
+    // (2) obsHigh_/obsLow_ = per-KARE gözlenen band uçları (faz bağımsız). Sıkışmış
+    //     veride kişi baştan Bottom fazına kilitlenip topRest_ donsa bile band
+    //     öğrenilmeye devam eder → döngü açılır (mmfit squat: standing hiç
+    //     "dik görünmüyor", faz-kapılı öğrenme donardı, per-kare öğrenme kurtarır). ──
     if (phaseTop_ && smooth_ > 0) {
-      if (topRest_ < 0 || smooth_ > topRest_) topRest_ = smooth_;             // en açığı yakala
-      else topRest_ = 0.98 * topRest_ + 0.02 * smooth_;                       // yavaşça uyum
+      if (topRest_ < 0 || smooth_ > topRest_) topRest_ = smooth_;
+      else topRest_ = 0.98 * topRest_ + 0.02 * smooth_;
     }
-    if (topRest_ > 0) {
+    if (smooth_ > 0) {
+      if (obsHigh_ < 0 || smooth_ > obsHigh_) obsHigh_ = smooth_;             // en açığa hızlı atla
+      else obsHigh_ = 0.995 * obsHigh_ + 0.005 * smooth_;                     // yavaş sön
+      if (obsLow_ < 0 || smooth_ < obsLow_)   obsLow_ = smooth_;              // en dibe hızlı atla
+      else obsLow_ = 0.995 * obsLow_ + 0.005 * smooth_;                       // yavaş sön
+    }
+    // ── SIKIŞMA TESPİTİ: kişinin gözlenen üst açısı spec'in beklediği düz-duruşa
+    // yakınsa (obsHigh ≈ spec.topAngle) ROM SIKIŞMASI YOK → eski/mutlak yol
+    // (dip = topRest−adaptiveDrop, spec.bottomAngle TABAN; top = spec.topAngle).
+    // Sağlıklı kamerada davranış AYNEN korunur. Üst açı spec top'un belirgin
+    // altına sıkışmışsa (mmfit squat ~96° vs 155°) eşikler bandın İÇİNE iner. ──
+    const bool compressed = obsHigh_ > 0 && obsHigh_ < spec_.topAngle - 15.0;
+    if (compressed && obsLow_ >= 0 && (obsHigh_ - obsLow_) >= 20.0) {
+      double range = obsHigh_ - obsLow_;
+      // eşikler tamamen gözlenen bandın içinde; mutlak spec sabitine takılmaz.
+      // dip = üstten %55 aşağı, top = üstten %28 aşağı → aralarında histerezis.
+      bottomLive_ = obsHigh_ - 0.55 * range;
+      topLive_    = obsHigh_ - 0.28 * range;
+      bottomTh = bottomLive_;
+      topTh    = topLive_;
+    } else if (topRest_ > 0) {
+      // sıkışma yok: ESKİ davranış (dip adaptiveDrop + spec taban, top = spec).
       double adaptBottom = topRest_ - spec_.adaptiveDrop;
-      // spec sabiti taban: adaptif eşik ondan DAHA YÜKSEK (daha kolay) olabilir,
-      // daha düşük (daha zor) olamaz — güvenlik ağı korunur.
       bottomLive_ = std::max(spec_.bottomAngle, adaptBottom);
-      // üst eşik: duruşun biraz altı, ama dip eşiğinin belirgin üstünde kalsın.
       topLive_ = std::max(bottomLive_ + 10.0, topRest_ - spec_.adaptiveDrop * 0.30);
       bottomTh = bottomLive_;
-      topTh = std::min(spec_.topAngle, topLive_);
+      topTh    = std::min(spec_.topAngle, topLive_);
     }
   }
 
   // derinlik: üst eşikte 0, dip eşiğinde 1 (daha derini 1'e kırpılır).
   r.depth = std::max(0.0, std::min(1.0, (topTh - smooth_) / (topTh - bottomTh)));
+  // açıklanabilirlik: bu karede kullanılan aktif eşikleri dışarı ver.
+  r.activeTopTh = topTh;
+  r.activeBottomTh = bottomTh;
+  r.adaptiveActive = spec_.adaptiveBottom &&
+                     (std::fabs(topTh - spec_.topAngle) > 0.5 || std::fabs(bottomTh - spec_.bottomAngle) > 0.5);
 
   // yön: yumuşatılmış sinyalin eğimi. diz açısı DÜŞERSE çömeliyoruz.
   if (prevSmooth_ >= 0.0) {
@@ -1324,9 +1355,13 @@ Reading Engine::update(const std::vector<Landmark>& p,
     inExcursion_ = true;
     excursionMin_ = std::min(excursionMin_, smooth_);
   } else if (inExcursion_) {           // üste dönüldü ama Bottom hiç görülmedi
-    // yarım-rep eşiği hareketin doğasından (spec sabiti): "anlamlı ama dipsiz
-    // iniş" tanımı kişiye göre kaymasın — adaptif dip yalnız SAYMAYI kolaylaştırır.
-    double deepEnough = spec_.topAngle - spec_.halfRepDepth * (spec_.topAngle - spec_.bottomAngle);
+    // yarım-rep eşiği: "anlamlı ama dipsiz iniş" = aktif top eşiğinden, hareketin
+    // KENDİ tam ROM'unun (spec top-bottom) halfRepDepth katı kadar aşağı sarkmış
+    // ama bottom eşiğine ulaşmamış iniş. Referans aktif topTh (band sıkışmışsa
+    // orası), derinlik MİKTARI spec ROM'undan sabit — böylece adaptif band yarım
+    // tanımını kaydırmaz (kıpırtı yarım sayılmaz), ama sıkışmış veride topTh'a
+    // göre ölçülür (mutlak 155'e takılıp her kareyi yarım saymaz).
+    double deepEnough = topTh - spec_.halfRepDepth * (spec_.topAngle - spec_.bottomAngle);
     if (excursionMin_ < deepEnough) {
       halfReps_++;
       r.halfTick = true;

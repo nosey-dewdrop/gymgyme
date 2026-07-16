@@ -22,6 +22,8 @@ using namespace emscripten;
 struct JsReading {
   bool tracking;
   double confidence, framing, rawAngle, smoothAngle, depth;
+  double activeTopTh, activeBottomTh;   // açıklanabilirlik: aktif faz eşikleri
+  bool adaptiveActive;                  // adaptif band bu karede eşikleri saptırdı mı
   std::string phase, motion, view;
   double leftKnee, rightKnee, leftHip, rightHip, leftElbow, rightElbow;
   int reps;
@@ -102,6 +104,9 @@ static JsReading toJs(const coach::Reading& r) {
   j.rawAngle = r.rawAngle;
   j.smoothAngle = r.smoothAngle;
   j.depth = r.depth;
+  j.activeTopTh = r.activeTopTh;
+  j.activeBottomTh = r.activeBottomTh;
+  j.adaptiveActive = r.adaptiveActive;
   j.phase = phaseStr(r.phase);
   j.motion = motionStr(r.motion);
   j.view = viewStr(r.view);
@@ -262,6 +267,9 @@ EMSCRIPTEN_BINDINGS(coach) {
       .field("rawAngle", &JsReading::rawAngle)
       .field("smoothAngle", &JsReading::smoothAngle)
       .field("depth", &JsReading::depth)
+      .field("activeTopTh", &JsReading::activeTopTh)
+      .field("activeBottomTh", &JsReading::activeBottomTh)
+      .field("adaptiveActive", &JsReading::adaptiveActive)
       .field("phase", &JsReading::phase)
       .field("motion", &JsReading::motion)
       .field("view", &JsReading::view)

@@ -127,6 +127,12 @@ struct Reading {
   double rawAngle = -1;      // takip edilen açı, HAM
   double smoothAngle = -1;   // takip edilen açı, YUMUŞATILMIŞ (motorun kullandığı)
   double depth = 0;          // 0 (üstte) .. 1 (dipte)
+  // ── AÇIKLANABİLİRLİK: motorun BU karede kullandığı AKTİF faz eşikleri. Adaptif
+  // band açıkken bunlar spec sabitinden sapar (kişinin ROM'una göre); rec teşhis
+  // paneli "neden saydı/saymadı"yı gösterebilsin diye görünür kılındı. -1 = yok. ──
+  double activeTopTh = -1;    // bu karede geçerli üst eşik (buraya dönersen = üst)
+  double activeBottomTh = -1; // bu karede geçerli dip eşiği (buraya inersen = tekrar)
+  bool adaptiveActive = false;// adaptif band bu karede eşikleri spec'ten saptırdı mı
   Phase phase = Phase::Top;
   Motion motion = Motion::Hold;
   View view = View::Unknown;
@@ -373,12 +379,24 @@ class Engine {
   int holdFrames_ = 0;
   double bestHoldSec_ = 0;   // özet için en uzun kesintisiz tutuş
   double curHoldRunSec_ = 0; // şu anki kesintisiz tutuş süresi
-  // ── adaptif dip eşiği durumu (spec_.adaptiveBottom açıksa). topRest_ = kişinin
-  // gözlenen en açık (rahat/üst) açısı, sürekli güncellenir; bottomLive_/topLive_
-  // = ondan türetilen çalışan eşikler. -1 = henüz öğrenilmedi (spec sabiti kullanılır).
-  double topRest_ = -1.0;
-  double bottomLive_ = -1.0;
-  double topLive_ = -1.0;
+  // ── adaptif faz bandı durumu (spec_.adaptiveBottom açıksa). Eski sürüm sadece
+  // DİP eşiğini uyarlıyordu; monoküler/perspektif veride kişinin ÜST açısı da
+  // sıkışıyor (squat standing ~96°, spec top 155° hiç tutmuyor → döngü kapanmıyor,
+  // sessiz sıfır). Çözüm: motor kişinin O SEANSTA gözlediği açı BANDINI (alt+üst
+  // uç) izler ve top/bottom eşiklerini o bandın İÇİNE koyar — mutlak dereceye
+  // çakılmaz. obsHigh_ = gözlenen üst uç (rahat/dik duruş), obsLow_ = gözlenen
+  // dip. İkisi asimetrik EMA ile izlenir: yeni uca hızlı atlar, yavaş geri sönümlenir
+  // (ilk 1-2 tekrar bandı doldurur, sonrası oturur). bottomLive_/topLive_ =
+  // banttan türetilen çalışan eşikler (açıklanabilirlik + rec teşhisi için tutulur).
+  // -1 = henüz öğrenilmedi (spec sabiti kullanılır). topRest_ eski adı obsHigh_'a
+  // devredildi (rec paneli/testler kırılmasın diye ikisi de senkron güncellenir).
+  double topRest_ = -1.0;       // faz-kapılı üst duruş (ESKİ semantik: yalnız Top fazında
+                                // öğrenilir, yavaş sönümlü) — SIKIŞMAMIŞ yolun dip eşiğini sürer
+  double obsHigh_ = -1.0;       // per-kare gözlenen üst uç (faz bağımsız) — SIKIŞMIŞ bandı sürer;
+                                // faz Bottom'a kilitlense de üst uç öğrenilmeye devam eder
+  double obsLow_ = -1.0;        // per-kare gözlenen dip (en küçük açı, session boyunca)
+  double bottomLive_ = -1.0;    // türetilen çalışan dip eşiği (derece)
+  double topLive_ = -1.0;       // türetilen çalışan üst eşik (derece)
   int reps_ = 0;
   int halfReps_ = 0;
   int rejectedReps_ = 0;       // Loop 03: form eşiği altında kalıp sayılmayan tekrar
