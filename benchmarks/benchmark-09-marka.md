@@ -6,8 +6,9 @@ KAYNAK: 16 Tem marka yöneticisi agent incelemesi (rakipler: Onyx, Kemtai, Bette
 
 ## KUZEY YILDIZI (Damla, 16 Tem — agent önerisinin ÜSTÜNE yazar)
 - His: **BetterMe / Headspace** — siteye giren insan "iyi bir yerdeyim" demeli. Sıcak, sakin, insana iyi gelen bir yer; teknik demo değil.
-- **Fiş-kanıt bandı REDDEDİLDİ** ("yine slop cs projesi gibi duracak"). Test sayısı / landmark sayısı gibi mühendislik kanıtları vitrine ÇIKMAZ; güven hissi sıcaklıktan ve üründen gelir, spec dökümünden değil.
-- Aşağıdaki ADIMLAR'dan 5 (fiş-kanıt bandı) İPTAL; kalanlar bu kuzey yıldızına göre yeniden yorumlanır.
+- **Fiş-kanıt bandı REDDEDİLDİ** ("yine slop cs projesi gibi duracak"). Hero'da spec dökümü YOK; güven hissi sıcaklıktan ve üründen gelir.
+- **AMA (Damla, 16 Tem düzeltme): mühendislik hikayesi ÇIKACAK — patch notes / developer log formatında.** Oyunların patch notes'u gibi: "bu hafta neyi düzelttik, ne eklendi" tonunda bir dev-log köşesi. Bu spec dökümü değil, kullanıcıyla BAĞ kuran bir öğe (build-in-public'in üründeki hali). Yeri hero değil; kendi köşesi/sayfası olur, sıcak dille yazılır.
+- Aşağıdaki ADIMLAR'dan 5 (fiş-kanıt bandı) İPTAL; yerine patch-notes/dev-log köşesi tasarlanır. Kalan adımlar kuzey yıldızına göre yeniden yorumlanır.
 - İnşaata başlamadan ÖNCE: BetterMe + Headspace ekranlarından somut referans seti toplanır, tek ekran mockup Damla'ya sunulur, onaysız kod yazılmaz (mockup = kontrat).
 
 ## SORUN
