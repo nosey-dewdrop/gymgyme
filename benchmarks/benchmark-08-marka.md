@@ -1,6 +1,6 @@
 # benchmark-08-marka — premium marka / landing (L1)
 
-STATUS: TODO
+STATUS: PARKED (Damla, 16 Tem: tasarim 2 gun ertelendi, ~18 Tem devam; mock gymgyme-v3 repoda, deploy bekliyor)
 KATMAN: L1 (marka / landing)
 KAYNAK: 16 Tem marka yöneticisi agent incelemesi (rakipler: Onyx, Kemtai, BetterMe, NTC, Peloton). Rapor: reports/2026-07-16-gymgyme-katman-teshisi.md
 
