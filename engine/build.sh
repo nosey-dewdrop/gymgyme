@@ -19,3 +19,4 @@ emcc bindings.cpp coach_engine.cpp \
   -o motor.js
 
 echo "ok: $(ls -la motor.js motor.wasm | awk '{print $9, $5}' | tr '\n' ' ')"
+echo "reminder: run 'bash engine/bench.sh suite --check' before push (regresyon kapisi)"

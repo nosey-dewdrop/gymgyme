@@ -424,3 +424,15 @@ Teknoloji/yapay zeka/CV üzerine reel fikirleri. Kanca + "şu sanılıyor ama as
 **EN (text-on-video):** "my engine was perfect in tests. / fed it real human data: 0 of 10 squats counted. / the 'standing' threshold was hardcoded at 155°. / real skeletons never show it. / silent zero. / now phase thresholds learn YOUR range — scoring stays absolute. / 0/10 → 9/10. tests test your assumptions. real data tests the assumption itself."
 
 **Format:** reel
+
+---
+
+## Reel — motoruma artık kimse fark ettirmeden zarar veremez
+
+**Hook (ilk 2 sn):** "Motorumun doğruluğu artık bir sayı: %24.5. Ve bu sayının düşmesi fiziksel olarak yasak."
+
+**Anlatı (~45 sn):** Bugüne kadar "motor doğru çalışıyor" cümlesi bir histi. Bugün bir ölçüm oldu: tek komut, 22 klip — bir sentetik + gerçek insan verisinden 21 segment — hepsi motordan geçiyor, sonuç bir tabloya yazılıyor: hangi harekette etikette kaç tekrar vardı, motor kaçını saydı. Squat %90, lunge %60, dört hareket henüz sıfır çünkü veri dönüştürücüde bilinen bir kusur var — ve tablo bunu SAKLAMIYOR, gösteriyor. Genel %24.5. Kulağa kötü mü geliyor? Tam tersi: ilk kez dürüst bir sıfır noktam var. Asıl güzellik ikinci komutta: kontrol modu, her klip için bugünkü değeri taban kabul ediyor; gelecekte herhangi bir değişiklik herhangi bir klipte tabanın altına düşerse sistem kırmızı yanıp hangi klipin düştüğünü söylüyor. Yani bundan sonra motora eklenen hiçbir zeka, var olan bir yeteneği sessizce bozamaz. Ders: ölçmediğin şey iyileşmez; ölçüp kilitlemediğin şey de sessizce geriler.
+
+**EN (text-on-video):** "my engine's accuracy is now a number: 24.5%. / and that number is not allowed to drop. / 22 clips, one command, one honest table. / squat 90%, four moves at zero — shown, not hidden. / any future change that breaks a clip turns the suite red. / what you don't measure doesn't improve. what you don't lock silently decays."
+
+**Format:** reel

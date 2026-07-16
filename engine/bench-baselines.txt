@@ -1,0 +1,23 @@
+# gymgyme bench REGRESYON TABANLARI — klip basina MIN kabul edilen motor rep sayisi.
+# Suite (bench.sh suite --check) her klibi kosar; motor rep bu degerin ALTINA
+# duserse kapi ISIRIR (exit 1). Yukseltmek gelecekteki islerin gorevi; DUSURMEK
+# YASAK (motor gerilemesi demektir).
+#
+# Degerler 16 Tem gercek kosusundan yazildi (uydurma yok): squat 9/10, lunge 6/10,
+# pushup mevcut (0/1/0), sentetik 8/8. Diger MM-Fit hareketleri (press/situp/
+# armraise/jumpingjack) su an 0 sayiyor — retarget/ROM sikismasi koku (motor
+# esigi degil, benchmark-04 teshisi). Tabanlari 0; motor duzelince yukseltilir.
+#
+# format:  <klip-id>  <min-rep>   # not
+# klip-id = suite'in urettigi ggclip dosya adi (uzantisiz).
+
+synth_squat   8    # sentetik squat, gercek 8 tekrar — motorun altin standardi
+squats_0      9    # MM-Fit w00 squat set0, etiket 10
+squats_1      9    # etiket 10
+squats_2      9    # etiket 10
+lunges_0      6    # MM-Fit w00 lunge set0, etiket 10; tek-bacak secimi acik is
+lunges_1      6    # etiket 10
+lunges_2      6    # etiket 10
+pushups_0     0    # MM-Fit w00 pushup set0, etiket 11; bottom-sikismasi acik is
+pushups_1     1    # etiket 10
+pushups_2     0    # etiket 10

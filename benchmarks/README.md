@@ -59,7 +59,7 @@ Damla kuralı: "kamera hareketleri görmüyo, 14 hareket sınırı var, loop bun
 - [ ] **benchmark-02-coverage.md** — 14 sınırı kalkar: tüm REP+HOLD hareketlerine MoveSpec kuralı (~200), stretch'ler dürüstçe "reference". (L4)
 - [x] **benchmark-03-gate.md** — %60 kabul kapısı: rep sadece accuracy ≥ eşik olunca sayılır, eşik MoveSpec'te. Filtre ≠ eşik ayrımı korunur. (L4)
 - [ ] **benchmark-04-dataset.md** — Açık etiketli mocap setleri (REHAB24-6, EC3D, MM-Fit) indir + motor formatına dönüştür. Golden boşluğunu Damla doldurur. (L4)
-- [ ] **benchmark-05-bench.md** — Otonom doğruluk loop'u: bench.cpp seti geçirir, rep-doğruluk/precision/recall tablosu repoya, regresyonlu. (L4)
+- [x] **benchmark-05-bench.md** — Otonom doğruluk loop'u: bench.cpp seti geçirir, rep-doğruluk/precision/recall tablosu repoya, regresyonlu. (L4)
 
 ### FAZ 2 — GÖRÜNÜR CİLA
 - [ ] **benchmark-06-declutter.md** — Debug metreleri müşteriden gizle (`?rec=1` arkası), fiş videoyu örtmesin, CS-ödevi hissi biter. (L3)
