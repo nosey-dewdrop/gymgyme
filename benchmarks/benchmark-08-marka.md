@@ -33,7 +33,15 @@ Yabancı 5 saniyede "kamera formumu puanlayan ücretsiz koç" desin, 60 saniyede
   - H1/CTA'da dekoratif emoji yığını
   - zayıflık dili ("still in training" tonu)
 - Zekice kurgulanmış layout'lar: asimetri, katmanlı yerleşim, tam genişlik akıllıca kullanılır.
+- GEREKSİZ BORDER / GÖRÜNÜR YATAY-DİKEY ÇİZGİ YOK (Damla, 16 Tem): hiza çizgiyle DEĞİL boşluk ritmi, tipografi ölçeği, renk blokları ve yumuşak gölgeyle hissettirilir. Omurga görünmez kalır.
 - Kör iterasyon yasağı geçerli: 2-3 turdan sonra dur, layout eskizini/screenshot'ını Damla'ya göster, onayla ilerle.
+
+## KONSEPT (16 Tem akşam, Damla ile konuşuldu — mockup bundan çıkar)
+- İçerinin ana ekranı "today": selamlama + günün önerilen seansı + tek başlat. Koç sekme değil, "başla"nın fiili. Alt dock en fazla 3: today / moves / me. **AMA today = ÜYE ekranı; üye olmayan today ile karşılanmaz.**
+- Üye olmayan: landing = nav'sız tek kapılı davet; koçun sesiyle konuşan kısa satırlar + gerçek motor kaydı + tek CTA. (Misafir "just try it" yolu loop 07-flow'da.)
+- Koça tipografik kimlik: hep aynı ses, lowercase, kısa sıcak cümleler.
+- Fiş = HATIRA: her biten seans tarih/rep/skor basan bir koçan üretir, geçmiş = koçan çekmecesi. Vitrin kanıtı değil ödül objesi.
+- Renk: sıcak beyaz zemin, mürekkep metin, vişne tek vurgu, nane sadece "form iyi" anı.
 
 ## ADIMLAR
 1. Hero hiyerarşi takası (index.html): H1 = değer cümlesi (emojisiz), "starring you" satırı ADMIT ONE fiş koçanına iner, "NOW SHOWING" şeridi kalır. Emoji politikası: dekoratifler H1/CTA'dan çıkar.
