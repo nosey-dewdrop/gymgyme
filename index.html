@@ -3,21 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>gymgyme - free home workouts + camera personal trainer</title>
-  <meta name="description" content="A free community directory of home training - wall pilates, ballet, yoga, bodyweight - plus a personal trainer in your browser that counts your reps.">
+  <title>gymgyme - your camera counts the reps and scores the form</title>
+  <meta name="description" content="A free home-training directory and a camera trainer in your browser that counts your reps and scores your form out of 100, entirely on your device.">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="gymgyme - a community directory of home training">
-  <meta property="og:description" content="Home workouts, pilates, ballet, yoga, gym, calisthenics, bodyweight. Everyone adds, everyone benefits. Free, no ads, forever.">
+  <meta property="og:title" content="gymgyme - a camera trainer that counts your reps">
+  <meta property="og:description" content="Browse home workouts, build your own plan, then open the camera. It counts every rep and scores your form on your device. Free, no ads, forever.">
   <meta property="og:image" content="https://gymgyme.noseydewdrop.com/icons/icon-512.png">
+  <meta property="og:url" content="https://gymgyme.noseydewdrop.com/">
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="gymgyme - a community directory of home training">
-  <meta name="twitter:description" content="Home workouts, pilates, ballet, yoga, gym, calisthenics, bodyweight. Everyone adds, everyone benefits. Free, no ads, forever.">
+  <meta name="twitter:title" content="gymgyme - a camera trainer that counts your reps">
+  <meta name="twitter:description" content="Browse home workouts, build your own plan, then open the camera. It counts and scores your form on your device. Free, no ads, forever.">
   <meta name="twitter:image" content="https://gymgyme.noseydewdrop.com/icons/icon-512.png">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎀</text></svg>">
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="css/marquee.css">
   <link rel="canonical" href="https://gymgyme.noseydewdrop.com/">
-  <meta property="og:url" content="https://gymgyme.noseydewdrop.com/">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -26,97 +24,359 @@
     "url": "https://gymgyme.noseydewdrop.com/",
     "applicationCategory": "HealthApplication",
     "operatingSystem": "Any (web browser)",
-    "description": "A free community directory of home training: wall pilates, adult ballet at home, yoga, home gym, calisthenics, bodyweight and healthy living articles, plus an in-browser camera personal trainer that counts reps and scores form on your device.",
+    "description": "A free home-training directory and an in-browser camera trainer that counts reps and scores form on your device.",
     "keywords": "home workout, wall pilates, adult ballet at home, yoga for beginners, bodyweight exercises, no equipment workout, free workout program"
   }
   </script>
+<style>
+  :root {
+    --paper: #ffffff;
+    --ink: #111111;
+    --mut: #6f6b74;
+    --lila: #8e6fd8;
+    --lila-soft: #efeafa;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  a { color: inherit; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 30px; }
+
+  nav.top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 0;
+  }
+  .brand { font-size: 20px; font-weight: bold; letter-spacing: -0.02em; text-decoration: none; }
+  .brand i { font-style: normal; color: var(--lila); }
+  nav.top .links { display: flex; align-items: center; gap: 22px; font-size: 13.5px; }
+  nav.top .links a { color: var(--mut); text-decoration: none; }
+  nav.top .links a:hover { color: var(--ink); }
+  .btn {
+    display: inline-block;
+    background: var(--ink);
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+    padding: 10px 18px;
+    border-radius: 2px;
+    transition: background 0.15s, transform 0.15s;
+  }
+  .btn:hover { background: var(--lila); transform: translateY(-1px); }
+  nav.top .btn { padding: 8px 14px; font-size: 13px; }
+
+  /* hero */
+  .hero { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 48px; align-items: center; padding: 44px 0 40px; }
+  .hero h1 { font-size: 38px; line-height: 1.08; letter-spacing: -0.025em; max-width: 16ch; }
+  .hero h1 i { font-style: normal; color: var(--lila); }
+  .hero .sub { margin-top: 14px; font-size: 15.5px; color: var(--mut); max-width: 44ch; }
+  .hero .acts { margin-top: 22px; display: flex; align-items: center; gap: 16px; }
+  .hero .quiet { font-size: 13px; color: var(--mut); text-decoration: none; border-bottom: 1px solid var(--lila); padding-bottom: 1px; }
+  .hero .quiet:hover { color: var(--ink); }
+  .hero .stub { display: block; margin-top: 14px; font-size: 12.5px; color: var(--mut); }
+
+  /* live demo */
+  .demo { position: relative; }
+  .demo canvas { width: 100%; height: auto; display: block; }
+  .demo .tag { font-size: 12px; color: var(--mut); }
+  .demo .read {
+    position: absolute;
+    top: 8px;
+    right: 0;
+    text-align: right;
+  }
+  .demo .read .n { font-size: 58px; font-weight: bold; letter-spacing: -0.04em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .demo .read .lbl { font-size: 12px; color: var(--mut); }
+  .demo .read .angle { margin-top: 12px; font-size: 15px; color: var(--lila); font-variant-numeric: tabular-nums; }
+
+  section { padding: 46px 0; }
+  .eyebrow { font-size: 12.5px; color: var(--lila); margin-bottom: 8px; }
+  h2 { font-size: 25px; letter-spacing: -0.02em; line-height: 1.2; max-width: 26ch; }
+
+  /* worth: what a customer gets */
+  .worth { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 48px; align-items: start; }
+  .worth .big p { margin-top: 12px; color: var(--mut); max-width: 38ch; }
+  .worth ul { list-style: none; max-width: 52ch; }
+  .worth li { padding: 12px 0; display: grid; grid-template-columns: 26px 1fr; gap: 12px; align-items: baseline; }
+  .worth li b { font-weight: bold; }
+  .worth li .k { color: var(--lila); font-weight: bold; font-variant-numeric: tabular-nums; }
+  .worth li p { color: var(--mut); font-size: 14px; margin-top: 2px; }
+
+  /* how */
+  .how { background: var(--lila-soft); }
+  .how .cols { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 48px; margin-top: 22px; max-width: 900px; }
+  .how .c { padding: 12px 0; }
+  .how .c b { display: block; margin-bottom: 3px; }
+  .how .c p { font-size: 14px; color: var(--mut); max-width: 40ch; }
+  .how .note { margin-top: 18px; font-size: 13px; color: var(--mut); }
+  .how .note i { font-style: normal; color: var(--ink); }
+
+  /* privacy */
+  .priv { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+  .priv .mega { font-size: 44px; font-weight: bold; letter-spacing: -0.03em; }
+  .priv .mega i { font-style: normal; color: var(--lila); }
+  .priv p { color: var(--mut); max-width: 42ch; margin-top: 10px; }
+  .priv .term { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 13px; background: var(--ink); color: #eee; padding: 18px 20px; border-radius: 2px; }
+  .priv .term .zero { color: #9df2b0; margin-top: 6px; }
+
+  /* loop */
+  .loop ol { list-style: none; counter-reset: s; margin-top: 20px; max-width: 62ch; }
+  .loop li { counter-increment: s; padding: 10px 0; display: grid; grid-template-columns: 34px 1fr; gap: 14px; align-items: baseline; }
+  .loop li::before { content: "0" counter(s); color: var(--lila); font-weight: bold; font-variant-numeric: tabular-nums; }
+  .loop li a { color: var(--ink); }
+  .loop li span { color: var(--mut); }
+
+  /* close */
+  .close { padding: 56px 0 64px; }
+  .close h2 { font-size: 30px; max-width: 22ch; }
+  .close p { color: var(--mut); margin-top: 10px; max-width: 48ch; }
+  .close .acts { margin-top: 22px; display: flex; align-items: center; gap: 16px; }
+
+  footer { padding: 26px 0 34px; font-size: 12.5px; color: var(--mut); }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: baseline; }
+  footer a { color: var(--mut); text-decoration: none; }
+  footer a:hover { color: var(--ink); }
+  footer .b { color: var(--ink); font-weight: bold; }
+
+  @media (max-width: 860px) {
+    .hero { grid-template-columns: 1fr; gap: 28px; padding-top: 24px; }
+    .hero h1 { font-size: 29px; }
+    .worth, .priv { grid-template-columns: 1fr; gap: 22px; }
+    .how .cols { grid-template-columns: 1fr; }
+    nav.top .links a:not(.btn) { display: none; }
+  }
+</style>
 </head>
 <body>
 
-<header class="topbar">
-  <a class="brand" href="index.html">gymgyme</a>
-  <span class="searchwrap">
-    <input class="topsearch" id="topSearch" placeholder="search moves, categories...">
-    <span class="mag">🔍</span>
-    <div class="searchdrop" id="searchDrop"></div>
-  </span>
-  <nav>
-    <a href="coach.html">personal trainer</a>
-    <a href="moves.html">moves list</a>
-    <a href="my-moves.html" id="movesBtn">my moves (0)</a>
-    <a href="my-program.html" id="nav-program">my program</a>
-    <a href="suggest.html">suggest something!</a>
-  </nav>
-</header>
-
-<section class="marquee">
-  <div class="bulbs b-top"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-  <div class="awning"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-  <div class="now">NOW SHOWING · EVERY NIGHT · YOUR LIVING ROOM · 🤸 NO EXPERIENCE REQUIRED</div>
-  <h1>✨ personal trainer 🎀 - starring you 🤸 counted live</h1>
-  <p class="value-line">your camera counts your reps, scores your form out of 100, and corrects it — live, on your device, free.</p>
-  <div class="mrow">
-    <p>your camera reads 33 points of your body, counts every rep with a tick, scores it out of 100 and coaches your form in 3d on the moves it can measure. filmed entirely on your device - the footage never leaves the theater.</p>
-    <div class="cast">
-      <span class="stamp">TESTED ON<br>HERSELF<br>★ DAILY ★</span>
-      <div class="shot"><img src="img/damla_5289_crop.jpg" alt="damla training in front of the engine"><em>the director</em></div>
-      <div class="shot"><img src="img/damla_5275.jpg" alt="damla building gymgyme"><em>damla - bilkent cs</em></div>
-      <div class="shot"><img src="img/damla_5263.jpg" alt="the engine tracking damla"><em>built the whole engine</em></div>
+<nav class="top">
+  <div class="wrap" style="display:flex;align-items:center;justify-content:space-between">
+    <a class="brand" href="index.html">gymgyme<i>.</i></a>
+    <div class="links">
+      <a href="moves.html">moves</a>
+      <a href="my-program.html">build a workout</a>
+      <a href="blog.html">blog</a>
+      <a href="patch-notes.html">patch notes</a>
+      <a class="btn" href="coach.html">open the camera</a>
     </div>
   </div>
-  <a class="herobtn" href="coach.html">open the camera 📸 - no ticket needed</a>
-  <span class="stub">ADMIT ONE <i>+ her camera · seat: your living room · price: a few squats</i></span>
-  <span class="tw" style="left:6%;top:26%">✦</span>
-  <span class="tw" style="left:46%;bottom:18%">✦</span>
-  <span class="tw" style="right:8%;top:18%">✦</span>
-  <span class="tw" style="right:30%;bottom:30%">✦</span>
-  <div class="bulbs b-bot"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-  <div class="bulbs b-left"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-  <div class="bulbs b-right"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-</section>
+</nav>
 
-<section class="qa-band">
-  <p class="lbl">OKAY BUT HOW? · IN HUMAN WORDS</p>
-  <div class="qa-grid">
-    <div class="q"><b>is it chatgpt?</b><span>no. no llm, no api call, no server thinking for you - it's trigonometry running at camera speed. your joints make angles, angles make reps.</span></div>
-    <div class="q"><b>okay, not chatgpt - then how do you do it?</b><span>every move is a spec: which joint drives it, what angle counts as bottom, what counts as lockout, how fast a clean rep should travel. each frame the engine computes your joint angles from 3d coordinates, smooths the jitter, tracks which phase you're in and only counts the rep when the full cycle closes - with hysteresis, so half-hearted wobbles don't count twice.</span></div>
-    <div class="q"><b>then what sees me?</b><span>mediapipe's pose landmarker - an open, already-trained model running on your gpu, on your device. it returns 33 landmarks per frame (x, y, z + visibility), including metric 3d world coordinates, so angles stay honest even when you turn toward the camera.</span></div>
-    <div class="q"><b>does it use my photos to train your model?</b><span>no. each frame goes from your camera to the pose model, lands as a float buffer in wasm memory, gets its math done and is thrown away. nothing is stored, nothing is sent, nothing learns from you - there is no training pipeline to feed you into even if i wanted one.</span></div>
-    <div class="q"><b>then how did you train it?</b><span>i didn't train - i engineered. the pose model came pre-trained; on top of it sits my own hand-written engine: angle thresholds, phase state machines and scoring curves per move, unit-tested in native c++ (92 tests) and calibrated move by move on the person in the photos up there.</span></div>
-    <div class="q"><b>who counts?</b><span>my own engine, written in c++ and compiled to webassembly. landmarks are written straight into the wasm heap once per frame and passed by pointer - one boundary call per frame, so it keeps up with your camera instead of your patience.</span></div>
-    <div class="q"><b>why doesn't it upload?</b><span>there's no upload code in the entire codebase - the math happens in your browser's sandbox. the strictest privacy policy is the one physics enforces.</span></div>
-    <div class="q"><b>the score?</b><span>every rep gets graded 0-100 from three signals: depth (how far you actually went), tempo (how long the rep took vs. the spec) and control (how steady the angle curve was). honest, never mean.</span></div>
-    <div class="q"><b>so why is it free?</b><span>that's exactly why. no llm api, no gpu cluster, no server bill - i don't have to pay for anything, so you don't have to pay for me.</span></div>
+<div class="wrap">
+  <header class="hero">
+    <div>
+      <h1>Your camera counts the reps and scores your form<i>.</i></h1>
+      <p class="sub">Point your phone at yourself and move. The engine marks 33 points of your body every frame, counts every clean rep, grades your form out of 100 and corrects it while you move.</p>
+      <div class="acts">
+        <a class="btn" href="coach.html">open the camera</a>
+        <a class="quiet" href="moves.html">or browse 386 moves first</a>
+      </div>
+      <span class="stub">Free. No account to start, no ads, no video ever uploaded.</span>
+    </div>
+
+    <div class="demo">
+      <canvas id="rig" width="520" height="560"></canvas>
+      <div class="read">
+        <div class="n" id="reps">0</div>
+        <div class="lbl">reps counted, live, of this figure</div>
+        <div class="angle"><span id="knee">172</span>° knee</div>
+      </div>
+      <p class="tag">What the camera sees: joints, angles, a full clean cycle. Not a picture of you.</p>
+    </div>
+  </header>
+</div>
+
+<section>
+  <div class="wrap worth">
+    <div class="big">
+      <p class="eyebrow">Why would this be worth paying for?</p>
+      <h2>It does the three jobs of a personal trainer.</h2>
+      <p>A trainer in a gym charges by the hour to do exactly this. Here the same three jobs run in your browser, and the price stays zero because no server does the work.</p>
+    </div>
+    <ul>
+      <li><span class="k">01</span><div><b>It counts, honestly.</b><p>Only a full, clean cycle counts as a rep. Half-hearted wobbles never sneak a second one in.</p></div></li>
+      <li><span class="k">02</span><div><b>It scores every rep out of 100.</b><p>Depth, tempo, control: the three things a good coach watches, graded as you move.</p></div></li>
+      <li><span class="k">03</span><div><b>It corrects your form.</b><p>The tracked joint goes purple when something is off, and tells you what to fix, mid set.</p></div></li>
+    </ul>
   </div>
 </section>
 
-<div id="greet" class="greet"></div>
+<section class="how">
+  <div class="wrap">
+    <p class="eyebrow">How does it work?</p>
+    <h2>No chatbot, no server. Geometry, running on your phone.</h2>
+    <div class="cols">
+      <div class="c"><b>It reads you.</b><p>An open pose model marks 33 points of your body every frame, in 3d, on your own screen.</p></div>
+      <div class="c"><b>It measures the angle.</b><p>A squat is your knee angle closing and opening. The engine watches that curve, not a picture of you.</p></div>
+      <div class="c"><b>It counts the rep.</b><p>Only a complete cycle through the full range of motion increments the counter.</p></div>
+      <div class="c"><b>It forgets the frame.</b><p>The math is done, the frame is gone. Nothing stored, nothing sent, nothing kept.</p></div>
+    </div>
+    <p class="note">Hand-written in <i>C++</i>, compiled to wasm to keep pace with your camera. <i>92 native tests</i>. No API bill, which is exactly why it stays free.</p>
+  </div>
+</section>
 
-<p class="dir-tag tag small">a directory by everyone, for everyone. free, no ads, no account needed, forever. people recommend, the important grows - literally. <span class="stat" id="stat-articles">articles (0)</span> · <span class="stat" id="stat-workouts">workouts (0)</span></p>
+<section>
+  <div class="wrap priv">
+    <div>
+      <p class="eyebrow">So where does the video go?</p>
+      <div class="mega">Nowhere<i>.</i></div>
+      <p>There is no upload button, because there is no upload code. The camera feed lives for a blink in your browser and is gone. It cannot leak, because it never exists anywhere but here.</p>
+    </div>
+    <div class="term">
+      <div>$ grep -r "upload" .</div>
+      <div class="zero">0 results.</div>
+    </div>
+  </div>
+</section>
 
-<nav id="nav">
-  <a href="#healthy-living-articles">healthy-living-articles</a>
-  <a href="#home-workouts">home-workouts</a>
-  <a href="#pilates">pilates</a>
-  <a href="#ballet">ballet</a>
-  <a href="#yoga">yoga</a>
-  <a href="#gym">gym</a>
-  <a href="#calisthenics">calisthenics</a>
-  <a href="#bodyweight">bodyweight</a>
-</nav>
+<section class="loop">
+  <div class="wrap">
+    <p class="eyebrow">The whole loop</p>
+    <h2>From browsing to a counted set, in four steps.</h2>
+    <ol>
+      <li><div><a href="moves.html">Browse 386 moves</a> <span>with zero equipment: pilates, ballet, yoga, bodyweight.</span></div></li>
+      <li><div><a href="my-moves.html">Save the ones you like</a> <span>into a shortlist that is actually yours.</span></div></li>
+      <li><div><a href="my-program.html">Drop them onto the days you train.</a> <span>Reps for counted moves, seconds for holds.</span></div></li>
+      <li><div><a href="coach.html">Open the camera and do it.</a> <span>The engine counts, scores and corrects. Everything reversible, same session.</span></div></li>
+    </ol>
+  </div>
+</section>
 
-<h1 id="cat-title">home-workouts</h1>
+<section class="close">
+  <div class="wrap">
+    <h2>Open the camera. Do one rep.</h2>
+    <p>No class to book, no account to make, nobody watching. A tab opens in the room you already train in, and the counting starts.</p>
+    <div class="acts">
+      <a class="btn" href="coach.html">open the camera</a>
+      <a class="quiet" href="blog.html">read the blog</a>
+    </div>
+  </div>
+</section>
 
-<div id="directory"><p class="loading">loading the good stuff…</p></div>
+<footer>
+  <div class="wrap">
+    <span class="b">gymgyme.</span>
+    <a href="moves.html">moves</a>
+    <a href="my-moves.html">my moves</a>
+    <a href="my-program.html">build a workout</a>
+    <a href="coach.html">open the camera</a>
+    <a href="blog.html">blog</a>
+    <a href="patch-notes.html">patch notes</a>
+    <a href="suggest.html">suggest a move</a>
+    <a href="gizlilik.html">privacy</a>
+    <a href="terms.html">terms</a>
+    <a href="https://github.com/nosey-dewdrop">github</a>
+    <span>No ads, no tracking, no cookies.</span>
+    <span>Move data from the public-domain free-exercise-db.</span>
+  </div>
+</footer>
 
-<h2 class="center push-down">contributors (thank you!)</h2>
-<p id="contributors" class="contribs center">…</p>
+<script>
+// live demo: a 2d joint rig doing squats. the counter counts THIS figure's
+// completed cycles and the knee angle is computed from the drawn geometry,
+// so every number on screen is real.
+(function () {
+  const cv = document.getElementById('rig');
+  const ctx = cv.getContext('2d');
+  const repsEl = document.getElementById('reps');
+  const kneeEl = document.getElementById('knee');
+  const LILA = '#8e6fd8', INK = '#111', BONE = '#d8d4de';
+  let reps = 0, wasDown = false;
+  const T = 2600; // ms per squat cycle
+  let t0 = null;
 
-<p class="footer">no ads, no tracking, no cookies, no money - just links.<br>we store only what you see on this page.<br>built by <a href="https://github.com/nosey-dewdrop">nosey-dewdrop</a>.</p>
+  function pose(d) {
+    // side view, facing right. d = squat depth 0..1
+    const ankle = { x: 250, y: 470 };
+    const knee = { x: 250 + 46 * d, y: 388 + 14 * d };
+    const hip = { x: 250 - 52 * d, y: 300 + 92 * d };
+    const lean = 0.42 * d; // torso lean, radians
+    const tor = 128;
+    const sho = { x: hip.x + tor * Math.sin(lean), y: hip.y - tor * Math.cos(lean) };
+    const head = { x: sho.x + 34 * Math.sin(lean), y: sho.y - 42 * Math.cos(lean) };
+    // arms swing forward as depth grows
+    const aAng = -0.45 + (Math.PI / 2 + 0.35) * d; // from hanging to forward
+    const upper = 62, fore = 58;
+    const elb = { x: sho.x + upper * Math.sin(aAng) * 0.4 + upper * Math.cos(aAng) * 0.4, y: sho.y + upper * Math.cos(aAng) };
+    const wri = { x: elb.x + fore * (0.3 + 0.7 * d), y: elb.y + fore * (1 - d) * 0.5 - 10 * d };
+    return { ankle, knee, hip, sho, head, elb, wri };
+  }
 
-<script src="data/moves-db.js"></script>
-<script src="js/topbar.js"></script>
-<script src="seed.js"></script>
-<script src="script.js"></script>
+  function angleAt(b, a, c) {
+    const v1 = { x: a.x - b.x, y: a.y - b.y }, v2 = { x: c.x - b.x, y: c.y - b.y };
+    const dot = v1.x * v2.x + v1.y * v2.y;
+    return Math.round(Math.acos(dot / (Math.hypot(v1.x, v1.y) * Math.hypot(v2.x, v2.y))) * 180 / Math.PI);
+  }
+
+  function joint(p, r, color) {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.fill();
+  }
+
+  function bone(a, b) {
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.strokeStyle = BONE;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+
+  function frame(ts) {
+    if (t0 === null) t0 = ts;
+    const phase = ((ts - t0) % T) / T;
+    const d = (1 - Math.cos(phase * Math.PI * 2)) / 2; // smooth 0->1->0
+    if (d > 0.85) wasDown = true;
+    if (wasDown && d < 0.08) { wasDown = false; reps++; repsEl.textContent = reps; }
+
+    const p = pose(d);
+    ctx.clearRect(0, 0, cv.width, cv.height);
+
+    // floor dots
+    ctx.fillStyle = BONE;
+    for (let x = 90; x <= 430; x += 34) { ctx.beginPath(); ctx.arc(x, 486, 1.6, 0, Math.PI * 2); ctx.fill(); }
+
+    bone(p.ankle, p.knee); bone(p.knee, p.hip); bone(p.hip, p.sho); bone(p.sho, p.head);
+    bone(p.sho, p.elb); bone(p.elb, p.wri);
+
+    joint(p.head, 15, INK);
+    joint(p.sho, 6, INK); joint(p.hip, 6, INK); joint(p.ankle, 6, INK);
+    joint(p.elb, 5, INK); joint(p.wri, 5, INK);
+    // tracked joint: the knee, in lila, with a ring
+    joint(p.knee, 7, LILA);
+    ctx.beginPath();
+    ctx.arc(p.knee.x, p.knee.y, 13 + 2 * Math.sin(ts / 200), 0, Math.PI * 2);
+    ctx.strokeStyle = LILA;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    const kneeAngle = angleAt(p.knee, p.hip, p.ankle);
+    kneeEl.textContent = kneeAngle;
+    ctx.fillStyle = LILA;
+    ctx.font = '13px Helvetica, Arial, sans-serif';
+    ctx.fillText(kneeAngle + '°', p.knee.x + 20, p.knee.y + 4);
+
+    requestAnimationFrame(frame);
+  }
+
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const p = pose(0.6);
+    [[p.ankle,p.knee],[p.knee,p.hip],[p.hip,p.sho],[p.sho,p.head],[p.sho,p.elb],[p.elb,p.wri]].forEach(([a,b])=>bone(a,b));
+    joint(p.head, 15, INK); joint(p.sho,6,INK); joint(p.hip,6,INK); joint(p.ankle,6,INK); joint(p.elb,5,INK); joint(p.wri,5,INK); joint(p.knee,7,LILA);
+    kneeEl.textContent = angleAt(p.knee, p.hip, p.ankle);
+  } else {
+    requestAnimationFrame(frame);
+  }
+})();
+</script>
 </body>
 </html>
