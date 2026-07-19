@@ -1,0 +1,32 @@
+# gymgyme — DECISIONS
+
+Verilmiş kararlar. Aynı soru iki kez sorulmaz (PROTOKOL §5). Format:
+tarih · faz · başlık / Durum / Karar / Gerekçe / Etki.
+
+---
+
+## 19 Tem · FAZ 2 · engine-core: coach.js'e dokunmama
+Durum: canlı kamera index'e bağlanacaktı; ortak motor mantığı gerekiyordu.
+Karar: js/engine-core.js ortak modül yazıldı (mediapipe pose loader + wasm
+motor + writePosesToHeap). index kullanıyor. coach.js'e DOKUNULMADI.
+Gerekçe: coach.js canlı, kırılgan, 1500+ satır; recovery+mesh+calibration
+state iç içe, makePose iki yerde. engine-core aynı mantığı bağımsız barındırıyor,
+"ortak parça ayrı modülde" talebini karşılıyor. coach'u zorla bağlamak
+"davranış birebir aynı" garantisini bozardı (Damla onayı: "coach'a dokunma").
+Etki: küçük kod tekrarı (pose ladder ~15 satır) iki yerde. Değişmez #9 korundu.
+
+## 19 Tem · FAZ 2 · I3 worth+how tam birleştirilmedi
+Durum: HANDOFF I3 "worth ve how'u tek bölümde birleştir" diyordu.
+Karar: iki bölüm ayrı bırakıldı AMA how'a band-lila (farklı zemin) verildi +
+araya "real output" mono bloğu kondu, ritim kırıldı.
+Gerekçe: uygulamada worth ("neden değer") ve how ("nasıl çalışır") farklı
+sorulara cevap veriyor; ritim kırma "aynı şeyi iki kez" hissini çözüyor.
+Etki: I3 KISMİ. Damla'ya faz sonu sorusu açıldı (tam birleştirme mi?).
+
+## 19 Tem · FAZ 2 · kart sistemi radius token'ı bekliyor
+Durum: kart sistemi (Damla spec'i) 16px radius ile eklendi, ama hardcoded.
+Karar: geçici hardcoded 16px; PROTOKOL §1.4 radius token sistemi (--r-sm/
+--r/--r-lg) FAZ 3 başında kurulacak, sonra tokenlaştırılacak.
+Gerekçe: PROTOKOL FAZ 2'den SONRA geldi; radius sistemini geriye dönük
+uygulamak FAZ 3 açılış işi.
+Etki: gate.sh radius kapısı FAZ 3 başına kadar kırmızı (bilinen borç).

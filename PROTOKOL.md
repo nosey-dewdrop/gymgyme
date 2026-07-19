@@ -289,11 +289,17 @@ zevk_karari:
 
 ## 8. DURMA KOŞULLARI
 
-Ajan şu durumlarda durur ve insanı bekler:
+**HER FAZ SONUNDA İNSAN ONAYI BEKLENİR** (19 Tem, Damla'nın emri —
+§0/§8'in "sonraki faza kendiliğinden geç" kısmını EZER). Faz biter →
+commit → deploy → STATUS.md güncellenir → **DUR.** Damla canlıda bakıp
+"devam" diyene kadar sonraki faza GEÇME. Faz İÇİNDE ise §4 yeşil/sarı
+kurallarıyla sormadan ilerle; sorular biriktirilir, faz sonunda tek
+mesajda sorulur.
+
+Ajan şu durumlarda da (faz ortasında) durur ve insanı bekler:
 - KIRMIZI tetikleyici 1, 2 veya 4
 - Kapı üç denemede geçmedi
 - FAZ 6 bitti
 
-Bunlar dışında: faz biter → commit → deploy → STATUS güncellenir →
-sonraki faz başlar. İnsan yemekten döndüğünde STATUS.md'yi okur,
-biriken soruları tek seferde cevaplar.
+Özet: faz İÇİ otonom, faz SONU insan kapısı. İnsan STATUS.md'yi okur,
+biriken soruları tek seferde cevaplar, "devam" der, sonraki faz başlar.
