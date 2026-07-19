@@ -135,3 +135,17 @@ güncellendi. Q&A akordeon→açık blok, dizin index'ten kalkar (directory.html
 Gerekçe: değişmez sahibi insan; yeni tasarım yönü.
 Etki: FAZ 0-6 görünümü değişir (istenen). FAZ 8 spec DSL sonraki tura.
 Geri alınır: git revert (bu tur commit'leri).
+
+## 19 Tem · TASARIM v2 · coach kamera panelleri ink kalır (video alanı)
+Durum: "koyu kutu yasak" ama .panel (kamera video) + .onb-panel (çerçeve önizleme) ink.
+Karar: bunlar DEKORATİF kutu değil, canlı kamera GÖRÜNTÜ alanı (video zaten koyu). ink kaldı.
+index'te koyu kutu 0 (asıl hedef terminal'di, kalktı). Damla itiraz ederse wash yapılır.
+Gerekçe: video zemini ink mantıklı; dekoratif koyu kutu (term/output) kaldırıldı.
+Etki: koyu kutu kuralı = dekoratif kutulara; kamera alanları istisna.
+
+## 19 Tem · TASARIM v2 · misafir deneme = tek localStorage flag
+Durum: hesapsız 1 workout, takip YOK.
+Karar: gg-guest-used localStorage flag; temizlenirse sıfırlanır (kabul, parmak izi yok).
+Tam motor çalışır, sadece sonuç kaydedilmez (coach.js zaten sadece signed-in sync eder).
+Gerekçe: KVKK/gizlilik — fingerprint yok, tek flag; Damla'nın dili (sert değil).
+Etki: X-membership. Geri alınır: gate + flag kaldır.

@@ -181,3 +181,17 @@ Sonraki: FAZ 8 (spec DSL) — ama ≥5 hareketlik etiketli korpus GİRDİSİ ger
 - korpus/ + node_modules + motor.node.* gitignore (korpus kapalı, STRATEJI §4.2)
 - ISININ: PEXELS_API_KEY chat'e yazıldı → Damla Pexels'ten YENİLEMELİ (regenerate)
 Sonraki: FAZ 8 (spec DSL + 12 arketip) — korpus girdisi HAZIR.
+
+## TASARIM v2 + ÜYELİK (19 Tem) — FAZ 8 askıda, insan yön değişikliği
+Damla yeni tasarım+üyelik emri (palet+index+hero+moves+coach+patch+auth). FAZ 8 spec DSL sonraya.
+- PALET (değişmez, insan): --lila #C9A9D9, +--lila-deep #8E6BA8, buton --ink (lila buton yok), koyu kutu/terminal yasak. PROTOKOL §1.3 + gate güncellendi.
+- INDEX: Q&A açık 2-kolon (details→div) hero'dan sonra; dizin→directory.html; 01/02/03 kalktı→hairline; Nowhere! tek/dev/sol, 0 results kutu kalktı; real output beyaz+hairline; tek footer; her şey .wrap; arama Inter.
+- HERO: kart kalktı (nokta sayfa zemininde), figür %84, yeni yarıçaplar+iki bacak boşluk, nokta 1-2px, caption alta.
+- MOVES/MY-MOVES: kart sistemi; mono satır eklem+hedef açı (data/specs.json, arketip-tabanlı); filtre çipleri (.chip aktif lila-deep); sıralama çipleri (a-z/muscle/coached/newest, localStorage); .loading; my-moves pink-soft kart+dot.
+- COACH: boş koyu panel→nokta idle figür (js/coach-idle.js) + "this is what the engine sees"; drag-drop program (js/coach-dnd.js, progressive, coach.js dokunulmadı); paylaşılabilir set kartı (js/set-card.js, nokta+rep+skor+tarih+domain, foto yok, indir/paylaş).
+- PATCH: fotoğraflar sadece SOL kolon (sağ kalktı), sabit 2-kolon (metin aynı x), polaroid ~150px beyaz çerçeve alt-28px yumuşak gölge rotasyon, mono altyazı, serpiştirilmiş.
+- ÜYELİK: signup/signin/account.html + reset-password (auth-card, .field/.btn); Supabase auth (mevcut config, YENİ KEY YOK); misafir 1 workout (adet, localStorage gg-guest-used, takip yok, tam motor çalışır sonuç kaydedilmez); coach onboarding öncesi gate (signin/create/try one, deneme bitince try gizli, sert değil ne kazanacağını söyler); account: oturum+geçmiş+delete synced+delete account (CRUD, confirm+supabase)+çıkış; kütüphane/dizin/blog/index hesapsız; account linki footer 16 sayfa.
+Kapı: gate PASSED (universal 13/13, nav+footer 16 sayfa aynı, palet/emoji/radius temiz, koyu kutu index'te 0, 01/02/03 0, .chip/.card kullanımda). Canlı v77.
+KIRMIZI yok: Supabase mevcut (key sızıntısı 0). coach.js DOKUNULMADI (git temiz).
+Açık (Damla canlı test): kamera akışı, misafir deneme→gate, account silme, drag-drop, set kartı.
+GÜVENLİK: Pexels API key chat'e yazıldı → YENİLE (regenerate).
