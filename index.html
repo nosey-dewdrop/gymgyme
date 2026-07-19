@@ -14,10 +14,11 @@
   <meta name="twitter:description" content="Home workouts, pilates, ballet, yoga, gym, calisthenics, bodyweight. Everyone adds, everyone benefits. Free, no ads, forever.">
   <meta name="twitter:image" content="https://gymgyme.noseydewdrop.com/icons/icon-512.png">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎀</text></svg>">
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="css/marquee.css">
   <link rel="canonical" href="https://gymgyme.noseydewdrop.com/">
   <meta property="og:url" content="https://gymgyme.noseydewdrop.com/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400;1,9..144,600&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -30,6 +31,241 @@
     "keywords": "home workout, wall pilates, adult ballet at home, yoga for beginners, bodyweight exercises, no equipment workout, free workout program"
   }
   </script>
+<style>
+  :root{
+    --paper:#FAF3EE;
+    --ink:#2B1B21;
+    --rose:#C2477A;
+    --pale:#E8B4C8;
+    --dot-color:#FAF3EE;         /* the cloud dots, on the dark panel */
+    --hair:rgba(43,27,33,.16);
+    --ink-55:rgba(43,27,33,.55);
+    --ink-72:rgba(43,27,33,.72);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --paper:#2B1B21;
+      --ink:#FAF3EE;
+      --pale:#3D2530;
+      --dot-color:#2B1B21;       /* panel inverts: light ground, dark dots */
+      --hair:rgba(250,243,238,.18);
+      --ink-55:rgba(250,243,238,.55);
+      --ink-72:rgba(250,243,238,.72);
+    }
+    .panel{background:var(--pale)!important}
+  }
+
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:Inter,system-ui,sans-serif;
+    font-size:16px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit}
+  .mono{font-family:"JetBrains Mono",ui-monospace,monospace}
+  .fr{font-family:Fraunces,Georgia,serif}
+  i,em{font-family:Fraunces,Georgia,serif;font-style:italic}
+  .rose{color:var(--rose)}
+  ::selection{background:var(--rose);color:var(--paper)}
+  :focus-visible{outline:2px solid var(--rose);outline-offset:3px;border-radius:2px}
+
+  .shell{max-width:1180px;margin:0 auto;padding:0 clamp(20px,5vw,64px)}
+
+  /* ---- top bar ---- */
+  .topbar{
+    display:flex;align-items:center;gap:22px;
+    padding:22px clamp(20px,5vw,64px);
+    max-width:1180px;margin:0 auto;
+    flex-wrap:wrap;
+  }
+  .brand{
+    font-family:Fraunces,serif;font-weight:600;font-size:23px;
+    letter-spacing:-.02em;text-decoration:none;
+  }
+  .searchwrap{position:relative;flex:1;min-width:180px;max-width:340px}
+  .topsearch{
+    width:100%;font-family:inherit;font-size:14px;color:var(--ink);
+    background:transparent;border:none;border-bottom:1px solid var(--hair);
+    padding:7px 22px 7px 2px;
+  }
+  .topsearch::placeholder{color:var(--ink-55)}
+  .topsearch:focus{outline:none;border-bottom-color:var(--rose)}
+  .mag{position:absolute;right:2px;top:6px;font-size:12px;opacity:.5;pointer-events:none;font-family:"JetBrains Mono",monospace}
+  .searchdrop{
+    position:absolute;left:0;right:0;top:100%;z-index:40;
+    background:var(--paper);border:1px solid var(--hair);border-top:none;
+  }
+  .searchdrop a{display:block;padding:8px 12px;text-decoration:none;font-size:14px;border-top:1px solid var(--hair)}
+  .searchdrop a:hover{background:var(--pale)}
+  .topbar nav{display:flex;gap:20px;flex-wrap:wrap;font-size:13.5px}
+  .topbar nav a{text-decoration:none;color:var(--ink-72);padding-bottom:2px}
+  .topbar nav a:hover{color:var(--ink);box-shadow:inset 0 -1px 0 var(--rose)}
+  .topbar .vtag{font-family:"JetBrains Mono",monospace;opacity:.35!important;color:var(--ink-55)!important}
+
+  /* the button, everywhere: solid rose, paper text, 3 dots on hover */
+  .btn{
+    position:relative;display:inline-flex;align-items:center;gap:10px;
+    font-family:Inter,sans-serif;font-size:15px;font-weight:600;
+    background:var(--rose);color:#FAF3EE;text-decoration:none;
+    padding:14px 24px;border-radius:4px;border:none;cursor:pointer;
+    transition:transform .18s ease;
+  }
+  .btn:hover{transform:translateY(-1px)}
+  .btn::after{
+    content:"· · ·";position:absolute;left:0;right:0;bottom:-16px;
+    text-align:center;letter-spacing:3px;color:var(--rose);
+    font-size:12px;opacity:0;transform:translateY(-4px);
+    transition:opacity .18s ease,transform .18s ease;
+  }
+  .btn:hover::after{opacity:1;transform:translateY(0)}
+
+  /* ---- hero: asymmetric, ~40 / ~60 ---- */
+  .hero{
+    display:grid;grid-template-columns:minmax(0,42fr) minmax(0,58fr);
+    gap:clamp(28px,5vw,72px);align-items:center;
+    padding:clamp(24px,5vw,52px) 0 clamp(40px,7vw,84px);
+  }
+  .hero h1{
+    font-family:Fraunces,serif;font-weight:400;
+    font-size:clamp(44px,6.4vw,84px);line-height:1.02;letter-spacing:-.025em;
+  }
+  .hero h1 .rose{font-weight:600}
+  .claim{margin-top:22px;font-size:18px;line-height:1.5;max-width:30ch;color:var(--ink-72)}
+  .claim b{color:var(--ink);font-weight:600}
+  .heroact{margin-top:34px;display:flex;flex-direction:column;gap:20px;align-items:flex-start}
+  .howlink{font-family:Fraunces,serif;font-style:italic;font-size:17px;text-decoration:none;color:var(--ink);box-shadow:inset 0 -1px 0 var(--hair)}
+  .howlink:hover{box-shadow:inset 0 -1px 0 var(--rose)}
+
+  /* dark point-cloud panel */
+  .panel{
+    position:relative;background:var(--ink);border-radius:4px;overflow:hidden;
+    aspect-ratio:5/4;min-height:340px;
+  }
+  @media (prefers-color-scheme: dark){ .panel{background:var(--pale)} }
+  #cloud{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .panel .corner{
+    position:absolute;font-family:"JetBrains Mono",monospace;font-size:11px;
+    letter-spacing:.02em;color:var(--dot-color);opacity:.72;
+  }
+  .panel .tl{left:16px;top:15px}
+  .panel .knee{left:16px;bottom:15px}
+  .panel .knee b{color:var(--rose);font-weight:600}
+  .panel .score{
+    right:16px;top:15px;text-align:right;line-height:1.7;
+  }
+  .panel .score .fin{color:var(--rose);font-weight:600}
+
+  /* damla, in the frame — kept in the main flow */
+  .cast{margin-top:26px;display:flex;align-items:flex-end;gap:20px;flex-wrap:wrap}
+  .frame{
+    background:var(--pale);padding:9px 9px 0;border:1px solid var(--ink);
+    transform:rotate(-2deg);width:150px;
+  }
+  .frame img{display:block;width:100%;height:150px;object-fit:cover}
+  .frame em{display:block;text-align:center;font-size:12.5px;padding:8px 4px 10px;color:var(--ink-72)}
+  .stamp{
+    font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:600;
+    letter-spacing:.06em;line-height:1.5;text-align:center;color:var(--rose);
+    border:1px solid var(--rose);border-radius:50%;
+    width:104px;height:104px;display:flex;align-items:center;justify-content:center;
+    transform:rotate(-9deg);padding:8px;
+  }
+
+  /* ---- section rhythm (uneven on purpose) ---- */
+  .sec{padding:clamp(44px,7vw,88px) 0}
+  .sec.tight{padding:clamp(30px,4vw,52px) 0}
+  .kicker{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--rose)}
+
+  /* directory intro line */
+  .dir-tag{font-size:14.5px;color:var(--ink-72);max-width:60ch}
+  .dir-tag .stat{font-family:"JetBrains Mono",monospace;font-size:12.5px;color:var(--ink)}
+  .greet{font-family:Fraunces,serif;font-style:italic;font-size:19px;margin-bottom:6px;min-height:1px}
+
+  /* directory nav — dot-cluster marks */
+  #nav{display:flex;flex-wrap:wrap;gap:6px 26px;margin:26px 0 8px;align-items:center}
+  #nav a{
+    position:relative;text-decoration:none;font-size:14.5px;color:var(--ink-72);
+    padding-left:20px;
+  }
+  #nav a::before{
+    content:"";position:absolute;left:0;top:.62em;width:12px;height:6px;
+    background-image:
+      radial-gradient(circle,var(--ink) 1px,transparent 1.2px),
+      radial-gradient(circle,var(--ink) 1px,transparent 1.2px),
+      radial-gradient(circle,var(--ink) 1px,transparent 1.2px);
+    background-size:4px 4px;background-position:0 0,4px 2px,8px 0;background-repeat:no-repeat;
+    opacity:.5;
+  }
+  #nav a:hover{color:var(--ink)}
+  #nav a:hover::before,#nav a.active::before{
+    background-image:
+      radial-gradient(circle,var(--rose) 1.2px,transparent 1.4px),
+      radial-gradient(circle,var(--rose) 1.2px,transparent 1.4px),
+      radial-gradient(circle,var(--rose) 1.2px,transparent 1.4px);
+    opacity:1;
+  }
+
+  #cat-title{font-family:Fraunces,serif;font-weight:600;font-size:clamp(30px,4vw,44px);letter-spacing:-.02em;margin:6px 0 20px}
+
+  /* directory rows: dotted leaders, mono counts (script.js fills #directory) */
+  #directory .loading{font-family:Fraunces,serif;font-style:italic;color:var(--ink-55)}
+
+  /* Q&A — details/summary that refuses to look like an FAQ */
+  .qa h2{font-family:Fraunces,serif;font-weight:400;font-size:clamp(26px,3vw,34px);letter-spacing:-.02em;margin-bottom:4px}
+  .qa .sub{font-family:"JetBrains Mono",monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--rose);margin-bottom:26px}
+  details.q{border-top:1px solid var(--hair);padding:16px 0}
+  details.q:last-of-type{border-bottom:1px solid var(--hair)}
+  details.q>summary{
+    list-style:none;cursor:pointer;display:grid;grid-template-columns:1fr auto;
+    gap:10px 18px;align-items:baseline;
+  }
+  details.q>summary::-webkit-details-marker{display:none}
+  details.q .qq{font-family:Fraunces,serif;font-style:italic;font-size:19px;line-height:1.35}
+  details.q .mark{
+    justify-self:end;align-self:start;color:var(--rose);font-size:15px;line-height:1.9;
+  }
+  details.q .mark::before{content:"✦";opacity:.55}
+  details.q[open] .mark::before{opacity:1}
+  details.q .pull{
+    grid-column:1/2;font-family:Fraunces,serif;font-style:italic;
+    color:var(--ink-55);font-size:15px;margin-top:6px;
+  }
+  details.q .pull::after{content:" ✧";color:var(--rose)}
+  details.q .ans{
+    display:grid;grid-template-rows:0fr;transition:grid-template-rows .32s ease;
+  }
+  details.q[open] .ans{grid-template-rows:1fr}
+  details.q .ans>div{overflow:hidden}
+  details.q .ans p{padding-top:12px;font-size:15.5px;max-width:64ch;color:var(--ink-72)}
+  @media (prefers-reduced-motion: reduce){
+    details.q .ans{transition:none}
+    html{scroll-behavior:auto}
+  }
+
+  h2.center{font-family:Fraunces,serif;font-weight:400;font-size:26px;text-align:center;letter-spacing:-.02em}
+  .push-down{margin-top:56px}
+  .contribs{text-align:center;color:var(--ink-72);font-size:14px;max-width:70ch;margin:10px auto 0}
+  .center{text-align:center}
+
+  .footer{
+    border-top:1px solid var(--hair);margin-top:64px;
+    padding:30px clamp(20px,5vw,64px) 44px;text-align:center;
+    font-size:13px;color:var(--ink-72);line-height:1.9;
+  }
+  .footer a{color:var(--rose);text-decoration:none}
+  .footer a:hover{box-shadow:inset 0 -1px 0 var(--rose)}
+
+  @media(max-width:820px){
+    .hero{grid-template-columns:1fr}
+    .panel{order:-1}
+    .topbar{gap:14px}
+    .searchwrap{order:3;max-width:none;flex-basis:100%}
+  }
+</style>
 </head>
 <body>
 
@@ -37,7 +273,7 @@
   <a class="brand" href="index.html">gymgyme</a>
   <span class="searchwrap">
     <input class="topsearch" id="topSearch" placeholder="search moves, categories...">
-    <span class="mag">🔍</span>
+    <span class="mag">/</span>
     <div class="searchdrop" id="searchDrop"></div>
   </span>
   <nav>
@@ -49,71 +285,120 @@
   </nav>
 </header>
 
-<section class="marquee">
-  <div class="bulbs b-top"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-  <div class="awning"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-  <div class="now">NOW SHOWING · EVERY NIGHT · YOUR LIVING ROOM · 🤸 NO EXPERIENCE REQUIRED</div>
-  <h1>✨ personal trainer 🎀 - starring you 🤸 counted live</h1>
-  <p class="value-line">your camera counts your reps, scores your form out of 100, and corrects it — live, on your device, free.</p>
-  <div class="mrow">
-    <p>your camera reads 33 points of your body, counts every rep with a tick, scores it out of 100 and coaches your form in 3d on the moves it can measure. filmed entirely on your device - the footage never leaves the theater.</p>
-    <div class="cast">
-      <span class="stamp">TESTED ON<br>HERSELF<br>★ DAILY ★</span>
-      <div class="shot"><img src="img/damla_5289_crop.jpg" alt="damla training in front of the engine"><em>the director</em></div>
-      <div class="shot"><img src="img/damla_5275.jpg" alt="damla building gymgyme"><em>damla - bilkent cs</em></div>
-      <div class="shot"><img src="img/damla_5263.jpg" alt="the engine tracking damla"><em>built the whole engine</em></div>
+<main class="shell">
+  <section class="hero">
+    <div>
+      <h1>your camera counts your reps, scores your form <span class="rose">out of 100</span>, and corrects it.</h1>
+      <p class="claim"><b>live, on your device, free.</b></p>
+      <div class="heroact">
+        <a class="btn" href="coach.html">open the camera - no ticket needed</a>
+        <a class="howlink" href="#how">okay but how? →</a>
+      </div>
+
+      <div class="cast">
+        <div class="frame">
+          <img src="img/damla_5289_crop.jpg" alt="damla training in front of the engine">
+          <em>the director</em>
+        </div>
+        <div class="stamp">TESTED ON<br>HERSELF<br>★ DAILY ★</div>
+      </div>
     </div>
-  </div>
-  <a class="herobtn" href="coach.html">open the camera 📸 - no ticket needed</a>
-  <span class="stub">ADMIT ONE <i>+ her camera · seat: your living room · price: a few squats</i></span>
-  <span class="tw" style="left:6%;top:26%">✦</span>
-  <span class="tw" style="left:46%;bottom:18%">✦</span>
-  <span class="tw" style="right:8%;top:18%">✦</span>
-  <span class="tw" style="right:30%;bottom:30%">✦</span>
-  <div class="bulbs b-bot"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-  <div class="bulbs b-left"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-  <div class="bulbs b-right"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-</section>
 
-<section class="qa-band">
-  <p class="lbl">OKAY BUT HOW? · IN HUMAN WORDS</p>
-  <div class="qa-grid">
-    <div class="q"><b>is it chatgpt?</b><span>no. no llm, no api call, no server thinking for you - it's trigonometry running at camera speed. your joints make angles, angles make reps.</span></div>
-    <div class="q"><b>okay, not chatgpt - then how do you do it?</b><span>every move is a spec: which joint drives it, what angle counts as bottom, what counts as lockout, how fast a clean rep should travel. each frame the engine computes your joint angles from 3d coordinates, smooths the jitter, tracks which phase you're in and only counts the rep when the full cycle closes - with hysteresis, so half-hearted wobbles don't count twice.</span></div>
-    <div class="q"><b>then what sees me?</b><span>mediapipe's pose landmarker - an open, already-trained model running on your gpu, on your device. it returns 33 landmarks per frame (x, y, z + visibility), including metric 3d world coordinates, so angles stay honest even when you turn toward the camera.</span></div>
-    <div class="q"><b>does it use my photos to train your model?</b><span>no. each frame goes from your camera to the pose model, lands as a float buffer in wasm memory, gets its math done and is thrown away. nothing is stored, nothing is sent, nothing learns from you - there is no training pipeline to feed you into even if i wanted one.</span></div>
-    <div class="q"><b>then how did you train it?</b><span>i didn't train - i engineered. the pose model came pre-trained; on top of it sits my own hand-written engine: angle thresholds, phase state machines and scoring curves per move, unit-tested in native c++ (92 tests) and calibrated move by move on the person in the photos up there.</span></div>
-    <div class="q"><b>who counts?</b><span>my own engine, written in c++ and compiled to webassembly. landmarks are written straight into the wasm heap once per frame and passed by pointer - one boundary call per frame, so it keeps up with your camera instead of your patience.</span></div>
-    <div class="q"><b>why doesn't it upload?</b><span>there's no upload code in the entire codebase - the math happens in your browser's sandbox. the strictest privacy policy is the one physics enforces.</span></div>
-    <div class="q"><b>the score?</b><span>every rep gets graded 0-100 from three signals: depth (how far you actually went), tempo (how long the rep took vs. the spec) and control (how steady the angle curve was). honest, never mean.</span></div>
-    <div class="q"><b>so why is it free?</b><span>that's exactly why. no llm api, no gpu cluster, no server bill - i don't have to pay for anything, so you don't have to pay for me.</span></div>
-  </div>
-</section>
+    <div class="panel">
+      <canvas id="cloud" aria-label="a point cloud of 33 body landmarks, squatting, the knee joint tracked live"></canvas>
+      <div class="corner tl mono">33 landmarks · on-device</div>
+      <div class="corner knee mono"><b id="kneeAngle">172°</b> knee</div>
+      <div class="corner score mono">
+        rep 7 · depth 96<br>tempo 88 · control 91<br><span class="fin">92/100</span>
+      </div>
+    </div>
+  </section>
 
-<div id="greet" class="greet"></div>
+  <section class="sec qa" id="how">
+    <h2 class="fr">okay but how?</h2>
+    <p class="sub">in human words</p>
 
-<p class="dir-tag tag small">a directory by everyone, for everyone. free, no ads, no account needed, forever. people recommend, the important grows - literally. <span class="stat" id="stat-articles">articles (0)</span> · <span class="stat" id="stat-workouts">workouts (0)</span></p>
+    <details class="q">
+      <summary><span class="qq">is it chatgpt?</span><span class="mark"></span></summary>
+      <p class="pull">it's trigonometry running at camera speed</p>
+      <div class="ans"><div><p>no. no llm, no api call, no server thinking for you - it's trigonometry running at camera speed. your joints make angles, angles make reps.</p></div></div>
+    </details>
 
-<nav id="nav">
-  <a href="#healthy-living-articles">healthy-living-articles</a>
-  <a href="#home-workouts">home-workouts</a>
-  <a href="#pilates">pilates</a>
-  <a href="#ballet">ballet</a>
-  <a href="#yoga">yoga</a>
-  <a href="#gym">gym</a>
-  <a href="#calisthenics">calisthenics</a>
-  <a href="#bodyweight">bodyweight</a>
-</nav>
+    <details class="q">
+      <summary><span class="qq">okay, not chatgpt - then how do you do it?</span><span class="mark"></span></summary>
+      <p class="pull">every move is a spec</p>
+      <div class="ans"><div><p>every move is a spec: which joint drives it, what angle counts as bottom, what counts as lockout, how fast a clean rep should travel. each frame the engine computes your joint angles from 3d coordinates, smooths the jitter, tracks which phase you're in and only counts the rep when the full cycle closes - with hysteresis, so half-hearted wobbles don't count twice.</p></div></div>
+    </details>
 
-<h1 id="cat-title">home-workouts</h1>
+    <details class="q">
+      <summary><span class="qq">then what sees me?</span><span class="mark"></span></summary>
+      <p class="pull">an open, already-trained model running on your gpu, on your device</p>
+      <div class="ans"><div><p>mediapipe's pose landmarker - an open, already-trained model running on your gpu, on your device. it returns 33 landmarks per frame (x, y, z + visibility), including metric 3d world coordinates, so angles stay honest even when you turn toward the camera.</p></div></div>
+    </details>
 
-<div id="directory"><p class="loading">loading the good stuff…</p></div>
+    <details class="q">
+      <summary><span class="qq">does it use my photos to train your model?</span><span class="mark"></span></summary>
+      <p class="pull">nothing is stored, nothing is sent, nothing learns from you</p>
+      <div class="ans"><div><p>no. each frame goes from your camera to the pose model, lands as a float buffer in wasm memory, gets its math done and is thrown away. nothing is stored, nothing is sent, nothing learns from you - there is no training pipeline to feed you into even if i wanted one.</p></div></div>
+    </details>
 
-<h2 class="center push-down">contributors (thank you!)</h2>
-<p id="contributors" class="contribs center">…</p>
+    <details class="q">
+      <summary><span class="qq">then how did you train it?</span><span class="mark"></span></summary>
+      <p class="pull">i didn't train - i engineered</p>
+      <div class="ans"><div><p>i didn't train - i engineered. the pose model came pre-trained; on top of it sits my own hand-written engine: angle thresholds, phase state machines and scoring curves per move, unit-tested in native c++ (92 tests) and calibrated move by move on the person in the photos up there.</p></div></div>
+    </details>
+
+    <details class="q">
+      <summary><span class="qq">who counts?</span><span class="mark"></span></summary>
+      <p class="pull">my own engine, written in c++ and compiled to webassembly</p>
+      <div class="ans"><div><p>my own engine, written in c++ and compiled to webassembly. landmarks are written straight into the wasm heap once per frame and passed by pointer - one boundary call per frame, so it keeps up with your camera instead of your patience.</p></div></div>
+    </details>
+
+    <details class="q">
+      <summary><span class="qq">why doesn't it upload?</span><span class="mark"></span></summary>
+      <p class="pull">the strictest privacy policy is the one physics enforces</p>
+      <div class="ans"><div><p>there's no upload code in the entire codebase - the math happens in your browser's sandbox. the strictest privacy policy is the one physics enforces.</p></div></div>
+    </details>
+
+    <details class="q">
+      <summary><span class="qq">the score?</span><span class="mark"></span></summary>
+      <p class="pull">honest, never mean</p>
+      <div class="ans"><div><p>every rep gets graded 0-100 from three signals: depth (how far you actually went), tempo (how long the rep took vs. the spec) and control (how steady the angle curve was). honest, never mean.</p></div></div>
+    </details>
+
+    <details class="q">
+      <summary><span class="qq">so why is it free?</span><span class="mark"></span></summary>
+      <p class="pull">i don't have to pay for anything, so you don't have to pay for me</p>
+      <div class="ans"><div><p>that's exactly why. no llm api, no gpu cluster, no server bill - i don't have to pay for anything, so you don't have to pay for me.</p></div></div>
+    </details>
+  </section>
+
+  <div id="greet" class="greet"></div>
+
+  <p class="dir-tag tag small">a directory by everyone, for everyone. free, no ads, no account needed, forever. people recommend, the important grows - literally. <span class="stat" id="stat-articles">articles (0)</span> · <span class="stat" id="stat-workouts">workouts (0)</span></p>
+
+  <nav id="nav">
+    <a href="#healthy-living-articles">healthy-living-articles</a>
+    <a href="#home-workouts">home-workouts</a>
+    <a href="#pilates">pilates</a>
+    <a href="#ballet">ballet</a>
+    <a href="#yoga">yoga</a>
+    <a href="#gym">gym</a>
+    <a href="#calisthenics">calisthenics</a>
+    <a href="#bodyweight">bodyweight</a>
+  </nav>
+
+  <h1 id="cat-title">home-workouts</h1>
+
+  <div id="directory"><p class="loading">loading the good stuff…</p></div>
+
+  <h2 class="center push-down">contributors (thank you!)</h2>
+  <p id="contributors" class="contribs center">…</p>
+</main>
 
 <p class="footer">no ads, no tracking, no cookies, no money - just links.<br>we store only what you see on this page.<br>built by <a href="https://github.com/nosey-dewdrop">nosey-dewdrop</a>.</p>
 
+<script src="js/dots.js"></script>
 <script src="data/moves-db.js"></script>
 <script src="js/topbar.js"></script>
 <script src="seed.js"></script>
