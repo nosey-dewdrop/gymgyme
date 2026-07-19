@@ -1,8 +1,19 @@
 {
   "generated": "2026-07-19",
-  "note": "engine accuracy baseline. real per-move recall/precision fills in as the corpus grows (FAZ 7+). until then only the synthetic liveness guard and the coachable catalog size are pinned.",
+  "note": "engine accuracy baseline on the first corpus (5 moves x 8 clips, Pexels, openly licensed). LABELS ARE AUTO (motor's own prediction) until a human confirms in tools/labeler.html — so these numbers measure consistency, not ground truth yet. FAZ 9 raises real recall; FAZ 11 publishes human-confirmed numbers.",
   "coachableMoves": 88,
-  "syntheticGoldenSquat": { "input": 5, "counted": 3, "guard": "counted >= 3" },
-  "corpus": { "clips": 0, "labelledMoves": [] },
-  "perMove": {}
+  "corpus": {
+    "clips": 40,
+    "labelledMoves": ["squat", "glute-bridge", "lunge", "push-up", "plank"],
+    "labelSource": "auto (motor prediction, human review pending)",
+    "flaggedForReview": 11
+  },
+  "perMove": {
+    "squat":        { "clips": 8, "recall": 0.75, "precision": 1.00, "motorCountedClips": 2 },
+    "glute-bridge": { "clips": 8, "recall": 1.00, "precision": 1.00 },
+    "lunge":        { "clips": 8, "recall": 1.00, "precision": 0.67 },
+    "push-up":      { "clips": 8, "recall": 0.00, "precision": 1.00, "note": "motor counted 0 push-ups in the wild — FAZ 9 target" },
+    "plank":        { "clips": 8, "recall": 1.00, "precision": 1.00, "note": "hold move, 0 reps expected" }
+  },
+  "finding": "on real in-the-wild clips the motor counts reps in only a fraction (squat 2/8, push-up 0/8). the engine is calibrated for a specific distance/angle; wild clips vary. this is the FAZ 9 problem (view classification, anthropometric normalization) and exactly what this suite exists to measure."
 }

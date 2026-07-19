@@ -9,3 +9,6 @@ CLAUDE.context.md
 engine/data/
 corpus/
 engine/motor.node.*
+node_modules/
+package-lock.json
+_autopage.html

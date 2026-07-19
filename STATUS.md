@@ -168,3 +168,16 @@ Kapı: validate quick GEÇTİ. corpus/ + motor.node.* gitignore (korpus kapalı,
 AÇIK (insan/para): klip toplama Pexels/Pixabay API key gerektirir → Damla .env'e koyar.
 Sonra: fetch-clips ≥5 hareket × 15 klip → labeler onay → gerçek recall/precision.
 Sonraki: FAZ 8 (spec DSL) — ama ≥5 hareketlik etiketli korpus GİRDİSİ gerekli.
+
+## FAZ 7 GÜNCELLEME — korpus toplandı + etiketlendi + ölçüldü (19 Tem)
+- 40 klip indirildi (5 hareket × 8, Pexels, hepsi .license.txt — açık lisans #14)
+- 40 klip headless auto-label (tools/auto-label.mjs): landmark çıkarımı (tarayıcı)
+  + motor tahmini (node motor.node.mjs); 11 klip review'a işaretlendi (aktif öğrenme)
+- REGRESYON SÜİTİ GERÇEK VERİYLE ÇALIŞTI: per-move recall/precision üretti
+  squat r0.75 (2/8 saydı) · glute-bridge r1.0 · lunge r1.0/p0.67 · push-up r0.0 · plank r1.0
+- baseline.json GERÇEK korpus sonuçlarıyla güncellendi
+- GERÇEK BULGU (DECISIONS): motor vahşi klipte az sayıyor (kalibrasyon dar) →
+  FAZ 9 hedefi. Label'lar AUTO (tutarlılık ölçümü), gerçek doğruluk insan onayı sonrası.
+- korpus/ + node_modules + motor.node.* gitignore (korpus kapalı, STRATEJI §4.2)
+- ISININ: PEXELS_API_KEY chat'e yazıldı → Damla Pexels'ten YENİLEMELİ (regenerate)
+Sonraki: FAZ 8 (spec DSL + 12 arketip) — korpus girdisi HAZIR.

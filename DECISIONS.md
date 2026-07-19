@@ -101,3 +101,27 @@ Durum: STRATEJI "korpus açık değil, sayılar yayınlanır klipler değil".
 Karar: corpus/ gitignore'da. Klipler + landmark + lisans lokalde, repoda değil.
 Gerekçe: STRATEJI §4.2 + değişmez #14 (lisans kaydı klip yanında, lokal).
 Etki: baseline.json + süit kodu tracked; klipler değil.
+
+## 19 Tem · FAZ 7 · headless auto-label (video seek → play-based)
+Durum: labeler tarayıcı aracı, ama ön-etiketleme AJAN İŞİ (YOL-HARITASI). Node'da
+mediapipe yok → Playwright headless chromium gerekti. İlk deneme video seek
+(currentTime++) uzun klipte TAKILDI (720 seek, event kırılgan).
+Karar: tools/auto-label.mjs — tarayıcı SADECE landmark çıkarır (play-based,
+requestVideoFrameCallback, 10fps örnekleme, 40s/klip cap); motor tahmini NODE
+tarafında (motor.node.mjs). Web motor + headless chromium'da TextDecoder/
+resizable-ArrayBuffer bug'ı vardı → motoru tarayıcıdan çıkardım, tek motor
+node target. Playwright tooling dep (package.json, node_modules ignore).
+Gerçek bulgu: seek yaklaşımı 10+ dk takıldı, play-based 40 klibi ~8 dk işledi.
+Etki: X28 ön-etiketleme çalışıyor. Geri alınır: auto-label.mjs sil.
+
+## 19 Tem · FAZ 7 · GERÇEK BULGU: motor vahşi klipte az sayıyor
+Durum: 40 klip (5 hareket) motordan geçti. squat 8 klipten 2'sinde saydı,
+push-up 0/8, glute-bridge/lunge/plank yüksek (ama bunlar 0-rep ya da hold).
+Bulgu: motor belirli mesafe/açı için kalibre; Pexels klipleri çeşitli
+(yandan/önden, uzak/yakın, kısmi) → yakalama düşük.
+Karar: bu bir motor HATASI değil, FAZ 9'un HEDEFİ (görüş açısı sınıflandırma,
+antropometrik normalizasyon). Regresyon süiti tam bunu ölçmek için var.
+baseline.json'a dürüstçe yazıldı (squat recall 0.75 ama motorCountedClips 2/8).
+NOT: label'lar şu an AUTO (motor kendi tahmini) → recall/precision "tutarlılık"
+ölçüyor, GERÇEK doğruluk DEĞİL. İnsan onayı (labeler.html) sonrası gerçek olur.
+Etki: FAZ 9 baseline'ı bu. Kapsam küçülmedi — gerçek doğruluk insan onayına bağlı.

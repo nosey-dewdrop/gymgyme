@@ -1,0 +1,28 @@
+{
+  "name": "gymgyme",
+  "version": "1.0.0",
+  "description": "a personal trainer that runs entirely in your browser. computer vision counts your reps on your own device, scores your form 0-100 and corrects your posture in 3d. not a single frame is uploaded anywhere. for everyone working out alone at home asking \"am i doing this right?\"",
+  "main": "script.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nosey-dewdrop/gymgyme.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/nosey-dewdrop/gymgyme/issues"
+  },
+  "homepage": "https://github.com/nosey-dewdrop/gymgyme#readme",
+  "dependencies": {
+    "playwright": "^1.61.1"
+  }
+}
