@@ -637,10 +637,14 @@ body.running #intro,body.running #progCard{display:none}
 .patch-photo img{width:100%;height:170px;object-fit:cover;display:block}
 .patch-photo figcaption{font-family:var(--mono);font-size:11px;color:var(--mut);margin-top:10px;text-align:center}
 /* row alignment: push each polaroid down to sit beside its entry, tilt alternates */
-.patch-photo.r1{margin-top:26px;transform:rotate(-3deg)}
-.patch-photo.r4{margin-top:210px;transform:rotate(2deg)}
-.patch-photo.r7{margin-top:210px;transform:rotate(-3deg)}
-.timeline{display:grid;gap:26px}
+/* photos stay in their own left column, spaced so they sit BESIDE entries (not
+   overlapping the text). the rail is a flex column; big gaps place each polaroid
+   next to roughly the 1st, 4th, 7th entry. */
+.patch-rail{display:flex;flex-direction:column;gap:0}
+.patch-photo.r1{margin-top:8px;transform:rotate(-3deg)}
+.patch-photo.r4{margin-top:230px;transform:rotate(2deg)}
+.patch-photo.r7{margin-top:230px;transform:rotate(-3deg)}
+.timeline{display:grid;gap:40px}
 .patch{display:block}
 .patch .pmeta{display:flex;gap:12px;align-items:baseline;margin-bottom:6px}
 .patch .ver{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--lila-deep)}
@@ -659,11 +663,17 @@ body.running #intro,body.running #progCard{display:none}
 /* ---------------------------------------------------------------- footer
    single row, holds everything, one hairline over. */
 .tfoot{border-top:1px solid var(--line);padding:26px 0 40px;background:var(--paper)}
-.tfoot .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;font-size:13px;color:var(--mut)}
+/* row 1: brand + links on the left, version pushed to the right.
+   row 2: the "No ads..." line alone underneath. */
+.tfoot .wrap{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px;font-size:13px;color:var(--mut)}
 .tfoot .b{font-family:var(--head);font-weight:600;color:var(--ink)}
 .tfoot a,.tfoot a:visited{color:var(--lila-deep)}
+.tfoot .vtag{margin-left:auto;flex-basis:auto}   /* version to the right of row 1 */
+/* the privacy line breaks onto its own full row */
+.tfoot .wrap > span:not(.b):not(.vtag){flex-basis:100%;margin-top:8px;order:2}
+.tfoot .vtag{order:1}
 /* version drops to its own line under the links, not alone at the right edge */
-.tfoot .vtag{flex-basis:100%;margin:6px 0 0;color:var(--mut)}
+.tfoot .vtag{color:var(--mut)}
 
 /* ---------------------------------------------------------------- reveal + a11y */
 .reveal{opacity:0;transform:translateY(12px);transition:opacity var(--dur-slow) ease,transform var(--dur-slow) var(--ease)}
