@@ -128,4 +128,29 @@ Açık: 386 kesin render sayısı (Damla canlı), M3 mono hedef (FAZ 8).
 | FOTOĞRAF sadece bu sayfa | kapandı | img/damla yalnız patch-notes'ta; index/coach/moves + 6 sayfada <img> foto = 0 (canlı) |
 Kapı: gate.sh 5 GEÇTİ (universal 13/13 + no photo outside patch + entries≥8). Canlı: 8 girdi, 3 foto lazy, index'te foto 0.
 Sonraki: FAZ 6.
-## FAZ 6 — Generic denetimi   [başlamadı]
+## FAZ 6 — Generic denetimi   [kapı geçti — 19 Tem] · TASARIM REWORK BİTTİ
+gate.sh 6 GEÇTİ (universal 13/13). Denetim sonucu:
+- stylesheet: 12/12 tek css/site.css · !important 0 · inline <style> 0
+- nav+footer 12 sayfada birebir aynı (diff)
+- palet: sadece 9 token (gate) · emoji/gradient/siyah gölge/chevron: canlı 0
+  (takvim chevron ‹› → ince ok SVG; has-strip ölü class temizlendi)
+- nokta motifi 7 ayrı yerde (≥4 ✓): hero point-cloud · card-dots · empty-dots ·
+  onb-dots · yearwall · loading · .dot
+- manifesto: kalan yok, tüm h1 kısa+düz
+- boş durumlar: moves/my-moves/my-program/blog HEPSİNDE .empty + buton
+- onboarding cevapsız ilerlemiyor (answered[] guard), X/skip yok
+- LOGO TESTİ: index (nokta bulut+real output+mono) · coach (onboarding+mono HUD) ·
+  moves (coached/reference) · patch-notes (3-kolon foto) → hiçbiri generic SaaS'la
+  karışmaz; en nötr gizlilik/terms bile mono nav + prose kabuğunda
+- ≥3 imza anı: (1) hero nokta bulutu + panel-içi canlı sayaç (2) onboarding nokta
+  ilerlemesi + adım 4 otomatik (3) coached/reference dürüstlük etiketi + real output
+- "sil-3": bariz ölü CSS yok (FAZ 1'de temizlendi); silme copy'ye dokunur = KIRMIZI,
+  yapılmadı
+Sonraki: YOL-HARITASI FAZ 7 (ölçüm altyapısı).
+
+---
+## TASARIM REWORK ÖZET (FAZ 0-6, 19 Tem)
+0 cache+Q&A · 1 tek kabuk · 2 index canlı kamera · 3 coach onboarding ·
+4 moves kart · 5 patch 3-kolon · 6 denetim. Canlı v75. Değişmez #9 korundu
+(coach.js motoru dokunulmadı). Açık (Damla/sonraki faz): kamera 4 senaryo canlı
+test · M3 mono hedef (FAZ 8 spec) · 386 kesin render sayısı.
