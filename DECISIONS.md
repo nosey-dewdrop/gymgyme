@@ -149,3 +149,19 @@ Karar: gg-guest-used localStorage flag; temizlenirse sıfırlanır (kabul, parma
 Tam motor çalışır, sadece sonuç kaydedilmez (coach.js zaten sadece signed-in sync eder).
 Gerekçe: KVKK/gizlilik — fingerprint yok, tek flag; Damla'nın dili (sert değil).
 Etki: X-membership. Geri alınır: gate + flag kaldır.
+
+## 19 Tem · TASARIM v2 · buton rengi TERS DÖNDÜ (lila zemin ink yazı)
+Durum: önce "buton --ink zemin beyaz, lila asla buton" emri (PROTOKOL'e yazıldı).
+Sonra Damla tam tersini istedi: buton lila zemin siyah yazı.
+Karar (İNSAN, son emir geçerli): .btn/.go/.mainbtn/gate-opt/stagestart/set-card-btn
+= --lila zemin, --ink yazı. PROTOKOL §1.3 güncellendi.
+Gerekçe: değişmez sahibi insan; son emir öncekini ezer (Damla onayladı).
+Etki: tüm site butonları lila. Geri alınır: ink zemin beyaz.
+
+## 19 Tem · TASARIM v2 · hero nokta figürü anatomik yeniden yazıldı
+Durum: figür dar alana sıkışmış (~%40), uzuvlar tek kütle, tanınmıyor.
+Karar: joints() anatomik oranlarla yeniden (baş-topuk = figH %84), iki bacak
+yatay açıklıkla ayrı (spread .085*figH), nokta dağıtımı uzuv uzunluğuyla ORANTILI
+(450 nokta segment uzunluğuna bölünür), zemin ayak bileği hizasında, nokta 1-2px.
+Gerekçe: Damla "figür tanınmıyor, uzuvlar ayrışsın, orantılı dağıtım" emri.
+Etki: landing.js. Geri alınır: git revert.
