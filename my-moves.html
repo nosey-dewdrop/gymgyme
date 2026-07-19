@@ -8,6 +8,7 @@
   <meta name="robots" content="noindex">
   <link rel="icon" href="icons/icon-192.png">
   <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/theme.css">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="css/marquee.css">
   <style>
@@ -24,9 +25,9 @@
     .createbar { max-width: 720px; margin: 14px auto 0; text-align: right; }
 
     /* program fişi: kapanabilir, sürüklenebilir pencere (coach'taki fişin kardeşi) */
-    .slip { position: fixed; right: 4vw; top: 150px; width: 272px; background: #fff; color: var(--cherry); font-family: "Courier New", Courier, monospace; font-size: 12.5px; padding: 20px 16px 18px; transform: rotate(-3deg); cursor: grab; box-shadow: 0 14px 26px rgba(51,0,14,.32); z-index: 40; touch-action: none; }
+    .slip { position: fixed; right: 4vw; top: 150px; width: 272px; background: #fff; color: var(--cherry); font-family: "Courier New", Courier, monospace; font-size: 12.5px; padding: 20px 16px 18px; transform: rotate(-3deg); cursor: grab; box-shadow: 0 14px 26px rgba(25,21,24,.32); z-index: 40; touch-action: none; }
     .slip[hidden] { display: none; }
-    .slip.dragging { cursor: grabbing; box-shadow: 0 24px 44px rgba(51,0,14,.4); }
+    .slip.dragging { cursor: grabbing; box-shadow: 0 24px 44px rgba(25,21,24,.4); }
     .slip .rhead { text-align: center; margin-bottom: 8px; letter-spacing: .08em; }
     .slip .rhead b { font-size: 15px; }
     .slip .rclose { position: absolute; top: 4px; right: 6px; background: none; border: none; color: var(--cherry); font: bold 14px Arial, Helvetica, sans-serif; cursor: pointer; padding: 2px 6px; box-shadow: none; }
@@ -38,7 +39,7 @@
     .slip input { width: 100%; font: 12.5px "Courier New", Courier, monospace; color: var(--cherry); background: var(--tint); border: none; border-radius: 6px; padding: 8px 10px; outline: none; margin: 4px 0 8px; box-sizing: border-box; }
     .slip .savebtn { width: 100%; background: var(--cherry); color: var(--on-cherry); border: none; border-radius: 8px; font: bold 13px Arial, Helvetica, sans-serif; padding: 10px 0; cursor: pointer; box-shadow: none; }
     .slip .savebtn:hover { background: var(--cherry-deep); }
-    .slip-tab { position: fixed; right: 4vw; top: 150px; z-index: 39; background: #fff; color: var(--cherry); border: none; font: bold 12.5px "Courier New", Courier, monospace; padding: 10px 14px; transform: rotate(-3deg); cursor: pointer; box-shadow: 0 10px 20px rgba(51,0,14,.28); }
+    .slip-tab { position: fixed; right: 4vw; top: 150px; z-index: 39; background: #fff; color: var(--cherry); border: none; font: bold 12.5px "Courier New", Courier, monospace; padding: 10px 14px; transform: rotate(-3deg); cursor: pointer; box-shadow: 0 10px 20px rgba(25,21,24,.28); }
     .slip-tab[hidden] { display: none; }
 
     .pl-list { max-width: 720px; margin: 26px auto 0; }
@@ -48,41 +49,47 @@
     .pl-row .grow { flex: 1; min-width: 0; }
     .pl-row button { background: none; border: none; color: var(--cherry); font: bold 13px Arial, Helvetica, sans-serif; cursor: pointer; box-shadow: none; padding: 4px 8px; }
   </style>
+  <link rel="stylesheet" href="css/calm.css">
 </head>
-<body>
-<header class="topbar">
-  <a class="brand" href="index.html">gymgyme</a>
-  <span class="searchwrap">
-    <input class="topsearch" id="topSearch" placeholder="search moves, categories...">
-    <span class="mag">🔍</span>
-    <div class="searchdrop" id="searchDrop"></div>
-  </span>
-  <nav>
-    <a href="coach.html">personal trainer</a>
-    <a href="moves.html">moves list</a>
-    <a href="my-moves.html" id="movesBtn">my moves (0)</a>
-    <a href="my-program.html">my program</a>
-    <a href="suggest.html">suggest something!</a>
-  </nav>
-</header>
+<body class="has-strip">
+<nav class="tnav">
+  <div class="wrap">
+    <a class="brand" href="index.html">gymgyme</a>
+    <span class="searchwrap">
+      <input class="topsearch" id="topSearch" placeholder="search moves, categories...">
+      <span class="mag">🔍</span>
+      <div class="searchdrop" id="searchDrop"></div>
+    </span>
+    <div class="links">
+      <a href="moves.html">moves</a>
+      <a href="my-program.html">build a workout</a>
+      <a class="on" href="my-moves.html" id="movesBtn">my moves (0)</a>
+      <a href="blog.html">blog</a>
+      <a href="patch-notes.html">patch notes</a>
+      <a class="go" href="coach.html"><span>open the camera</span></a>
+    </div>
+  </div>
+</nav>
 
-<section class="sub-sign">
-  <div class="awning"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-  <div class="now">MY MOVES · YOUR ♥ COLLECTION</div>
-  <h1>my moves - the acts you ♥'d 🤍</h1>
-  <p>everything you ♥'d on the moves list lands here. search it, filter it, tap "+ add" on tonight's picks - they print onto a program slip you can name and save. saved programs light up on the personal trainer sign.</p>
-  <div class="bulbs b-bot"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+<section class="pagehead">
+  <div class="wrap">
+    <p class="eyebrow">my moves · your ♥ collection</p>
+    <h1>the acts you ♥'d.</h1>
+    <p class="lead">everything you ♥'d on the moves list lands here. search it, filter it, tap "+ add" on tonight's picks. they print onto a program slip you can name and save. saved programs light up on the personal trainer sign.</p>
+  </div>
 </section>
 
 <section class="sub-body">
-  <span class="mvsw">
-    <input class="mvsearch" id="kSearch" placeholder="search your moves...">
-    <span class="tmag">🔍</span>
-  </span>
-  <div class="libfilters" id="kFilters"></div>
-  <div class="kept-wrap" id="keptList"></div>
-  <div class="createbar"><button class="mainbtn" id="createBtn" type="button" hidden>create a program 🧾</button></div>
-  <div class="pl-list" id="plList"></div>
+  <div class="wrap">
+    <span class="mvsw">
+      <input class="mvsearch" id="kSearch" placeholder="search your moves...">
+      <span class="tmag">🔍</span>
+    </span>
+    <div class="libfilters" id="kFilters"></div>
+    <div class="kept-wrap" id="keptList"></div>
+    <div class="createbar"><button class="mainbtn" id="createBtn" type="button" hidden>create a program 🧾</button></div>
+    <div class="pl-list" id="plList"></div>
+  </div>
 </section>
 
 <div class="slip" id="slip" hidden>
@@ -96,7 +103,22 @@
 </div>
 <button class="slip-tab" id="slipTab" type="button" hidden>🧾 new program</button>
 
-<p class="footer">no ads, no tracking, no cookies, no money - just links and reps.<br>built by <a href="https://github.com/nosey-dewdrop">nosey-dewdrop</a>.</p>
+<footer class="tfoot">
+  <div class="wrap">
+    <span class="b">gymgyme.</span>
+    <a href="moves.html">moves</a>
+    <a href="my-moves.html">my moves</a>
+    <a href="my-program.html">build a workout</a>
+    <a href="coach.html">open the camera</a>
+    <a href="blog.html">blog</a>
+    <a href="patch-notes.html">patch notes</a>
+    <a href="suggest.html">suggest a move</a>
+    <a href="gizlilik.html">privacy</a>
+    <a href="terms.html">terms</a>
+    <a href="https://github.com/nosey-dewdrop">github</a>
+    <span>no ads, no tracking, no cookies.</span>
+  </div>
+</footer>
 
 <script src="data/moves-db.js"></script>
 <script src="js/topbar.js"></script>

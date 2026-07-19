@@ -6,6 +6,7 @@
   <title>gymgyme moves list - 386 home moves, zero equipment</title>
   <meta name="description" content="386 no-equipment home training moves across legs, core, back, chest, arms, glutes and shoulders. Like your favourites and line them up for a workout.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎀</text></svg>">
+  <link rel="stylesheet" href="css/theme.css">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="css/marquee.css">
   <link rel="canonical" href="https://gymgyme.noseydewdrop.com/moves.html">
@@ -18,49 +19,76 @@
   <meta name="twitter:title" content="gymgyme moves list - 386 home moves, zero equipment">
   <meta name="twitter:description" content="386 no-equipment home training moves across legs, core, back, chest, arms, glutes and shoulders. Like your favourites and line them up for a workout.">
   <meta name="twitter:image" content="https://gymgyme.noseydewdrop.com/icons/icon-512.png">
+  <link rel="stylesheet" href="css/calm.css">
 </head>
-<body>
+<body class="has-strip">
 
-<header class="topbar">
-  <a class="brand" href="index.html">gymgyme</a>
-  <span class="searchwrap">
-    <input class="topsearch" id="topSearch" placeholder="search moves, categories...">
-    <span class="mag">🔍</span>
-    <div class="searchdrop" id="searchDrop"></div>
-  </span>
-  <nav>
-    <a href="coach.html">personal trainer</a>
-    <a href="moves.html">moves list</a>
-    <a href="my-moves.html" id="movesBtn">my moves (0)</a>
-    <a href="my-program.html">my program</a>
-    <a href="suggest.html">suggest something!</a>
-  </nav>
-</header>
+<nav class="tnav">
+  <div class="wrap">
+    <a class="brand" href="index.html">gymgyme</a>
+    <span class="searchwrap">
+      <input class="topsearch" id="topSearch" placeholder="search moves, categories...">
+      <span class="mag">🔍</span>
+      <div class="searchdrop" id="searchDrop"></div>
+    </span>
+    <div class="links">
+      <a class="on" href="moves.html">moves</a>
+      <a href="my-program.html">build a workout</a>
+      <a href="my-moves.html" id="movesBtn">my moves (0)</a>
+      <a href="blog.html">blog</a>
+      <a href="patch-notes.html">patch notes</a>
+      <a class="go" href="coach.html"><span>open the camera</span></a>
+    </div>
+  </div>
+</nav>
 
-<section class="sub-sign">
-  <div class="awning"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-  <div class="now">THE MOVE LIBRARY · 386 ACTS · ZERO EQUIPMENT</div>
-  <h1>moves list 🤸 - every act this stage knows</h1>
-  <p>tap the ♥ on anything that looks like your kind of trouble - it lands in "my moves" up top and lines up for your next workout. the camera engine tracks 14 of these live today, and it is still in training.</p>
-  <div class="bulbs b-bot"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+<section class="pagehead">
+  <div class="wrap">
+    <p class="eyebrow">the move library · 386 acts · zero equipment</p>
+    <h1>every act this stage knows.</h1>
+    <p class="lead">tap the ♥ on anything that looks like your kind of trouble. it lands in "my moves" up top and lines up for your next workout. moves the camera engine coaches live carry a <b>coached</b> tag; the rest are <b>reference</b>, shown honestly, not faked as counted.</p>
+  </div>
 </section>
 
 <section class="sub-body">
-  <span class="mvsw">
-    <input class="mvsearch" id="mvSearch" placeholder="search a move...">
-    <span class="tmag">🔍</span>
-  </span>
-  <div class="libfilters" id="libFilters"></div>
-  <div id="allMoves"></div>
+  <div class="wrap">
+    <span class="mvsw">
+      <input class="mvsearch" id="mvSearch" placeholder="search a move...">
+      <span class="tmag">🔍</span>
+    </span>
+    <div class="libfilters" id="libFilters"></div>
+    <div id="allMoves"></div>
+  </div>
 </section>
 
-<p class="footer">no ads, no tracking, no cookies, no money - just links and reps.<br>move data from the public-domain free-exercise-db.<br>built by <a href="https://github.com/nosey-dewdrop">nosey-dewdrop</a>.</p>
+<footer class="tfoot">
+  <div class="wrap">
+    <span class="b">gymgyme.</span>
+    <a href="moves.html">moves</a>
+    <a href="my-moves.html">my moves</a>
+    <a href="my-program.html">build a workout</a>
+    <a href="coach.html">open the camera</a>
+    <a href="blog.html">blog</a>
+    <a href="patch-notes.html">patch notes</a>
+    <a href="suggest.html">suggest a move</a>
+    <a href="gizlilik.html">privacy</a>
+    <a href="terms.html">terms</a>
+    <a href="https://github.com/nosey-dewdrop">github</a>
+    <span>no ads, no tracking, no cookies.</span>
+    <span>move data from the public-domain free-exercise-db.</span>
+  </div>
+</footer>
 
 <script src="data/moves-db.js"></script>
 <script src="js/topbar.js"></script>
 <script>
 (function () {
   const QUIPS = { core: "the quiet boss", legs: "the foundation", glutes: "the show", shoulders: "hold them high", arms: "wave goodbye to noodle arms", back: "the unsung hero", chest: "you vs. the floor" };
+  // koçlanabilir hareket kümesi motorun GERÇEK kataloğundan gelir (tek kaynak,
+  // elle liste yok). wasm yüklenene kadar boş: hiçbir hareket yanlışlıkla
+  // "coached" etiketlenmez (dürüstlük under-claim tarafına düşer).
+  const COACHED = new Set();   // name -> repBased? true/false; Map yerine iki set
+  const COACHED_HOLD = new Set();
   const allMoves = document.getElementById("allMoves");
   const searchEl = document.getElementById("mvSearch");
   const libFilters = document.getElementById("libFilters");
@@ -82,11 +110,14 @@
       const grid = document.createElement("div");
       grid.className = "lib-grid";
       moves.forEach((m) => {
+        const coached = COACHED.has(m);
         const d = document.createElement("div");
-        d.className = "lib-mv" + (kept.indexOf(m) !== -1 ? " kept" : "");
+        d.className = "lib-mv" + (kept.indexOf(m) !== -1 ? " kept" : "") + (coached ? " coached" : "");
         const name = document.createElement("span"); name.textContent = m;
+        const tag = document.createElement("small"); tag.className = "mvtag";
+        tag.textContent = coached ? (COACHED_HOLD.has(m) ? "coached hold" : "coached") : "reference";
         const hh = document.createElement("span"); hh.className = "hh"; hh.textContent = "♥";
-        d.append(name, hh);
+        d.append(name, tag, hh);
         d.addEventListener("click", () => GG_MYMOVES.toggle(m));
         grid.appendChild(d);
       });
@@ -120,6 +151,25 @@
   searchEl.addEventListener("input", render);
   window.addEventListener("gg-mymoves-changed", render);
   render();
+
+  // koçlanabilir kümeyi motordan çek (tek kaynak). ağır wasm'ı listeyi
+  // bloklamadan, tarayıcı boştayken yükle; gelince "coached" etiketleriyle
+  // tazele. Başarısızsa liste yine çalışır, sadece etiketsiz (dürüst düşüş).
+  const loadCatalog = () => {
+    import("./engine/motor.js")
+      .then((mod) => mod.default())
+      .then((m) => {
+        if (typeof m.coachableMoves !== "function") return;
+        for (const it of m.coachableMoves()) {
+          COACHED.add(it.name);
+          if (it.repBased === false) COACHED_HOLD.add(it.name);
+        }
+        render();
+      })
+      .catch(() => {});
+  };
+  if ("requestIdleCallback" in window) requestIdleCallback(loadCatalog, { timeout: 3000 });
+  else setTimeout(loadCatalog, 1200);
 })();
 </script>
 </body>

@@ -1,0 +1,97 @@
+/* calm.css — the white-lila world, applied over marquee.css on inner pages.
+   kills the cinema shell (dark cherry panels, drop shadows, awning bulbs,
+   ticket stubs, twinkles) WITHOUT touching page copy or the real mechanics
+   (moves library, filters, calendar, history). load AFTER marquee.css. */
+
+:root{
+  --ink:#111;
+  --lila:#8e6fd8;
+  --lila-soft:#efeafa;
+  --mut:#6f6b74;
+  --hair:#e9e4ee;
+}
+
+/* the whole page is warm white, tight, arial — matches index */
+body{ background:#fff; color:#111; }
+body.has-strip::before{ display:none; }   /* drop the potikare top strip */
+
+/* ---- kill the marquee / sub-sign cinema panel ---- */
+.marquee, .sub-sign{
+  background:#fff !important;
+  color:#111 !important;
+  box-shadow:none !important;
+  padding:36px 0 22px !important;
+  margin:0 !important;
+}
+.awning, .bulbs, .tw{ display:none !important; }
+.marquee h1, .marquee h2, .sub-sign h1{
+  color:#111 !important;
+  font-size:clamp(30px,4.4vw,46px) !important;
+  letter-spacing:-.025em !important;
+  line-height:1.05 !important;
+}
+.marquee .now, .sub-sign .now,
+.marquee .value-line, .sub-sign p{ color:#111 !important; }
+.marquee .now, .sub-sign .now{ color:var(--lila) !important; opacity:1 !important; letter-spacing:.14em; }
+.marquee .value-line{ color:var(--mut) !important; font-weight:normal !important; }
+.sub-sign p{ color:var(--mut) !important; opacity:1 !important; }
+
+/* hero button + cast belong to the old theater — hide the theater chrome,
+   keep the plain photo frame calm */
+.marquee .herobtn{ background:var(--lila) !important; color:#fff !important; box-shadow:none !important; }
+.stub{ box-shadow:none !important; background:var(--lila-soft) !important; color:var(--ink) !important; transform:none !important; }
+.stub::before, .stub::after{ background:#fff !important; }
+.stub i{ border-left-color:var(--hair) !important; }
+.cast .shot{ box-shadow:none !important; border:1px solid var(--hair); background:#fff !important; }
+.cast .shot em{ color:var(--mut) !important; }
+.stamp{
+  box-shadow:none !important;
+  border:1px solid var(--lila) !important;
+  color:var(--lila) !important;
+}
+
+/* light bands stay, but as plain paper with a hairline, not a wash card */
+.qa-band, .sub-body{ background:#fff !important; padding-top:20px !important; }
+.qa-band .lbl, .sub-body .lbl, .hist .lbl{ color:var(--lila) !important; }
+
+/* Q&A: not a card — hairline rows */
+.qa-grid .q{ border-bottom:1px solid var(--hair) !important; }
+.qa-grid .q b{ color:var(--ink) !important; }
+
+/* moves library, filters — flat, lila accent, no shadow */
+.libfilters button{ box-shadow:none !important; background:var(--lila-soft) !important; color:var(--ink) !important; border-radius:3px !important; }
+.libfilters button.on{ background:var(--lila) !important; color:#fff !important; }
+#allMoves .lib-cat{ color:var(--ink) !important; }
+#allMoves .lib-mv{ border-bottom:1px solid var(--hair) !important; }
+#allMoves .lib-mv:hover{ background:var(--lila-soft) !important; }
+#allMoves .lib-mv.kept .hh, #allMoves .lib-mv.coached .mvtag{ color:var(--lila) !important; }
+.mvsearch, .topsearch{ box-shadow:none !important; border:1px solid var(--hair) !important; background:#fff !important; border-radius:3px !important; }
+.moves-panel, .searchdrop{ box-shadow:none !important; border:1px solid var(--hair) !important; border-radius:3px !important; }
+.moves-panel .plrow button{ background:var(--lila) !important; color:#fff !important; border-radius:3px !important; }
+
+/* calendar mechanics — keep shape, swap cherry for lila, drop rounded blobs */
+.calnav{ background:var(--lila-soft) !important; color:var(--lila) !important; border-radius:3px !important; }
+.calnav:hover{ background:var(--lila) !important; color:#fff !important; }
+.monthwall .d{ border-radius:3px !important; background:var(--lila-soft) !important; }
+.monthwall .d.lit{ background:var(--lila) !important; color:#fff !important; }
+.monthwall .d.today{ box-shadow:inset 0 0 0 2px var(--lila) !important; }
+.hist .h{ border-bottom:1px solid var(--hair) !important; }
+.hist .h small{ color:var(--mut) !important; }
+
+/* footstrip links calm */
+.footstrip a, .tfoot a{ color:var(--lila) !important; }
+
+/* the dot motif on inner nav: a faint 3-dot cluster before the brand */
+.topbar .brand::before, .tnav .brand::before{
+  content:"";display:inline-block;width:12px;height:6px;margin-right:8px;vertical-align:2px;
+  background-image:
+    radial-gradient(circle, var(--lila) 1.1px, transparent 1.3px),
+    radial-gradient(circle, var(--lila) 1.1px, transparent 1.3px),
+    radial-gradient(circle, var(--lila) 1.1px, transparent 1.3px);
+  background-size:4px 4px;background-position:0 0,4px 2px,8px 0;background-repeat:no-repeat;
+}
+
+/* smooth same-app page transitions */
+@media (prefers-reduced-motion: no-preference){
+  @view-transition{ navigation:auto; }
+}
