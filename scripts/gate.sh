@@ -57,8 +57,9 @@ universal() {
   [ "$rr" -eq 0 ] && ok "radius via token (no hardcoded px except 999 pill)" || bad "hardcoded radius count: $rr"
 
   # 8. no naked hardcoded ms durations (must be a --dur token) — advisory until FAZ 3 defines them
-  local ms; ms=$(grep -rnE '[0-9]+ms' css/site.css | grep -v 'var(--' | wc -l | tr -d ' ')
-  [ "$ms" -eq 0 ] && ok "no hardcoded ms durations" || printf "  \033[33mwarn\033[0m %s\n" "hardcoded ms: $ms (define --dur-* in FAZ 3)"
+  # allow the --dur-* token DEFINITIONS themselves; flag only naked ms in rules
+  local ms; ms=$(grep -rnE '[0-9]+ms' css/site.css | grep -v 'var(--' | grep -v -- '--dur' | wc -l | tr -d ' ')
+  [ "$ms" -eq 0 ] && ok "no hardcoded ms (durations via --dur-* tokens)" || bad "hardcoded ms outside token defs: $ms"
 
   # 9. nav + footer identical across 12 pages (byte-diff vs partials)
   local navbad=0 footbad=0
@@ -78,7 +79,9 @@ universal() {
 phase3() {
   head "FAZ 3 — coach"
   # pink ground / cherry text / 999px pill must be gone from coach world
-  local pink; pink=$(grep -rniE 'background:[^;]*(pink|#f[0-9a-f]*ea|cherry)' css/site.css | grep -iv 'pink-soft' | wc -l | tr -d ' ')
+  # pink ground = the old cherry/pink page background. legit --pink uses (dot,
+  # kept move, filled day) are the user-data signal, not a ground — exclude them.
+  local pink; pink=$(grep -rniE 'background:[^;]*(cherry|#f[0-9a-e]{2}ea[0-9a-f]|rgba\(217,107,160)' css/site.css | grep -iv 'pink-soft' | wc -l | tr -d ' ')
   [ "$pink" -eq 0 ] && ok "no pink/cherry ground in coach css" || bad "pink/cherry ground: $pink"
   local pill; pill=$(grep -rn '999px' css/site.css | grep -viE 'bar|chip|libfilters|presetbtn|pill-ok' | wc -l | tr -d ' ')
   [ "$pill" -eq 0 ] && ok "no stray 999px pill buttons" || printf "  \033[33mwarn\033[0m %s\n" "999px uses: $pill (chips allowed)"
@@ -89,9 +92,10 @@ phase3() {
   grep -qE '\-\-dur' css/site.css && ok "--dur-* tokens defined" || bad "--dur-* tokens missing"
   # onboarding structure in coach.html
   grep -q 'data-onb\|class="onb' coach.html && ok "onboarding markup present" || printf "  \033[33mwarn\033[0m %s\n" "onboarding markup not detected (check selector)"
-  # no skip/X in onboarding (advisory grep)
-  local skip; skip=$(grep -niE 'skip|atla|onb-close|onb-x' coach.html | wc -l | tr -d ' ')
-  [ "$skip" -eq 0 ] && ok "no skip/X in onboarding" || printf "  \033[33mwarn\033[0m %s\n" "possible skip/X refs: $skip (verify)"
+  # no skip/X in ONBOARDING specifically (skipRest is a workout control, allowed;
+  # rclose × is the program-list close, not onboarding). look inside .onb only.
+  local skip; skip=$(sed -n '/<div class="onb"/,/<\/div><!-- \/.wrap -->/p' coach.html 2>/dev/null | grep -iE 'onb-skip|onb-x|onb-close|>skip<|atla' | wc -l | tr -d ' ')
+  [ "$skip" -eq 0 ] && ok "no skip/X in onboarding" || bad "skip/X in onboarding: $skip"
   # single page name
   ok "single page name — verify title/nav/footer/h1 manually in STATUS"
   live_coach

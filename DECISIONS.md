@@ -30,3 +30,20 @@ Karar: geçici hardcoded 16px; PROTOKOL §1.4 radius token sistemi (--r-sm/
 Gerekçe: PROTOKOL FAZ 2'den SONRA geldi; radius sistemini geriye dönük
 uygulamak FAZ 3 açılış işi.
 Etki: gate.sh radius kapısı FAZ 3 başına kadar kırmızı (bilinen borç).
+
+## 19 Tem · FAZ 3 · radius sistemi PROTOKOL kazandı (10/16/20)
+Durum: PROTOKOL §1.4 radius'u --r-sm:10px --r:16px --r-lg:20px yeniden
+tanımladı; site.css her yerde --r:3px kullanıyordu.
+Karar: PROTOKOL kazanır. --r:3px→16px, --r-sm:10px eklendi, --r-lg:20px
+eklendi. Tüm site yumuşak köşeye geçti (nav/buton/input 10px, kart/blok
+16px, büyük panel 20px). Damla onayladı ("PROTOKOL kazanır").
+Gerekçe: PROTOKOL en yeni sözleşme; §1.4 "önceki fazların görünümünü
+değiştirmesi istenen sonuçtur" diyor.
+Etki: FAZ 0/1/2 görünümü değişti (keskin→yumuşak). gate.sh radius yeşil.
+
+## 19 Tem · FAZ 2 · onaylandı
+Durum: FAZ 2 (index nokta bulutu + canlı sayaç + kamera) deploy'da.
+Karar: Damla "onaylıyorum, FAZ 3'e geç" dedi. I3 (worth+how) ritim-kırma
+haliyle kabul; tam birleştirme yapılmadı, itiraz gelmedi.
+Gerekçe: canlı gösterildi, kabul edildi.
+Etki: FAZ 3 açıldı.

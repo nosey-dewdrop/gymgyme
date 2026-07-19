@@ -2,7 +2,8 @@
    single design world for all pages. no per-page css, no important overrides,
    no inline style, no gradient, no shadow, no icon font, no chevron.
    palette from HANDOFF.md — lila = engine output, pink = user's own data.
-   radius 3px (chips + avatars excepted). one motif: the dot. */
+   radius: --r-sm 10px controls, --r 16px cards, --r-lg 20px panels
+   (999px pills for chips only). one motif: the dot. */
 
 /* ---------------------------------------------------------------- tokens */
 :root{
@@ -16,8 +17,17 @@
   --pink:#D96BA0;        /* the user's own data: filled day, saved move, personal history */
   --pink-soft:#FBEAF2;
 
-  --r:3px;
-  --t:180ms cubic-bezier(.2,.7,.3,1);
+  /* radius system (PROTOKOL §1.4): small controls, cards/blocks, big panels */
+  --r-sm:10px;   /* button, chip, input */
+  --r:16px;      /* card, block */
+  --r-lg:20px;   /* large panel */
+
+  /* motion tokens (PROTOKOL §7 FAZ 3): all timing goes through these */
+  --dur-fast:120ms;
+  --dur:180ms;
+  --dur-slow:240ms;
+  --ease:cubic-bezier(.2,.7,.3,1);
+  --t:var(--dur) var(--ease);
 
   --head:"Bricolage Grotesque",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   --body:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
@@ -77,17 +87,17 @@ section{padding:44px 0}
 .tnav .links a.on{color:var(--ink);font-weight:600}
 
 /* the one primary action */
-.go,.go:visited{background:var(--lila);color:#fff;padding:9px 16px;border-radius:var(--r);font-size:13px;font-weight:600;transition:transform var(--t)}
+.go,.go:visited{background:var(--lila);color:#fff;padding:9px 16px;border-radius:var(--r-sm);font-size:13px;font-weight:600;transition:transform var(--t)}
 .go:hover{transform:translateY(-1px)}
 
 /* top search — mono, hairline, no shadow. id #topSearch preserved for topbar.js */
 .topsearch{width:min(340px,100%);font-family:var(--mono);font-size:13px;color:var(--ink);
-  background:var(--wash);border:1px solid var(--line);border-radius:var(--r);padding:9px 12px;outline:none;transition:border-color var(--t)}
+  background:var(--wash);border:1px solid var(--line);border-radius:var(--r-sm);padding:9px 12px;outline:none;transition:border-color var(--t)}
 .topsearch:focus{border-color:var(--lila)}
 .topsearch::placeholder{color:var(--mut);opacity:.7}
 .searchwrap{position:relative;width:min(340px,100%)}
 .searchdrop{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--paper);
-  border:1px solid var(--line);border-radius:var(--r);display:none;z-index:60;max-height:340px;overflow-y:auto}
+  border:1px solid var(--line);border-radius:var(--r-sm);display:none;z-index:60;max-height:340px;overflow-y:auto}
 .searchdrop.open{display:block}
 .searchdrop .sr{display:flex;justify-content:space-between;gap:10px;padding:10px 14px;font-size:14px;cursor:pointer;border-bottom:1px solid var(--line);color:var(--ink)}
 .searchdrop .sr:hover{background:var(--wash)}
@@ -97,7 +107,7 @@ section{padding:44px 0}
 /* ---------------------------------------------------------------- buttons
    one language: lila fill for primary, hairline ghost for secondary. 3px. */
 .btn,.btn:visited{display:inline-block;background:var(--lila);color:#fff;
-  font-family:var(--body);font-size:15px;font-weight:600;padding:12px 22px;border-radius:var(--r);
+  font-family:var(--body);font-size:15px;font-weight:600;padding:12px 22px;border-radius:var(--r-sm);
   border:none;cursor:pointer;transition:transform var(--t),background var(--t)}
 .btn:hover{transform:translateY(-2px)}
 .btn:active{transform:translateY(0)}
@@ -109,7 +119,7 @@ section{padding:44px 0}
 /* ---------------------------------------------------------------- forms
    one system: hairline field, mono numbers, lila focus. */
 input,select,textarea{font-family:var(--body);font-size:15px;color:var(--ink);
-  background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;outline:none;transition:border-color var(--t)}
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px;outline:none;transition:border-color var(--t)}
 input:focus,select:focus,textarea:focus{border-color:var(--lila)}
 input::placeholder,textarea::placeholder{color:var(--mut);opacity:.7}
 label{font-size:13px;color:var(--mut)}
@@ -192,7 +202,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
    386 moves. coached = lila, reference = faint. filter chips. */
 .mvsw{position:relative;display:inline-block;width:min(340px,100%)}
 .mvsearch{width:100%;font-family:var(--mono);font-size:13px;color:var(--ink);
-  background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:9px 12px;outline:none}
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--r-sm);padding:9px 12px;outline:none}
 .mvsearch:focus{border-color:var(--lila)}
 .mvsearch::placeholder{color:var(--mut);opacity:.7}
 .libfilters{margin:12px 0 4px}
@@ -216,14 +226,14 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 
 /* saved-moves dropdown panel */
 .moves-panel{position:absolute;top:calc(100% + 8px);left:0;width:280px;max-height:420px;overflow-y:auto;
-  background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:12px 16px 10px;display:none;z-index:50}
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--r-sm);padding:12px 16px 10px;display:none;z-index:50}
 .moves-panel.open{display:block}
 .moves-panel .krow{display:flex;justify-content:space-between;gap:8px;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px;font-weight:600}
 .moves-panel .krow:last-child{border-bottom:none}
 .moves-panel .krow button{background:none;border:none;color:var(--lila);font-weight:600;cursor:pointer}
 .moves-panel .plrow{display:flex;gap:6px;margin:10px 0 0}
 .moves-panel .plrow input{flex:1;min-width:0}
-.moves-panel .plrow button{background:var(--lila);color:#fff;border:none;border-radius:var(--r);font-weight:600;padding:8px 12px;cursor:pointer}
+.moves-panel .plrow button{background:var(--lila);color:#fff;border:none;border-radius:var(--r-sm);font-weight:600;padding:8px 12px;cursor:pointer}
 
 /* ---------------------------------------------------------------- calendar
    full width, day cell holds move + mono score. filled day = user data = pink.
@@ -233,7 +243,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .calhead b{font-family:var(--head);font-size:20px}
 .caltotals{display:block;text-align:center;font-family:var(--mono);font-size:12px;color:var(--mut);margin-bottom:14px}
 .calnav{font-family:var(--body);font-size:16px;font-weight:600;background:var(--lila-soft);color:var(--lila);
-  border:none;border-radius:var(--r);width:32px;height:32px;cursor:pointer;transition:background var(--t),color var(--t)}
+  border:none;border-radius:var(--r-sm);width:32px;height:32px;cursor:pointer;transition:background var(--t),color var(--t)}
 .calnav:hover{background:var(--lila);color:#fff}
 .calnav:disabled{opacity:.35;cursor:default}
 .dow{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center;font-family:var(--mono);font-size:11px;font-weight:600;color:var(--mut);margin-bottom:6px}
@@ -262,7 +272,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 @media(max-width:860px){.coach-main,.coach-foot{grid-template-columns:1fr}}
 /* card system (final spec): wash ground, no frame, generous padding, dot
    signature in the lower-right. hover lifts with a soft lila shadow. */
-.card{position:relative;background:var(--wash);border:none;border-radius:16px;padding:26px;margin:0;transition:transform .18s ease,box-shadow .18s ease}
+.card{position:relative;background:var(--wash);border:none;border-radius:var(--r);padding:26px;margin:0;transition:transform var(--dur) var(--ease),box-shadow var(--dur) var(--ease)}
 .card:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(122,91,176,.12)}
 .card.saved{background:var(--pink-soft)}
 .card-title{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--lila);margin:0 0 10px}
@@ -281,24 +291,24 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .card-grid{display:grid;gap:16px}
 
 .mainbtn{font-family:var(--body);font-size:16px;font-weight:600;color:#fff;background:var(--lila);
-  border:none;border-radius:var(--r);padding:11px 20px;cursor:pointer;margin:8px 12px 2px 0;transition:transform var(--t)}
+  border:none;border-radius:var(--r-sm);padding:11px 20px;cursor:pointer;margin:8px 12px 2px 0;transition:transform var(--t)}
 .mainbtn:hover{transform:translateY(-1px)}
 .mainbtn:disabled{opacity:.45;cursor:default;transform:none}
 .mainbtn.soft{background:var(--lila-soft);color:var(--lila)}
 .mainbtn.soft:hover{background:var(--line)}
 
 /* the camera stage — renamed .stage -> .panel, #camstage -> #camera */
-.panel{position:relative;width:100%;background:var(--ink);min-height:60px;overflow:hidden;border-radius:var(--r)}
+.panel{position:relative;width:100%;background:var(--ink);min-height:60px;overflow:hidden;border-radius:var(--r-lg)}
 #cam,#overlay{width:100%;display:block}
 #cam{transform:scaleX(-1)}
 #overlay{position:absolute;inset:0;transform:scaleX(-1)}
 .stageslot{position:relative;width:min(720px,86%);aspect-ratio:4/3;margin:0 auto}
 .stageslot #camera,.stageslot .panel{position:absolute;inset:0;width:100%;max-width:none;margin:0}
 #camera{background:var(--ink);color:#fff;width:min(720px,86%);aspect-ratio:4/3;margin:0 auto;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;font-size:13px;cursor:pointer;border-radius:var(--r)}
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;font-size:13px;cursor:pointer;border-radius:var(--r-lg)}
 #camera b{font-size:16px}
 #camera .stagestart{font-family:var(--body);font-size:14px;font-weight:600;background:var(--lila);color:#fff;
-  border:none;border-radius:var(--r);padding:11px 20px;margin-top:10px;cursor:pointer}
+  border:none;border-radius:var(--r-sm);padding:11px 20px;margin-top:10px;cursor:pointer}
 #camera .stagestatus{font-family:var(--mono);font-size:13px;min-height:18px;max-width:85%;opacity:.95}
 #camera .framehint{max-width:78%;font-size:12px;opacity:.82;line-height:1.5;margin-top:2px}
 #camera.warming .stagestart{display:none}
@@ -331,7 +341,7 @@ body.running #intro,body.running #progCard{display:none}
 .rest-word{font-size:20px;color:var(--mut)}
 .rest-count{font-family:var(--mono);font-size:72px;font-weight:600;color:var(--lila);line-height:1;letter-spacing:-.02em}
 .rest-sub{font-size:13px;color:var(--mut);margin:2px 0 8px}
-.restbtn{font-family:var(--body);font-size:16px;font-weight:600;color:var(--lila);background:var(--lila-soft);border:none;border-radius:var(--r);padding:8px 14px;cursor:pointer}
+.restbtn{font-family:var(--body);font-size:16px;font-weight:600;color:var(--lila);background:var(--lila-soft);border:none;border-radius:var(--r-sm);padding:8px 14px;cursor:pointer}
 
 /* session summary — renamed .receipt -> .summary */
 .summary[hidden]{display:none}
@@ -383,6 +393,100 @@ body.running #intro,body.running #progCard{display:none}
 .presetbtn{font-family:var(--mono);font-size:13px;background:var(--lila-soft);color:var(--ink);border:none;border-radius:999px;padding:9px 14px;margin:0 8px 8px 0;cursor:pointer;transition:background var(--t),color var(--t)}
 .presetbtn:hover{background:var(--lila);color:#fff}
 
+/* ---------------------------------------------------------------- FAZ 3 coach
+   one world, no pink ground, no cinema. the page has one name. */
+.coach-head{padding:40px 0 8px}
+.coach-head .eyebrow{color:var(--lila)}
+.coach-stage{padding:20px 0 8px}
+.coach-stage .wrap{max-width:1080px}
+
+/* the setup card — pick a program or search a move (was .pickband, cinema) */
+.pickband{margin:0}
+.pickband .plbl{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin:0 0 10px}
+.pickband .plbl-gap{margin-top:16px}
+.tsw{position:relative;display:inline-block;width:min(360px,100%)}
+.tsw input{width:100%}
+.tsuggest{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--paper);
+  border:1px solid var(--line);border-radius:var(--r-sm);display:none;z-index:40;max-height:240px;overflow-y:auto}
+.tsuggest.open{display:block}
+.tsuggest .tr{display:flex;justify-content:space-between;gap:10px;padding:9px 13px;font-size:14px;font-weight:600;cursor:pointer;border-bottom:1px solid var(--line)}
+.tsuggest .tr:hover{background:var(--wash)}
+.tsuggest .tr small{font-family:var(--mono);font-weight:normal;color:var(--mut)}
+
+/* program list (was cinema receipt) — structured: name + mono target + handle */
+.summary#setReceipt{background:var(--wash);border:none;border-radius:var(--r);padding:18px 20px;margin:16px 0 0;max-width:none;position:static}
+.summary .rhead{font-family:var(--mono);font-size:12px;color:var(--mut);margin-bottom:10px}
+.summary .rhead b{font-family:var(--head);font-size:15px;color:var(--ink)}
+.summary .rdrag{display:none}
+.summary .rrule{border-top:1px solid var(--line);margin:10px 0}
+.summary .rline{display:flex;justify-content:space-between;gap:10px;align-items:baseline;padding:6px 0;cursor:pointer;font-size:14px}
+.summary .rline .dots{flex:1;border-bottom:1px dotted var(--line);margin:0 6px 4px}
+.summary .rline.nowplaying{color:var(--lila);font-weight:600}
+.summary .rtotal{display:flex;justify-content:space-between;font-family:var(--mono);font-weight:600;margin-top:6px}
+.summary .rnote{font-size:12px;color:var(--mut);margin-top:8px}
+.summary .rclose{position:absolute;top:12px;right:14px;background:none;border:none;color:var(--mut);font-size:18px;cursor:pointer}
+.receipt-tab{position:fixed;right:20px;bottom:20px;font-family:var(--mono);font-size:12px;background:var(--lila);color:#fff;border:none;border-radius:var(--r-sm);padding:9px 14px;cursor:pointer;z-index:30}
+.receipt-tab[hidden]{display:none}
+
+/* phase word + mini button (HUD, mono, spaced) */
+.phase-word{font-family:var(--head);font-size:30px;font-weight:600;letter-spacing:-.01em;line-height:1.1;color:var(--ink)}
+.sub{font-size:13px;color:var(--mut);margin-top:2px}
+.mini{font-family:var(--body);font-size:13px;color:var(--lila);background:none;border:none;cursor:pointer;padding:6px 0}
+.rline.printed{opacity:1}
+
+/* ---------------------------------------------------------------- .empty
+   one pattern (PROTOKOL FAZ 3 miras): wash + dot cluster + line + button. */
+.empty{position:relative;border:none;background:var(--wash);border-radius:var(--r);padding:32px 26px;text-align:center}
+.empty .empty-dots{display:flex;gap:5px;justify-content:center;margin-bottom:14px}
+.empty .empty-dots i{width:5px;height:5px;border-radius:50%;background:var(--lila);opacity:.5}
+.empty .empty-dots i:nth-child(2){opacity:.7}
+.empty .empty-dots i:nth-child(3){opacity:.9}
+.empty .big{font-size:16px;font-weight:600;color:var(--ink);margin-bottom:6px}
+.empty p{font-size:14px;color:var(--mut);margin:0 auto 16px;max-width:44ch}
+
+/* ---------------------------------------------------------------- .loading
+   dots that scatter and gather. no spinner, no skeleton. */
+.loading{display:flex;gap:6px;justify-content:center;align-items:center;padding:20px}
+.loading i{width:6px;height:6px;border-radius:50%;background:var(--lila);animation:loadPulse 1.2s var(--ease) infinite}
+.loading i:nth-child(2){animation-delay:.15s}
+.loading i:nth-child(3){animation-delay:.3s}
+.loading i:nth-child(4){animation-delay:.45s}
+@keyframes loadPulse{0%,100%{opacity:.25;transform:translateY(0)}50%{opacity:.9;transform:translateY(-5px)}}
+
+/* ---------------------------------------------------------------- onboarding
+   4 steps in a horizontal track. no X, no skip. dot progress. auto step 4. */
+.onb{position:relative;overflow:hidden;background:var(--wash);border-radius:var(--r-lg);padding:0;margin:16px 0}
+.onb-track{display:flex;width:400%;transition:transform var(--dur-slow) var(--ease)}
+.onb-step{width:25%;flex:none;padding:30px 32px 34px}
+.onb-step h3{font-size:20px;margin-bottom:6px}
+.onb-step p{font-size:14px;color:var(--mut);max-width:46ch;margin-bottom:18px}
+.onb-panel{position:relative;background:var(--ink);border-radius:var(--r);aspect-ratio:16/9;overflow:hidden;margin-bottom:18px}
+.onb-panel canvas{position:absolute;inset:0;width:100%;height:100%}
+.onb-panel .onb-hint{position:absolute;left:16px;bottom:12px;font-family:var(--mono);font-size:11px;color:var(--wash);opacity:.85}
+.onb-panel.glow{box-shadow:inset 0 0 0 1px var(--lila),0 0 0 1px var(--lila)}
+.onb-opts{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.onb-opt{font-family:var(--mono);font-size:13px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-sm);padding:9px 14px;cursor:pointer;transition:border-color var(--t),background var(--t)}
+.onb-opt:hover{border-color:var(--lila)}
+.onb-opt.sel{background:var(--lila);color:#fff;border-color:var(--lila)}
+.onb-nav{display:flex;align-items:center;gap:16px;margin-top:20px}
+.onb-back{font-family:var(--body);font-size:14px;color:var(--mut);background:none;border:none;cursor:pointer}
+.onb-back:hover{color:var(--lila)}
+.onb-back[disabled]{opacity:0;pointer-events:none}
+/* dot progress: done = lila filled, active = breathing ring, waiting = empty */
+.onb-dots{display:flex;gap:10px;margin-left:auto}
+.onb-dots i{width:9px;height:9px;border-radius:50%;border:1px solid var(--line);background:transparent;transition:all var(--dur) var(--ease)}
+.onb-dots i.done{background:var(--lila);border-color:var(--lila)}
+.onb-dots i.active{border-color:var(--lila);animation:onbBreath 1.6s var(--ease) infinite}
+@keyframes onbBreath{0%,100%{box-shadow:0 0 0 0 var(--lila-soft)}50%{box-shadow:0 0 0 4px var(--lila-soft)}}
+/* dot wave when a step completes */
+.onb-wave i{animation:onbWave .5s var(--ease)}
+@keyframes onbWave{0%{transform:scale(1)}40%{transform:scale(1.5)}100%{transform:scale(1)}}
+
+@media(prefers-reduced-motion:reduce){
+  .onb-track{transition:none}
+  .loading i,.onb-dots i.active,.onb-wave i{animation:none}
+}
+
 /* ---------------------------------------------------------------- footer
    single row, holds everything, one hairline over. */
 .tfoot{border-top:1px solid var(--line);padding:26px 0 40px;background:var(--paper)}
@@ -392,7 +496,7 @@ body.running #intro,body.running #progCard{display:none}
 .tfoot .vtag{margin-left:auto}
 
 /* ---------------------------------------------------------------- reveal + a11y */
-.reveal{opacity:0;transform:translateY(12px);transition:opacity .5s ease,transform .5s cubic-bezier(.2,.7,.3,1)}
+.reveal{opacity:0;transform:translateY(12px);transition:opacity var(--dur-slow) ease,transform var(--dur-slow) var(--ease)}
 .reveal.in{opacity:1;transform:none}
 :focus-visible{outline:2px solid var(--lila);outline-offset:2px}
 
@@ -415,7 +519,7 @@ body.running #intro,body.running #progCard{display:none}
 
 .hero-demo{display:flex;flex-direction:column;gap:10px}
 /* the panel: wash ground, one hairline, the figure fills it. */
-.panel{position:relative;background:var(--wash);border:1px solid var(--line);border-radius:var(--r);
+.panel{position:relative;background:var(--wash);border:1px solid var(--line);border-radius:var(--r-lg);
   aspect-ratio:4/3.1;overflow:hidden;min-height:0}
 .panel #rig{position:absolute;inset:0;width:100%;height:100%}
 .panel #heroVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
@@ -452,7 +556,7 @@ body.running #intro,body.running #progCard{display:none}
 /* real output — one mono data block, breaks the eyebrow+heading+columns rhythm */
 .output-band .output{font-family:var(--mono);font-size:14px;line-height:1.9;color:var(--ink);
   background:var(--ink);border-radius:var(--r);padding:20px 22px;margin:10px 0 0;overflow-x:auto;white-space:pre}
-.output-band .output{color:#cfc7d6}
+.output-band .output{color:var(--wash)}
 .output-band .output .l{color:var(--mut)}
 .output-band .output .v{color:var(--lila);font-weight:600}
 .output-band .output .ok{color:var(--lila)}

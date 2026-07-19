@@ -49,10 +49,10 @@
   </div>
 </nav>
 
-<section class="sub-sign backstage">
+<section class="coach-head">
   <div class="wrap">
-    <p class="eyebrow">build your workout</p>
-    <h1>set up your workout.</h1>
+    <p class="eyebrow">open the camera</p>
+    <h1>open the camera.</h1>
     <p class="lead">line up your moves in order. the camera runs them one by one, counts each rep, rests you between sets, then moves to the next one. reps 0 means count freely until you stop.</p>
     <div class="pickband">
       <div class="plbl">PROGRAMS · TAP ONE TO FILL YOUR WORKOUT</div>
@@ -94,8 +94,41 @@
   <button id="addMove" type="button"></button>
 </div>
 
-<div class="stagefloor">
-  <!-- TEK ALAN: warming (camstage) ve video (stage) aynı yerde, biri gizli. -->
+<section class="coach-stage">
+<div class="wrap">
+
+<!-- onboarding: 4 steps, no X, no skip, dot progress, step 4 auto-confirms.
+     built by js/coach-onboarding.js; on finish it triggers the existing #ready
+     flow. the engine (coach.js) is untouched. -->
+<div class="onb" id="onb" hidden>
+  <div class="onb-track" id="onbTrack">
+    <div class="onb-step" data-step="0">
+      <h3>pick your first move</h3>
+      <p>the camera counts this move rep by rep. you can add more after.</p>
+      <div class="onb-opts" id="onbMoves"></div>
+      <div class="onb-nav"><button class="onb-back" id="onbBack0" disabled>back</button><span class="onb-dots" id="onbDots0"></span></div>
+    </div>
+    <div class="onb-step" data-step="1">
+      <h3>reps and sets</h3>
+      <p>how many reps per set, how many sets. leave reps at 0 to count freely until you stop.</p>
+      <div class="onb-opts" id="onbReps"></div>
+      <div class="onb-nav"><button class="onb-back" id="onbBack1">back</button><span class="onb-dots" id="onbDots1"></span></div>
+    </div>
+    <div class="onb-step" data-step="2">
+      <h3>the camera stays on this device</h3>
+      <p>the pose and all the math run in your browser. no video is uploaded, recorded or stored, ever. allow the camera to begin.</p>
+      <div class="onb-opts"><button class="onb-opt" id="onbAllow" type="button">allow the camera</button></div>
+      <div class="onb-nav"><button class="onb-back" id="onbBack2">back</button><span class="onb-dots" id="onbDots2"></span></div>
+    </div>
+    <div class="onb-step" data-step="3">
+      <h3>step into the frame</h3>
+      <p>stand back so your whole body fits, side-on for squats and holds, in an evenly lit spot. it confirms on its own once it can see you.</p>
+      <div class="onb-panel" id="onbPanel"><canvas id="onbCanvas" width="480" height="270"></canvas><span class="onb-hint" id="onbHint">this is what the engine sees</span></div>
+      <div class="onb-nav"><button class="onb-back" id="onbBack3">back</button><span class="onb-dots" id="onbDots3"></span></div>
+    </div>
+  </div>
+</div>
+
   <div class="stageslot">
     <div id="camera">
       <span class="cam"></span>
@@ -175,7 +208,8 @@
     <p class="rnote">tap a line to cross it off.</p>
   </div>
   <button class="receipt-tab" id="rtab" type="button" hidden>your workout</button>
-</div><!-- /stagefloor -->
+</div><!-- /.wrap -->
+</section><!-- /.coach-stage -->
 
 
 
@@ -219,6 +253,8 @@
 <script src="vendor/supabase/supabase.js"></script>
 <script src="js/config.js"></script>
 <script type="module" src="js/coach.js"></script>
+<!-- onboarding runs AFTER coach.js so #ready's listener exists; module = deferred -->
+<script type="module" src="js/coach-onboarding.js"></script>
 
 </body>
 </html>

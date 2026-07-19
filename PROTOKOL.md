@@ -128,6 +128,30 @@ STATUS'a yazılır. Beğenmediği yeri söyler, geri alınır.
 - Faz sırası değiştirilebilir, gerekçe DECISIONS'a yazılır.
 - Değişmezleri sadece insan değiştirir.
 
+### FAZ BAŞLANGIÇ RİTÜELİ — her faz şununla başlar
+1. `DECISIONS.md`'yi oku.
+2. Önceki fazlarda verilen kararlar bu fazın sözleşmesini geçersiz kılıyor
+   mu bak.
+3. Kılıyorsa DÜZELTME ÖNERİSİ yaz, aşağıdaki testten geçir.
+4. Geçerse uygula ve DECISIONS'a yaz. Geçmezse sözleşmeyi olduğu gibi yürüt.
+
+### DÜZELTME TESTİ — bir sözleşme değişikliği ancak DÖRDÜ DE doğruysa geçerli
+a) **Somut bulguya dayanıyor mu?** ("X'i denedim, şu sonuç çıktı.") Tahmine,
+   tercihe veya kolaylığa dayanan değişiklik GEÇERSİZ.
+b) **Kapsamı KÜÇÜLTMÜYOR mu?** Teslim maddesi çıkarılamaz, hedef sayı
+   düşürülemez, kapı gevşetilemez. Bir madde yapılamıyorsa çıkarılmaz —
+   STATUS'a "açık" yazılır, FAZ 6'da tekrar bakılır.
+c) **Değişmezlerle (§1) çelişmiyor mu?** Çelişiyorsa geçersiz, değişmez kazanır.
+d) **Geri alınabilir mi?** Geri alınamayan değişiklik KIRMIZI'dır, sorulur.
+
+Her düzeltme DECISIONS'a şu formatta yazılır ve STATUS'ta "SÖZLEŞME
+DEĞİŞİKLİĞİ" başlığı altında ayrıca listelenir:
+  Ne değişti / Hangi bulguya dayanıyor / Kapsam küçüldü mü (evet ise neden
+  geçerli) / Nasıl geri alınır
+
+Sözleşmeler taslaktır ama sadece GERÇEK BULGU karşısında değişir, kolaylık
+karşısında değil. Değişmezler (§1) hiç değişmez.
+
 `DECISIONS.md` formatı:
 
 ```
