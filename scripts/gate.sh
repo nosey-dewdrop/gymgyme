@@ -7,7 +7,7 @@
 set -u
 cd "$(dirname "$0")/.." || exit 2
 
-PAGES=(index blog coach gizlilik gizlilik-tr moves my-moves my-program patch-notes reset-password suggest terms)
+PAGES=(index blog coach gizlilik gizlilik-tr moves my-moves my-program patch-notes reset-password suggest terms directory signup signin account)
 FAIL=0
 ok()   { printf "  \033[32mok\033[0m   %s\n" "$1"; }
 bad()  { printf "  \033[31mFAIL\033[0m %s\n" "$1"; FAIL=1; }

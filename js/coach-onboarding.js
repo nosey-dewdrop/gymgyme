@@ -7,6 +7,18 @@
 // no X, no skip. answer required to advance. back is free. horizontal slide.
 // dot progress: done = lila filled, active = breathing ring, waiting = empty.
 // step 3 auto-confirms once a body is seen. reduced-motion: instant, no anim.
+//
+// SIGN-IN GATE (added with membership): before ANY workout starts, a signed-out
+// visitor sees a calm gate. they get ONE free guest workout (localStorage flag
+// "gg-guest-used"); after that only sign-in / create account remain. signed-in
+// visitors never see the gate. the full engine runs during the guest trial —
+// coach.js only syncs when signed in, so the guest result is simply not saved.
+import { sb, onAuth, currentUser } from './auth.js';
+
+const GUEST_KEY = 'gg-guest-used';
+function guestUsed() { try { return localStorage.getItem(GUEST_KEY) === '1'; } catch (e) { return false; } }
+function markGuestUsed() { try { localStorage.setItem(GUEST_KEY, '1'); } catch (e) {} }
+
 (function () {
   const onb = document.getElementById('onb');
   if (!onb) return;
@@ -21,14 +33,114 @@
   const camStage = document.getElementById('camera');
   const progList = document.getElementById('progList');
 
-  // only show onboarding for a first-time visitor with an empty program.
-  // if they already built a workout (came from my-program) skip straight to it.
+  // ── sign-in gate wiring ──────────────────────────────────────────────
+  // once the gate is passed (signed in, or "try one workout" chosen), #ready
+  // clicks flow through untouched. until then, a signed-out visitor's start is
+  // intercepted and the gate is shown. we learn the session state async via
+  // auth.js; a synchronous supabase session (if present) also unlocks instantly.
+  const gate = document.getElementById('coachGate');
+  const gateOpts = document.getElementById('gateOpts');
+  const gateTitle = document.getElementById('gateTitle');
+  const gateBody = document.getElementById('gateBody');
+  let signedIn = false;          // live session state (updated by onAuth)
+  let authKnown = !sb;           // has the REAL session resolved yet?
+  let gatePassed = !sb;          // no backend => let the workout run (guest-only site)
+
+  // live updates: keeps signedIn current if the user signs in/out in another tab.
+  // note: auth.js fires this immediately with null before the session resolves,
+  // so we do NOT trust it for authKnown — the real resolution is getSession below.
+  onAuth((u) => { signedIn = !!u; if (signedIn) { gatePassed = true; authKnown = true; } });
+
+  function isGuest() { return sb && authKnown && !signedIn; }
+
+  // build the gate for the current situation. hides onboarding + camera behind it.
+  function showGate() {
+    if (!gate) return;
+    const used = guestUsed();
+    if (used) {
+      gateTitle.textContent = 'your free workout is done';
+      gateBody.textContent = 'you have used your one guest workout on this device. create an account (or sign in) to keep training — your reps, scores and history then follow you across every device.';
+    } else {
+      gateTitle.textContent = 'before your workout';
+      gateBody.textContent = 'sign in to save your reps and scores, or try one workout as a guest. either way the camera stays on this device.';
+    }
+    gateOpts.innerHTML = '';
+    const signInBtn = mkGateBtn('sign in', 'ghost', () => { location.href = 'signin.html'; });
+    const createBtn = mkGateBtn('create an account', 'primary', () => { location.href = 'signup.html'; });
+    gateOpts.appendChild(createBtn);
+    gateOpts.appendChild(signInBtn);
+    if (!used) {
+      const tryBtn = mkGateBtn('try one workout', 'ghost', () => {
+        markGuestUsed();          // one workout per device — counted by number
+        gatePassed = true;
+        gate.hidden = true;
+        startAfterGate();
+      });
+      gateOpts.appendChild(tryBtn);
+    }
+    if (onb) onb.hidden = true;
+    if (camStage) camStage.hidden = true;
+    gate.hidden = false;
+  }
+  function mkGateBtn(label, kind, on) {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'gate-opt ' + kind; b.textContent = label;
+    b.addEventListener('click', on);
+    return b;
+  }
+
+  // guest passed the gate — resume the normal first-run experience: onboarding
+  // for a fresh visitor, or straight to the engine if they already have a program.
+  function startAfterGate() {
+    if (shouldOnboard()) beginOnboarding();
+    else { if (camStage) camStage.hidden = false; if (readyBtn) readyBtn.click(); }
+  }
+
+  // intercept the workout start for signed-out visitors who have not passed the
+  // gate. capture phase so we run before coach.js's own #ready handler.
+  if (readyBtn) {
+    readyBtn.addEventListener('click', (e) => {
+      if (gatePassed || !isGuest()) return;   // signed in, no backend, or already allowed
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      showGate();
+    }, true);
+  }
+
+  // ── first-run decision ───────────────────────────────────────────────
+  // only onboard a first-time visitor with an empty program.
   let seenBefore = false;
   try { seenBefore = localStorage.getItem('gg-onb-done') === '1'; } catch (e) {}
   const hasProgram = progList && progList.children.length > 0;
-  if (seenBefore || hasProgram) return;   // existing flow untouched
-  onb.hidden = false;
-  if (camStage) camStage.hidden = true;   // hide the old warming card during onboarding
+  function shouldOnboard() { return !seenBefore && !hasProgram; }
+
+  // gate decision on load. resolve the REAL session first (getSession), then:
+  // signed in -> onboarding (or straight to program). signed out -> gate.
+  function decideOnLoad() {
+    if (signedIn || !sb) { if (shouldOnboard()) beginOnboarding(); return; }
+    showGate();
+  }
+  if (!sb) {
+    decideOnLoad();
+  } else {
+    sb.auth.getSession().then(({ data }) => {
+      signedIn = !!(data && data.session);
+      if (signedIn) gatePassed = true;
+      authKnown = true;
+      decideOnLoad();
+    }).catch(() => { authKnown = true; decideOnLoad(); });
+  }
+
+  // if we are not onboarding right now (already seen / has program), leave the
+  // existing flow untouched — the #ready interceptor above still guards guests.
+  if (!shouldOnboard()) return;
+
+  function beginOnboarding() {
+    onb.hidden = false;
+    if (camStage) camStage.hidden = true;   // hide the old warming card during onboarding
+    renderDots();
+    slide();
+  }
 
   const STEPS = 4;
   let step = 0;
@@ -203,6 +315,39 @@
     if (readyBtn) readyBtn.click();
   }
 
-  renderDots();
-  slide();
+  // onboarding is started by beginOnboarding() (from the load decision or after
+  // the guest passes the gate) — never eagerly, so the gate can come first.
+})();
+
+// when a GUEST finishes their one workout, invite them to make an account so it
+// gets saved. we watch the summary card (coach.js un-hides it on completion) and
+// re-show the gate copy — calm, never blocking what they just did.
+(function () {
+  const summary = document.getElementById('summary');
+  const gate = document.getElementById('coachGate');
+  if (!summary || !gate || !sb) return;
+  let shown = false;
+  const obs = new MutationObserver(() => {
+    if (shown || summary.hidden) return;
+    if (currentUser()) return;          // signed in — coach.js already saved it
+    shown = true;
+    const title = document.getElementById('gateTitle');
+    const body = document.getElementById('gateBody');
+    const opts = document.getElementById('gateOpts');
+    if (title) title.textContent = 'nice — want to keep this?';
+    if (body) body.textContent = 'that was your free guest workout, counted live on this device but not saved. create an account to keep it and let your history follow you across devices.';
+    if (opts) {
+      opts.innerHTML = '';
+      const create = document.createElement('button');
+      create.type = 'button'; create.className = 'gate-opt primary'; create.textContent = 'create an account';
+      create.addEventListener('click', () => { location.href = 'signup.html'; });
+      const signin = document.createElement('button');
+      signin.type = 'button'; signin.className = 'gate-opt ghost'; signin.textContent = 'sign in';
+      signin.addEventListener('click', () => { location.href = 'signin.html'; });
+      opts.appendChild(create); opts.appendChild(signin);
+    }
+    gate.hidden = false;
+    gate.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+  obs.observe(summary, { attributes: true, attributeFilter: ['hidden'] });
 })();

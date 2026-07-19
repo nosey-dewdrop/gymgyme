@@ -1,7 +1,7 @@
 // gymgyme service worker: ana ekrana kurulan personal trainer offline da açılsın.
 // kamera + motor zaten cihazda çalışıyor; burada sadece dosyaları önbelleğe alıyoruz.
 // vendor/ ya da engine/ değişirse CACHE sürümünü artır — eski önbellek silinir.
-const CACHE = "gg-pwa-v76";  // v76: design v2 — new palette (soft lila, ink buttons), open Qconst CACHE = "gg-pwa-v75";  // v75: faz 6 audit — chevron to arrow svg, has-strip cleaned, dot motif in 7 placesA, no dark boxes, hero cloud on page, directory split out
+const CACHE = "gg-pwa-v77";  // v77: membership — signup/signin/account pages, coach sign-in gate, guest trial, account link in footer
 
 const CORE = [
   "coach.html",
@@ -14,6 +14,11 @@ const CORE = [
   "data/moves-db.js",
   "js/config.js",
   "js/auth.js",
+  "js/auth-pages.js",
+  "js/coach-onboarding.js",
+  "signup.html",
+  "signin.html",
+  "account.html",
   "engine/motor.js",
   "engine/motor.wasm",
   "vendor/supabase/supabase.js",

@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>gymgyme directory - home training links by everyone, for everyone</title>
-  <meta name="description" content="A community directory of home training resources: articles and workouts across pilates, ballet, yoga, calisthenics and more. Free, no ads, no account.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; connect-src 'self' https://xjtmqncfhuidctxgthhv.supabase.co wss://xjtmqncfhuidctxgthhv.supabase.co; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; base-uri 'self'">
+  <title>your gymgyme account</title>
+  <meta name="description" content="Your gymgyme account: your workout history and controls to delete your data or account.">
+  <meta name="robots" content="noindex">
   <link rel="icon" href="icons/icon-192.png">
-  <link rel="canonical" href="https://gymgyme.noseydewdrop.com/directory.html">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
@@ -34,37 +35,25 @@
   </div>
 </nav>
 
-<section class="pagehead">
-  <div class="wrap">
-    <p class="eyebrow">the directory · by everyone, for everyone</p>
-    <h1>home training, curated.</h1>
-    <p class="dir-tag tag small">a directory by everyone, for everyone. free, no ads, no account needed, forever. people recommend, the important grows - literally. <span class="stat" id="stat-articles">articles (0)</span> · <span class="stat" id="stat-workouts">workouts (0)</span></p>
-  </div>
-</section>
+<main class="auth-wrap">
+  <section class="auth-card" id="accountPage" hidden>
+    <h1>your account</h1>
+    <p class="acct-who" id="acctWho">signed in.</p>
 
-<section class="lib-body">
-  <div class="wrap">
-    <nav id="nav">
-      <a href="#healthy-living-articles">healthy-living-articles</a>
-      <a href="#home-workouts">home-workouts</a>
-      <a href="#pilates">pilates</a>
-      <a href="#ballet">ballet</a>
-      <a href="#yoga">yoga</a>
-      <a href="#gym">gym</a>
-      <a href="#calisthenics">calisthenics</a>
-      <a href="#bodyweight">bodyweight</a>
-    </nav>
+    <div class="acct-sec">
+      <h2>your workouts</h2>
+      <div class="acct-hist" id="acctHist"><div class="empty">loading...</div></div>
+    </div>
 
-    <h2 id="cat-title">home-workouts</h2>
-
-    <div id="directory"><div class="loading" aria-label="loading the directory"><i></i><i></i><i></i><i></i></div></div>
-
-    <h2 class="center push-down">contributors (thank you!)</h2>
-    <p id="contributors" class="contribs center">…</p>
-  </div>
-</section>
-
-<div id="greet" class="greet"></div>
+    <div class="acct-actions">
+      <button type="button" id="signOut" class="btn ghost">sign out</button>
+      <button type="button" id="delData" class="btn danger">delete all my synced workouts</button>
+      <button type="button" id="delAcct" class="btn danger">delete my account</button>
+    </div>
+    <p class="auth-msg" id="acctMsg" role="status" aria-live="polite"></p>
+    <p class="auth-note">your camera and video are never stored. only workout numbers are. <a href="gizlilik.html">your data</a>.</p>
+  </section>
+</main>
 
 <footer class="tfoot">
   <div class="wrap">
@@ -85,9 +74,9 @@
   </div>
 </footer>
 
-<script src="data/moves-db.js"></script>
-<script src="js/topbar.js"></script>
-<script src="seed.js"></script>
-<script src="script.js"></script>
+<script src="vendor/supabase/supabase.js"></script>
+<script src="js/config.js"></script>
+<script type="module" src="js/auth-pages.js"></script>
+
 </body>
 </html>

@@ -97,6 +97,17 @@
 <section class="coach-stage">
 <div class="wrap">
 
+<!-- sign-in gate: shown by coach-onboarding.js BEFORE onboarding when signed out.
+     calm, not a hard wall. a signed-out visitor gets one free workout (guest
+     trial); once used, only sign-in/create remain. built entirely in js, this
+     markup is the empty shell. the engine (coach.js) is untouched. -->
+<div class="gate" id="coachGate" hidden>
+  <h2 id="gateTitle">save your workouts</h2>
+  <p id="gateBody">an account keeps your reps, scores and history across every device. your camera never leaves this device either way.</p>
+  <div class="gate-opts" id="gateOpts"></div>
+  <p class="gate-gain">with an account your workout history follows you across devices. as a guest, this device counts your reps live but nothing is saved.</p>
+</div>
+
 <!-- onboarding: 4 steps, no X, no skip, dot progress, step 4 auto-confirms.
      built by js/coach-onboarding.js; on finish it triggers the existing #ready
      flow. the engine (coach.js) is untouched. -->
@@ -219,10 +230,10 @@
   <div class="history-list" id="histList"></div>
 </details>
 
-<details class="foldcard" id="accountFold">
-  <summary class="foldcard-head">your account <span class="fold-chev"></span></summary>
-  <div id="authbar" class="authbar"></div>
-</details>
+<p class="private"><a href="account.html">your account</a> — history, sign in, and data controls live there.</p>
+<!-- #authbar kept (hidden) so auth.js/coach.js keep their element reference; the
+     account panel itself now lives at account.html per the membership spec. -->
+<div id="authbar" class="authbar" hidden aria-hidden="true"></div>
 </div><!-- /coach-foot -->
 
 <p class="private" id="private" hidden>the pose and all the math run inside your browser. the camera image never leaves this device - there is no upload. if you are signed in, only your workout numbers (never the video) are saved to your account. <a href="gizlilik.html">your data</a>.</p>
@@ -235,6 +246,7 @@
     <a href="my-moves.html">my moves</a>
     <a href="my-program.html">build a workout</a>
     <a href="coach.html">open the camera</a>
+    <a href="account.html">account</a>
     <a href="blog.html">blog</a>
     <a href="patch-notes.html">patch notes</a>
     <a href="suggest.html">suggest a move</a>
@@ -242,7 +254,7 @@
     <a href="terms.html">terms</a>
     <a href="https://github.com/nosey-dewdrop">github</a>
     <span>No ads, no tracking, no cookies.</span>
-    <span class="vtag">v63</span>
+    <span class="vtag">v64</span>
   </div>
 </footer>
 
@@ -255,6 +267,12 @@
 <script type="module" src="js/coach.js"></script>
 <!-- onboarding runs AFTER coach.js so #ready's listener exists; module = deferred -->
 <script type="module" src="js/coach-onboarding.js"></script>
+<!-- progressive-enhancement layers, all AFTER coach.js, none touch it:
+     coach-idle = resting camera panel dot figure · coach-dnd = program drag-drop
+     · set-card = shareable summary card. plain scripts, self-guarding, deferred. -->
+<script defer src="js/coach-idle.js"></script>
+<script defer src="js/coach-dnd.js"></script>
+<script defer src="js/set-card.js"></script>
 
 </body>
 </html>
