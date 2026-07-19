@@ -82,14 +82,15 @@ section{padding:64px 0}
 .tnav{border-bottom:1px solid var(--line);background:var(--paper)}
 .tnav .wrap{display:flex;align-items:center;gap:22px;height:60px}
 .tnav .brand,.tnav .brand:visited{font-family:var(--head);font-size:19px;font-weight:600;letter-spacing:-.01em;color:var(--ink);flex:none}
-/* brand left · links centered · search + primary action grouped right */
-.tnav .search{order:3;flex:none;width:auto}
-.tnav .search .searchwrap{width:200px}
-.tnav .search .topsearch{width:200px}
-.tnav .links{order:2;flex:1;display:flex;gap:18px;align-items:center;justify-content:center}
+/* brand left · search next to it (between brand and links) · links push right */
+.tnav .search{flex:none;width:auto}
+.tnav .search .searchwrap{width:220px}
+.tnav .search .topsearch{width:220px}
+.tnav .links{margin-left:auto;display:flex;gap:18px;align-items:center}
 .tnav .links a,.tnav .links a:visited{font-size:14px;color:var(--mut)}
 .tnav .links a:hover{color:var(--lila-deep)}
 .tnav .links a.on{color:var(--ink);font-weight:600}
+.tnav .links .mm-count{color:var(--pink);font-weight:600}   /* saved count = user data = pink */
 
 /* the one primary action. NOTE: .tnav .links a below is more specific and would
    otherwise paint the nav button --mut (grey) — so target .tnav .go too, and the
@@ -138,15 +139,13 @@ input[type=number]{font-family:var(--mono);text-align:center;width:64px}
 input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 
 /* ---------------------------------------------------------------- bands / prose */
-/* ambient dot texture: two layers — a faint even 24px grid (.05), plus a
-   sparser, larger, offset scatter (.08) that clusters in the open space. flat
-   from afar, textured up close. no extra DOM. */
+/* isometric paper texture: two thin line grids at +30° / -30°, very faint
+   (.04), drawn with repeating-linear-gradient. flat from afar, a woven paper
+   grain up close. no extra DOM. replaces the flat dot grid. */
 body{background-color:var(--paper);
   background-image:
-    radial-gradient(rgba(217,107,160,.08) 1.4px, transparent 1.6px),
-    radial-gradient(rgba(25,19,32,.05) 1px, transparent 1px);
-  background-size:132px 168px, 24px 24px;
-  background-position:40px 60px, 0 0}
+    repeating-linear-gradient(30deg, rgba(25,19,32,.04) 0 1px, transparent 1px 22px),
+    repeating-linear-gradient(-30deg, rgba(25,19,32,.04) 0 1px, transparent 1px 22px);}
 .band-lila{background:transparent}
 .prose{max-width:66ch;margin:0 auto}
 .prose h2{margin:26px 0 8px}
@@ -721,8 +720,10 @@ body.running #intro,body.running #progCard{display:none}
 .panel-link:hover{text-decoration:underline;text-underline-offset:3px}
 
 /* worth: three jobs, no numbers (there is no order here) */
-/* three jobs — narrow, left-aligned (asymmetry vs the wide hero/loop) */
-.worth{max-width:720px;display:grid;grid-template-columns:1fr;gap:20px;align-items:start}
+/* three jobs — narrow, but LEFT-aligned: the .wrap centers by default, so
+   pin the left margin to 0 and let the right go auto (starts at the same x as
+   every full-width .wrap block, no centering). */
+.worth{max-width:720px;margin-left:0;margin-right:auto;display:grid;grid-template-columns:1fr;gap:20px;align-items:start}
 .worth .big h2{margin:0 0 8px}
 .worth .big p{font-size:15px;color:var(--mut)}
 .worth ul{list-style:none;display:grid;gap:16px}
@@ -827,7 +828,7 @@ body.running .summary .rline .rgrab{opacity:.2;cursor:default}
   .twocol{grid-template-columns:1fr;gap:24px}
   .flowgrid,.howgrid,.postgrid{grid-template-columns:1fr 1fr}
   .tnav .wrap{flex-wrap:wrap;height:auto;padding:12px 0;gap:12px}
-  .tnav .search{order:3;flex-basis:100%}
+  .tnav .search{flex-basis:100%}
 }
 @media(max-width:560px){
   .how .cols{grid-template-columns:1fr}

@@ -83,7 +83,8 @@
   const btn = document.getElementById("movesBtn");
   if (!btn) return;
   function renderKept() {
-    btn.textContent = "my moves (" + getKept().length + ")";
+    // the count is the user's own data -> pink
+    btn.innerHTML = 'my moves <span class="mm-count">(' + getKept().length + ')</span>';
   }
   renderKept();
   window.addEventListener("gg-mymoves-changed", renderKept);
