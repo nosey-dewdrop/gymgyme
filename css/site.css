@@ -61,6 +61,10 @@ section{padding:44px 0}
 .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--lila)}
 .dot.user{background:var(--pink)}
 
+/* inline icon inside running text — matches the on-screen button glyph.
+   ~1em, follows text color, optically centered on the baseline. */
+.icon-inline{width:1em;height:1em;fill:currentColor;vertical-align:-.125em}
+
 /* ---------------------------------------------------------------- nav
    sits on the paper, single hairline under. current = bold. one primary action. */
 .tnav{border-bottom:1px solid var(--line);background:var(--paper)}
@@ -206,6 +210,8 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 #allMoves .lib-mv.coached .mvtag{color:var(--lila);opacity:1}
 #allMoves .lib-mv .hh{margin-left:8px;color:var(--line);transition:color var(--t)}
 #allMoves .lib-mv.kept .hh{color:var(--pink)}    /* saved = user data = pink */
+/* my-moves unlike control — saved item, so pink; plain glyph button, no fill */
+.unlike{background:none;border:none;padding:2px 4px;cursor:pointer;color:var(--pink);line-height:1}
 @media(max-width:900px){#allMoves .lib-grid{columns:1}}
 
 /* saved-moves dropdown panel */

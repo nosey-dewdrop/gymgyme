@@ -47,7 +47,7 @@
   <div class="wrap">
     <p class="eyebrow">the move library · 386 moves · zero equipment</p>
     <h1>every move in the library.</h1>
-    <p class="lead">tap the ♥ on anything you want to try. it lands in "my moves" up top and lines up for your next workout. moves the camera engine coaches live carry a <b>coached</b> tag; the rest are <b>reference</b>, shown honestly, not faked as counted.</p>
+    <p class="lead">tap the <svg class="icon-inline" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.9-10-9.2C.4 8.7 1.9 5.5 5 5.5c1.9 0 3.2 1.1 4 2.3.8-1.2 2.1-2.3 4-2.3 3.1 0 4.6 3.2 3 6.3C19.5 16.1 12 21 12 21z"/></svg> on anything you want to try. it lands in "my moves" up top and lines up for your next workout. moves the camera engine coaches live carry a <b>coached</b> tag; the rest are <b>reference</b>, shown honestly, not faked as counted.</p>
   </div>
 </section>
 
@@ -116,7 +116,7 @@
         const name = document.createElement("span"); name.textContent = m;
         const tag = document.createElement("small"); tag.className = "mvtag";
         tag.textContent = coached ? (COACHED_HOLD.has(m) ? "coached hold" : "coached") : "reference";
-        const hh = document.createElement("span"); hh.className = "hh"; hh.textContent = "";
+        const hh = document.createElement("span"); hh.className = "hh"; hh.innerHTML = '<svg class="icon-inline" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.9-10-9.2C.4 8.7 1.9 5.5 5 5.5c1.9 0 3.2 1.1 4 2.3.8-1.2 2.1-2.3 4-2.3 3.1 0 4.6 3.2 3 6.3C19.5 16.1 12 21 12 21z"/></svg>';
         d.append(name, tag, hh);
         d.addEventListener("click", () => GG_MYMOVES.toggle(m));
         grid.appendChild(d);
