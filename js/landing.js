@@ -19,21 +19,34 @@
   const T = 2600; // ms per squat cycle
   let t0 = null;
 
+  const R = (v, a) => ({ x: v.x * Math.cos(a) - v.y * Math.sin(a), y: v.x * Math.sin(a) + v.y * Math.cos(a) });
+  const rad = (deg) => deg * Math.PI / 180;
+
+  function limbs(d, ax) {
+    // one side of the body, built from real joint angles
+    const L2 = 88, L1 = 96, TOR = 130;
+    const ankle = { x: ax, y: 470 };
+    const phi = rad(8 + 30 * d);                 // shank lean
+    const K = rad(172 - 82 * d);                 // interior knee angle
+    const knee = { x: ankle.x + L2 * Math.sin(phi), y: ankle.y - L2 * Math.cos(phi) };
+    const ka = { x: ankle.x - knee.x, y: ankle.y - knee.y };
+    const kh = R({ x: ka.x / L2, y: ka.y / L2 }, K);
+    const hip = { x: knee.x + L1 * kh.x, y: knee.y + L1 * kh.y };
+    const tau = rad(5 + 38 * d);                 // torso lean
+    const sho = { x: hip.x + TOR * Math.sin(tau), y: hip.y - TOR * Math.cos(tau) };
+    const alpha = rad(15 + 75 * d);              // arms swing forward as counterweight
+    const elb = { x: sho.x + 58 * Math.sin(alpha), y: sho.y + 58 * Math.cos(alpha) };
+    const wri = { x: elb.x + 52 * Math.sin(alpha + rad(18)), y: elb.y + 52 * Math.cos(alpha + rad(18)) };
+    const toe = { x: ankle.x + 36, y: 476 };
+    return { ankle, knee, hip, sho, elb, wri, toe };
+  }
+
   function pose(d) {
-    // side view, facing right. d = squat depth 0..1
-    const ankle = { x: 250, y: 470 };
-    const knee = { x: 250 + 46 * d, y: 388 + 14 * d };
-    const hip = { x: 250 - 52 * d, y: 300 + 92 * d };
-    const lean = 0.42 * d; // torso lean, radians
-    const tor = 128;
-    const sho = { x: hip.x + tor * Math.sin(lean), y: hip.y - tor * Math.cos(lean) };
-    const head = { x: sho.x + 34 * Math.sin(lean), y: sho.y - 42 * Math.cos(lean) };
-    // arms swing forward as depth grows
-    const aAng = -0.45 + (Math.PI / 2 + 0.35) * d; // from hanging to forward
-    const upper = 62, fore = 58;
-    const elb = { x: sho.x + upper * Math.sin(aAng) * 0.4 + upper * Math.cos(aAng) * 0.4, y: sho.y + upper * Math.cos(aAng) };
-    const wri = { x: elb.x + fore * (0.3 + 0.7 * d), y: elb.y + fore * (1 - d) * 0.5 - 10 * d };
-    return { ankle, knee, hip, sho, head, elb, wri };
+    const near = limbs(d, 262);
+    const far = limbs(d, 248);
+    const tau = rad(5 + 38 * d);
+    const head = { x: near.sho.x + 46 * Math.sin(tau), y: near.sho.y - 46 * Math.cos(tau) };
+    return { near, far, head };
   }
 
   function angleAt(b, a, c) {
@@ -49,54 +62,68 @@
     ctx.fill();
   }
 
-  function bone(a, b) {
+  function bone(a, b, color, w) {
     ctx.beginPath();
     ctx.moveTo(a.x, a.y);
     ctx.lineTo(b.x, b.y);
-    ctx.strokeStyle = BONE;
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = w;
+    ctx.lineCap = 'round';
     ctx.stroke();
+  }
+
+  function drawSide(s, boneC, jointC, w, jr) {
+    bone(s.ankle, s.toe, boneC, w);
+    bone(s.ankle, s.knee, boneC, w);
+    bone(s.knee, s.hip, boneC, w);
+    bone(s.hip, s.sho, boneC, w);
+    bone(s.sho, s.elb, boneC, w);
+    bone(s.elb, s.wri, boneC, w);
+    [s.ankle, s.hip, s.sho, s.elb, s.wri].forEach(p => joint(p, jr, jointC));
+  }
+
+  function draw(d, ts) {
+    const p = pose(d);
+    ctx.clearRect(0, 0, cv.width, cv.height);
+
+    // floor dots
+    ctx.fillStyle = '#d8d4de';
+    for (let x = 110; x <= 430; x += 34) { ctx.beginPath(); ctx.arc(x, 488, 1.6, 0, Math.PI * 2); ctx.fill(); }
+
+    // far side first, lighter; near side on top, ink
+    drawSide(p.far, '#ddd9e5', '#c9c3d6', 5, 4);
+    drawSide(p.near, '#8f889d', '#111', 5.5, 5.5);
+    joint(p.head, 14, '#111');
+
+    // tracked joint: the near knee, lila, ringed, with its real angle
+    joint(p.near.knee, 7, LILA);
+    ctx.beginPath();
+    ctx.arc(p.near.knee.x, p.near.knee.y, 13 + 2 * Math.sin((ts || 0) / 200), 0, Math.PI * 2);
+    ctx.strokeStyle = LILA;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    const kneeAngle = angleAt(p.near.knee, p.near.hip, p.near.ankle);
+    kneeEl.textContent = kneeAngle;
+    ctx.fillStyle = LILA;
+    ctx.font = 'bold 13px Helvetica, Arial, sans-serif';
+    ctx.fillText(kneeAngle + '\u00b0', p.near.knee.x + 22, p.near.knee.y + 4);
+    return p;
   }
 
   function frame(ts) {
     if (t0 === null) t0 = ts;
     const phase = ((ts - t0) % T) / T;
-    const d = (1 - Math.cos(phase * Math.PI * 2)) / 2; // smooth 0->1->0
+    const d = (1 - Math.cos(phase * Math.PI * 2)) / 2;
     if (d > 0.85) wasDown = true;
     if (wasDown && d < 0.08) { wasDown = false; reps++; repsEl.textContent = reps; onRep(ts); }
 
-    const p = pose(d);
-    ctx.clearRect(0, 0, cv.width, cv.height);
+    const p = draw(d, ts);
 
-    // floor dots
-    ctx.fillStyle = BONE;
-    for (let x = 90; x <= 430; x += 34) { ctx.beginPath(); ctx.arc(x, 486, 1.6, 0, Math.PI * 2); ctx.fill(); }
-
-    bone(p.ankle, p.knee); bone(p.knee, p.hip); bone(p.hip, p.sho); bone(p.sho, p.head);
-    bone(p.sho, p.elb); bone(p.elb, p.wri);
-
-    joint(p.head, 15, INK);
-    joint(p.sho, 6, INK); joint(p.hip, 6, INK); joint(p.ankle, 6, INK);
-    joint(p.elb, 5, INK); joint(p.wri, 5, INK);
-    // tracked joint: the knee, in lila, with a ring
-    joint(p.knee, 7, LILA);
-    ctx.beginPath();
-    ctx.arc(p.knee.x, p.knee.y, 13 + 2 * Math.sin(ts / 200), 0, Math.PI * 2);
-    ctx.strokeStyle = LILA;
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-
-    const kneeAngle = angleAt(p.knee, p.hip, p.ankle);
-    kneeEl.textContent = kneeAngle;
-    ctx.fillStyle = LILA;
-    ctx.font = '13px Helvetica, Arial, sans-serif';
-    ctx.fillText(kneeAngle + '°', p.knee.x + 20, p.knee.y + 4);
-
-    // celebration ring radiating from the hip on each completed rep
     if (ringT >= 0 && ts - ringT < 700) {
       const k = (ts - ringT) / 700;
       ctx.beginPath();
-      ctx.arc(p.hip.x, p.hip.y, 20 + 70 * k, 0, Math.PI * 2);
+      ctx.arc(p.near.hip.x, p.near.hip.y, 20 + 70 * k, 0, Math.PI * 2);
       ctx.strokeStyle = 'rgba(142, 111, 216, ' + (0.5 * (1 - k)) + ')';
       ctx.lineWidth = 2;
       ctx.stroke();
@@ -106,10 +133,7 @@
   }
 
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    const p = pose(0.6);
-    [[p.ankle,p.knee],[p.knee,p.hip],[p.hip,p.sho],[p.sho,p.head],[p.sho,p.elb],[p.elb,p.wri]].forEach(([a,b])=>bone(a,b));
-    joint(p.head, 15, INK); joint(p.sho,6,INK); joint(p.hip,6,INK); joint(p.ankle,6,INK); joint(p.elb,5,INK); joint(p.wri,5,INK); joint(p.knee,7,LILA);
-    kneeEl.textContent = angleAt(p.knee, p.hip, p.ankle);
+    draw(0.6, 0);
   } else {
     requestAnimationFrame(frame);
   }

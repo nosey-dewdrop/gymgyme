@@ -70,8 +70,8 @@
     transition: background 0.15s, transform 0.15s;
   }
   .btn:hover { background: var(--lila); transform: translateY(-1px); }
-  nav.top .btn { padding: 8px 14px; font-size: 13px; background: var(--lila); }
-  nav.top .btn:hover { background: var(--ink); }
+  nav.top .btn { padding: 8px 14px; font-size: 13px; background: var(--lila); color: #fff; }
+  nav.top .btn:hover { background: var(--ink); color: #fff; }
 
   /* hero */
   .hero { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 48px; align-items: center; padding: 44px 0 40px; }
@@ -143,31 +143,35 @@
 
   /* how */
   .how { background: var(--lila-soft); }
-  .how .cols { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 48px; margin-top: 22px; max-width: 900px; }
+  .how { position: relative; }
+  .how .cols { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 90px; margin-top: 22px; }
+  .how .c:nth-child(even) { margin-top: 18px; }
   .how .c { padding: 12px 0; }
   .how .c b { display: block; margin-bottom: 3px; }
   .how .c p { font-size: 14px; color: var(--mut); max-width: 40ch; }
-  .how .note { margin-top: 18px; font-size: 13px; color: var(--mut); }
+  .how .note { margin-top: 22px; font-size: 13px; color: var(--mut); text-align: right; }
   .how .note i { font-style: normal; color: var(--ink); }
 
   /* privacy */
-  .priv { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
-  .priv .mega { font-size: 44px; font-weight: bold; letter-spacing: -0.03em; }
+  .priv { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 48px; align-items: center; }
+  .priv .mega { font-size: 60px; font-weight: bold; letter-spacing: -0.03em; }
   .priv .mega i { font-style: normal; color: var(--lila); }
   .priv p { color: var(--mut); max-width: 42ch; margin-top: 10px; }
-  .priv .term { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 13px; background: var(--ink); color: #eee; padding: 18px 20px; border-radius: 3px; }
+  .priv .term { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 14px; background: var(--ink); color: #eee; padding: 26px 28px; border-radius: 3px; width: 100%; justify-self: end; }
   .priv .term .zero { color: #9df2b0; margin-top: 6px; }
 
   /* loop */
-  .loop ol { list-style: none; counter-reset: s; margin-top: 20px; max-width: 62ch; }
-  .loop li { counter-increment: s; padding: 10px 0; display: grid; grid-template-columns: 34px 1fr; gap: 14px; align-items: baseline; }
-  .loop li::before { content: "0" counter(s); color: var(--lila); font-weight: bold; font-variant-numeric: tabular-nums; }
+  .loop .split { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 64px; align-items: start; }
+  .loop ol { list-style: none; counter-reset: s; }
+  .loop li { counter-increment: s; padding: 14px 0; display: grid; grid-template-columns: 56px 1fr; gap: 18px; align-items: baseline; }
+  .loop li::before { content: "0" counter(s); color: var(--lila); font-weight: bold; font-size: 26px; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
   .loop li a { color: var(--ink); }
   .loop li span { color: var(--mut); }
 
   /* close */
-  .close { padding: 56px 0 64px; }
-  .close h2 { font-size: 30px; max-width: 22ch; }
+  .close { padding: 64px 0 72px; }
+  .close .wrap { display: grid; justify-items: end; text-align: right; }
+  .close h2 { font-size: 38px; max-width: 20ch; }
   .close p { color: var(--mut); margin-top: 10px; max-width: 48ch; }
   .close .acts { margin-top: 22px; display: flex; align-items: center; gap: 16px; }
 
@@ -182,6 +186,10 @@
     .hero h1 { font-size: 29px; }
     .worth, .priv { grid-template-columns: 1fr; gap: 22px; }
     .how .cols { grid-template-columns: 1fr; }
+    .how .c:nth-child(even) { margin-top: 0; }
+    .loop .split { grid-template-columns: 1fr; gap: 10px; }
+    .close .wrap { justify-items: start; text-align: left; }
+    .priv .mega { font-size: 42px; }
     nav.top .links a:not(.btn) { display: none; }
   }
 </style>
@@ -269,9 +277,11 @@
 </section>
 
 <section class="loop">
-  <div class="wrap">
-    <p class="eyebrow">The whole loop</p>
-    <h2>From browsing to a counted set, in four steps.</h2>
+  <div class="wrap split">
+    <div>
+      <p class="eyebrow">The whole loop</p>
+      <h2>From browsing to a counted set, in four steps.</h2>
+    </div>
     <ol>
       <li><div><a href="moves.html">Browse 386 moves</a> <span>with zero equipment: pilates, ballet, yoga, bodyweight.</span></div></li>
       <li><div><a href="my-moves.html">Save the ones you like</a> <span>into a shortlist that is actually yours.</span></div></li>
