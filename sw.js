@@ -1,7 +1,7 @@
 // gymgyme service worker: ana ekrana kurulan personal trainer offline da açılsın.
 // kamera + motor zaten cihazda çalışıyor; burada sadece dosyaları önbelleğe alıyoruz.
 // vendor/ ya da engine/ değişirse CACHE sürümünü artır — eski önbellek silinir.
-const CACHE = "gg-pwa-v82";  // v82: nav button black (specificity fix), figure FIG 0.68 human proportion, footer v81 all pages, pink live
+const CACHE = "gg-pwa-v83";  // v83: loop narrow heading col (no dead space), close max720 row acts, sections content-height
 
 const CORE = [
   "coach.html",
