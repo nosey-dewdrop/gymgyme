@@ -30,9 +30,12 @@ kadar durmaz.
 2. Copy'ye dokunulmaz. Kesilebilir, kısaltılamaz, yeniden yazılamaz.
    Yeni metin gerekirse aynı ses: küçük harf, kuru, ünlemsiz, iddia değil
    ölçü.
-3. Palet: `--paper --wash --ink --mut --line --lila --lila-soft --pink
-   --pink-soft`. Başka renk yok. **Lila = motorun çıktısı**, **pembe =
-   kullanıcının verisi**. İkisi de dekoratif kullanılmaz.
+3. Palet (19 tem güncel — insan değiştirdi): `--paper --wash --ink --mut
+   --line --lila #C9A9D9 --lila-soft #F0E6F5 --lila-deep #8E6BA8 --pink
+   --pink-soft`. Başka renk yok. **Lila = motorun çıktısı** (aksan metin =
+   --lila-deep, çip/fill/dot/aktif = --lila), **pembe = kullanıcının verisi**.
+   **Butonlar --ink zemin beyaz yazı; lila ASLA buton zemini değil.**
+   **Hiçbir yerde koyu kutu / terminal görünümü yok.** İkisi de dekoratif değil.
 4. Emoji yok. Gradient yok. Siyah/dar gölge yok. Chevron yok.
    Radius: `--r-sm 10px` (buton, çip, input), `--r 16px` (kart, blok),
    `--r-lg 20px` (büyük panel). Bu sistem tüm sayfalarda geçerlidir;

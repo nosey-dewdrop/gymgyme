@@ -12,8 +12,9 @@
   --ink:#191320;
   --mut:#6E6579;
   --line:#E7E2EE;
-  --lila:#7A5BB0;        /* engine output: angle, score, count, coached, active, focus, primary */
-  --lila-soft:#EDE6F7;
+  --lila:#C9A9D9;        /* soft lila — chips, fills, dots, active state */
+  --lila-soft:#F0E6F5;   /* faint lila wash */
+  --lila-deep:#8E6BA8;   /* engine output text: angle, score, count, accent */
   --pink:#D96BA0;        /* the user's own data: filled day, saved move, personal history */
   --pink-soft:#FBEAF2;
 
@@ -59,7 +60,7 @@ h4{font-size:15px}
 p{max-width:66ch}
 .lead{font-size:16px;color:var(--mut);max-width:60ch}
 .note{font-size:13px;color:var(--mut)}
-.link{color:var(--lila);font-weight:600}
+.link{color:var(--lila-deep);font-weight:600}
 /* every number / angle / score / time / version / terminal / eyebrow is mono */
 .mono,.eyebrow,.lbl,.num,.vtag,.stat{font-family:var(--mono)}
 .eyebrow,.lbl{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin-bottom:9px}
@@ -83,18 +84,18 @@ section{padding:44px 0}
 .tnav .search{flex:1;display:flex;justify-content:center;min-width:0}
 .tnav .links{display:flex;gap:18px;align-items:center}
 .tnav .links a,.tnav .links a:visited{font-size:14px;color:var(--mut)}
-.tnav .links a:hover{color:var(--lila)}
+.tnav .links a:hover{color:var(--lila-deep)}
 .tnav .links a.on{color:var(--ink);font-weight:600}
 
 /* the one primary action */
-.go,.go:visited{background:var(--lila);color:#fff;padding:9px 16px;border-radius:var(--r-sm);font-size:13px;font-weight:600;transition:transform var(--t)}
+.go,.go:visited{background:var(--ink);color:#fff;padding:9px 16px;border-radius:var(--r-sm);font-size:13px;font-weight:600;transition:transform var(--t)}
 .go:hover{transform:translateY(-1px)}
 
 /* top search — mono, hairline, no shadow. id #topSearch preserved for topbar.js */
-.topsearch{width:min(340px,100%);font-family:var(--mono);font-size:13px;color:var(--ink);
+.topsearch{width:min(340px,100%);font-family:var(--body);font-size:14px;color:var(--ink);
   background:var(--wash);border:1px solid var(--line);border-radius:var(--r-sm);padding:9px 12px;outline:none;transition:border-color var(--t)}
-.topsearch:focus{border-color:var(--lila)}
-.topsearch::placeholder{color:var(--mut);opacity:.7}
+.topsearch:focus{border-color:var(--lila-deep)}
+.topsearch::placeholder{font-family:var(--body);color:var(--mut);opacity:.7}
 .searchwrap{position:relative;width:min(340px,100%)}
 .searchdrop{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--paper);
   border:1px solid var(--line);border-radius:var(--r-sm);display:none;z-index:60;max-height:340px;overflow-y:auto}
@@ -102,25 +103,26 @@ section{padding:44px 0}
 .searchdrop .sr{display:flex;justify-content:space-between;gap:10px;padding:10px 14px;font-size:14px;cursor:pointer;border-bottom:1px solid var(--line);color:var(--ink)}
 .searchdrop .sr:hover{background:var(--wash)}
 .searchdrop .sr small{font-family:var(--mono);color:var(--mut)}
-.searchdrop .srall{font-weight:600;color:var(--lila)}
+.searchdrop .srall{font-weight:600;color:var(--lila-deep)}
 
 /* ---------------------------------------------------------------- buttons
-   one language: lila fill for primary, hairline ghost for secondary. 3px. */
-.btn,.btn:visited{display:inline-block;background:var(--lila);color:#fff;
+   one language: ink fill for primary, hairline ghost for secondary. lila is
+   never a button ground (palette rule, 19 tem). */
+.btn,.btn:visited{display:inline-block;background:var(--ink);color:#fff;
   font-family:var(--body);font-size:15px;font-weight:600;padding:12px 22px;border-radius:var(--r-sm);
   border:none;cursor:pointer;transition:transform var(--t),background var(--t)}
 .btn:hover{transform:translateY(-2px)}
 .btn:active{transform:translateY(0)}
 .btn.ghost,.btn.ghost:visited{background:transparent;color:var(--ink);border:1px solid var(--line)}
-.btn.ghost:hover{border-color:var(--lila);color:var(--lila)}
+.btn.ghost:hover{border-color:var(--lila-deep);color:var(--lila-deep)}
 .quiet,.quiet:visited{color:var(--mut);font-size:14px}
-.quiet:hover{color:var(--lila)}
+.quiet:hover{color:var(--lila-deep)}
 
 /* ---------------------------------------------------------------- forms
    one system: hairline field, mono numbers, lila focus. */
 input,select,textarea{font-family:var(--body);font-size:15px;color:var(--ink);
   background:var(--paper);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 12px;outline:none;transition:border-color var(--t)}
-input:focus,select:focus,textarea:focus{border-color:var(--lila)}
+input:focus,select:focus,textarea:focus{border-color:var(--lila-deep)}
 input::placeholder,textarea::placeholder{color:var(--mut);opacity:.7}
 label{font-size:13px;color:var(--mut)}
 .field{display:block;margin:0 0 14px}
@@ -133,21 +135,18 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .prose{max-width:66ch;margin:0 auto}
 .prose h2{margin:26px 0 8px}
 .prose p{margin:0 0 12px;color:var(--ink)}
-.prose a{color:var(--lila);font-weight:600}
+.prose a{color:var(--lila-deep);font-weight:600}
 
-/* ---------------------------------------------------------------- Q&A accordion
-   native <details>, hairline rows, no card, no chevron glyph. */
-.qa-band{padding:22px 0}
-.qa-band .lbl{color:var(--lila)}
-.qa-grid{display:block;max-width:66ch}
-.qa-grid .q{border-bottom:1px solid var(--line);padding:0}
-.qa-grid .q summary{list-style:none;cursor:pointer;font-weight:600;color:var(--ink);
-  padding:13px 0;position:relative;padding-right:24px}
-.qa-grid .q summary::-webkit-details-marker{display:none}
-.qa-grid .q summary::after{content:"";position:absolute;right:4px;top:50%;width:8px;height:8px;
-  border-radius:50%;background:var(--lila-soft);transform:translateY(-50%);transition:background var(--t)}
-.qa-grid .q[open] summary::after{background:var(--lila)}
-.qa-grid .q span{display:block;color:var(--mut);padding:0 0 14px;font-size:15px}
+/* ---------------------------------------------------------------- Q&A
+   open block, no accordion. two columns, question bold, answer visible.
+   no box, no frame, no click. */
+.qa-band{padding:30px 0}
+.qa-band .lbl{color:var(--lila-deep);margin-bottom:18px}
+.qa-grid{columns:2;column-gap:44px;max-width:none}
+.qa-grid .q{break-inside:avoid;margin-bottom:18px}
+.qa-grid .q b{display:block;font-weight:600;color:var(--ink);margin-bottom:4px;font-size:15px}
+.qa-grid .q span{display:block;color:var(--mut);font-size:14px;line-height:1.55}
+@media(max-width:720px){.qa-grid{columns:1}}
 
 /* ---------------------------------------------------------------- directory
    community link index. counters are the user's data → pink. */
@@ -155,7 +154,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .dir-tag .stat{font-family:var(--mono);color:var(--pink);font-weight:600}
 #nav{display:flex;flex-wrap:wrap;gap:8px 16px;margin:12px 0 4px}
 #nav a,#nav a:visited{font-size:13px;color:var(--mut)}
-#nav a:hover{color:var(--lila)}
+#nav a:hover{color:var(--lila-deep)}
 #cat-title{margin:20px 0 10px}
 #directory .loading{color:var(--mut)}
 
@@ -163,24 +162,20 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .flowgrid,.howgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin-top:20px;
   background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
 .fcell,.hcell{background:var(--paper);padding:20px 18px}
-.fcell .n,.hcell .n{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--lila);letter-spacing:.1em;margin-bottom:9px}
+.fcell .n,.hcell .n{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--lila-deep);letter-spacing:.1em;margin-bottom:9px}
 .fcell h4,.hcell h4{margin-bottom:4px}
 .fcell p,.hcell p{font-size:13px;color:var(--mut)}
 
 /* privacy two column + terminal */
 .twocol{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;margin-top:8px}
-.mega{font-family:var(--mono);font-size:52px;font-weight:600;letter-spacing:-.03em;color:var(--lila);line-height:1}
-.term{background:var(--ink);border-radius:var(--r);padding:18px 20px;font-family:var(--mono)}
-.term .cmd{color:var(--lila);font-size:13px}
-.term .cmd::before{content:"$ ";color:var(--mut)}
-.term .out{color:var(--mut);font-size:13px;margin-top:7px}
-.term .zero{color:#fff;font-size:14px;font-weight:600;margin-top:2px}
+.mega{font-family:var(--mono);font-size:52px;font-weight:600;letter-spacing:-.03em;color:var(--lila-deep);line-height:1}
+/* .term removed — no dark box / terminal look anywhere (palette rule 19 tem) */
 
 /* ---------------------------------------------------------------- cards / posts */
 .postgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:20px}
 .post{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:18px;transition:transform var(--t)}
 .post:hover{transform:translateY(-2px)}
-.post .tag{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--lila);margin-bottom:8px}
+.post .tag{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--lila-deep);margin-bottom:8px}
 .post h4{font-size:16px;line-height:1.2;margin-bottom:5px}
 .post p{font-size:13px;color:var(--mut)}
 .post .meta{font-family:var(--mono);font-size:11px;color:var(--mut);margin-top:10px}
@@ -196,20 +191,20 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .tabs{display:flex;gap:20px;border-bottom:1px solid var(--line);margin:0 0 20px}
 .tabs a,.tabs button{background:none;border:none;font-family:var(--body);font-size:15px;color:var(--mut);
   padding:0 0 10px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
-.tabs a.on,.tabs button.on{color:var(--ink);border-bottom-color:var(--lila)}
+.tabs a.on,.tabs button.on{color:var(--ink);border-bottom-color:var(--lila-deep)}
 
 /* ---------------------------------------------------------------- moves library
    386 moves. coached = lila, reference = faint. filter chips. */
 .mvsw{position:relative;display:inline-block;width:min(340px,100%)}
 .mvsearch{width:100%;font-family:var(--mono);font-size:13px;color:var(--ink);
   background:var(--paper);border:1px solid var(--line);border-radius:var(--r-sm);padding:9px 12px;outline:none}
-.mvsearch:focus{border-color:var(--lila)}
+.mvsearch:focus{border-color:var(--lila-deep)}
 .mvsearch::placeholder{color:var(--mut);opacity:.7}
 .libfilters{margin:12px 0 4px}
 .libfilters button{font-family:var(--mono);font-size:12.5px;background:var(--lila-soft);color:var(--ink);
   border:none;border-radius:999px;padding:8px 14px;margin:0 8px 8px 0;cursor:pointer;transition:background var(--t),color var(--t)}
 .libfilters button:hover{background:var(--line)}
-.libfilters button.on{background:var(--lila);color:#fff}
+.libfilters button.on{background:var(--lila-deep);color:#fff}
 #allMoves .lib-cat{margin:18px 0 6px;font-family:var(--head);font-size:16px;font-weight:600;color:var(--ink)}
 #allMoves .lib-cat small{font-family:var(--mono);font-weight:normal;font-size:11.5px;color:var(--mut);margin-left:8px}
 #allMoves .lib-grid{columns:3;column-gap:34px}
@@ -217,7 +212,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
   border-bottom:1px solid var(--line);font-size:14px;break-inside:avoid;cursor:pointer;transition:background var(--t)}
 #allMoves .lib-mv:hover{background:var(--wash)}
 #allMoves .lib-mv .mvtag{margin-left:auto;font-family:var(--mono);font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);opacity:.6;white-space:nowrap}
-#allMoves .lib-mv.coached .mvtag{color:var(--lila);opacity:1}
+#allMoves .lib-mv.coached .mvtag{color:var(--lila-deep);opacity:1}
 #allMoves .lib-mv .hh{margin-left:8px;color:var(--line);transition:color var(--t)}
 #allMoves .lib-mv.kept .hh{color:var(--pink)}    /* saved = user data = pink */
 /* my-moves unlike control — saved item, so pink; plain glyph button, no fill */
@@ -230,10 +225,10 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .moves-panel.open{display:block}
 .moves-panel .krow{display:flex;justify-content:space-between;gap:8px;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px;font-weight:600}
 .moves-panel .krow:last-child{border-bottom:none}
-.moves-panel .krow button{background:none;border:none;color:var(--lila);font-weight:600;cursor:pointer}
+.moves-panel .krow button{background:none;border:none;color:var(--lila-deep);font-weight:600;cursor:pointer}
 .moves-panel .plrow{display:flex;gap:6px;margin:10px 0 0}
 .moves-panel .plrow input{flex:1;min-width:0}
-.moves-panel .plrow button{background:var(--lila);color:#fff;border:none;border-radius:var(--r-sm);font-weight:600;padding:8px 12px;cursor:pointer}
+.moves-panel .plrow button{background:var(--ink);color:#fff;border:none;border-radius:var(--r-sm);font-weight:600;padding:8px 12px;cursor:pointer}
 
 /* ---------------------------------------------------------------- calendar
    full width, day cell holds move + mono score. filled day = user data = pink.
@@ -242,9 +237,9 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .calhead{display:flex;align-items:center;justify-content:center;gap:18px;margin-bottom:4px}
 .calhead b{font-family:var(--head);font-size:20px}
 .caltotals{display:block;text-align:center;font-family:var(--mono);font-size:12px;color:var(--mut);margin-bottom:14px}
-.calnav{font-family:var(--body);font-size:16px;font-weight:600;background:var(--lila-soft);color:var(--lila);
+.calnav{font-family:var(--body);font-size:16px;font-weight:600;background:var(--lila-soft);color:var(--lila-deep);
   border:none;border-radius:var(--r-sm);width:32px;height:32px;cursor:pointer;transition:background var(--t),color var(--t)}
-.calnav:hover{background:var(--lila);color:#fff}
+.calnav:hover{background:var(--lila-deep);color:#fff}
 .calnav:disabled{opacity:.35;cursor:default}
 .dow{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center;font-family:var(--mono);font-size:11px;font-weight:600;color:var(--mut);margin-bottom:6px}
 .monthwall{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
@@ -258,7 +253,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 
 /* workout history list */
 .hist{margin:22px auto 0}
-.hist .lbl{color:var(--lila);margin-bottom:10px}
+.hist .lbl{color:var(--lila-deep);margin-bottom:10px}
 .hist .h{display:flex;justify-content:space-between;gap:14px;padding:8px 2px;border-bottom:1px solid var(--line);font-size:14px}
 .hist .h small{font-family:var(--mono);color:var(--mut)}
 
@@ -275,7 +270,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .card{position:relative;background:var(--wash);border:none;border-radius:var(--r);padding:26px;margin:0;transition:transform var(--dur) var(--ease),box-shadow var(--dur) var(--ease)}
 .card:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(122,91,176,.12)}
 .card.saved{background:var(--pink-soft)}
-.card-title{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--lila);margin:0 0 10px}
+.card-title{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--lila-deep);margin:0 0 10px}
 /* dot signature — the engine's dot language becomes the card's material.
    6-8 faint dots clustered bottom-right, one notch darker than the card. */
 .card-dots{position:absolute;right:16px;bottom:14px;width:34px;height:22px;pointer-events:none}
@@ -290,11 +285,11 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .card-dots i:nth-child(8){right:21px;bottom:13px}
 .card-grid{display:grid;gap:16px}
 
-.mainbtn{font-family:var(--body);font-size:16px;font-weight:600;color:#fff;background:var(--lila);
+.mainbtn{font-family:var(--body);font-size:16px;font-weight:600;color:#fff;background:var(--ink);
   border:none;border-radius:var(--r-sm);padding:11px 20px;cursor:pointer;margin:8px 12px 2px 0;transition:transform var(--t)}
 .mainbtn:hover{transform:translateY(-1px)}
 .mainbtn:disabled{opacity:.45;cursor:default;transform:none}
-.mainbtn.soft{background:var(--lila-soft);color:var(--lila)}
+.mainbtn.soft{background:var(--lila-soft);color:var(--lila-deep)}
 .mainbtn.soft:hover{background:var(--line)}
 
 /* the camera stage — renamed .stage -> .panel, #camstage -> #camera */
@@ -307,7 +302,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 #camera{background:var(--ink);color:#fff;width:min(720px,86%);aspect-ratio:4/3;margin:0 auto;
   display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;font-size:13px;cursor:pointer;border-radius:var(--r-lg)}
 #camera b{font-size:16px}
-#camera .stagestart{font-family:var(--body);font-size:14px;font-weight:600;background:var(--lila);color:#fff;
+#camera .stagestart{font-family:var(--body);font-size:14px;font-weight:600;background:var(--ink);color:#fff;
   border:none;border-radius:var(--r-sm);padding:11px 20px;margin-top:10px;cursor:pointer}
 #camera .stagestatus{font-family:var(--mono);font-size:13px;min-height:18px;max-width:85%;opacity:.95}
 #camera .framehint{max-width:78%;font-size:12px;opacity:.82;line-height:1.5;margin-top:2px}
@@ -324,12 +319,12 @@ body.running #intro,body.running #progCard{display:none}
 
 /* rep counter — the engine's real moment. lila, mono, biggest thing. */
 .rep-row{line-height:1;margin:4px 0 2px}
-.rep-count{font-family:var(--mono);font-size:72px;font-weight:600;color:var(--lila);letter-spacing:-.02em;display:inline-block}
+.rep-count{font-family:var(--mono);font-size:72px;font-weight:600;color:var(--lila-deep);letter-spacing:-.02em;display:inline-block}
 .rep-count.ticked{animation:repPop .22s ease-out}
 .rep-label{font-family:var(--mono);font-size:14px;margin-left:8px;color:var(--mut)}
 @keyframes repPop{0%{transform:scale(1)}35%{transform:scale(1.18)}100%{transform:scale(1)}}
 .score-line{font-size:13px;min-height:18px;margin-bottom:6px}
-.score-line .big{font-family:var(--mono);font-weight:600;color:var(--lila)}
+.score-line .big{font-family:var(--mono);font-weight:600;color:var(--lila-deep)}
 .rep-comment{font-size:15px;color:var(--ink);min-height:20px;margin-bottom:4px}
 .half-note{font-size:12px;color:var(--mut);min-height:16px;margin-bottom:2px}
 .set-line{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--mut);margin:2px 0 4px}
@@ -339,13 +334,13 @@ body.running #intro,body.running #progCard{display:none}
 .rest[hidden]{display:none}
 .rest{margin:6px 0 10px}
 .rest-word{font-size:20px;color:var(--mut)}
-.rest-count{font-family:var(--mono);font-size:72px;font-weight:600;color:var(--lila);line-height:1;letter-spacing:-.02em}
+.rest-count{font-family:var(--mono);font-size:72px;font-weight:600;color:var(--lila-deep);line-height:1;letter-spacing:-.02em}
 .rest-sub{font-size:13px;color:var(--mut);margin:2px 0 8px}
-.restbtn{font-family:var(--body);font-size:16px;font-weight:600;color:var(--lila);background:var(--lila-soft);border:none;border-radius:var(--r-sm);padding:8px 14px;cursor:pointer}
+.restbtn{font-family:var(--body);font-size:16px;font-weight:600;color:var(--lila-deep);background:var(--lila-soft);border:none;border-radius:var(--r-sm);padding:8px 14px;cursor:pointer}
 
 /* session summary — renamed .receipt -> .summary */
 .summary[hidden]{display:none}
-.summary-title{font-family:var(--head);font-size:26px;font-weight:600;color:var(--lila)}
+.summary-title{font-family:var(--head);font-size:26px;font-weight:600;color:var(--lila-deep)}
 .summary-body{font-size:15px;line-height:1.7;margin-top:4px}
 .summary-body div{padding:1px 0}
 
@@ -360,7 +355,7 @@ body.running #intro,body.running #progCard{display:none}
 .angles .k{display:inline-block;width:130px;color:var(--mut)}
 .fps{font-family:var(--mono);font-size:11px;color:var(--mut);margin-top:10px}
 .msg{margin:6px 0;min-height:18px;color:var(--mut)}
-.msg.loud{font-size:21px;font-weight:600;color:var(--lila);line-height:1.2;animation:cuePulse .3s ease-out}
+.msg.loud{font-size:21px;font-weight:600;color:var(--lila-deep);line-height:1.2;animation:cuePulse .3s ease-out}
 @keyframes cuePulse{0%{transform:scale(.9);opacity:.5}100%{transform:scale(1);opacity:1}}
 .safety,.private,.wip{font-size:12px;color:var(--mut);margin:6px 0 2px;max-width:560px}
 
@@ -369,7 +364,7 @@ body.running #intro,body.running #progCard{display:none}
 .auth-who{color:var(--mut);margin-right:10px}
 .auth-lead{color:var(--mut);margin:0 0 6px}
 .auth-in{font-family:var(--body);font-size:15px;margin:0 6px 6px 0;width:200px;max-width:60%}
-.auth-btn,.auth-link{font-family:var(--body);font-size:14px;font-weight:600;color:var(--lila);background:none;border:none;cursor:pointer;padding:6px 0;margin-right:14px}
+.auth-btn,.auth-link{font-family:var(--body);font-size:14px;font-weight:600;color:var(--lila-deep);background:none;border:none;cursor:pointer;padding:6px 0;margin-right:14px}
 .auth-msg{min-height:16px;color:var(--mut);margin:4px 0 0}
 .auth-priv{font-size:11px;color:var(--mut);margin:4px 0 0;max-width:520px}
 .auth-priv a{color:var(--mut)}
@@ -385,18 +380,18 @@ body.running #intro,body.running #progCard{display:none}
 /* fold card (record/history) — native details, no chevron glyph */
 .foldcard{border:1px solid var(--line);border-radius:var(--r);margin:12px 0;overflow:hidden}
 .foldcard[hidden]{display:none}
-.foldcard-head{list-style:none;cursor:pointer;font-weight:600;color:var(--lila);padding:14px 18px;display:flex;justify-content:space-between;align-items:center;user-select:none}
+.foldcard-head{list-style:none;cursor:pointer;font-weight:600;color:var(--lila-deep);padding:14px 18px;display:flex;justify-content:space-between;align-items:center;user-select:none}
 .foldcard-head::-webkit-details-marker{display:none}
 .foldcard > *:not(summary){padding:0 18px 16px}
 
 /* preset chips reuse .libfilters language */
 .presetbtn{font-family:var(--mono);font-size:13px;background:var(--lila-soft);color:var(--ink);border:none;border-radius:999px;padding:9px 14px;margin:0 8px 8px 0;cursor:pointer;transition:background var(--t),color var(--t)}
-.presetbtn:hover{background:var(--lila);color:#fff}
+.presetbtn:hover{background:var(--lila-deep);color:#fff}
 
 /* ---------------------------------------------------------------- FAZ 3 coach
    one world, no pink ground, no cinema. the page has one name. */
 .coach-head{padding:40px 0 8px}
-.coach-head .eyebrow{color:var(--lila)}
+.coach-head .eyebrow{color:var(--lila-deep)}
 .coach-stage{padding:20px 0 8px}
 .coach-stage .wrap{max-width:1080px}
 
@@ -421,17 +416,17 @@ body.running #intro,body.running #progCard{display:none}
 .summary .rrule{border-top:1px solid var(--line);margin:10px 0}
 .summary .rline{display:flex;justify-content:space-between;gap:10px;align-items:baseline;padding:6px 0;cursor:pointer;font-size:14px}
 .summary .rline .dots{flex:1;border-bottom:1px dotted var(--line);margin:0 6px 4px}
-.summary .rline.nowplaying{color:var(--lila);font-weight:600}
+.summary .rline.nowplaying{color:var(--lila-deep);font-weight:600}
 .summary .rtotal{display:flex;justify-content:space-between;font-family:var(--mono);font-weight:600;margin-top:6px}
 .summary .rnote{font-size:12px;color:var(--mut);margin-top:8px}
 .summary .rclose{position:absolute;top:12px;right:14px;background:none;border:none;color:var(--mut);font-size:18px;cursor:pointer}
-.receipt-tab{position:fixed;right:20px;bottom:20px;font-family:var(--mono);font-size:12px;background:var(--lila);color:#fff;border:none;border-radius:var(--r-sm);padding:9px 14px;cursor:pointer;z-index:30}
+.receipt-tab{position:fixed;right:20px;bottom:20px;font-family:var(--mono);font-size:12px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-sm);padding:9px 14px;cursor:pointer;z-index:30}
 .receipt-tab[hidden]{display:none}
 
 /* phase word + mini button (HUD, mono, spaced) */
 .phase-word{font-family:var(--head);font-size:30px;font-weight:600;letter-spacing:-.01em;line-height:1.1;color:var(--ink)}
 .sub{font-size:13px;color:var(--mut);margin-top:2px}
-.mini{font-family:var(--body);font-size:13px;color:var(--lila);background:none;border:none;cursor:pointer;padding:6px 0}
+.mini{font-family:var(--body);font-size:13px;color:var(--lila-deep);background:none;border:none;cursor:pointer;padding:6px 0}
 .rline.printed{opacity:1}
 
 /* ---------------------------------------------------------------- .empty
@@ -466,17 +461,17 @@ body.running #intro,body.running #progCard{display:none}
 .onb-panel.glow{box-shadow:inset 0 0 0 1px var(--lila),0 0 0 1px var(--lila)}
 .onb-opts{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
 .onb-opt{font-family:var(--mono);font-size:13px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-sm);padding:9px 14px;cursor:pointer;transition:border-color var(--t),background var(--t)}
-.onb-opt:hover{border-color:var(--lila)}
-.onb-opt.sel{background:var(--lila);color:#fff;border-color:var(--lila)}
+.onb-opt:hover{border-color:var(--lila-deep)}
+.onb-opt.sel{background:var(--lila-deep);color:#fff;border-color:var(--lila-deep)}
 .onb-nav{display:flex;align-items:center;gap:16px;margin-top:20px}
 .onb-back{font-family:var(--body);font-size:14px;color:var(--mut);background:none;border:none;cursor:pointer}
-.onb-back:hover{color:var(--lila)}
+.onb-back:hover{color:var(--lila-deep)}
 .onb-back[disabled]{opacity:0;pointer-events:none}
 /* dot progress: done = lila filled, active = breathing ring, waiting = empty */
 .onb-dots{display:flex;gap:10px;margin-left:auto}
 .onb-dots i{width:9px;height:9px;border-radius:50%;border:1px solid var(--line);background:transparent;transition:all var(--dur) var(--ease)}
-.onb-dots i.done{background:var(--lila);border-color:var(--lila)}
-.onb-dots i.active{border-color:var(--lila);animation:onbBreath 1.6s var(--ease) infinite}
+.onb-dots i.done{background:var(--lila);border-color:var(--lila-deep)}
+.onb-dots i.active{border-color:var(--lila-deep);animation:onbBreath 1.6s var(--ease) infinite}
 @keyframes onbBreath{0%,100%{box-shadow:0 0 0 0 var(--lila-soft)}50%{box-shadow:0 0 0 4px var(--lila-soft)}}
 /* dot wave when a step completes */
 .onb-wave i{animation:onbWave .5s var(--ease)}
@@ -500,7 +495,7 @@ body.running #intro,body.running #progCard{display:none}
 .mv-card .mv-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .mv-card .mv-joint{font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--mut)}
 .mv-card .mv-tag{font-family:var(--mono);font-size:10px;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:999px}
-.mv-card .mv-tag.coached{background:var(--lila-soft);color:var(--lila)}
+.mv-card .mv-tag.coached{background:var(--lila-soft);color:var(--lila-deep)}
 .mv-card .mv-tag.reference{color:var(--mut)}
 .mv-card .mv-heart{position:absolute;top:14px;right:12px;background:none;border:none;padding:2px;cursor:pointer;color:var(--line);line-height:1;transition:color var(--t)}
 .mv-card .mv-heart:hover{color:var(--pink)}
@@ -513,18 +508,18 @@ body.running #intro,body.running #progCard{display:none}
 .kept-row .grow{flex:1;font-size:15px;font-weight:600}
 .kept-row .grow small{font-family:var(--mono);font-weight:normal;font-size:11px;color:var(--mut)}
 .kept-row .addbtn{font-family:var(--mono);font-size:12px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-sm);padding:7px 12px;cursor:pointer;transition:border-color var(--t)}
-.kept-row .addbtn:hover{border-color:var(--lila)}
-.kept-row .addbtn.inslip{background:var(--lila);color:#fff;border-color:var(--lila)}
+.kept-row .addbtn:hover{border-color:var(--lila-deep)}
+.kept-row .addbtn.inslip{background:var(--lila-deep);color:#fff;border-color:var(--lila-deep)}
 .kept-empty{color:var(--mut);font-size:14px;padding:8px 0}
 .fopt{font-family:var(--mono)}
-.fopt.fon{color:var(--lila);font-weight:600}
+.fopt.fon{color:var(--lila-deep);font-weight:600}
 
 /* my-program: full-width calendar, view chips, year as dot density (not github) */
 .cal-body{padding:20px 0 44px}
 .viewpick{display:flex;gap:8px;margin-bottom:18px}
 .viewpick button{font-family:var(--mono);font-size:12.5px;background:var(--lila-soft);color:var(--ink);border:none;border-radius:999px;padding:8px 14px;cursor:pointer;transition:background var(--t),color var(--t)}
 .viewpick button:hover{background:var(--line)}
-.viewpick button.on{background:var(--lila);color:#fff}
+.viewpick button.on{background:var(--lila-deep);color:#fff}
 .mcal,.wcal,.ycal{width:100%;max-width:none}
 /* year grid: filled days are pink dots, density shown by opacity — no color ramp */
 .yearwall{display:grid;grid-template-columns:repeat(53,1fr);grid-auto-flow:column;grid-template-rows:repeat(7,1fr);gap:3px;margin-top:6px}
@@ -559,7 +554,7 @@ body.running #intro,body.running #progCard{display:none}
 .timeline{display:grid;gap:26px}
 .patch{display:block}
 .patch .pmeta{display:flex;gap:12px;align-items:baseline;margin-bottom:6px}
-.patch .ver{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--lila)}
+.patch .ver{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--lila-deep)}
 .patch .date{font-family:var(--mono);font-size:11px;color:var(--mut)}
 .patch .pbody h3{font-size:18px;margin-bottom:5px}
 .patch .pbody p{font-size:15px;color:var(--mut);max-width:66ch}
@@ -577,7 +572,7 @@ body.running #intro,body.running #progCard{display:none}
 .tfoot{border-top:1px solid var(--line);padding:26px 0 40px;background:var(--paper)}
 .tfoot .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;font-size:13px;color:var(--mut)}
 .tfoot .b{font-family:var(--head);font-weight:600;color:var(--ink)}
-.tfoot a,.tfoot a:visited{color:var(--lila)}
+.tfoot a,.tfoot a:visited{color:var(--lila-deep)}
 .tfoot .vtag{margin-left:auto}
 
 /* ---------------------------------------------------------------- reveal + a11y */
@@ -597,29 +592,32 @@ body.running #intro,body.running #progCard{display:none}
    only figure. one signature moment: your own dots, your real count. */
 .hero{display:grid;grid-template-columns:1.02fr .98fr;gap:48px;align-items:center;padding:48px 0 44px}
 .hero-copy h1{max-width:15ch}
-.hero-copy h1 i{font-style:normal;color:var(--lila)}
+.hero-copy h1 i{font-style:normal;color:var(--lila-deep)}
 .hero .sub{font-size:16px;color:var(--mut);max-width:46ch;margin:14px 0 0}
 .hero .acts{display:flex;align-items:center;gap:18px;margin:22px 0 0;flex-wrap:wrap}
 .hero .stub{display:block;font-family:var(--mono);font-size:12px;color:var(--mut);margin:16px 0 0}
 
-.hero-demo{display:flex;flex-direction:column;gap:10px}
-/* the panel: wash ground, one hairline, the figure fills it. */
+.hero-demo{display:flex;flex-direction:column;gap:8px}
+/* the panel: coach camera stage (dark elsewhere) — but the HERO panel has no
+   card: no ground, no frame, no radius. dots sit straight on the page. */
 .panel{position:relative;background:var(--wash);border:1px solid var(--line);border-radius:var(--r-lg);
   aspect-ratio:4/3.1;overflow:hidden;min-height:0}
+#heroPanel{background:none;border:none;border-radius:0;overflow:visible;aspect-ratio:4/3.2}
 .panel #rig{position:absolute;inset:0;width:100%;height:100%}
 .panel #heroVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+#heroPanel #heroVideo{border-radius:var(--r-lg)}
 /* counter inside the panel, top-right — no longer orphaned at the page edge */
 .panel-read{position:absolute;top:14px;right:16px;text-align:right;pointer-events:none}
 .panel-read .n{position:relative;font-family:var(--mono);font-size:40px;font-weight:600;color:var(--ink);line-height:1;letter-spacing:-.02em}
-.panel-read .n .plus{position:absolute;top:-6px;right:-20px;font-size:15px;color:var(--lila);opacity:0}
+.panel-read .n .plus{position:absolute;top:-6px;right:-20px;font-size:15px;color:var(--lila-deep);opacity:0}
 .panel-read .n .plus.fly{animation:plusFly .8s ease-out}
 @keyframes plusFly{0%{opacity:0;transform:translateY(6px)}25%{opacity:1}100%{opacity:0;transform:translateY(-14px)}}
 .panel-read .lbl{font-family:var(--mono);font-size:10px;color:var(--mut);margin-top:4px;max-width:16ch;text-transform:none;letter-spacing:0}
-.panel-read .angle{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--lila);margin-top:6px}
-/* caption bottom-left of the panel */
-.panel-cap{position:absolute;left:16px;bottom:14px;font-family:var(--mono);font-size:10.5px;color:var(--mut);max-width:60%;line-height:1.4;margin:0}
+.panel-read .angle{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--lila-deep);margin-top:6px}
+/* caption UNDER the panel (not overlapping the figure) */
+.panel-cap{font-family:var(--mono);font-size:11px;color:var(--mut);line-height:1.4;margin:0;max-width:52ch}
 /* mono link under the panel, the way through to the full workout */
-.panel-link,.panel-link:visited{font-family:var(--mono);font-size:12px;color:var(--lila);align-self:flex-start}
+.panel-link,.panel-link:visited{font-family:var(--mono);font-size:12px;color:var(--lila-deep);align-self:flex-start}
 .panel-link:hover{text-decoration:underline;text-underline-offset:3px}
 
 /* worth: three jobs, no numbers (there is no order here) */
@@ -636,28 +634,29 @@ body.running #intro,body.running #progCard{display:none}
 .how .c b{display:block;font-size:15px;margin-bottom:4px}
 .how .c p{font-size:13px;color:var(--mut)}
 .how .note{font-size:13px;color:var(--mut);margin-top:20px;max-width:64ch}
-.how .note i{font-style:normal;font-family:var(--mono);color:var(--lila)}
+.how .note i{font-style:normal;font-family:var(--mono);color:var(--lila-deep)}
 
-/* real output — one mono data block, breaks the eyebrow+heading+columns rhythm */
+/* real output — white ground, thin hairline frame, mono (no dark box) */
 .output-band .output{font-family:var(--mono);font-size:14px;line-height:1.9;color:var(--ink);
-  background:var(--ink);border-radius:var(--r);padding:20px 22px;margin:10px 0 0;overflow-x:auto;white-space:pre}
-.output-band .output{color:var(--wash)}
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:20px 22px;margin:10px 0 0;overflow-x:auto;white-space:pre}
 .output-band .output .l{color:var(--mut)}
-.output-band .output .v{color:var(--lila);font-weight:600}
-.output-band .output .ok{color:var(--lila)}
+.output-band .output .v{color:var(--lila-deep);font-weight:600}
+.output-band .output .ok{color:var(--lila-deep)}
 
-/* privacy two column (index) */
-.priv{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
-.priv .mega i{font-style:normal}
-.priv p{font-size:15px;color:var(--mut)}
+/* nowhere — big "Nowhere!" alone on the left, no box beside it */
+.nowhere{max-width:none}
+.nowhere .mega{font-size:clamp(56px,9vw,110px);margin:6px 0 10px}
+.nowhere .mega i{font-style:normal;color:var(--lila-deep)}
+.nowhere p{font-size:15px;color:var(--mut);max-width:52ch}
 
 /* whole loop: the one place numbers mean something (four real steps) */
 .loop .split{display:grid;grid-template-columns:1fr 1.3fr;gap:40px;align-items:start}
-.loop ol{counter-reset:step;list-style:none;display:grid;gap:14px}
-.loop ol li{counter-increment:step;display:flex;gap:14px}
-.loop ol li::before{content:counter(step,decimal-leading-zero);font-family:var(--mono);font-size:12px;font-weight:600;color:var(--lila);flex:none;padding-top:2px}
+/* whole loop: no numbering — a hairline separates each step instead */
+.loop ol{list-style:none;display:grid;gap:0}
+.loop ol li{display:block;padding:14px 0;border-top:1px solid var(--line)}
+.loop ol li:first-child{border-top:none}
 .loop ol li a{color:var(--ink);font-weight:600}
-.loop ol li a:hover{color:var(--lila)}
+.loop ol li a:hover{color:var(--lila-deep)}
 .loop ol li span{color:var(--mut)}
 
 /* close: full-width single line, a different shape again */
@@ -667,7 +666,7 @@ body.running #intro,body.running #progCard{display:none}
 .close .acts{display:flex;gap:18px;justify-content:center;margin-top:22px}
 
 /* greet line */
-.greet{font-family:var(--mono);font-size:13px;color:var(--lila);text-align:center;min-height:0}
+.greet{font-family:var(--mono);font-size:13px;color:var(--lila-deep);text-align:center;min-height:0}
 .greet:empty{display:none}
 
 /* ---------------------------------------------------------------- responsive */

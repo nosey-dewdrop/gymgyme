@@ -26,7 +26,7 @@
   const brandDot = document.querySelector('.brand i');
   const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  const INK = '#191320', LILA = '#7A5BB0';
+  const INK = '#191320', LILA = '#8E6BA8';
 
   // logical drawing size; the canvas backing store is resized to the panel.
   let CW = 520, CH = 560, DPR = 1;
@@ -63,20 +63,28 @@
     const elb = { x: sho.x + 62 * u * Math.sin(aAng) * 0.55, y: sho.y + 62 * u * Math.cos(aAng) };
     const wri = { x: elb.x + 58 * u * (0.3 + 0.7 * d), y: elb.y + 58 * u * (1 - d) * 0.5 - 10 * u * d };
     const toe = { x: ankle.x + 34 * u, y: footY + 6 * u };
-    return { ankle, knee, hip, sho, head, elb, wri, toe, u };
+    // second leg, offset back so a gap reads between the two in side profile
+    const gap = 26 * u;
+    const hip2 = { x: hip.x - gap * 0.5, y: hip.y };
+    const knee2 = { x: knee.x - gap, y: knee.y + 4 * u };
+    const ankle2 = { x: ankle.x - gap * 0.7, y: footY };
+    return { ankle, knee, hip, sho, head, elb, wri, toe, hip2, knee2, ankle2, u };
   }
 
-  // dot budget per region (HANDOFF spread weights). ~450 total, no lines.
-  //   torso .082 ~130 · thigh .058 · shin .042 · arm .034/.028 · head .052
+  // dot budget per region (19 tem spread weights, tighter limbs so the side
+  // profile reads and the two legs keep a gap between them).
+  //   torso .055 · thigh .038 · shin .028 · arm .022 · head .04
   const SEGS = [
-    ['hip', 'sho', 0.082, 130],   // torso — widest, densest
-    ['hip', 'knee', 0.058, 74],   // thigh
-    ['knee', 'ankle', 0.042, 54], // shin
-    ['sho', 'elb', 0.034, 40],    // upper arm
-    ['elb', 'wri', 0.028, 30],    // forearm
-    ['ankle', 'toe', 0.030, 22],  // foot
+    ['hip', 'sho', 0.055, 130],   // torso
+    ['hip', 'knee', 0.038, 74],   // thigh (front leg)
+    ['knee', 'ankle', 0.028, 54], // shin (front leg)
+    ['hip2', 'knee2', 0.038, 60], // thigh (back leg — offset for the gap)
+    ['knee2', 'ankle2', 0.028, 44], // shin (back leg)
+    ['sho', 'elb', 0.022, 40],    // upper arm
+    ['elb', 'wri', 0.022, 30],    // forearm
+    ['ankle', 'toe', 0.024, 20],  // foot
   ];
-  const HEAD_N = 66, HEAD_SPREAD = 0.052;
+  const HEAD_N = 60, HEAD_SPREAD = 0.04;
 
   const cloud = [];
   for (const [a, b, spread, count] of SEGS) {
@@ -84,7 +92,7 @@
       cloud.push({
         kind: 'seg', a, b, spread,
         t: rand(), off: (rand() - 0.5) * 2, along: (rand() - 0.5) * 0.16,
-        r: 1 + rand() * 1.7, aBase: 0.38 + rand() * 0.5, ph: rand() * Math.PI * 2,
+        r: 1 + rand() * 1, aBase: 0.38 + rand() * 0.5, ph: rand() * Math.PI * 2,
       });
     }
   }
@@ -121,7 +129,7 @@
   // ---- drawing helpers ----
   let ringT = -1;
   function floorDots() {
-    ctx.fillStyle = 'rgba(122,91,176,.16)';
+    ctx.fillStyle = 'rgba(142,107,168,.18)';
     const y = CH * 0.5 + CH * 0.84 * 0.5 + 14;
     for (let x = CW * 0.14; x <= CW * 0.86; x += CW * 0.066) {
       ctx.beginPath(); ctx.arc(x, Math.min(y, CH - 6), 1.4, 0, Math.PI * 2); ctx.fill();
@@ -146,13 +154,13 @@
       const vx = Math.sin(ts / 900 + dt.ph) * 0.8 * jit, vy = Math.cos(ts / 1050 + dt.ph) * 0.8 * jit;
       ctx.globalAlpha = dt.aBase;
       ctx.fillStyle = INK;
-      ctx.beginPath(); ctx.arc(base.x + vx, base.y + vy, Math.min(2.7, dt.r), 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(base.x + vx, base.y + vy, Math.min(2, dt.r), 0, Math.PI * 2); ctx.fill();
     }
     litKnee(J.knee, ts, kneeAngle);
     if (ringT >= 0 && ts - ringT < 700) {
       const k = (ts - ringT) / 700;
       ctx.beginPath(); ctx.arc(J.hip.x, J.hip.y, 20 + 70 * k, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(122,91,176,' + (0.5 * (1 - k)) + ')'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.strokeStyle = 'rgba(142,107,168,' + (0.5 * (1 - k)) + ')'; ctx.lineWidth = 2; ctx.stroke();
     }
     ctx.globalAlpha = 1;
   }

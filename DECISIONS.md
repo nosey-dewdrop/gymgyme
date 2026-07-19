@@ -125,3 +125,13 @@ baseline.json'a dürüstçe yazıldı (squat recall 0.75 ama motorCountedClips 2
 NOT: label'lar şu an AUTO (motor kendi tahmini) → recall/precision "tutarlılık"
 ölçüyor, GERÇEK doğruluk DEĞİL. İnsan onayı (labeler.html) sonrası gerçek olur.
 Etki: FAZ 9 baseline'ı bu. Kapsam küçülmedi — gerçek doğruluk insan onayına bağlı.
+
+## 19 Tem · TASARIM v2 · palet + değişmez değişikliği (insan)
+Durum: Damla yeni palet + kurallar emretti (FAZ 8 spec DSL askıya alındı).
+Karar (İNSAN değiştirdi, §5 gereği geçerli): --lila #7A5BB0→#C9A9D9, +--lila-deep
+#8E6BA8, --lila-soft #EDE6F7→#F0E6F5. Buton lila→--ink (lila asla buton zemini).
+Aksan metin→--lila-deep. Koyu kutu/terminal YASAK. PROTOKOL §1.3 + gate ALLOWED
+güncellendi. Q&A akordeon→açık blok, dizin index'ten kalkar (directory.html).
+Gerekçe: değişmez sahibi insan; yeni tasarım yönü.
+Etki: FAZ 0-6 görünümü değişir (istenen). FAZ 8 spec DSL sonraki tura.
+Geri alınır: git revert (bu tur commit'leri).
