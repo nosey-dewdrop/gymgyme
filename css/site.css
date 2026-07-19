@@ -260,8 +260,25 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .coach-main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:18px;align-items:start;margin-top:6px}
 .coach-foot{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start;margin-top:6px}
 @media(max-width:860px){.coach-main,.coach-foot{grid-template-columns:1fr}}
-.card{border:1px solid var(--line);border-radius:var(--r);padding:18px 22px;margin:12px 0}
+/* card system (final spec): wash ground, no frame, generous padding, dot
+   signature in the lower-right. hover lifts with a soft lila shadow. */
+.card{position:relative;background:var(--wash);border:none;border-radius:16px;padding:26px;margin:0;transition:transform .18s ease,box-shadow .18s ease}
+.card:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(122,91,176,.12)}
+.card.saved{background:var(--pink-soft)}
 .card-title{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--lila);margin:0 0 10px}
+/* dot signature — the engine's dot language becomes the card's material.
+   6-8 faint dots clustered bottom-right, one notch darker than the card. */
+.card-dots{position:absolute;right:16px;bottom:14px;width:34px;height:22px;pointer-events:none}
+.card-dots i{position:absolute;width:1.5px;height:1.5px;border-radius:50%;background:var(--ink);opacity:.12}
+.card-dots i:nth-child(1){right:0;bottom:0}
+.card-dots i:nth-child(2){right:6px;bottom:2px}
+.card-dots i:nth-child(3){right:3px;bottom:7px}
+.card-dots i:nth-child(4){right:11px;bottom:5px}
+.card-dots i:nth-child(5){right:8px;bottom:11px}
+.card-dots i:nth-child(6){right:16px;bottom:9px}
+.card-dots i:nth-child(7){right:14px;bottom:15px}
+.card-dots i:nth-child(8){right:21px;bottom:13px}
+.card-grid{display:grid;gap:16px}
 
 .mainbtn{font-family:var(--body);font-size:16px;font-weight:600;color:#fff;background:var(--lila);
   border:none;border-radius:var(--r);padding:11px 20px;cursor:pointer;margin:8px 12px 2px 0;transition:transform var(--t)}
@@ -386,8 +403,89 @@ body.running #intro,body.running #progCard{display:none}
   .bar-fill{transition:none}
 }
 
+/* ---------------------------------------------------------------- index (faz 2)
+   hero two columns; the counter lives INSIDE the panel; the point cloud is the
+   only figure. one signature moment: your own dots, your real count. */
+.hero{display:grid;grid-template-columns:1.02fr .98fr;gap:48px;align-items:center;padding:48px 0 44px}
+.hero-copy h1{max-width:15ch}
+.hero-copy h1 i{font-style:normal;color:var(--lila)}
+.hero .sub{font-size:16px;color:var(--mut);max-width:46ch;margin:14px 0 0}
+.hero .acts{display:flex;align-items:center;gap:18px;margin:22px 0 0;flex-wrap:wrap}
+.hero .stub{display:block;font-family:var(--mono);font-size:12px;color:var(--mut);margin:16px 0 0}
+
+.hero-demo{display:flex;flex-direction:column;gap:10px}
+/* the panel: wash ground, one hairline, the figure fills it. */
+.panel{position:relative;background:var(--wash);border:1px solid var(--line);border-radius:var(--r);
+  aspect-ratio:4/3.1;overflow:hidden;min-height:0}
+.panel #rig{position:absolute;inset:0;width:100%;height:100%}
+.panel #heroVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+/* counter inside the panel, top-right — no longer orphaned at the page edge */
+.panel-read{position:absolute;top:14px;right:16px;text-align:right;pointer-events:none}
+.panel-read .n{position:relative;font-family:var(--mono);font-size:40px;font-weight:600;color:var(--ink);line-height:1;letter-spacing:-.02em}
+.panel-read .n .plus{position:absolute;top:-6px;right:-20px;font-size:15px;color:var(--lila);opacity:0}
+.panel-read .n .plus.fly{animation:plusFly .8s ease-out}
+@keyframes plusFly{0%{opacity:0;transform:translateY(6px)}25%{opacity:1}100%{opacity:0;transform:translateY(-14px)}}
+.panel-read .lbl{font-family:var(--mono);font-size:10px;color:var(--mut);margin-top:4px;max-width:16ch;text-transform:none;letter-spacing:0}
+.panel-read .angle{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--lila);margin-top:6px}
+/* caption bottom-left of the panel */
+.panel-cap{position:absolute;left:16px;bottom:14px;font-family:var(--mono);font-size:10.5px;color:var(--mut);max-width:60%;line-height:1.4;margin:0}
+/* mono link under the panel, the way through to the full workout */
+.panel-link,.panel-link:visited{font-family:var(--mono);font-size:12px;color:var(--lila);align-self:flex-start}
+.panel-link:hover{text-decoration:underline;text-underline-offset:3px}
+
+/* worth: three jobs, no numbers (there is no order here) */
+.worth{display:grid;grid-template-columns:1fr 1.1fr;gap:40px;align-items:start}
+.worth .big h2{margin:8px 0 10px}
+.worth .big p{font-size:15px;color:var(--mut)}
+.worth ul{list-style:none;display:grid;gap:16px}
+.worth li{display:block}
+.worth li b{display:block;font-size:15px;margin-bottom:3px}
+.worth li p{font-size:14px;color:var(--mut)}
+
+/* how: full-width band, four columns — a different rhythm from worth */
+.how .cols{display:grid;grid-template-columns:repeat(4,1fr);gap:26px;margin:20px 0 0}
+.how .c b{display:block;font-size:15px;margin-bottom:4px}
+.how .c p{font-size:13px;color:var(--mut)}
+.how .note{font-size:13px;color:var(--mut);margin-top:20px;max-width:64ch}
+.how .note i{font-style:normal;font-family:var(--mono);color:var(--lila)}
+
+/* real output — one mono data block, breaks the eyebrow+heading+columns rhythm */
+.output-band .output{font-family:var(--mono);font-size:14px;line-height:1.9;color:var(--ink);
+  background:var(--ink);border-radius:var(--r);padding:20px 22px;margin:10px 0 0;overflow-x:auto;white-space:pre}
+.output-band .output{color:#cfc7d6}
+.output-band .output .l{color:var(--mut)}
+.output-band .output .v{color:var(--lila);font-weight:600}
+.output-band .output .ok{color:var(--lila)}
+
+/* privacy two column (index) */
+.priv{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
+.priv .mega i{font-style:normal}
+.priv p{font-size:15px;color:var(--mut)}
+
+/* whole loop: the one place numbers mean something (four real steps) */
+.loop .split{display:grid;grid-template-columns:1fr 1.3fr;gap:40px;align-items:start}
+.loop ol{counter-reset:step;list-style:none;display:grid;gap:14px}
+.loop ol li{counter-increment:step;display:flex;gap:14px}
+.loop ol li::before{content:counter(step,decimal-leading-zero);font-family:var(--mono);font-size:12px;font-weight:600;color:var(--lila);flex:none;padding-top:2px}
+.loop ol li a{color:var(--ink);font-weight:600}
+.loop ol li a:hover{color:var(--lila)}
+.loop ol li span{color:var(--mut)}
+
+/* close: full-width single line, a different shape again */
+.close{text-align:center}
+.close h2{max-width:20ch;margin:0 auto}
+.close p{max-width:52ch;margin:10px auto 0;color:var(--mut)}
+.close .acts{display:flex;gap:18px;justify-content:center;margin-top:22px}
+
+/* greet line */
+.greet{font-family:var(--mono);font-size:13px;color:var(--lila);text-align:center;min-height:0}
+.greet:empty{display:none}
+
 /* ---------------------------------------------------------------- responsive */
 @media(max-width:900px){
+  .hero{grid-template-columns:1fr;gap:26px}
+  .worth,.priv,.loop .split{grid-template-columns:1fr;gap:24px}
+  .how .cols{grid-template-columns:1fr 1fr}
   .twocol{grid-template-columns:1fr;gap:24px}
   .flowgrid,.howgrid,.postgrid{grid-template-columns:1fr 1fr}
   .mega{font-size:42px}
@@ -395,5 +493,7 @@ body.running #intro,body.running #progCard{display:none}
   .tnav .search{order:3;flex-basis:100%}
 }
 @media(max-width:560px){
+  .how .cols{grid-template-columns:1fr}
   .flowgrid,.howgrid,.postgrid{grid-template-columns:1fr}
+  .panel-cap{max-width:70%}
 }

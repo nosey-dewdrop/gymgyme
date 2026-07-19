@@ -1,7 +1,18 @@
-// landing.js — the hero figure as a POINT CLOUD (no lines, no skeleton).
-// ~230 ink dots scattered across limb volume, squatting. the knee is lit lila
-// with its live angle. the rep counter counts THIS figure's completed cycles,
-// so every number on screen is real. drives the +1 float, brand-dot hop and ring.
+// landing.js — the hero panel.
+//
+// two modes in the SAME panel:
+//   (1) demo: a POINT CLOUD figure (no lines, no skeleton) squatting. ~450 dots
+//       spread across limb volume; the knee is lit lila with its live angle; the
+//       rep counter counts THIS figure's completed cycles, so every number on
+//       screen is real. this is what a visitor sees on arrival.
+//   (2) live: press "open the camera" and the same panel loads the shared engine
+//       (js/engine-core.js — mediapipe pose + our wasm motor), tracks the
+//       visitor's OWN body as dots, counts their real squats. press again = stop,
+//       the camera track is released, we drop silently back to the demo.
+//
+// nothing heavy loads on arrival. mediapipe + wasm download ONLY on first press.
+// permission denied / model failed / no camera -> silent fallback to the demo,
+// no red error, no message. reduced-motion -> a single static frame.
 (function () {
   const cv = document.getElementById('rig');
   if (!cv) return;
@@ -9,61 +20,78 @@
   const repsEl = document.getElementById('reps');
   const kneeEl = document.getElementById('knee');
   const plusEl = document.getElementById('plus');
+  const camBtn = document.getElementById('heroCam');
+  const video = document.getElementById('heroVideo');
+  const panel = document.getElementById('heroPanel');
   const brandDot = document.querySelector('.brand i');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  const INK = '#111111', LILA = '#8e6fd8';
-  let reps = 0, wasDown = false, ringT = -1;
-  const CYCLE = 5200;
-  let t0 = null;
+  const INK = '#191320', LILA = '#7A5BB0';
 
-  // dpr-scaled canvas
-  const DPR = Math.min(window.devicePixelRatio || 1, 2);
-  const CW = cv.width, CH = cv.height;
-  cv.width = CW * DPR; cv.height = CH * DPR;
-  ctx.scale(DPR, DPR);
+  // logical drawing size; the canvas backing store is resized to the panel.
+  let CW = 520, CH = 560, DPR = 1;
+  function resize() {
+    const r = (panel || cv).getBoundingClientRect();
+    CW = Math.max(240, Math.round(r.width));
+    CH = Math.max(240, Math.round(r.height));
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    cv.width = CW * DPR; cv.height = CH * DPR;
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  }
+  resize();
+  window.addEventListener('resize', resize);
 
-  // seeded rng so the scatter is stable frame-to-frame
+  // ---- seeded rng so the demo scatter is stable frame to frame ----
   let s = 20260719;
   const rand = () => (s = (s * 16807) % 2147483647) / 2147483647;
 
-  // joints in canvas coords, side view facing right. d: 0 standing, 1 bottom
+  // ---- demo figure geometry (side view). d: 0 standing, 1 bottom of squat.
+  // the figure occupies ~84% of the panel height, centred at ~46% width. ----
   function joints(d) {
-    const ankle = { x: 250, y: 470 };
-    const knee = { x: 250 + 46 * d, y: 388 + 14 * d };
-    const hip = { x: 250 - 52 * d, y: 300 + 92 * d };
-    const lean = 0.42 * d, tor = 128;
+    const H = CH, W = CW;
+    const figH = H * 0.84;
+    const cx = W * 0.46;
+    const footY = H * 0.5 + figH * 0.5;          // bottom of the figure
+    const u = figH / 560;                          // scale unit vs the old 560 design
+    const ankle = { x: cx, y: footY };
+    const knee = { x: cx + 46 * d * u, y: footY - (82 - 14 * d) * u };
+    const hip = { x: cx - 52 * d * u, y: footY - (170 - 92 * d) * u };
+    const lean = 0.42 * d, tor = 128 * u;
     const sho = { x: hip.x + tor * Math.sin(lean), y: hip.y - tor * Math.cos(lean) };
-    const head = { x: sho.x + 34 * Math.sin(lean), y: sho.y - 42 * Math.cos(lean) };
+    const head = { x: sho.x + 34 * u * Math.sin(lean), y: sho.y - 42 * u * Math.cos(lean) };
     const aAng = -0.45 + (Math.PI / 2 + 0.35) * d;
-    const elb = { x: sho.x + 62 * Math.sin(aAng) * 0.55, y: sho.y + 62 * Math.cos(aAng) };
-    const wri = { x: elb.x + 58 * (0.3 + 0.7 * d), y: elb.y + 58 * (1 - d) * 0.5 - 10 * d };
-    const toe = { x: ankle.x + 34, y: 476 };
-    return { ankle, knee, hip, sho, head, elb, wri, toe };
+    const elb = { x: sho.x + 62 * u * Math.sin(aAng) * 0.55, y: sho.y + 62 * u * Math.cos(aAng) };
+    const wri = { x: elb.x + 58 * u * (0.3 + 0.7 * d), y: elb.y + 58 * u * (1 - d) * 0.5 - 10 * u * d };
+    const toe = { x: ankle.x + 34 * u, y: footY + 6 * u };
+    return { ankle, knee, hip, sho, head, elb, wri, toe, u };
   }
 
-  // segments with a width (limb volume): torso widest, forearm narrow
+  // dot budget per region (HANDOFF spread weights). ~450 total, no lines.
+  //   torso .082 ~130 · thigh .058 · shin .042 · arm .034/.028 · head .052
   const SEGS = [
-    ['ankle', 'knee', 22],
-    ['knee', 'hip', 24],
-    ['hip', 'sho', 34],
-    ['sho', 'elb', 17],
-    ['elb', 'wri', 12],
-    ['ankle', 'toe', 14],
+    ['hip', 'sho', 0.082, 130],   // torso — widest, densest
+    ['hip', 'knee', 0.058, 74],   // thigh
+    ['knee', 'ankle', 0.042, 54], // shin
+    ['sho', 'elb', 0.034, 40],    // upper arm
+    ['elb', 'wri', 0.028, 30],    // forearm
+    ['ankle', 'toe', 0.030, 22],  // foot
   ];
+  const HEAD_N = 66, HEAD_SPREAD = 0.052;
 
-  const N = 230;
   const cloud = [];
-  for (let i = 0; i < N; i++) {
-    let seg;
-    if (rand() < 0.12) seg = 'head';
-    else {
-      const total = SEGS.reduce((a, x) => a + x[2], 0);
-      let acc = 0; const pick = rand() * total;
-      for (const sg of SEGS) { acc += sg[2]; if (pick <= acc) { seg = sg; break; } }
+  for (const [a, b, spread, count] of SEGS) {
+    for (let i = 0; i < count; i++) {
+      cloud.push({
+        kind: 'seg', a, b, spread,
+        t: rand(), off: (rand() - 0.5) * 2, along: (rand() - 0.5) * 0.16,
+        r: 1 + rand() * 1.7, aBase: 0.38 + rand() * 0.5, ph: rand() * Math.PI * 2,
+      });
     }
+  }
+  for (let i = 0; i < HEAD_N; i++) {
     cloud.push({
-      seg, t: rand(), off: (rand() - 0.5) * 2, along: (rand() - 0.5) * 0.18,
-      r: 1 + rand() * 1.5, a: 0.25 + rand() * 0.55, ph: rand() * Math.PI * 2,
+      kind: 'head', ang: rand() * Math.PI * 2, rr: rand(),
+      r: 1 + rand() * 1.5, aBase: 0.38 + rand() * 0.5, ph: rand() * Math.PI * 2,
     });
   }
 
@@ -71,87 +99,219 @@
   function normal(p, q) { const dx = q.x - p.x, dy = q.y - p.y, L = Math.hypot(dx, dy) || 1; return { x: -dy / L, y: dx / L }; }
   function angleAt(b, a, c) {
     const v1 = { x: a.x - b.x, y: a.y - b.y }, v2 = { x: c.x - b.x, y: c.y - b.y };
-    const dot = v1.x * v2.x + v1.y * v2.y;
-    return Math.round(Math.acos(dot / (Math.hypot(v1.x, v1.y) * Math.hypot(v2.x, v2.y))) * 180 / Math.PI);
+    const den = Math.hypot(v1.x, v1.y) * Math.hypot(v2.x, v2.y) || 1;
+    return Math.round(Math.acos(Math.max(-1, Math.min(1, (v1.x * v2.x + v1.y * v2.y) / den))) * 180 / Math.PI);
   }
   const smoothstep = (t) => t * t * (3 - 2 * t);
 
+  // ---- shared counter ui ----
+  let reps = 0;
   function onRep(ts) {
     ringT = ts;
     if (plusEl) { plusEl.classList.remove('fly'); void plusEl.offsetWidth; plusEl.classList.add('fly'); }
     if (brandDot) { brandDot.classList.remove('hop'); void brandDot.offsetWidth; brandDot.classList.add('hop'); }
   }
-
   function setReps(n) {
     if (!repsEl) return;
-    // keep the .plus span; only update the leading text node
     if (repsEl.firstChild && repsEl.firstChild.nodeType === 3) repsEl.firstChild.textContent = n;
     else repsEl.insertBefore(document.createTextNode(n), repsEl.firstChild);
   }
+  function setKnee(a) { if (kneeEl) kneeEl.textContent = a; }
 
-  function draw(d, ts) {
-    const J = joints(d);
+  // ---- drawing helpers ----
+  let ringT = -1;
+  function floorDots() {
+    ctx.fillStyle = 'rgba(122,91,176,.16)';
+    const y = CH * 0.5 + CH * 0.84 * 0.5 + 14;
+    for (let x = CW * 0.14; x <= CW * 0.86; x += CW * 0.066) {
+      ctx.beginPath(); ctx.arc(x, Math.min(y, CH - 6), 1.4, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+  // draw a cloud from a joints() map (demo) with a lit knee + angle.
+  function drawCloudFig(J, ts, kneeAngle) {
     ctx.clearRect(0, 0, CW, CH);
-
-    // floor dots
-    ctx.fillStyle = '#d8d4de';
-    for (let x = 110; x <= 430; x += 34) { ctx.beginPath(); ctx.arc(x, 488, 1.6, 0, Math.PI * 2); ctx.fill(); }
-
+    floorDots();
     for (const dt of cloud) {
       let base;
-      if (dt.seg === 'head') {
-        const ang = dt.t * Math.PI * 2, rr = 20 + dt.off * 14;
-        base = { x: J.head.x + Math.cos(ang) * rr, y: J.head.y + Math.sin(ang) * rr };
+      if (dt.kind === 'head') {
+        const rr = (18 + dt.rr * 16) * J.u;
+        base = { x: J.head.x + Math.cos(dt.ang) * rr, y: J.head.y + Math.sin(dt.ang) * rr * (0.7 + 0.6 * (1 - HEAD_SPREAD)) };
       } else {
-        const [a, b, w] = dt.seg;
         const tt = Math.min(1, Math.max(0, dt.t + dt.along));
-        const mid = lerp(J[a], J[b], tt), nrm = normal(J[a], J[b]);
+        const mid = lerp(J[dt.a], J[dt.b], tt), nrm = normal(J[dt.a], J[dt.b]);
+        const w = dt.spread * CH * 1.0;
         base = { x: mid.x + nrm.x * w * dt.off, y: mid.y + nrm.y * w * dt.off };
       }
-      const vx = Math.sin(ts / 900 + dt.ph) * 0.9, vy = Math.cos(ts / 1050 + dt.ph) * 0.9;
-      ctx.globalAlpha = dt.a;
+      const jit = reduce ? 0 : 1;
+      const vx = Math.sin(ts / 900 + dt.ph) * 0.8 * jit, vy = Math.cos(ts / 1050 + dt.ph) * 0.8 * jit;
+      ctx.globalAlpha = dt.aBase;
       ctx.fillStyle = INK;
-      ctx.beginPath();
-      ctx.arc(base.x + vx, base.y + vy, dt.r, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.beginPath(); ctx.arc(base.x + vx, base.y + vy, Math.min(2.7, dt.r), 0, Math.PI * 2); ctx.fill();
     }
-
-    // knee: tracked joint, lila, filled + breathing ring + live angle
-    ctx.globalAlpha = 1;
-    ctx.fillStyle = LILA;
-    ctx.beginPath(); ctx.arc(J.knee.x, J.knee.y, 4.5, 0, Math.PI * 2); ctx.fill();
-    ctx.strokeStyle = LILA; ctx.globalAlpha = 0.55; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.arc(J.knee.x, J.knee.y, 12 + 2 * Math.sin(ts / 480), 0, Math.PI * 2); ctx.stroke();
-    ctx.globalAlpha = 1;
-
-    const ka = angleAt(J.knee, J.hip, J.ankle);
-    if (kneeEl) kneeEl.textContent = ka;
-    ctx.fillStyle = LILA;
-    ctx.font = 'bold 13px Helvetica, Arial, sans-serif';
-    ctx.fillText(ka + '°', J.knee.x + 20, J.knee.y + 4);
-
-    // celebration ring on each completed rep
+    litKnee(J.knee, ts, kneeAngle);
     if (ringT >= 0 && ts - ringT < 700) {
       const k = (ts - ringT) / 700;
       ctx.beginPath(); ctx.arc(J.hip.x, J.hip.y, 20 + 70 * k, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(142,111,216,' + (0.5 * (1 - k)) + ')'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.strokeStyle = 'rgba(122,91,176,' + (0.5 * (1 - k)) + ')'; ctx.lineWidth = 2; ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+  }
+  // the tracked joint: lila filled dot + breathing ring + live angle. no bone line.
+  function litKnee(knee, ts, angle) {
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = LILA;
+    ctx.beginPath(); ctx.arc(knee.x, knee.y, 4.5, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = LILA; ctx.globalAlpha = 0.55; ctx.lineWidth = 1;
+    const br = reduce ? 12 : 12 + 2 * Math.sin(ts / 480);
+    ctx.beginPath(); ctx.arc(knee.x, knee.y, br, 0, Math.PI * 2); ctx.stroke();
+    ctx.globalAlpha = 1;
+    if (angle != null) {
+      ctx.fillStyle = LILA;
+      ctx.font = '600 13px "JetBrains Mono", ui-monospace, monospace';
+      ctx.fillText(angle + '°', knee.x + 18, knee.y + 4);
     }
   }
 
-  function frame(ts) {
+  // draw the visitor's OWN landmarks as the same dot language (live mode).
+  // lm = array of {x,y} in 0..1. mirror to match the mirrored video.
+  function drawLiveCloud(lm, ts, kneeAngle, kneePt) {
+    ctx.clearRect(0, 0, CW, CH);
+    for (let i = 0; i < lm.length; i++) {
+      const p = lm[i]; if (!p || (p.visibility != null && p.visibility < 0.3)) continue;
+      const x = (1 - p.x) * CW, y = p.y * CH;
+      ctx.globalAlpha = 0.5 + 0.4 * (p.visibility == null ? 1 : p.visibility);
+      ctx.fillStyle = INK;
+      ctx.beginPath(); ctx.arc(x, y, 2, 0, Math.PI * 2); ctx.fill();
+    }
+    if (kneePt) litKnee({ x: (1 - kneePt.x) * CW, y: kneePt.y * CH }, ts, kneeAngle);
+    ctx.globalAlpha = 1;
+  }
+
+  // ---- demo loop ----
+  const CYCLE = 5200;
+  let t0 = null, demoRAF = 0, mode = 'demo';
+  function demoFrame(ts) {
+    if (mode !== 'demo') return;
     if (t0 === null) t0 = ts;
     const ph = ((ts - t0) % CYCLE) / CYCLE;
     const tri = ph < 0.5 ? ph * 2 : (1 - ph) * 2;
     const d = smoothstep(tri);
-    if (d > 0.85) wasDown = true;
-    if (wasDown && d < 0.08) { wasDown = false; reps++; setReps(reps); onRep(ts); }
-    draw(d, ts);
-    requestAnimationFrame(frame);
+    // motor's own rule: a rep closes after going deep (d>0.86) then back up (d<0.12)
+    if (d > 0.86) wasDown = true;
+    if (wasDown && d < 0.12) { wasDown = false; reps++; setReps(reps); onRep(ts); }
+    const J = joints(d);
+    const ka = angleAt(J.knee, J.hip, J.ankle);
+    setKnee(ka);
+    drawCloudFig(J, ts, ka);
+    demoRAF = requestAnimationFrame(demoFrame);
+  }
+  let wasDown = false;
+  function startDemo() {
+    mode = 'demo';
+    if (reduce) { const J = joints(0.62); drawCloudFig(J, 0, angleAt(J.knee, J.hip, J.ankle)); setKnee(angleAt(J.knee, J.hip, J.ankle)); return; }
+    cancelAnimationFrame(demoRAF);
+    t0 = null;
+    demoRAF = requestAnimationFrame(demoFrame);
   }
 
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    draw(0.6, 0);
-  } else {
-    requestAnimationFrame(frame);
+  // ================= live camera mode (lazy, silent-fallback) =================
+  let live = null;   // { pose, mod, engine, bufPtr, worldBufPtr, stream, raf, core }
+  let loadingCam = false;
+
+  function setBtn(label) { if (camBtn) camBtn.textContent = label; }
+
+  async function startCamera() {
+    if (loadingCam) return;
+    loadingCam = true;
+    setBtn('starting the camera...');
+    let stream = null;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: 640, height: 480 }, audio: false });
+    } catch (e) {
+      loadingCam = false; setBtn('open the camera'); return;   // denied -> silent
+    }
+    try {
+      const core = await import('./engine-core.js');
+      const { pose } = await core.loadPoseLandmarker({ numPoses: 1, wantSeg: false });
+      const { mod, Engine } = await core.loadMotor();
+      const engine = new Engine('squat');
+      if (typeof engine.setCalibration === 'function') engine.setCalibration(true);
+      const bufPtr = mod._malloc(2 * core.FLOATS * 4);
+      const worldBufPtr = mod._malloc(2 * core.FLOATS * 4);
+
+      video.srcObject = stream;
+      video.hidden = false;
+      await video.play();
+
+      live = { pose, mod, engine, bufPtr, worldBufPtr, stream, core, raf: 0, lastT: -1 };
+      mode = 'live';
+      cancelAnimationFrame(demoRAF);
+      reps = 0; setReps(0);
+      setBtn('stop');
+      loadingCam = false;
+      liveFrame();
+    } catch (e) {
+      console.warn('hero camera engine failed, staying in demo:', e);
+      if (stream) stream.getTracks().forEach((t) => t.stop());
+      video.hidden = true; video.srcObject = null;
+      live = null; loadingCam = false; setBtn('open the camera');
+      startDemo();   // silent fallback
+    }
   }
+
+  function liveFrame() {
+    if (!live || mode !== 'live') return;
+    const now = performance.now();
+    if (video.currentTime !== live.lastT && video.videoWidth) {
+      live.lastT = video.currentTime;
+      let result = null;
+      try { result = live.pose.detectForVideo(video, now); } catch (e) { result = null; }
+      if (result && result.landmarks && result.landmarks.length) {
+        const aspect = (video.videoWidth || 4) / (video.videoHeight || 3);
+        const lm = result.landmarks[0];
+        const wl = (result.worldLandmarks && result.worldLandmarks[0]) || lm;
+        live.core.writePosesToHeap(live.mod, live.bufPtr, [lm], aspect);
+        live.core.writePosesToHeap(live.mod, live.worldBufPtr, [wl], aspect);
+        let r = null;
+        try { r = live.engine.updateMultiPtr(live.bufPtr, live.core.FLOATS, 1, live.worldBufPtr, live.core.FLOATS, 1, now); } catch (e) { r = null; }
+        // knee angle from the visitor's own landmarks (25/27 = left knee/ankle, 23 = hip)
+        const hip = lm[23], knee = lm[25], ankle = lm[27];
+        let ka = null;
+        if (hip && knee && ankle) ka = angleAt({ x: knee.x * aspect, y: knee.y }, { x: hip.x * aspect, y: hip.y }, { x: ankle.x * aspect, y: ankle.y });
+        if (ka != null) setKnee(ka);
+        if (r && typeof r.reps === 'number' && r.reps !== reps) {
+          const up = r.reps > reps; reps = r.reps; setReps(reps); if (up) onRep(now);
+        }
+        drawLiveCloud(lm, now, ka, knee);
+      }
+    }
+    live.raf = requestAnimationFrame(liveFrame);
+  }
+
+  function stopCamera() {
+    if (live) {
+      cancelAnimationFrame(live.raf);
+      if (live.stream) live.stream.getTracks().forEach((t) => t.stop());
+      try { live.mod._free(live.bufPtr); live.mod._free(live.worldBufPtr); } catch (e) {}
+      try { if (live.engine && live.engine.delete) live.engine.delete(); } catch (e) {}
+      live = null;
+    }
+    video.hidden = true; video.srcObject = null;
+    reps = 0; setReps(0);
+    setBtn('open the camera');
+    startDemo();
+  }
+
+  if (camBtn) {
+    camBtn.addEventListener('click', () => {
+      if (mode === 'live') stopCamera();
+      else if (!loadingCam) startCamera();
+    });
+  }
+
+  // release the camera if the tab is hidden or the user leaves
+  document.addEventListener('visibilitychange', () => { if (document.hidden && mode === 'live') stopCamera(); });
+  window.addEventListener('pagehide', () => { if (mode === 'live') stopCamera(); });
+
+  startDemo();
 })();

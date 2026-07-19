@@ -57,24 +57,28 @@
 
 <div class="wrap">
   <header class="hero">
-    <div>
+    <div class="hero-copy">
       <h1>Your camera counts the reps and scores your form<i>.</i></h1>
       <p class="sub">Point your phone at yourself and move. The engine marks 33 points of your body every frame, counts every clean rep, grades your form out of 100 and corrects it while you move.</p>
       <div class="acts">
-        <a class="btn" href="coach.html">open the camera</a>
+        <button class="btn" id="heroCam" type="button">open the camera</button>
         <a class="quiet" href="moves.html">or browse 386 moves first</a>
       </div>
       <span class="stub">Free. No account to start, no ads, no video ever uploaded.</span>
     </div>
 
-    <div class="demo">
-      <canvas id="rig" width="520" height="560"></canvas>
-      <div class="read">
-        <div class="n" id="reps">0<span class="plus" id="plus">+1</span></div>
-        <div class="lbl">reps counted live, of this figure</div>
-        <div class="angle"><span id="knee">172</span>° knee</div>
+    <div class="hero-demo">
+      <div class="panel" id="heroPanel">
+        <canvas id="rig" width="520" height="560"></canvas>
+        <video id="heroVideo" playsinline muted hidden></video>
+        <div class="panel-read">
+          <div class="n" id="reps">0<span class="plus" id="plus">+1</span></div>
+          <div class="lbl">reps counted live, of this figure</div>
+          <div class="angle"><span id="knee">172</span>° knee</div>
+        </div>
+        <p class="panel-cap">What the camera sees: joints, angles, a full clean cycle. Not a picture of you.</p>
       </div>
-      <p class="tag">What the camera sees: joints, angles, a full clean cycle. Not a picture of you.</p>
+      <a class="panel-link" href="coach.html">full workout with sets and scores &rarr;</a>
     </div>
   </header>
 </div>
@@ -87,14 +91,14 @@
       <p>A trainer in a gym charges by the hour to do exactly this. Here the same three jobs run in your browser, and the price stays zero because no server does the work.</p>
     </div>
     <ul>
-      <li><span class="k">01</span><div><b>It counts, honestly.</b><p>Only a full, clean cycle counts as a rep. Half-hearted wobbles never sneak a second one in.</p></div></li>
-      <li><span class="k">02</span><div><b>It scores every rep out of 100.</b><p>Depth, tempo, control: the three things a good coach watches, graded as you move.</p></div></li>
-      <li><span class="k">03</span><div><b>It corrects your form.</b><p>The tracked joint goes purple when something is off, and tells you what to fix, mid set.</p></div></li>
+      <li><div><b>It counts, honestly.</b><p>Only a full, clean cycle counts as a rep. Half-hearted wobbles never sneak a second one in.</p></div></li>
+      <li><div><b>It scores every rep out of 100.</b><p>Depth, tempo, control: the three things a good coach watches, graded as you move.</p></div></li>
+      <li><div><b>It corrects your form.</b><p>The tracked joint goes purple when something is off, and tells you what to fix, mid set.</p></div></li>
     </ul>
   </div>
 </section>
 
-<section class="how">
+<section class="how band-lila">
   <div class="wrap">
     <p class="eyebrow">How does it work?</p>
     <h2>No chatbot, no server. Geometry, running on your phone.</h2>
@@ -105,6 +109,15 @@
       <div class="c"><b>It forgets the frame.</b><p>The math is done, the frame is gone. Nothing stored, nothing sent, nothing kept.</p></div>
     </div>
     <p class="note">Hand-written in <i>C++</i>, compiled to wasm to keep pace with your camera. <i>92 native tests</i>. No API bill, which is exactly why it stays free.</p>
+  </div>
+</section>
+
+<section class="output-band">
+  <div class="wrap">
+    <p class="eyebrow mono">real output</p>
+    <pre class="output"><span class="l">squat</span> · set 3 / 12 reps · tempo 2-1-2
+<span class="l">knee angle</span> min <span class="v">94&deg;</span> · target <span class="v">&lt;110&deg;</span> <span class="ok">&check;</span>
+<span class="l">knee cave</span> on reps 4, 7, 11</pre>
   </div>
 </section>
 

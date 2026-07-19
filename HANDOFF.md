@@ -12,8 +12,10 @@ sayar, her tekrarı 0-100 puanlar (depth / tempo / control), formu düzeltir.
 Video hiçbir yere yüklenmez, hepsi cihazda. 386 hareketlik kütüphane.
 92 native test. Sürüm v63. Ücretsiz, reklamsız.
 
-10 sayfa: index · moves · my-moves · my-program · coach · suggest · blog ·
-patch-notes · gizlilik · terms
+12 sayfa: index · moves · my-moves · my-program · coach · suggest · blog ·
+patch-notes · gizlilik · gizlilik-tr · terms · reset-password
+(gizlilik-tr = privacy TR ikizi, reset-password = şifre sıfırlama formu; ikisi
+de faz 1'de tek kabuğa alındı)
 
 ---
 
