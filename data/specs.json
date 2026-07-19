@@ -1,0 +1,22 @@
+{
+  "_note": "per-archetype driver joint + target angle, shown on move cards as the mono line. archetype-level for now (real per-move specs come from the FAZ 8 spec DSL). a move maps to an archetype via the engine's coachableMoves base; anything the engine does not coach is 'reference' (no target shown).",
+  "archetypes": {
+    "squat":       { "joint": "knee", "target": "< 110°", "label": "knee closes and opens" },
+    "sumosquat":   { "joint": "knee", "target": "< 110°", "label": "wide-stance knee" },
+    "lunge":       { "joint": "front knee", "target": "≈ 90°", "label": "front knee bends" },
+    "pushup":      { "joint": "elbow", "target": "≈ 90°", "label": "elbow bends and locks" },
+    "glutebridge": { "joint": "hip", "target": "≈ 170°", "label": "hip extends at the top" },
+    "situp":       { "joint": "hip", "target": "≈ 90°", "label": "torso to thighs" },
+    "press":       { "joint": "elbow", "target": "≈ 170°", "label": "elbow locks overhead" },
+    "raise":       { "joint": "shoulder", "target": "≈ 90°", "label": "arm to shoulder height" },
+    "kickback":    { "joint": "hip", "target": "≈ 170°", "label": "hip extends behind" },
+    "birddog":     { "joint": "hip / shoulder", "target": "extend & hold", "label": "opposite limbs reach" },
+    "calfraise":   { "joint": "ankle", "target": "full plantarflex", "label": "heel lifts and drops" },
+    "jumpingjack": { "joint": "shoulder / hip", "target": "open & close", "label": "arms and legs open" },
+    "plank":       { "joint": "hip line", "target": "hold, hips level", "label": "timed hold" },
+    "sideplank":   { "joint": "hip line", "target": "hold, hips stacked", "label": "timed hold" },
+    "wallsit":     { "joint": "knee", "target": "hold ≈ 90°", "label": "timed hold" },
+    "hollowhold":  { "joint": "core line", "target": "hold, low back down", "label": "timed hold" },
+    "superman":    { "joint": "hip / spine", "target": "extend & hold", "label": "timed hold" }
+  }
+}

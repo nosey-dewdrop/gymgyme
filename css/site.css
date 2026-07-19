@@ -205,6 +205,21 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
   border:none;border-radius:999px;padding:8px 14px;margin:0 8px 8px 0;cursor:pointer;transition:background var(--t),color var(--t)}
 .libfilters button:hover{background:var(--line)}
 .libfilters button.on{background:var(--lila-deep);color:#fff}
+/* generic pill chip: mono, 999px, wash ground; active = lila-deep ground white */
+.chip{font-family:var(--mono);font-size:12.5px;background:var(--wash);color:var(--ink);
+  border:none;border-radius:999px;padding:8px 14px;cursor:pointer;transition:background var(--t),color var(--t)}
+.chip:hover{background:var(--line)}
+.chip.on{background:var(--lila-deep);color:#fff}
+/* filters + sort share one line; sort row pushes right */
+.lib-bar{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;margin:12px 0 4px}
+.lib-bar .libfilters{margin:0;flex:1;display:flex;flex-wrap:wrap;gap:8px}
+.lib-bar .libfilters button{margin:0}
+.mv-sort{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-left:auto}
+.mv-sort .sort-lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut)}
+.mv-sort .chip{font-size:11.5px;padding:6px 12px}
+/* card driver line: joint + target, mono; target in lila-deep */
+.mv-card .mv-driver{font-family:var(--mono);font-size:10.5px;letter-spacing:.02em;color:var(--mut);margin:0 0 8px;line-height:1.3}
+.mv-card .mv-driver .tgt{color:var(--lila-deep);font-weight:600}
 #allMoves .lib-cat{margin:18px 0 6px;font-family:var(--head);font-size:16px;font-weight:600;color:var(--ink)}
 #allMoves .lib-cat small{font-family:var(--mono);font-weight:normal;font-size:11.5px;color:var(--mut);margin-left:8px}
 #allMoves .lib-grid{columns:3;column-gap:34px}
@@ -505,6 +520,7 @@ body.running #intro,body.running #progCard{display:none}
 /* my-moves: saved list — pink-soft cards (user's own data) */
 #keptList{display:grid;gap:12px;margin-top:14px}
 .kept-row.card{display:flex;align-items:center;gap:10px;background:var(--pink-soft);padding:14px 16px;cursor:default}
+.kept-row.card .card-dots i{background:var(--pink)}
 .kept-row .grow{flex:1;font-size:15px;font-weight:600}
 .kept-row .grow small{font-family:var(--mono);font-weight:normal;font-size:11px;color:var(--mut)}
 .kept-row .addbtn{font-family:var(--mono);font-size:12px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-sm);padding:7px 12px;cursor:pointer;transition:border-color var(--t)}
@@ -539,18 +555,22 @@ body.running #intro,body.running #progCard{display:none}
 .blog-body .prose{margin:0}
 .blog-empty{margin-top:20px}
 
-/* patch-notes: three columns. entries 66ch in the middle; damla's photos in
-   the ~200px side rails, alternating rows, never two on one line. rails hidden
-   on mobile. these photos appear ONLY on this page. */
-.patch-grid{display:grid;grid-template-columns:200px minmax(0,66ch) 200px;gap:32px;justify-content:center;margin-top:20px}
+/* patch-notes: two columns. a fixed 180px photo column on the left, entries on
+   the right. the text column always starts at the same x whether or not a photo
+   sits beside an entry. damla's polaroids are sparse (beside the 1st, 4th and
+   7th entries), scattered down the rail, hidden on mobile. these photos appear
+   ONLY on this page. */
+.patch-grid{display:grid;grid-template-columns:180px minmax(0,66ch);gap:36px;justify-content:center;margin-top:20px}
 .patch-rail{display:flex;flex-direction:column}
-.patch-photo{margin:0}
-.patch-photo img{width:200px;height:250px;object-fit:cover;border-radius:var(--r);display:block}
-.patch-photo figcaption{font-family:var(--mono);font-size:11px;color:var(--mut);margin-top:8px}
-/* row alignment: push each photo down to sit beside its entry (approx) */
-.patch-photo.r2{margin-top:180px}
-.patch-photo.r4{margin-top:560px}
-.patch-photo.r6{margin-top:120px}
+/* polaroid: white frame with a thicker bottom edge, soft ink shadow, a slight
+   alternating tilt and a mono caption below the frame. */
+.patch-photo{margin:0;width:150px;background:#fff;padding:9px 9px 28px;border-radius:var(--r-sm);box-shadow:0 10px 26px rgba(25,19,32,.12)}
+.patch-photo img{width:100%;height:170px;object-fit:cover;display:block}
+.patch-photo figcaption{font-family:var(--mono);font-size:11px;color:var(--mut);margin-top:10px;text-align:center}
+/* row alignment: push each polaroid down to sit beside its entry, tilt alternates */
+.patch-photo.r1{margin-top:26px;transform:rotate(-3deg)}
+.patch-photo.r4{margin-top:210px;transform:rotate(2deg)}
+.patch-photo.r7{margin-top:210px;transform:rotate(-3deg)}
 .timeline{display:grid;gap:26px}
 .patch{display:block}
 .patch .pmeta{display:flex;gap:12px;align-items:baseline;margin-bottom:6px}

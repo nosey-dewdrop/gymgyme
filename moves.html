@@ -59,7 +59,10 @@
       </span>
       <span class="lib-count mono" id="libCount">386 / 386</span>
     </div>
-    <div class="libfilters" id="libFilters"></div>
+    <div class="lib-bar">
+      <div class="libfilters" id="libFilters"></div>
+      <div class="mv-sort" id="mvSort"><span class="sort-lbl">sort</span></div>
+    </div>
     <div id="allMoves"><div class="loading" aria-label="loading the library"><i></i><i></i><i></i><i></i></div></div>
   </div>
 </section>
@@ -92,12 +95,25 @@
   // "coached" etiketlenmez (dürüstlük under-claim tarafına düşer).
   const COACHED = new Set();   // name -> repBased? true/false; Map yerine iki set
   const COACHED_HOLD = new Set();
+  const ARCH_OF = new Map();   // move name -> archetype base id (motorun coachableMoves.base)
+  let SPECS = {};              // archetype id -> { joint, target, label } (data/specs.json)
   const allMoves = document.getElementById("allMoves");
   const searchEl = document.getElementById("mvSearch");
   const libFilters = document.getElementById("libFilters");
+  const sortEl = document.getElementById("mvSort");
   const countEl = document.getElementById("libCount");
   let libCat = "all";
   const total = Object.values(MOVE_DB).reduce((a, l) => a + l.length, 0);
+
+  // sıralama seçimi kalıcı (localStorage). "newest" tarih yok -> MOVE_DB sırası.
+  const SORT_KEY = "gg-moves-sort";
+  const SORTS = ["a-z", "muscle group", "coached first", "newest"];
+  let sortMode = (() => { try { return localStorage.getItem(SORT_KEY); } catch (_) { return null; } })();
+  if (SORTS.indexOf(sortMode) === -1) sortMode = "newest";
+  // her hareketin MOVE_DB içindeki özgün sırası (newest fallback + stabil ikincil anahtar)
+  const ORDER = new Map();
+  { let i = 0; Object.keys(MOVE_DB).forEach((c) => MOVE_DB[c].forEach((m) => ORDER.set(m, i++))); }
+  const CAT_INDEX = {}; Object.keys(MOVE_DB).forEach((c, i) => { CAT_INDEX[c] = i; });
 
   const HEART = '<svg class="icon-inline" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.9-10-9.2C.4 8.7 1.9 5.5 5 5.5c1.9 0 3.2 1.1 4 2.3.8-1.2 2.1-2.3 4-2.3 3.1 0 4.6 3.2 3 6.3C19.5 16.1 12 21 12 21z"/></svg>';
 
@@ -111,6 +127,27 @@
     return n;
   }
 
+  const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  // seçili sıralamaya göre bir kategorinin hareketlerini sırala (stabil)
+  function sortMoves(moves) {
+    const az = (a, b) => a.localeCompare(b) || ORDER.get(a) - ORDER.get(b);
+    if (sortMode === "a-z" || sortMode === "muscle group") return moves.slice().sort(az);
+    if (sortMode === "coached first")
+      return moves.slice().sort((a, b) => (COACHED.has(b) - COACHED.has(a)) || az(a, b));
+    return moves.slice().sort((a, b) => ORDER.get(a) - ORDER.get(b)); // newest -> MOVE_DB order
+  }
+
+  // kart mono satırı: hareketi süren eklem + hedef açı (data/specs.json).
+  // koçlanmayan hareket -> "reference", hedef yok (dürüst düşüş).
+  function driverLine(m) {
+    const arch = ARCH_OF.get(m);
+    const spec = arch && SPECS[arch];
+    if (!spec) return '<div class="mv-driver">reference</div>';
+    return '<div class="mv-driver">' + esc(spec.joint) +
+      ' <span class="tgt">' + esc(spec.target) + '</span></div>';
+  }
+
   function render() {
     const filter = searchEl.value.trim().toLowerCase();
     const kept = GG_MYMOVES.get();
@@ -118,7 +155,7 @@
     if (countEl) countEl.textContent = countShown() + " / " + total;
     Object.keys(MOVE_DB).forEach((cat) => {
       if (libCat !== "all" && cat !== libCat) return;
-      const moves = MOVE_DB[cat].filter((m) => !filter || m.indexOf(filter) !== -1);
+      const moves = sortMoves(MOVE_DB[cat].filter((m) => !filter || m.indexOf(filter) !== -1));
       if (!moves.length) return;
       const h = document.createElement("h2");
       h.className = "lib-cat";
@@ -131,10 +168,11 @@
         const saved = kept.indexOf(m) !== -1;
         const d = document.createElement("article");
         d.className = "card mv-card" + (saved ? " saved" : "");
-        // name + the muscle group it works (the joint data we actually have) + tag + heart
+        // name + driver line (joint + target angle) + muscle group + tag + heart
         d.innerHTML =
           '<button class="mv-heart" type="button" aria-label="' + (saved ? "remove from" : "save to") + ' my moves" aria-pressed="' + saved + '">' + HEART + '</button>' +
           '<h4 class="mv-name">' + m + '</h4>' +
+          driverLine(m) +
           '<div class="mv-meta"><span class="mv-joint">' + cat + '</span>' +
           '<span class="mv-tag ' + (coached ? "coached" : "reference") + '">' + (coached ? (COACHED_HOLD.has(m) ? "coached hold" : "coached") : "reference") + '</span></div>' +
           '<span class="card-dots"><i></i><i></i><i></i><i></i><i></i><i></i></span>';
@@ -158,6 +196,7 @@
   ["all"].concat(Object.keys(MOVE_DB)).forEach((cat) => {
     const b = document.createElement("button");
     b.type = "button";
+    b.className = "chip";
     b.textContent = cat === "all" ? "all (" + total + ")" : cat + " (" + MOVE_DB[cat].length + ")";
     if (cat === "all") b.classList.add("on");
     b.addEventListener("click", () => {
@@ -168,6 +207,28 @@
     });
     libFilters.appendChild(b);
   });
+
+  // sıralama çipleri (filtrelerle aynı satır, sağa yaslı). seçim localStorage'ta.
+  SORTS.forEach((s) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "chip" + (s === sortMode ? " on" : "");
+    b.textContent = s;
+    b.addEventListener("click", () => {
+      sortMode = s;
+      try { localStorage.setItem(SORT_KEY, s); } catch (_) {}
+      sortEl.querySelectorAll("button").forEach((x) => x.classList.remove("on"));
+      b.classList.add("on");
+      render();
+    });
+    sortEl.appendChild(b);
+  });
+
+  // eklem+hedef açı tablosu (data/specs.json). gelince kartları tazele.
+  fetch("data/specs.json")
+    .then((r) => (r.ok ? r.json() : null))
+    .then((j) => { if (j && j.archetypes) { SPECS = j.archetypes; render(); } })
+    .catch(() => {});
 
   // arama çubuğundan gelen derin bağlantı: moves.html?q=squat
   const q = new URLSearchParams(location.search).get("q");
@@ -186,6 +247,7 @@
         if (typeof m.coachableMoves !== "function") return;
         for (const it of m.coachableMoves()) {
           COACHED.add(it.name);
+          if (it.base) ARCH_OF.set(it.name, it.base);
           if (it.repBased === false) COACHED_HOLD.add(it.name);
         }
         render();

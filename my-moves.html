@@ -204,7 +204,10 @@
         picked = picked.filter((x) => x !== m);
         renderSlip(); renderList();
       };
-      row.append(grow, add, un);
+      const dots = document.createElement("span");
+      dots.className = "card-dots";
+      dots.innerHTML = "<i></i><i></i><i></i><i></i><i></i><i></i>";
+      row.append(grow, add, un, dots);
       keptList.appendChild(row);
     }
   }
