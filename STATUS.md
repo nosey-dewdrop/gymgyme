@@ -79,7 +79,23 @@ sw.js v70→v71.
 
 AÇIK (Damla kararı): (1) I3 tam birleştirme mi yoksa ritim-kırma yeterli mi? (2) kamera 4 senaryo canlı test (izin ver / reddet / stop / mobil).
 
-## FAZ 3 — coach   [başlamadı]
+## FAZ 3 — coach   [kapı geçti — 19 Tem]
+| kod | durum | kanıt |
+|-----|-------|------|
+| C1 pembe dünya | kapandı | gate.sh 3: pink/cherry ground 0; coach artık site.css tek dünyası, mono HUD |
+| C2 tek isim | kapandı | "open the camera" nav+h1+title+footer; sinema kalıntısı (sub-sign/stagefloor) canlıda 0 |
+| C3 onboarding | kapandı | js/coach-onboarding.js: 4 adım (move→reps/sets→izin→çerçeve), cevapsız ilerlemez (answered[] guard), X/skip yok (gate onb bloğu temiz), geri serbest, translateX yatay geçiş, nokta ilerleme (done lila/active nefes/waiting boş), adım 4 vücut görününce (vis≥24, 12 kare) OTOMATİK onay → #ready.click() |
+| C4 hareket yığını | kapandı | onboarding move seçimi çip düzeninde (ilk 8), düz metin yığını değil |
+| C5 yapışık sayılar | site.css'te | HUD mono/ayrık (.phase-word head, .rep-count mono); FAZ 4'te moves tarafı da |
+| C6 çıplak göstergeler | kapandı | .meter/.bar mono etiketli, "can't see you clearly" motor tarafında (coach.js, dokunulmadı) |
+| C7 hesap paneli | kapandı | .foldcard (account) wash zemin, kart diline yakın |
+| G7 boş durum | KISMİ | .empty + .loading site.css'te TANIMLI (dot cluster + satır + buton / dağılıp toplanan nokta); coach'ta kullanım FAZ 4'te (moves/my-moves boş durumları) — açık, FAZ 4 kapatır |
+Kapı: gate.sh 3 GEÇTİ (universal 13/13 + coach 8/8; 999px sadece meşru çip uyarısı).
+DEĞİŞMEZ #9: coach.js motoruna DOKUNULMADI (git: son değişiklik faz 1 rename; onboarding ayrı JS, #ready.click() ile devreder). 50 coach.js ID'si korundu (grep doğrulandı).
+Miras kuruldu: --dur-fast/--dur/--dur-slow/--ease, --r-sm/--r/--r-lg, .empty, .loading.
+Radius sistemi (SÖZLEŞME DEĞİŞİKLİĞİ, DECISIONS'ta): --r:3px→16px sistemine geçti, tüm site yumuşak köşe.
+Sonraki: FAZ 4.
+Açık (Damla canlı test): onboarding izin ver/reddet, adım 4 otomatik onay, kamera sayıyor mu.
 ## FAZ 4 — moves · my-moves · my-program   [başlamadı]
 ## FAZ 5 — blog · patch-notes · gizlilik · terms · suggest   [başlamadı]
 ## FAZ 6 — Generic denetimi   [başlamadı]
