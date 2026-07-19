@@ -1,0 +1,8 @@
+{
+  "generated": "2026-07-19",
+  "note": "engine accuracy baseline. real per-move recall/precision fills in as the corpus grows (FAZ 7+). until then only the synthetic liveness guard and the coachable catalog size are pinned.",
+  "coachableMoves": 88,
+  "syntheticGoldenSquat": { "input": 5, "counted": 3, "guard": "counted >= 3" },
+  "corpus": { "clips": 0, "labelledMoves": [] },
+  "perMove": {}
+}

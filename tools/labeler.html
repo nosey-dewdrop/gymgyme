@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gymgyme clip labeler</title>
+<!-- local tool, speed over polish (YOL-HARITASI). motor predicts FIRST, human
+     confirms or corrects. output: <clip>.landmarks.json + <clip>.labels.json.
+     served from repo root so ../vendor and ../engine resolve:
+       npx serve .   (then open /tools/labeler.html)  -->
+<style>
+  body{font:14px/1.5 ui-monospace,Menlo,monospace;margin:0;background:#191320;color:#EDE6F7}
+  header{padding:12px 16px;border-bottom:1px solid #3a3348;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+  h1{font-size:14px;margin:0;color:#fff}
+  main{display:grid;grid-template-columns:1fr 320px;gap:16px;padding:16px}
+  .stage{position:relative;background:#000;border-radius:8px;overflow:hidden;aspect-ratio:16/10}
+  video,canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+  .panel{font-size:13px}
+  .row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #3a3348}
+  .k{color:#8a8394}
+  .big{font-size:34px;color:#B79EE0;font-weight:bold}
+  button{font:inherit;background:#7A5BB0;color:#fff;border:none;border-radius:8px;padding:8px 12px;cursor:pointer;margin:2px}
+  button.ghost{background:transparent;border:1px solid #3a3348;color:#EDE6F7}
+  .err{display:inline-block;background:#2a2436;border:1px solid #3a3348;border-radius:6px;padding:4px 8px;margin:2px;cursor:pointer}
+  .err.on{background:#D96BA0;color:#fff;border-color:#D96BA0}
+  kbd{background:#2a2436;border:1px solid #3a3348;border-radius:4px;padding:1px 5px}
+  .hint{color:#8a8394;font-size:12px}
+</style>
+</head>
+<body>
+<header>
+  <h1>clip labeler</h1>
+  <input type="file" id="file" accept="video/*">
+  <span id="moveWrap">move: <select id="move"></select></span>
+  <button id="process">process (extract + predict)</button>
+  <button class="ghost" id="save" disabled>save labels</button>
+  <span class="hint"><kbd>space</kbd> play/pause · <kbd>r</kbd> mark a rep · <kbd>&larr;/&rarr;</kbd> step · number keys toggle errors</span>
+</header>
+<main>
+  <div class="stage">
+    <video id="video" playsinline muted></video>
+    <canvas id="overlay"></canvas>
+  </div>
+  <div class="panel">
+    <div class="row"><span class="k">engine reps</span><span class="big" id="reps">0</span></div>
+    <div class="row"><span class="k">human reps</span><span id="hreps">0</span></div>
+    <div class="row"><span class="k">frames extracted</span><span id="frames">0</span></div>
+    <div class="row"><span class="k">confidence</span><span id="conf">–</span></div>
+    <p class="k" style="margin-top:12px">errors seen in this clip</p>
+    <div id="errs"></div>
+    <p class="hint" id="status">pick a clip, choose the move, press process.</p>
+  </div>
+</main>
+<script type="module">
+import { loadPoseLandmarker, loadMotor, writePosesToHeap, LM, FLOATS } from '../js/engine-core.js';
+
+const ERRORS = ['valgus','heel_lift','trunk_lean','butt_wink','asymmetry','tempo_collapse'];
+const $ = (id) => document.getElementById(id);
+const video = $('video'), overlay = $('overlay'), ctx = overlay.getContext('2d');
+let motorMod = null, pose = null, moves = ['squat'];
+let landmarksSeries = [];   // per-frame [{x,y,z,visibility}x33]
+let enginePrediction = { reps: 0, confidence: 0 };
+let humanReps = 0, humanErrors = new Set();
+let clipName = 'clip';
+
+// error chips
+ERRORS.forEach((e, i) => {
+  const b = document.createElement('span');
+  b.className = 'err'; b.textContent = (i + 1) + ' ' + e; b.dataset.err = e;
+  b.onclick = () => toggleErr(e, b);
+  $('errs').appendChild(b);
+});
+function toggleErr(e, el) {
+  if (humanErrors.has(e)) { humanErrors.delete(e); el.classList.remove('on'); }
+  else { humanErrors.add(e); el.classList.add('on'); }
+}
+
+$('file').addEventListener('change', (ev) => {
+  const f = ev.target.files[0]; if (!f) return;
+  clipName = f.name.replace(/\.[^.]+$/, '');
+  video.src = URL.createObjectURL(f);
+  $('status').textContent = 'loaded ' + f.name + ' — press process.';
+});
+
+async function ensureEngine() {
+  if (!motorMod) {
+    $('status').textContent = 'loading pose model + motor...';
+    const p = await loadPoseLandmarker({ numPoses: 1, wantSeg: false });
+    pose = p.pose;
+    const m = await loadMotor();
+    motorMod = m;
+    moves = (m.coachableMoves || []).map((x) => x.name);
+    const sel = $('move'); sel.innerHTML = '';
+    (moves.length ? moves : ['squat']).forEach((mv) => { const o = document.createElement('option'); o.value = o.textContent = mv; sel.appendChild(o); });
+  }
+}
+
+$('process').addEventListener('click', async () => {
+  await ensureEngine();
+  const move = $('move').value || 'squat';
+  landmarksSeries = []; humanReps = 0; $('hreps').textContent = '0';
+  overlay.width = video.videoWidth; overlay.height = video.videoHeight;
+  const engine = new motorMod.Engine(move);
+  if (engine.setCalibration) engine.setCalibration(true);
+  const bufPtr = motorMod._malloc(2 * FLOATS * 4), worldPtr = motorMod._malloc(2 * FLOATS * 4);
+
+  // step through the clip frame by frame, extract landmarks, feed the motor
+  video.pause();
+  const fps = 30, dt = 1000 / fps;
+  let t = 0; let lastReading = { reps: 0, confidence: 0 };
+  await new Promise((r) => { video.currentTime = 0; video.onseeked = r; });
+  while (video.currentTime < video.duration - 1e-3) {
+    let res = null;
+    try { res = pose.detectForVideo(video, performance.now()); } catch (e) {}
+    const lm = res && res.landmarks && res.landmarks[0];
+    if (lm) {
+      const frame = lm.map((p) => ({ x: +p.x.toFixed(5), y: +p.y.toFixed(5), z: +(p.z || 0).toFixed(5), visibility: +(p.visibility ?? 1).toFixed(3) }));
+      landmarksSeries.push(frame);
+      const aspect = (video.videoWidth || 4) / (video.videoHeight || 3);
+      writePosesToHeap(motorMod, bufPtr, [frame], aspect);
+      writePosesToHeap(motorMod, worldPtr, [frame], aspect);
+      try { lastReading = engine.updateMultiPtr(bufPtr, FLOATS, 1, worldPtr, FLOATS, 1, t); } catch (e) {}
+      ctx.clearRect(0, 0, overlay.width, overlay.height);
+      ctx.fillStyle = '#B79EE0';
+      for (const p of frame) { ctx.globalAlpha = 0.4 + 0.5 * p.visibility; ctx.beginPath(); ctx.arc(p.x * overlay.width, p.y * overlay.height, 3, 0, 7); ctx.fill(); }
+      ctx.globalAlpha = 1;
+      $('reps').textContent = lastReading.reps || 0;
+      $('frames').textContent = landmarksSeries.length;
+    }
+    t += dt;
+    await new Promise((r) => { video.currentTime = Math.min(video.duration, video.currentTime + dt / 1000); video.onseeked = r; });
+  }
+  motorMod._free(bufPtr); motorMod._free(worldPtr); if (engine.delete) engine.delete();
+  enginePrediction = { reps: lastReading.reps || 0, confidence: +(lastReading.confidence || 0).toFixed(2) };
+  humanReps = enginePrediction.reps;   // human starts from the motor's guess, then corrects
+  $('hreps').textContent = humanReps;
+  $('conf').textContent = enginePrediction.confidence;
+  $('save').disabled = false;
+  $('status').textContent = `done. ${landmarksSeries.length} frames, engine says ${enginePrediction.reps} reps. correct with r / number keys, then save.`;
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT') return;
+  if (e.key === ' ') { e.preventDefault(); video.paused ? video.play() : video.pause(); }
+  else if (e.key === 'r') { humanReps++; $('hreps').textContent = humanReps; }
+  else if (e.key === 'ArrowLeft') { video.currentTime = Math.max(0, video.currentTime - 1 / 30); }
+  else if (e.key === 'ArrowRight') { video.currentTime = Math.min(video.duration, video.currentTime + 1 / 30); }
+  else if (/^[1-6]$/.test(e.key)) { const i = +e.key - 1; const el = $('errs').children[i]; if (el) el.click(); }
+});
+
+$('save').addEventListener('click', () => {
+  const move = $('move').value || 'squat';
+  const landmarks = { fps: 30, frames: landmarksSeries };
+  const labels = { move, reps: humanReps, enginePredicted: enginePrediction.reps, errors: [...humanErrors], labeledAt: new Date().toISOString().slice(0, 10) };
+  dl(clipName + '.landmarks.json', landmarks);
+  dl(clipName + '.labels.json', labels);
+  $('status').textContent = `saved. drop both files into corpus/${move}/ next to the .mp4 and .license.txt.`;
+});
+function dl(name, obj) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(obj)], { type: 'application/json' }));
+  a.download = name; a.click();
+}
+</script>
+</body>
+</html>
