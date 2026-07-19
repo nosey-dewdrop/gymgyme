@@ -301,6 +301,44 @@
   </div>
 </section>
 
+
+<section class="qa-band">
+  <p class="lbl">OKAY BUT HOW? · IN HUMAN WORDS</p>
+  <div class="qa-grid">
+    <div class="q"><b>is it chatgpt?</b><span>no. no llm, no api call, no server thinking for you - it's trigonometry running at camera speed. your joints make angles, angles make reps.</span></div>
+    <div class="q"><b>okay, not chatgpt - then how do you do it?</b><span>every move is a spec: which joint drives it, what angle counts as bottom, what counts as lockout, how fast a clean rep should travel. each frame the engine computes your joint angles from 3d coordinates, smooths the jitter, tracks which phase you're in and only counts the rep when the full cycle closes - with hysteresis, so half-hearted wobbles don't count twice.</span></div>
+    <div class="q"><b>then what sees me?</b><span>mediapipe's pose landmarker - an open, already-trained model running on your gpu, on your device. it returns 33 landmarks per frame (x, y, z + visibility), including metric 3d world coordinates, so angles stay honest even when you turn toward the camera.</span></div>
+    <div class="q"><b>does it use my photos to train your model?</b><span>no. each frame goes from your camera to the pose model, lands as a float buffer in wasm memory, gets its math done and is thrown away. nothing is stored, nothing is sent, nothing learns from you - there is no training pipeline to feed you into even if i wanted one.</span></div>
+    <div class="q"><b>then how did you train it?</b><span>i didn't train - i engineered. the pose model came pre-trained; on top of it sits my own hand-written engine: angle thresholds, phase state machines and scoring curves per move, unit-tested in native c++ (92 tests) and calibrated move by move on the person in the photos up there.</span></div>
+    <div class="q"><b>who counts?</b><span>my own engine, written in c++ and compiled to webassembly. landmarks are written straight into the wasm heap once per frame and passed by pointer - one boundary call per frame, so it keeps up with your camera instead of your patience.</span></div>
+    <div class="q"><b>why doesn't it upload?</b><span>there's no upload code in the entire codebase - the math happens in your browser's sandbox. the strictest privacy policy is the one physics enforces.</span></div>
+    <div class="q"><b>the score?</b><span>every rep gets graded 0-100 from three signals: depth (how far you actually went), tempo (how long the rep took vs. the spec) and control (how steady the angle curve was). honest, never mean.</span></div>
+    <div class="q"><b>so why is it free?</b><span>that's exactly why. no llm api, no gpu cluster, no server bill - i don't have to pay for anything, so you don't have to pay for me.</span></div>
+  </div>
+</section>
+
+<div id="greet" class="greet"></div>
+
+<p class="dir-tag tag small">a directory by everyone, for everyone. free, no ads, no account needed, forever. people recommend, the important grows - literally. <span class="stat" id="stat-articles">articles (0)</span> · <span class="stat" id="stat-workouts">workouts (0)</span></p>
+
+<nav id="nav">
+  <a href="#healthy-living-articles">healthy-living-articles</a>
+  <a href="#home-workouts">home-workouts</a>
+  <a href="#pilates">pilates</a>
+  <a href="#ballet">ballet</a>
+  <a href="#yoga">yoga</a>
+  <a href="#gym">gym</a>
+  <a href="#calisthenics">calisthenics</a>
+  <a href="#bodyweight">bodyweight</a>
+</nav>
+
+<h1 id="cat-title">home-workouts</h1>
+
+<div id="directory"><p class="loading">loading the good stuff…</p></div>
+
+<h2 class="center push-down">contributors (thank you!)</h2>
+<p id="contributors" class="contribs center">…</p>
+
 <footer>
   <div class="wrap">
     <span class="b">gymgyme.</span>
@@ -319,6 +357,10 @@
   </div>
 </footer>
 
+<script src="data/moves-db.js"></script>
+<script src="js/topbar.js"></script>
+<script src="seed.js"></script>
+<script src="script.js"></script>
 <script src="js/landing.js" defer></script>
 </body>
 </html>
