@@ -74,3 +74,30 @@ sağ ray = 5275 (damla bilkent cs, r4). Dönüşümlü, aynı satırda iki yok.
 Gerekçe: PROTOKOL §4 zevk kararı ajana; dengeli dağılım (2 sol 1 sağ, hizalar
 çakışmıyor). Damla itiraz ederse foto/sıra değişir (geri alınır).
 Etki: P2 kapandı.
+
+## 19 Tem · FAZ 7 · node motor target (canlı motora dokunmadan)
+Durum: regresyon süiti motoru node'da koşmalı; motor.js web-only derlenmiş
+(-sENVIRONMENT=web), node'da yüklenmiyor (fetch abort).
+Karar: engine/build-node.sh eklendi — AYNI kaynak (coach_engine.cpp+bindings.cpp),
+-sENVIRONMENT=node, ayrı çıktı motor.node.mjs/.wasm. Canlı motor.js/.wasm HİÇ
+değişmedi. Süit bu node target'ı kullanır.
+Gerekçe: değişmez #9 (canlı motora dokunma) + KIRMIZI #2 (motoru bozma) korunur;
+test motoru = üretim motoru (birebir kaynak), sadece ortam bayrağı farklı.
+Etki: motor.node.* gitignore (test artefaktı, validate build eder). Geri alınır:
+build-node.sh sil.
+
+## 19 Tem · FAZ 7 · sentetik golden = liveness guard (accuracy değil)
+Durum: korpus boş (klip API key bekliyor). Regresyon süiti bir şey ölçemiyor.
+Karar: golden-synth.mjs — sentetik 5-squat landmark serisi motora verilir,
+"motor ≥3 sayar" guard'ı. Bu LIVENESS + negatif test (motor bozulursa 0 sayar,
+kırmızı), ACCURACY DEĞİL. Gerçek doğruluk korpustan gelecek.
+Gerekçe: süit boş korpusla da motoru koruyabilmeli (değişmez #11). Sentetik
+sürücü idealize, gerçek squat landmark'ı farklı → tam N iddia edilmedi.
+Etki: X10 kapı guard var, gerçek recall/precision korpus dolunca (FAZ 7 insan işi).
+Kapsam küçülmedi — accuracy ölçümü korpusa bağlı, süit hazır bekliyor.
+
+## 19 Tem · FAZ 7 · korpus kapalı (gitignore)
+Durum: STRATEJI "korpus açık değil, sayılar yayınlanır klipler değil".
+Karar: corpus/ gitignore'da. Klipler + landmark + lisans lokalde, repoda değil.
+Gerekçe: STRATEJI §4.2 + değişmez #14 (lisans kaydı klip yanında, lokal).
+Etki: baseline.json + süit kodu tracked; klipler değil.

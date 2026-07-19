@@ -154,3 +154,17 @@ Sonraki: YOL-HARITASI FAZ 7 (ölçüm altyapısı).
 4 moves kart · 5 patch 3-kolon · 6 denetim. Canlı v75. Değişmez #9 korundu
 (coach.js motoru dokunulmadı). Açık (Damla/sonraki faz): kamera 4 senaryo canlı
 test · M3 mono hedef (FAZ 8 spec) · 386 kesin render sayısı.
+
+## FAZ 7 — ölçüm altyapısı   [kod hazır, klip API key bekliyor — 19 Tem]
+| kod | durum | kanıt |
+|-----|-------|------|
+| X10 regresyon süiti | kapandı | tests/regression/run.mjs korpusu motordan geçirir (reps vs labels, recall/precision); node motor target (build-node.sh, canlı motor dokunulmadı); validate quick PASS |
+| X10 negatif test | kapandı | golden-synth: motor 5-squat'tan ≥3 saymalı; bozulunca 0 → kırmızı |
+| X11 labeler | kapandı | tools/labeler.html: mediapipe pose çıkarır + motor ÖNCE tahmin eder, insan boşluk/klavye ile onay/düzelt, çıktı .landmarks.json + .labels.json; syntax OK |
+| X28 fetch-clips | KOD HAZIR | tools/fetch-clips.mjs pexels/pixabay, sadece açık lisans (#14), her klibe .license.txt; API key .env'den, key yoksa net talimat verir (para harcamaz) |
+| validate.sh | kapandı | quick (native test + regresyon) / full; native 92 test + golden PASS |
+| baseline.json | kapandı | commit'li: coachable 88, sentetik golden 5→3 guard, korpus 0 |
+Kapı: validate quick GEÇTİ. corpus/ + motor.node.* gitignore (korpus kapalı, #14).
+AÇIK (insan/para): klip toplama Pexels/Pixabay API key gerektirir → Damla .env'e koyar.
+Sonra: fetch-clips ≥5 hareket × 15 klip → labeler onay → gerçek recall/precision.
+Sonraki: FAZ 8 (spec DSL) — ama ≥5 hareketlik etiketli korpus GİRDİSİ gerekli.
