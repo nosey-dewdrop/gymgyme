@@ -259,7 +259,24 @@ class WebEngine {
   bool smoothOk_ = false;
 };
 
+// koçlanabilir hareket kataloğu → JS dizisi [{name, repBased}, ...]. UI bunu
+// motordan okur (tek kaynak): coach.html seçici + moves.html "reference" etiketi.
+static val coachableMovesJs() {
+  val arr = val::array();
+  auto list = coach::coachableMoves();
+  for (size_t i = 0; i < list.size(); i++) {
+    val o = val::object();
+    o.set("name", list[i].name);
+    o.set("base", list[i].base);
+    o.set("repBased", list[i].repBased);
+    arr.set((unsigned)i, o);
+  }
+  return arr;
+}
+
 EMSCRIPTEN_BINDINGS(coach) {
+  function("coachableMoves", &coachableMovesJs);
+
   value_object<JsReading>("Reading")
       .field("tracking", &JsReading::tracking)
       .field("confidence", &JsReading::confidence)

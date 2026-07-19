@@ -40,7 +40,128 @@ static double angleAt(const std::vector<Landmark>& p, const JointRef& j) {
 // Sayma yönü kendiliğinden iki tip hareketi de kapsıyor: squat gibi "bük-aç"
 // hareketlerde de, press/köprü gibi "açarak çalışılan" hareketlerde de tekrar
 // Bottom→Top (bükülüden açığa) geçişinde sayılır — press'te ilk açış 1. tekrardır.
+// ── AİLE ŞABLONU SİSTEMİ (Loop 02 — 14 hareket sınırı kalkar). Kütüphanedeki
+// 386 hareketin çoğu, motorun ZATEN kurallı olduğu 14 hareketin bir AİLESİ:
+// "diamond push-up" bir push-up'tır (aynı omuz-dirsek-bilek zinciri, aynı faz
+// döngüsü), "reverse lunge" bir lunge'dır. O yüzden elle 200 ayrı kural YOK:
+// her varyant = bir AİLE BASE spec'i (kanonik hareket) + küçük PARAMETRE farkı
+// (dip bandı, tempo tavanı, izlenen taraf, kadraj cümlesi). Aile mantığı —
+// izlenen eklem zinciri, faz durum makinesi, form kuralları, adaptif ROM — base
+// spec'ten OLDUĞU GİBİ gelir; varyant sadece sayıları oynatır. Mevcut 14 hareket
+// bu tabloya GİRMEZ (kendi dallarına düşer, dokunulmaz); yeni sistem yanlarında.
+//
+// Varyant tablosu = VERİ: {varyant adı → {aile base adı, dip farkı, tempo taban,
+// ek/değişen form kuralı}}. Yeni hareket = tabloya bir satır, kod değil.
+struct MoveVariant {
+  const char* alias;      // kütüphanedeki hareket adı (lowercase, moves-db.js ile birebir)
+  const char* family;     // hangi aile base spec'i klonlanır (builtinMove'daki kanonik ad)
+  double bottomShift;     // aile dip açısına eklenen fark (derece; + = daha sığ dip ister)
+  double repSecMinShift;  // aile tempo tabanına eklenen fark (sn; + = daha yavaş ister)
+};
+
+// Faz döngüsü + form ihlali base spec'ten aynen okunur; burada SADECE parametre farkı.
+static const MoveVariant kVariants[] = {
+  // ── SQUAT ailesi (diz = kalça-diz-ayakbileği; adaptif dip; gövde-dik kuralı) ──
+  {"bodyweight squat",  "squat",     0.0,  0.0},
+  {"prisoner squat",    "squat",     0.0,  0.0},
+  {"sumo squat",        "sumosquat", 0.0,  0.0},   // aile: sumosquat (daha geniş duruş kuralı)
+  {"jump squat",        "squat",     0.0, -0.4},   // patlayıcı: tempo tabanı düşer, hızlı sayılır
+  {"freehand jump squat","squat",    0.0, -0.4},
+  {"split squats",      "lunge",     0.0,  0.0},   // split squat = statik lunge geometrisi
+  {"split squat jump",  "lunge",     0.0, -0.4},
+  {"sit squats",        "squat",     0.0,  0.0},
+  {"banded squat",      "squat",     0.0,  0.0},
+  {"kneeling squat",    "glutebridge",0.0, 0.0},   // dizüstü: kalça açısı sürer (bridge geometrisi)
+  // ── LUNGE ailesi (öndeki diz; adaptif dip; gövde-dik kuralı) ──
+  {"reverse lunge",     "lunge",     0.0,  0.0},
+  {"crossover reverse lunge","lunge",0.0,  0.0},
+  {"curtsy lunge",      "lunge",     0.0,  0.0},
+  {"lateral lunge",     "sidelunge", 0.0,  0.0},   // aile: sidelunge (yana oturma)
+  {"jump lunge",        "lunge",     0.0, -0.3},
+  {"bodyweight walking lunge","lunge",0.0, 0.0},
+  // ── PUSH-UP ailesi (dirsek = omuz-dirsek-bilek; adaptif dip; kalça-hattı kuralı) ──
+  {"pushups",           "pushup",    0.0,  0.0},
+  {"push-up wide",      "pushup",    0.0,  0.0},
+  {"push-ups with feet elevated","pushup",0.0,0.0},
+  {"diamond push-up",   "pushup",    0.0,  0.0},
+  {"knee push-up",      "kneelingpushup",0.0,0.0}, // aile: kneelingpushup
+  {"diamond push-up on knees","kneelingpushup",0.0,0.0},
+  {"incline push-up",   "pushup",    5.0,  0.0},   // eğik: dirsek ROM'u biraz sığ, dip eşiği yumuşar
+  {"incline push-up wide","pushup",  5.0,  0.0},
+  {"incline push-up medium","pushup",5.0,  0.0},
+  {"decline push-up",   "pushup",    0.0,  0.0},
+  {"wall push-up",      "pushup",    8.0,  0.0},   // duvara: en sığ ROM
+  {"kneeling wall push-up","kneelingpushup",8.0,0.0},
+  {"close-grip wall push-up","pushup",8.0, 0.0},
+  {"pike push-up",      "pushup",    0.0,  0.0},
+  {"tempo push-up",     "pushup",    0.0,  0.8},   // tempo: yavaş iniş şartı yükselir
+  {"eccentric push-up", "pushup",    0.0,  0.8},
+  {"wide push-up",      "pushup",    0.0,  0.0},
+  {"staggered push-up", "pushup",    0.0,  0.0},
+  // ── SIT-UP / CRUNCH ailesi (kalça = omuz-kalça-diz; doğrulma sayılır) ──
+  {"sit-up",            "situp",     0.0,  0.0},
+  {"crunches",          "situp",     0.0,  0.0},
+  {"crunch - hands overhead","situp",0.0,  0.0},
+  {"3/4 sit-up",        "situp",     0.0,  0.0},
+  {"tuck crunch",       "situp",     0.0,  0.0},
+  {"reverse crunch",    "situp",     0.0,  0.0},
+  {"decline crunch",    "situp",     0.0,  0.0},
+  {"janda sit-up",      "situp",     0.0,  0.3},   // kontrollü: tempo tabanı biraz yükselir
+  {"frog sit-ups",      "situp",     0.0,  0.0},
+  {"v-up",              "situp",     0.0,  0.0},
+  {"jackknife sit-up",  "situp",     0.0,  0.0},
+  // ── RAISE / PRESS ailesi (omuz açısı = kalça-omuz-dirsek; gövde-dik kuralı) ──
+  {"lateral raise",     "armraise",  0.0,  0.0},
+  {"front raise",       "armraise",  0.0,  0.0},
+  {"overhead press",    "press",     0.0,  0.0},   // aile: press (dirsek = omuz-dirsek-bilek)
+  {"shoulder press",    "press",     0.0,  0.0},
+  {"military press",    "press",     0.0,  0.0},
+  {"pike press",        "press",     0.0,  0.0},
+  {"arnold press",      "press",     0.0,  0.0},
+  {"push press",        "press",     0.0, -0.2},
+  // ── BRIDGE ailesi (kalça = omuz-kalça-diz; köprü açılışında sayılır) ──
+  {"glute bridge",      "glutebridge",0.0, 0.0},
+  {"elevated glute bridge","glutebridge",0.0,0.0},
+  {"single leg glute bridge","glutebridge",0.0,0.0},
+  {"single-leg glute bridge","glutebridge",0.0,0.0},
+  {"hip thrust off chair","glutebridge",0.0,0.0},
+  {"frog pump",         "glutebridge",0.0, 0.0},
+  {"pelvic tilt into bridge","glutebridge",0.0,0.0},
+  // ── JACK / CALF ailesi ──
+  {"star jump",         "jumpingjack",0.0, 0.0},
+  {"heel raise",        "calfraise", 0.0,  0.0},
+  // ── HOLD aileleri (izometrik: süre + form kapısı; salınım yok) ──
+  {"forearm plank",     "plank",     0.0,  0.0},
+  {"high plank",        "plank",     0.0,  0.0},
+  {"straight arm plank","plank",     0.0,  0.0},
+  {"side plank hold",   "sideplank", 0.0,  0.0},
+  {"wall sit hold",     "wallsit",   0.0,  0.0},
+  {"wall squat hold",   "wallsit",   0.0,  0.0},
+  {"hollow body hold",  "hollowhold",0.0,  0.0},
+};
+
+MoveSpec builtinMove(const std::string& name);
+
+// varyant çözücü: ad tabloda ise aile base'ini klonla, parametreleri oynat, yeniden
+// adlandır. tabloda yoksa {} döner (çağıran kanonik dallara devam eder).
+static bool resolveVariant(const std::string& name, MoveSpec& out) {
+  for (const auto& v : kVariants) {
+    if (name == v.alias) {
+      out = builtinMove(v.family);       // AİLE mantığı olduğu gibi (eklem zinciri, faz, form, adaptif ROM)
+      out.name = name;                   // kimlik varyantın (rec/özet doğru adı görsün)
+      if (out.kind == MoveKind::Rep) {   // parametre farkı: dip bandı + tempo (hold'da anlamsız)
+        out.bottomAngle += v.bottomShift;
+        if (out.adaptiveBottom) out.adaptiveDrop = std::max(10.0, out.adaptiveDrop - v.bottomShift);
+        out.goodRepSecMin = std::max(0.2, out.goodRepSecMin + v.repSecMinShift);
+      }
+      return true;
+    }
+  }
+  return false;
+}
+
 MoveSpec builtinMove(const std::string& name) {
+  { MoveSpec v; if (resolveVariant(name, v)) return v; }   // aile şablonu: varyantsa aile base + fark
   MoveSpec s;
   s.emaAlpha = 0.5;        // 0.4'tü: Damla "hassas değil" dedi — ham sinyali daha çabuk izle
   s.minVisibility = 0.5;
@@ -284,6 +405,29 @@ MoveSpec builtinMove(const std::string& name) {
     {RuleKind::KneeValgus, 0.72, View::Front, "push your knees out"},
   };
   return s;
+}
+
+// ── koçlanabilir katalog: kanonik 14 + aile varyantları, sırayla, tekrarsız.
+// UI bu listeyi motorun kendisinden okur (tek kaynak; elle liste yok). repBased
+// = MoveKind::Rep. Kanonik liste builtinMove'daki dallarla birebir tutulur. ──
+std::vector<CoachEntry> coachableMoves() {
+  static const char* kCanon[] = {
+    // REP kanonik
+    "squat", "sumosquat", "lunge", "sidelunge", "pushup", "kneelingpushup",
+    "glutebridge", "situp", "press", "kickback", "birddog", "calfraise",
+    "jumpingjack", "armraise",
+    // HOLD kanonik
+    "plank", "sideplank", "wallsit", "hollowhold", "superman",
+  };
+  std::vector<CoachEntry> out;
+  auto add = [&](const std::string& n, const std::string& base) {
+    for (const auto& e : out) if (e.name == n) return;   // tekrarsız
+    MoveSpec s = builtinMove(n);
+    out.push_back({n, base, s.kind == MoveKind::Rep});
+  };
+  for (const char* n : kCanon) add(n, n);                 // kanonik: base kendisi
+  for (const auto& v : kVariants) add(v.alias, v.family); // varyant: base ailesi
+  return out;
 }
 
 void Engine::setCalibration(bool on) {

@@ -8,63 +8,25 @@
   <meta name="robots" content="noindex">
   <link rel="icon" href="icons/icon-192.png">
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="css/theme.css">
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="css/marquee.css">
-  <style>
-    /* github katki grafigi gibi: gun, o gun ne kadar is yapildiysa o kadar koyu.
-       lilac ramp: lv1 acik lila -> lv4 lila-deep. radius 3px. */
-    .viewpick { text-align: center; margin-bottom: 16px; }
-    .viewpick button { font: bold 13px Arial, Helvetica, sans-serif; background: #fff; color: #6f6b74; border: 1px solid #e9e4ee; border-radius: 3px; padding: 8px 16px; margin: 0 4px; cursor: pointer; box-shadow: none; }
-    .viewpick button.on { background: #8e6fd8; color: #fff; border-color: #8e6fd8; }
-    /* aylık takvim: 7 sütun (haftanın günleri) - grid EKSİKTİ, günler görünmüyordu */
-    .monthwall { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; max-width: 560px; margin: 6px auto 0; }
-    .monthwall .d { aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; border-radius: 3px; background: #f6f4fb; color: #6f6b74; font: 13px Arial, Helvetica, sans-serif; }
-    .monthwall .d.blank { background: none; }
-    .monthwall .d.today { outline: 2px solid #8e6fd8; outline-offset: -2px; font-weight: bold; }
-    .monthwall .d.lv1 { background: #efeafa; color: #111; }
-    .monthwall .d.lv2 { background: #d6c9f2; color: #111; }
-    .monthwall .d.lv3 { background: #a98fe0; color: #fff; }
-    .monthwall .d.lv4 { background: #8e6fd8; color: #fff; font-weight: bold; }
-    .yearwall { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, 12px); gap: 3px; justify-content: center; overflow-x: auto; padding: 4px 0 10px; }
-    .yearwall i { width: 12px; height: 12px; border-radius: 3px; background: #f6f4fb; display: block; }
-    .yearwall i.pad { background: none; }
-    .yearwall i.lv1 { background: #efeafa; }
-    .yearwall i.lv2 { background: #d6c9f2; }
-    .yearwall i.lv3 { background: #a98fe0; }
-    .yearwall i.lv4 { background: #8e6fd8; }
-    .ycal { max-width: 820px; margin: 0 auto; }
-    .wcal { max-width: 820px; margin: 0 auto; }
-    .weekwall { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
-    .weekwall .d { aspect-ratio: 1; border-radius: 3px; background: #f6f4fb; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 13px; color: #6f6b74; transition: transform .18s; text-align: center; }
-    .weekwall .d:hover { transform: translateY(-3px); }
-    .weekwall .d b { font-size: 16px; }
-    .weekwall .d small { font-size: 9.5px; line-height: 1.2; padding: 0 4px; }
-    .weekwall .d.today { box-shadow: inset 0 0 0 2.5px #8e6fd8; }
-    .weekwall .d.lv1 { background: #efeafa; color: #111; }
-    .weekwall .d.lv2 { background: #d6c9f2; color: #111; }
-    .weekwall .d.lv3 { background: #a98fe0; color: #fff; }
-    .weekwall .d.lv4 { background: #8e6fd8; color: #fff; font-weight: bold; }
-    .ylegend { display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 11px; color: #6f6b74; }
-    .ylegend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; background: #f6f4fb; }
-    .ylegend .l1 { background: #efeafa; } .ylegend .l2 { background: #d6c9f2; }
-    .ylegend .l3 { background: #a98fe0; } .ylegend .l4 { background: #8e6fd8; }
-  </style>
-  <link rel="stylesheet" href="css/calm.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+  <link rel="stylesheet" href="css/site.css">
 </head>
 <body class="has-strip">
 <nav class="tnav">
   <div class="wrap">
     <a class="brand" href="index.html">gymgyme</a>
-    <span class="searchwrap">
-      <input class="topsearch" id="topSearch" placeholder="search moves, categories...">
-      <span class="mag">🔍</span>
-      <div class="searchdrop" id="searchDrop"></div>
+    <span class="search">
+      <span class="searchwrap">
+        <input class="topsearch" id="topSearch" placeholder="search moves, categories...">
+        <div class="searchdrop" id="searchDrop"></div>
+      </span>
     </span>
     <div class="links">
       <a href="moves.html">moves</a>
-      <a class="on" href="my-program.html">build a workout</a>
-      <a href="my-moves.html" id="movesBtn">my moves (0)</a>
+      <a href="my-program.html">build a workout</a>
+      <a href="my-moves.html" id="movesBtn">my moves</a>
       <a href="blog.html">blog</a>
       <a href="patch-notes.html">patch notes</a>
       <a class="go" href="coach.html"><span>open the camera</span></a>
@@ -136,7 +98,8 @@
     <a href="gizlilik.html">privacy</a>
     <a href="terms.html">terms</a>
     <a href="https://github.com/nosey-dewdrop">github</a>
-    <span>no ads, no tracking, no cookies.</span>
+    <span>No ads, no tracking, no cookies.</span>
+    <span class="vtag">v63</span>
   </div>
 </footer>
 

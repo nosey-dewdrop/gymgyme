@@ -1,0 +1,393 @@
+/* gymgyme — site.css : the ONE stylesheet (faz 1, 19 tem).
+   single design world for all pages. no per-page css, no important overrides,
+   no inline style, no gradient, no shadow, no icon font, no chevron.
+   palette from HANDOFF.md — lila = engine output, pink = user's own data.
+   radius 3px (chips + avatars excepted). one motif: the dot. */
+
+/* ---------------------------------------------------------------- tokens */
+:root{
+  --paper:#FFFFFF;
+  --wash:#F5F2FA;
+  --ink:#191320;
+  --mut:#6E6579;
+  --line:#E7E2EE;
+  --lila:#7A5BB0;        /* engine output: angle, score, count, coached, active, focus, primary */
+  --lila-soft:#EDE6F7;
+  --pink:#D96BA0;        /* the user's own data: filled day, saved move, personal history */
+  --pink-soft:#FBEAF2;
+
+  --r:3px;
+  --t:180ms cubic-bezier(.2,.7,.3,1);
+
+  --head:"Bricolage Grotesque",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --body:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;overflow-x:hidden}
+body{
+  font-family:var(--body);
+  background:var(--paper);
+  color:var(--ink);
+  font-size:16px;
+  line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit;text-decoration:none;transition:color var(--t)}
+img{max-width:100%;display:block}
+
+.wrap{max-width:1080px;margin:0 auto;padding:0 26px}
+
+/* ---------------------------------------------------------------- type
+   hierarchy by size + weight, never by decoration. no colored word in a heading. */
+h1,h2,h3,h4{font-family:var(--head);font-weight:600;letter-spacing:-.01em;line-height:1.1}
+h1{font-size:clamp(30px,3.4vw,42px)}
+h2{font-size:clamp(23px,2.4vw,30px);line-height:1.14}
+h3{font-size:19px}
+h4{font-size:15px}
+p{max-width:66ch}
+.lead{font-size:16px;color:var(--mut);max-width:60ch}
+.note{font-size:13px;color:var(--mut)}
+.link{color:var(--lila);font-weight:600}
+/* every number / angle / score / time / version / terminal / eyebrow is mono */
+.mono,.eyebrow,.lbl,.num,.vtag,.stat{font-family:var(--mono)}
+.eyebrow,.lbl{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin-bottom:9px}
+.vtag{font-size:10px;color:var(--mut);opacity:.75}
+
+section{padding:44px 0}
+
+/* ---------------------------------------------------------------- the dot motif */
+.dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--lila)}
+.dot.user{background:var(--pink)}
+
+/* ---------------------------------------------------------------- nav
+   sits on the paper, single hairline under. current = bold. one primary action. */
+.tnav{border-bottom:1px solid var(--line);background:var(--paper)}
+.tnav .wrap{display:flex;align-items:center;gap:20px;height:60px}
+.tnav .brand,.tnav .brand:visited{font-family:var(--head);font-size:19px;font-weight:600;letter-spacing:-.01em;color:var(--ink)}
+.tnav .search{flex:1;display:flex;justify-content:center;min-width:0}
+.tnav .links{display:flex;gap:18px;align-items:center}
+.tnav .links a,.tnav .links a:visited{font-size:14px;color:var(--mut)}
+.tnav .links a:hover{color:var(--lila)}
+.tnav .links a.on{color:var(--ink);font-weight:600}
+
+/* the one primary action */
+.go,.go:visited{background:var(--lila);color:#fff;padding:9px 16px;border-radius:var(--r);font-size:13px;font-weight:600;transition:transform var(--t)}
+.go:hover{transform:translateY(-1px)}
+
+/* top search — mono, hairline, no shadow. id #topSearch preserved for topbar.js */
+.topsearch{width:min(340px,100%);font-family:var(--mono);font-size:13px;color:var(--ink);
+  background:var(--wash);border:1px solid var(--line);border-radius:var(--r);padding:9px 12px;outline:none;transition:border-color var(--t)}
+.topsearch:focus{border-color:var(--lila)}
+.topsearch::placeholder{color:var(--mut);opacity:.7}
+.searchwrap{position:relative;width:min(340px,100%)}
+.searchdrop{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--paper);
+  border:1px solid var(--line);border-radius:var(--r);display:none;z-index:60;max-height:340px;overflow-y:auto}
+.searchdrop.open{display:block}
+.searchdrop .sr{display:flex;justify-content:space-between;gap:10px;padding:10px 14px;font-size:14px;cursor:pointer;border-bottom:1px solid var(--line);color:var(--ink)}
+.searchdrop .sr:hover{background:var(--wash)}
+.searchdrop .sr small{font-family:var(--mono);color:var(--mut)}
+.searchdrop .srall{font-weight:600;color:var(--lila)}
+
+/* ---------------------------------------------------------------- buttons
+   one language: lila fill for primary, hairline ghost for secondary. 3px. */
+.btn,.btn:visited{display:inline-block;background:var(--lila);color:#fff;
+  font-family:var(--body);font-size:15px;font-weight:600;padding:12px 22px;border-radius:var(--r);
+  border:none;cursor:pointer;transition:transform var(--t),background var(--t)}
+.btn:hover{transform:translateY(-2px)}
+.btn:active{transform:translateY(0)}
+.btn.ghost,.btn.ghost:visited{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.ghost:hover{border-color:var(--lila);color:var(--lila)}
+.quiet,.quiet:visited{color:var(--mut);font-size:14px}
+.quiet:hover{color:var(--lila)}
+
+/* ---------------------------------------------------------------- forms
+   one system: hairline field, mono numbers, lila focus. */
+input,select,textarea{font-family:var(--body);font-size:15px;color:var(--ink);
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px;outline:none;transition:border-color var(--t)}
+input:focus,select:focus,textarea:focus{border-color:var(--lila)}
+input::placeholder,textarea::placeholder{color:var(--mut);opacity:.7}
+label{font-size:13px;color:var(--mut)}
+.field{display:block;margin:0 0 14px}
+.field > span{display:block;font-size:12px;color:var(--mut);margin-bottom:5px}
+input[type=number]{font-family:var(--mono);text-align:center;width:64px}
+input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+
+/* ---------------------------------------------------------------- bands / prose */
+.band-lila{background:var(--wash)}
+.prose{max-width:66ch;margin:0 auto}
+.prose h2{margin:26px 0 8px}
+.prose p{margin:0 0 12px;color:var(--ink)}
+.prose a{color:var(--lila);font-weight:600}
+
+/* ---------------------------------------------------------------- Q&A accordion
+   native <details>, hairline rows, no card, no chevron glyph. */
+.qa-band{padding:22px 0}
+.qa-band .lbl{color:var(--lila)}
+.qa-grid{display:block;max-width:66ch}
+.qa-grid .q{border-bottom:1px solid var(--line);padding:0}
+.qa-grid .q summary{list-style:none;cursor:pointer;font-weight:600;color:var(--ink);
+  padding:13px 0;position:relative;padding-right:24px}
+.qa-grid .q summary::-webkit-details-marker{display:none}
+.qa-grid .q summary::after{content:"";position:absolute;right:4px;top:50%;width:8px;height:8px;
+  border-radius:50%;background:var(--lila-soft);transform:translateY(-50%);transition:background var(--t)}
+.qa-grid .q[open] summary::after{background:var(--lila)}
+.qa-grid .q span{display:block;color:var(--mut);padding:0 0 14px;font-size:15px}
+
+/* ---------------------------------------------------------------- directory
+   community link index. counters are the user's data → pink. */
+.dir-tag{font-size:13px;color:var(--mut);margin:8px 0}
+.dir-tag .stat{font-family:var(--mono);color:var(--pink);font-weight:600}
+#nav{display:flex;flex-wrap:wrap;gap:8px 16px;margin:12px 0 4px}
+#nav a,#nav a:visited{font-size:13px;color:var(--mut)}
+#nav a:hover{color:var(--lila)}
+#cat-title{margin:20px 0 10px}
+#directory .loading{color:var(--mut)}
+
+/* ---------------------------------------------------------------- flow / how grids */
+.flowgrid,.howgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin-top:20px;
+  background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.fcell,.hcell{background:var(--paper);padding:20px 18px}
+.fcell .n,.hcell .n{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--lila);letter-spacing:.1em;margin-bottom:9px}
+.fcell h4,.hcell h4{margin-bottom:4px}
+.fcell p,.hcell p{font-size:13px;color:var(--mut)}
+
+/* privacy two column + terminal */
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;margin-top:8px}
+.mega{font-family:var(--mono);font-size:52px;font-weight:600;letter-spacing:-.03em;color:var(--lila);line-height:1}
+.term{background:var(--ink);border-radius:var(--r);padding:18px 20px;font-family:var(--mono)}
+.term .cmd{color:var(--lila);font-size:13px}
+.term .cmd::before{content:"$ ";color:var(--mut)}
+.term .out{color:var(--mut);font-size:13px;margin-top:7px}
+.term .zero{color:#fff;font-size:14px;font-weight:600;margin-top:2px}
+
+/* ---------------------------------------------------------------- cards / posts */
+.postgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:20px}
+.post{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:18px;transition:transform var(--t)}
+.post:hover{transform:translateY(-2px)}
+.post .tag{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--lila);margin-bottom:8px}
+.post h4{font-size:16px;line-height:1.2;margin-bottom:5px}
+.post p{font-size:13px;color:var(--mut)}
+.post .meta{font-family:var(--mono);font-size:11px;color:var(--mut);margin-top:10px}
+
+/* ---------------------------------------------------------------- empty state
+   one pattern everywhere: a line + a button. */
+.empty{border:1px solid var(--line);border-radius:var(--r);padding:26px;text-align:center;background:var(--paper)}
+.empty .big{font-size:17px;font-weight:600;color:var(--ink);margin-bottom:6px}
+.empty p{font-size:15px;color:var(--mut);margin-bottom:14px}
+
+/* ---------------------------------------------------------------- blog tabs
+   no box, active underlined 2px lila. */
+.tabs{display:flex;gap:20px;border-bottom:1px solid var(--line);margin:0 0 20px}
+.tabs a,.tabs button{background:none;border:none;font-family:var(--body);font-size:15px;color:var(--mut);
+  padding:0 0 10px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tabs a.on,.tabs button.on{color:var(--ink);border-bottom-color:var(--lila)}
+
+/* ---------------------------------------------------------------- moves library
+   386 moves. coached = lila, reference = faint. filter chips. */
+.mvsw{position:relative;display:inline-block;width:min(340px,100%)}
+.mvsearch{width:100%;font-family:var(--mono);font-size:13px;color:var(--ink);
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:9px 12px;outline:none}
+.mvsearch:focus{border-color:var(--lila)}
+.mvsearch::placeholder{color:var(--mut);opacity:.7}
+.libfilters{margin:12px 0 4px}
+.libfilters button{font-family:var(--mono);font-size:12.5px;background:var(--lila-soft);color:var(--ink);
+  border:none;border-radius:999px;padding:8px 14px;margin:0 8px 8px 0;cursor:pointer;transition:background var(--t),color var(--t)}
+.libfilters button:hover{background:var(--line)}
+.libfilters button.on{background:var(--lila);color:#fff}
+#allMoves .lib-cat{margin:18px 0 6px;font-family:var(--head);font-size:16px;font-weight:600;color:var(--ink)}
+#allMoves .lib-cat small{font-family:var(--mono);font-weight:normal;font-size:11.5px;color:var(--mut);margin-left:8px}
+#allMoves .lib-grid{columns:3;column-gap:34px}
+#allMoves .lib-mv{display:flex;justify-content:space-between;gap:8px;align-items:baseline;padding:6px 2px;
+  border-bottom:1px solid var(--line);font-size:14px;break-inside:avoid;cursor:pointer;transition:background var(--t)}
+#allMoves .lib-mv:hover{background:var(--wash)}
+#allMoves .lib-mv .mvtag{margin-left:auto;font-family:var(--mono);font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);opacity:.6;white-space:nowrap}
+#allMoves .lib-mv.coached .mvtag{color:var(--lila);opacity:1}
+#allMoves .lib-mv .hh{margin-left:8px;color:var(--line);transition:color var(--t)}
+#allMoves .lib-mv.kept .hh{color:var(--pink)}    /* saved = user data = pink */
+@media(max-width:900px){#allMoves .lib-grid{columns:1}}
+
+/* saved-moves dropdown panel */
+.moves-panel{position:absolute;top:calc(100% + 8px);left:0;width:280px;max-height:420px;overflow-y:auto;
+  background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:12px 16px 10px;display:none;z-index:50}
+.moves-panel.open{display:block}
+.moves-panel .krow{display:flex;justify-content:space-between;gap:8px;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px;font-weight:600}
+.moves-panel .krow:last-child{border-bottom:none}
+.moves-panel .krow button{background:none;border:none;color:var(--lila);font-weight:600;cursor:pointer}
+.moves-panel .plrow{display:flex;gap:6px;margin:10px 0 0}
+.moves-panel .plrow input{flex:1;min-width:0}
+.moves-panel .plrow button{background:var(--lila);color:#fff;border:none;border-radius:var(--r);font-weight:600;padding:8px 12px;cursor:pointer}
+
+/* ---------------------------------------------------------------- calendar
+   full width, day cell holds move + mono score. filled day = user data = pink.
+   today = lila ring. no github contribution copy. */
+.mcal{width:100%;margin:0 auto}
+.calhead{display:flex;align-items:center;justify-content:center;gap:18px;margin-bottom:4px}
+.calhead b{font-family:var(--head);font-size:20px}
+.caltotals{display:block;text-align:center;font-family:var(--mono);font-size:12px;color:var(--mut);margin-bottom:14px}
+.calnav{font-family:var(--body);font-size:16px;font-weight:600;background:var(--lila-soft);color:var(--lila);
+  border:none;border-radius:var(--r);width:32px;height:32px;cursor:pointer;transition:background var(--t),color var(--t)}
+.calnav:hover{background:var(--lila);color:#fff}
+.calnav:disabled{opacity:.35;cursor:default}
+.dow{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center;font-family:var(--mono);font-size:11px;font-weight:600;color:var(--mut);margin-bottom:6px}
+.monthwall{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.monthwall .d{aspect-ratio:1;border-radius:var(--r);background:var(--wash);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:2px;font-family:var(--mono);font-size:12px;color:var(--mut);transition:transform var(--t)}
+.monthwall .d:hover{transform:translateY(-2px)}
+.monthwall .d.blank{background:none}
+.monthwall .d.lit{background:var(--pink-soft);color:var(--ink);font-weight:600}
+.monthwall .d.lit small{font-size:8.5px;font-weight:normal;opacity:.85;line-height:1.1;text-align:center;padding:0 2px}
+.monthwall .d.today{box-shadow:inset 0 0 0 2px var(--lila)}
+
+/* workout history list */
+.hist{margin:22px auto 0}
+.hist .lbl{color:var(--lila);margin-bottom:10px}
+.hist .h{display:flex;justify-content:space-between;gap:14px;padding:8px 2px;border-bottom:1px solid var(--line);font-size:14px}
+.hist .h small{font-family:var(--mono);color:var(--mut)}
+
+/* week/month/year tabs reuse .tabs */
+
+/* ---------------------------------------------------------------- coach
+   one world, no pink ground, no pill. panel = the camera stage. */
+.pt-title{font-family:var(--head);font-size:clamp(30px,3.4vw,42px);letter-spacing:-.01em;line-height:1.05;margin:6px 0 2px}
+.coach-main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:18px;align-items:start;margin-top:6px}
+.coach-foot{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start;margin-top:6px}
+@media(max-width:860px){.coach-main,.coach-foot{grid-template-columns:1fr}}
+.card{border:1px solid var(--line);border-radius:var(--r);padding:18px 22px;margin:12px 0}
+.card-title{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--lila);margin:0 0 10px}
+
+.mainbtn{font-family:var(--body);font-size:16px;font-weight:600;color:#fff;background:var(--lila);
+  border:none;border-radius:var(--r);padding:11px 20px;cursor:pointer;margin:8px 12px 2px 0;transition:transform var(--t)}
+.mainbtn:hover{transform:translateY(-1px)}
+.mainbtn:disabled{opacity:.45;cursor:default;transform:none}
+.mainbtn.soft{background:var(--lila-soft);color:var(--lila)}
+.mainbtn.soft:hover{background:var(--line)}
+
+/* the camera stage — renamed .stage -> .panel, #camstage -> #camera */
+.panel{position:relative;width:100%;background:var(--ink);min-height:60px;overflow:hidden;border-radius:var(--r)}
+#cam,#overlay{width:100%;display:block}
+#cam{transform:scaleX(-1)}
+#overlay{position:absolute;inset:0;transform:scaleX(-1)}
+.stageslot{position:relative;width:min(720px,86%);aspect-ratio:4/3;margin:0 auto}
+.stageslot #camera,.stageslot .panel{position:absolute;inset:0;width:100%;max-width:none;margin:0}
+#camera{background:var(--ink);color:#fff;width:min(720px,86%);aspect-ratio:4/3;margin:0 auto;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;font-size:13px;cursor:pointer;border-radius:var(--r)}
+#camera b{font-size:16px}
+#camera .stagestart{font-family:var(--body);font-size:14px;font-weight:600;background:var(--lila);color:#fff;
+  border:none;border-radius:var(--r);padding:11px 20px;margin-top:10px;cursor:pointer}
+#camera .stagestatus{font-family:var(--mono);font-size:13px;min-height:18px;max-width:85%;opacity:.95}
+#camera .framehint{max-width:78%;font-size:12px;opacity:.82;line-height:1.5;margin-top:2px}
+#camera.warming .stagestart{display:none}
+#camera .cam{display:none}
+
+body.running .coach-main{display:block}
+body.running .setup{max-width:900px;margin:0 auto;text-align:center}
+body.running .live{max-width:900px;margin:0 auto}
+body.running .stageslot{width:min(900px,94%);margin:4px auto 16px}
+body.running .panel{max-width:none;margin:0}
+body.running .coach-foot{display:none}
+body.running #intro,body.running #progCard{display:none}
+
+/* rep counter — the engine's real moment. lila, mono, biggest thing. */
+.rep-row{line-height:1;margin:4px 0 2px}
+.rep-count{font-family:var(--mono);font-size:72px;font-weight:600;color:var(--lila);letter-spacing:-.02em;display:inline-block}
+.rep-count.ticked{animation:repPop .22s ease-out}
+.rep-label{font-family:var(--mono);font-size:14px;margin-left:8px;color:var(--mut)}
+@keyframes repPop{0%{transform:scale(1)}35%{transform:scale(1.18)}100%{transform:scale(1)}}
+.score-line{font-size:13px;min-height:18px;margin-bottom:6px}
+.score-line .big{font-family:var(--mono);font-weight:600;color:var(--lila)}
+.rep-comment{font-size:15px;color:var(--ink);min-height:20px;margin-bottom:4px}
+.half-note{font-size:12px;color:var(--mut);min-height:16px;margin-bottom:2px}
+.set-line{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--mut);margin:2px 0 4px}
+.set-line[hidden]{display:none}
+
+/* rest block */
+.rest[hidden]{display:none}
+.rest{margin:6px 0 10px}
+.rest-word{font-size:20px;color:var(--mut)}
+.rest-count{font-family:var(--mono);font-size:72px;font-weight:600;color:var(--lila);line-height:1;letter-spacing:-.02em}
+.rest-sub{font-size:13px;color:var(--mut);margin:2px 0 8px}
+.restbtn{font-family:var(--body);font-size:16px;font-weight:600;color:var(--lila);background:var(--lila-soft);border:none;border-radius:var(--r);padding:8px 14px;cursor:pointer}
+
+/* session summary — renamed .receipt -> .summary */
+.summary[hidden]{display:none}
+.summary-title{font-family:var(--head);font-size:26px;font-weight:600;color:var(--lila)}
+.summary-body{font-size:15px;line-height:1.7;margin-top:4px}
+.summary-body div{padding:1px 0}
+
+/* live meters — lila fill, wash track */
+.meter{margin:12px 0 2px}
+.meter-label{font-family:var(--mono);font-size:11px;color:var(--mut);margin-bottom:3px}
+.bar{position:relative;width:100%;max-width:360px;height:10px;background:var(--wash);border-radius:999px;overflow:hidden}
+.bar-fill{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--lila);transition:width .08s linear}
+.bar.conf .bar-fill{background:var(--ink)}
+.angles{margin-top:14px;font-family:var(--mono);font-size:12.5px}
+.angles div{padding:1px 0}
+.angles .k{display:inline-block;width:130px;color:var(--mut)}
+.fps{font-family:var(--mono);font-size:11px;color:var(--mut);margin-top:10px}
+.msg{margin:6px 0;min-height:18px;color:var(--mut)}
+.msg.loud{font-size:21px;font-weight:600;color:var(--lila);line-height:1.2;animation:cuePulse .3s ease-out}
+@keyframes cuePulse{0%{transform:scale(.9);opacity:.5}100%{transform:scale(1);opacity:1}}
+.safety,.private,.wip{font-size:12px;color:var(--mut);margin:6px 0 2px;max-width:560px}
+
+/* account bar */
+.authbar{font-size:13px}
+.auth-who{color:var(--mut);margin-right:10px}
+.auth-lead{color:var(--mut);margin:0 0 6px}
+.auth-in{font-family:var(--body);font-size:15px;margin:0 6px 6px 0;width:200px;max-width:60%}
+.auth-btn,.auth-link{font-family:var(--body);font-size:14px;font-weight:600;color:var(--lila);background:none;border:none;cursor:pointer;padding:6px 0;margin-right:14px}
+.auth-msg{min-height:16px;color:var(--mut);margin:4px 0 0}
+.auth-priv{font-size:11px;color:var(--mut);margin:4px 0 0;max-width:520px}
+.auth-priv a{color:var(--mut)}
+
+/* consent modal */
+.consent[hidden]{display:none}
+.consent{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;
+  background:rgba(25,19,32,.5);padding:20px}
+.consent .consent-box{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:26px 24px 22px;max-width:460px;width:100%;text-align:left}
+.consent p{font-size:15px;line-height:1.6;color:var(--ink);margin:0 0 14px}
+.consent a{color:var(--mut)}
+
+/* fold card (record/history) — native details, no chevron glyph */
+.foldcard{border:1px solid var(--line);border-radius:var(--r);margin:12px 0;overflow:hidden}
+.foldcard[hidden]{display:none}
+.foldcard-head{list-style:none;cursor:pointer;font-weight:600;color:var(--lila);padding:14px 18px;display:flex;justify-content:space-between;align-items:center;user-select:none}
+.foldcard-head::-webkit-details-marker{display:none}
+.foldcard > *:not(summary){padding:0 18px 16px}
+
+/* preset chips reuse .libfilters language */
+.presetbtn{font-family:var(--mono);font-size:13px;background:var(--lila-soft);color:var(--ink);border:none;border-radius:999px;padding:9px 14px;margin:0 8px 8px 0;cursor:pointer;transition:background var(--t),color var(--t)}
+.presetbtn:hover{background:var(--lila);color:#fff}
+
+/* ---------------------------------------------------------------- footer
+   single row, holds everything, one hairline over. */
+.tfoot{border-top:1px solid var(--line);padding:26px 0 40px;background:var(--paper)}
+.tfoot .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;font-size:13px;color:var(--mut)}
+.tfoot .b{font-family:var(--head);font-weight:600;color:var(--ink)}
+.tfoot a,.tfoot a:visited{color:var(--lila)}
+.tfoot .vtag{margin-left:auto}
+
+/* ---------------------------------------------------------------- reveal + a11y */
+.reveal{opacity:0;transform:translateY(12px);transition:opacity .5s ease,transform .5s cubic-bezier(.2,.7,.3,1)}
+.reveal.in{opacity:1;transform:none}
+:focus-visible{outline:2px solid var(--lila);outline-offset:2px}
+
+@media(prefers-reduced-motion:reduce){
+  *{scroll-behavior:auto}
+  .reveal{opacity:1;transform:none;transition:none}
+  .rep-count.ticked,.msg.loud{animation:none}
+  .bar-fill{transition:none}
+}
+
+/* ---------------------------------------------------------------- responsive */
+@media(max-width:900px){
+  .twocol{grid-template-columns:1fr;gap:24px}
+  .flowgrid,.howgrid,.postgrid{grid-template-columns:1fr 1fr}
+  .mega{font-size:42px}
+  .tnav .wrap{flex-wrap:wrap;height:auto;padding:12px 0;gap:12px}
+  .tnav .search{order:3;flex-basis:100%}
+}
+@media(max-width:560px){
+  .flowgrid,.howgrid,.postgrid{grid-template-columns:1fr}
+}

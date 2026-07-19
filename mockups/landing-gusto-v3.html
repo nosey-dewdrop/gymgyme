@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gymgyme</title>
+<style>
+  :root {
+    /* palette (values preserved) — pink is ACCENT, not ground */
+    --paper:      #ffffff;   /* ground */
+    --paper-2:    #fbf7f8;   /* faint warm panel, barely off-white */
+    --pink:       #ffbdd4;   /* accent only: buttons, live number, marks */
+    --ink:        #33000e;   /* primary text */
+    --ink-soft:   #7a2647;   /* secondary text */
+    --cherry:     #8e0038;   /* strong accent, links, key emphasis */
+    --line:       rgba(51, 0, 14, 0.12); /* hairline, ink-tinted (no neutral gray) */
+
+    /* spacing scale — single 4-based track, nothing off-scale */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 16px;
+    --space-4: 24px;
+    --space-5: 40px;
+    --space-6: 64px;
+
+    /* type scale — 5 sizes, ~1.45 modular */
+    --fs-1: 13px;   /* fine print / labels */
+    --fs-2: 17px;   /* body */
+    --fs-3: 25px;   /* sub-lead */
+    --fs-4: 37px;   /* section head */
+    --fs-5: 54px;   /* hero + live number */
+
+    /* line-height — 3 values only */
+    --lh-tight: 1.15;  /* headings */
+    --lh-body:  1.5;   /* paragraphs */
+    --lh-snug:  1.3;   /* small / labels */
+
+    --radius: 7px;     /* single radius, elegant */
+    --font: Arial, Helvetica, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body { height: 100%; }
+
+  body {
+    font-family: var(--font);
+    background: var(--paper);
+    color: var(--ink);
+    font-size: var(--fs-2);
+    line-height: var(--lh-body);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: var(--space-5) var(--space-4) var(--space-6);
+  }
+
+  /* top bar */
+  .top {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+    padding-bottom: var(--space-5);
+  }
+  .brand {
+    font-size: var(--fs-3);
+    line-height: var(--lh-tight);
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .top nav {
+    margin-left: auto;
+    display: flex;
+    gap: var(--space-4);
+    font-size: var(--fs-1);
+    line-height: var(--lh-snug);
+    color: var(--ink-soft);
+  }
+  .top nav a { color: inherit; text-decoration: none; }
+  .top nav a:hover { color: var(--cherry); }
+
+  /* hero grid — left aligned, content leads, right column is not a receipt */
+  .hero {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap: var(--space-6);
+    align-items: start;
+  }
+
+  .lead h1 {
+    font-size: var(--fs-5);
+    line-height: var(--lh-tight);
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    max-width: 14ch;
+  }
+  .lead h1 .mark { color: var(--cherry); }
+
+  .lead p.sub {
+    margin-top: var(--space-3);
+    font-size: var(--fs-3);
+    line-height: var(--lh-tight);
+    color: var(--ink-soft);
+    max-width: 26ch;
+  }
+
+  .lead p.body {
+    margin-top: var(--space-4);
+    font-size: var(--fs-2);
+    line-height: var(--lh-body);
+    color: var(--ink);
+    max-width: 40ch;
+  }
+
+  /* promise row — four plain claims, size + spacing carry it, no cards */
+  .claims {
+    margin-top: var(--space-4);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-4);
+    font-size: var(--fs-1);
+    line-height: var(--lh-snug);
+    color: var(--ink-soft);
+  }
+  .claims span { white-space: nowrap; }
+  .claims span::before {
+    content: "";
+    display: inline-block;
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--pink);
+    margin-right: var(--space-2);
+    vertical-align: middle;
+  }
+
+  .cta {
+    margin-top: var(--space-5);
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+  .btn {
+    font-family: var(--font);
+    font-size: var(--fs-2);
+    line-height: var(--lh-snug);
+    color: var(--ink);
+    background: var(--pink);
+    border: none;
+    border-radius: var(--radius);
+    padding: var(--space-3) var(--space-5);
+    cursor: pointer;
+    transition: background 180ms ease;
+  }
+  .btn:hover { background: #ffa8c6; }
+  .btn:active { background: #ff96ba; }
+  .cta a.text-link {
+    font-size: var(--fs-2);
+    line-height: var(--lh-snug);
+    color: var(--cherry);
+    text-decoration: none;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 2px;
+  }
+  .cta a.text-link:hover { border-bottom-color: var(--cherry); }
+
+  /* right column — the camera panel. ONE big live number, no receipt rows */
+  .stage {
+    background: var(--paper-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    min-height: 320px;
+  }
+  .stage .stage-label {
+    font-size: var(--fs-1);
+    line-height: var(--lh-snug);
+    color: var(--ink-soft);
+  }
+  .stage .count-wrap {
+    margin-top: auto;
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+  }
+  .stage .count {
+    font-size: var(--fs-5);
+    line-height: var(--lh-tight);
+    color: var(--cherry);
+    letter-spacing: -0.03em;
+  }
+  .stage .count-unit {
+    font-size: var(--fs-2);
+    line-height: var(--lh-snug);
+    color: var(--ink-soft);
+  }
+  .stage .form-note {
+    font-size: var(--fs-2);
+    line-height: var(--lh-body);
+    color: var(--ink);
+  }
+  .stage .form-note b {
+    color: var(--cherry);
+    font-weight: normal;
+    background: var(--pink);
+    border-radius: var(--radius);
+    padding: 0 var(--space-1);
+  }
+
+  /* the moving bar under the count — accent, not a chart, not a receipt line */
+  .pulse {
+    height: 6px;
+    border-radius: var(--radius);
+    background: var(--paper);
+    border: 1px solid var(--line);
+    overflow: hidden;
+  }
+  .pulse i {
+    display: block;
+    height: 100%;
+    width: 62%;
+    background: var(--pink);
+    border-radius: var(--radius);
+  }
+
+  .foot {
+    margin-top: var(--space-6);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--line);
+    font-size: var(--fs-1);
+    line-height: var(--lh-snug);
+    color: var(--ink-soft);
+    display: flex;
+    gap: var(--space-4);
+  }
+  .foot a { color: inherit; text-decoration: none; }
+  .foot a:hover { color: var(--cherry); }
+
+  @media (max-width: 760px) {
+    .hero { grid-template-columns: 1fr; gap: var(--space-5); }
+    .lead h1, .lead p.sub, .lead p.body { max-width: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="page">
+    <header class="top">
+      <div class="brand">gymgyme <span aria-hidden="true">🎀</span></div>
+      <nav>
+        <a href="#">how it works</a>
+        <a href="#">the camera</a>
+        <a href="#">privacy</a>
+      </nav>
+    </header>
+
+    <main class="hero">
+      <section class="lead">
+        <h1>stand back, hit <span class="mark">start</span>.</h1>
+        <p class="sub">your camera does the counting, so you don't have to.</p>
+        <p class="body">prop up your phone, step into frame, and move. gymgyme watches your form and keeps the count for you, right here in the browser. nothing to install, nothing to pay.</p>
+
+        <div class="claims">
+          <span>camera counts your reps</span>
+          <span>reads your form</span>
+          <span>runs on your device</span>
+          <span>free</span>
+        </div>
+
+        <div class="cta">
+          <button class="btn">start a set</button>
+          <a class="text-link" href="#">see how it reads form</a>
+        </div>
+      </section>
+
+      <aside class="stage" aria-label="live preview">
+        <div class="stage-label">live · squats</div>
+        <div class="pulse"><i></i></div>
+        <p class="form-note">depth looks <b>good</b>, keep your chest up ✨</p>
+        <div class="count-wrap">
+          <div class="count">128</div>
+          <div class="count-unit">reps counted today</div>
+        </div>
+      </aside>
+    </main>
+
+    <footer class="foot">
+      <a href="#">privacy</a>
+      <a href="#">how it works</a>
+      <a href="#">nothing leaves your device</a>
+    </footer>
+  </div>
+</body>
+</html>

@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>gymgyme. Your camera counts the reps and scores your form.</title>
+<style>
+/* ============================================================
+   gymgyme landing v3. one world: white ground, dusty lilac accent.
+   written in one voice. Arial, no borders, no em dash.
+   full but ordered. tight rhythm, not airy. one ground, few cards.
+   ============================================================ */
+
+:root {
+  /* ground: white with the faintest lilac breath */
+  --bg: #FAF9FC;
+  --bg-2: #F4F1F9;        /* the only alternate band, barely there */
+  --card: #FFFFFF;
+
+  /* the dusty lilac world (the reference jacket) */
+  --lila: #C9B6E4;        /* soft dusty lilac, the hero accent */
+  --lila-soft: #DDD0EE;
+  --lila-tint: #EFE9F7;   /* chips, hovers, quiet fills */
+  --lila-deep: #7E63B0;   /* strong lilac for emphasis text/buttons */
+  --lila-ink: #4A3670;    /* deep aubergine for accent headings */
+
+  /* ink: calm near-black with a plum undertone */
+  --ink: #241A2E;
+  --ink-soft: #5B5168;
+  --ink-faint: #8A8394;
+
+  --line: #EAE4F2;        /* whisper divider, used sparingly */
+  --r: 18px;
+  --r-sm: 11px;
+
+  --sh: 0 1px 2px rgba(74,54,112,.05), 0 6px 20px rgba(74,54,112,.07);
+  --sh-lift: 0 8px 30px rgba(74,54,112,.12);
+  --sh-btn: 0 4px 16px rgba(126,99,176,.30);
+  --t: 200ms cubic-bezier(.2,.7,.3,1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 28px; }
+a { color: inherit; text-decoration: none; }
+
+/* ---- nav: thin, fixed, always oriented ---- */
+.nav {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(250,249,252,.82);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+.nav .wrap { display: flex; align-items: center; gap: 24px; height: 58px; }
+.nav .brand { font-size: 19px; font-weight: bold; letter-spacing: -.01em; }
+.nav .brand b { color: var(--lila-deep); }
+.nav .links { display: flex; gap: 22px; margin-left: auto; }
+.nav .links a { font-size: 13.5px; color: var(--ink-soft); transition: color var(--t); }
+.nav .links a:hover { color: var(--lila-deep); }
+.nav .go {
+  background: var(--lila-deep); color: #fff; padding: 8px 16px;
+  border-radius: var(--r-sm); font-size: 13px; font-weight: bold;
+  box-shadow: var(--sh-btn); transition: transform var(--t);
+}
+.nav .go:hover { transform: translateY(-1px); }
+
+/* ---- reveal on scroll (akiskan gecis) ---- */
+.reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s cubic-bezier(.2,.7,.3,1); }
+.reveal.in { opacity: 1; transform: none; }
+
+/* ---- section rhythm: tight, ordered ---- */
+section { padding: 66px 0; }
+.eyebrow { font-size: 12px; font-weight: bold; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 12px; }
+.eyebrow .rb { margin-right: 6px; }
+h2 { font-size: 30px; line-height: 1.14; letter-spacing: -.02em; margin-bottom: 12px; color: var(--ink); }
+h2 em { font-style: normal; color: var(--lila-deep); }
+.lead { font-size: 16px; color: var(--ink-soft); max-width: 60ch; }
+
+/* ============ HERO: photos on the sides, message centered ============ */
+.hero { padding: 40px 0 58px; background:
+  radial-gradient(1100px 480px at 50% -10%, var(--lila-tint), transparent 70%); }
+.hero .herorow {
+  display: grid;
+  grid-template-columns: 1.25fr 0.82fr;
+  gap: 44px; align-items: center;
+}
+.hero .stage { text-align: left; }
+.hero h1 {
+  font-size: 42px; line-height: 1.06; letter-spacing: -.025em; margin: 10px 0 14px;
+}
+.hero h1 em { font-style: normal; color: var(--lila-deep); }
+.hero .sub { font-size: 16px; color: var(--ink-soft); max-width: 46ch; margin: 0 0 20px; }
+
+/* the live rep card: the one hero object that shows, not tells */
+.repcard {
+  background: var(--card); border-radius: var(--r); box-shadow: var(--sh-lift);
+  padding: 18px 20px; text-align: left;
+}
+.repcard .top { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.repcard .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--lila-deep); box-shadow: 0 0 0 4px var(--lila-tint); }
+.repcard .live { font-size: 11px; font-weight: bold; letter-spacing: .1em; color: var(--lila-deep); text-transform: uppercase; }
+.repcard .row { display: flex; align-items: baseline; justify-content: space-between; }
+.repcard .num { font-size: 40px; font-weight: bold; letter-spacing: -.03em; }
+.repcard .num small { font-size: 15px; color: var(--ink-faint); font-weight: normal; }
+.repcard .score { text-align: right; }
+.repcard .score b { font-size: 26px; color: var(--lila-deep); }
+.repcard .bars { display: flex; gap: 6px; margin-top: 12px; }
+.repcard .bars div { flex: 1; height: 5px; border-radius: 3px; background: var(--lila-tint); overflow: hidden; }
+.repcard .bars div i { display: block; height: 100%; background: var(--lila); border-radius: 3px; }
+.repcard .cap { font-size: 11px; color: var(--ink-faint); margin-top: 10px; }
+.cta {
+  display: inline-block; background: var(--lila-deep); color: #fff;
+  font-size: 15px; font-weight: bold; padding: 13px 26px; border-radius: var(--r-sm);
+  box-shadow: var(--sh-btn); transition: transform var(--t), box-shadow var(--t);
+}
+.cta:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(126,99,176,.4); }
+.hero .micro { font-size: 12.5px; color: var(--ink-faint); margin-top: 12px; }
+.hero .micro b { color: var(--lila-deep); }
+
+/* ============ HOW: numbered steps, dense two columns ============ */
+.how { background: var(--bg-2); }
+.how .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 46px; margin-top: 24px; }
+.step { display: grid; grid-template-columns: 34px 1fr; gap: 14px; align-items: start; }
+.step .n {
+  width: 34px; height: 34px; border-radius: 10px; background: var(--lila-tint);
+  color: var(--lila-deep); font-weight: bold; font-size: 15px;
+  display: grid; place-items: center;
+}
+.step h4 { font-size: 15px; margin-bottom: 3px; }
+.step p { font-size: 13.5px; color: var(--ink-soft); }
+.how .note { margin-top: 26px; font-size: 13px; color: var(--ink-faint); }
+.how .note b { color: var(--lila-deep); }
+
+/* ============ PROOF: photo with live HUD + ledger numbers ============ */
+.proof .grid { display: grid; grid-template-columns: 1.05fr 1fr; gap: 40px; align-items: center; margin-top: 20px; }
+.proof .shotwrap { position: relative; border-radius: var(--r); overflow: hidden; box-shadow: var(--sh-lift); }
+.proof .shotwrap img { width: 100%; display: block; }
+.proof .hud {
+  position: absolute; left: 14px; bottom: 14px;
+  background: rgba(36,26,46,.72); backdrop-filter: blur(6px);
+  color: #fff; border-radius: 12px; padding: 9px 14px; display: flex; gap: 18px;
+}
+.proof .hud b { display: block; font-size: 20px; letter-spacing: -.02em; }
+.proof .hud span { font-size: 10.5px; color: var(--lila-soft); letter-spacing: .08em; text-transform: uppercase; }
+.ledger { display: grid; gap: 2px; }
+.ledger.wide { max-width: 620px; margin-top: 18px; }
+.ledger.wide .line { padding: 15px 2px; }
+.ledger .line { display: flex; align-items: baseline; justify-content: space-between; padding: 11px 2px; border-bottom: 1px solid var(--line); }
+.ledger .line:last-child { border-bottom: 0; }
+.ledger .k { font-size: 14px; color: var(--ink-soft); }
+.ledger .v { font-size: 20px; font-weight: bold; letter-spacing: -.02em; }
+.ledger .v.hi { color: var(--lila-deep); }
+
+/* ============ PRIVACY: the strongest card, one big word ============ */
+.privacy { text-align: left; }
+.privacy .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 42px; align-items: center; margin-top: 14px; }
+.privacy .big { font-size: 76px; font-weight: bold; letter-spacing: -.04em; color: var(--lila-deep); line-height: 1; }
+.privacy p { font-size: 15px; color: var(--ink-soft); margin-top: 12px; max-width: 46ch; }
+.privacy .term {
+  background: #1E1726; border-radius: 14px; padding: 18px 20px; font-family: "SF Mono", Menlo, monospace;
+}
+.privacy .term .cmd { color: #C9B6E4; font-size: 13px; }
+.privacy .term .cmd::before { content: "$ "; color: #6E6580; }
+.privacy .term .out { color: #8A8394; font-size: 13px; margin-top: 6px; }
+.privacy .term .zero { color: #fff; font-size: 13px; margin-top: 2px; }
+
+/* ============ MOVES: dense tile rail, your sport is here ============ */
+.moves .tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 22px; }
+.tile {
+  background: var(--card); border-radius: var(--r); padding: 20px 18px; box-shadow: var(--sh);
+  transition: transform var(--t), box-shadow var(--t);
+}
+.tile:hover { transform: translateY(-3px); box-shadow: var(--sh-lift); }
+.tile .ic { font-size: 22px; }
+.tile h4 { font-size: 15px; margin: 10px 0 3px; }
+.tile p { font-size: 12.5px; color: var(--ink-faint); }
+.moves .allrow { margin-top: 20px; font-size: 14px; }
+.moves .allrow a { color: var(--lila-deep); font-weight: bold; }
+
+/* ============ PATCH NOTES: build-in-public corner ============ */
+.patch { background: var(--bg-2); }
+.patch .grid { display: grid; grid-template-columns: 0.7fr 1.3fr; gap: 40px; align-items: start; margin-top: 16px; }
+.patch .intro p { font-size: 14px; color: var(--ink-soft); margin-top: 10px; }
+.patch .log { display: grid; gap: 12px; }
+.patch .entry { display: grid; grid-template-columns: 78px 1fr; gap: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.patch .entry:last-child { border-bottom: 0; }
+.patch .ver { font-size: 12px; font-weight: bold; color: var(--lila-deep); }
+.patch .what { font-size: 13.5px; color: var(--ink); }
+.patch .what span { display: block; font-size: 12px; color: var(--ink-faint); margin-top: 2px; }
+/* founder note: the first patch entry, photos live here and nowhere else */
+.patch .entry.founder .what { font-size: 15px; font-weight: bold; }
+.patch .entry.founder .shots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
+.patch .entry.founder .shots img { width: 100%; aspect-ratio: 3/4; object-fit: cover; border-radius: 12px; box-shadow: var(--sh); display: block; }
+
+/* ============ TRY: final call ============ */
+.try { text-align: center; padding: 84px 0 40px; background:
+  linear-gradient(180deg, transparent, var(--lila-tint) 60%); }
+.try h2 { font-size: 34px; }
+.try p { font-size: 15px; color: var(--ink-soft); margin: 12px auto 22px; max-width: 44ch; }
+.try .micro { font-size: 12.5px; color: var(--ink-faint); margin-top: 14px; }
+.try .micro b { color: var(--lila-deep); }
+
+/* ---- footer: continues the try band, the last strong note ---- */
+footer { padding: 20px 0 46px; background: var(--lila-tint); }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; font-size: 12.5px; color: var(--ink-faint); }
+footer a { color: var(--lila-deep); }
+
+/* ---- responsive: keep it full but stack cleanly ---- */
+@media (max-width: 900px) {
+  .hero .herorow { grid-template-columns: 1fr; gap: 24px; }
+  .how .cols, .privacy .grid, .patch .grid { grid-template-columns: 1fr; gap: 24px; }
+  .moves .tiles { grid-template-columns: 1fr 1fr; }
+  .privacy .big { font-size: 60px; }
+  h2, .hero h1 { font-size: 28px; }
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top">gym<b>gyme</b>.</a>
+    <div class="links">
+      <a href="#how">How it counts</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#moves">Moves</a>
+      <a href="#patch">Patch notes</a>
+    </div>
+    <a class="go" href="../coach.html">Open the camera</a>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="hero" id="top">
+  <div class="wrap">
+    <div class="herorow">
+      <div class="stage reveal">
+        <p class="eyebrow"><span class="rb">🎀</span>A personal trainer in your browser.</p>
+        <h1>Your camera counts the reps. It scores your <em>form out of 100.</em></h1>
+        <p class="sub">Point your phone at yourself and start moving. It counts, it corrects, it stays on your device. Free, forever.</p>
+        <a class="cta" href="../coach.html">Open the camera and try a rep.</a>
+        <p class="micro">No account. No download. Nothing leaves this room.</p>
+      </div>
+
+      <div class="repcard reveal">
+        <div class="top"><span class="dot"></span><span class="live">Live on device</span></div>
+        <div class="row">
+          <div class="num">12<small> clean reps</small></div>
+          <div class="score"><b>94</b><br><small style="font-size:11px;color:var(--ink-faint)">form score</small></div>
+        </div>
+        <div class="bars"><div><i style="width:88%"></i></div><div><i style="width:76%"></i></div><div><i style="width:94%"></i></div></div>
+        <p class="cap">Depth, tempo and control, graded every rep.</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ============ HOW IT COUNTS ============ -->
+<section class="how" id="how">
+  <div class="wrap">
+    <p class="eyebrow reveal">How it counts</p>
+    <h2 class="reveal">No ChatGPT, no server watching you. Just <em>geometry running on your phone.</em></h2>
+    <p class="lead reveal">Every move is a spec: which joint drives it, what angle counts as the bottom, what counts as lockout. The math runs frame by frame, right where you stand.</p>
+    <div class="cols">
+      <div class="step reveal"><div class="n">1</div><div><h4>It reads your body.</h4><p>An open pose model returns 33 points of you per frame, in 3D, on your own GPU.</p></div></div>
+      <div class="step reveal"><div class="n">2</div><div><h4>It measures the angle.</h4><p>A squat is your knee angle closing and opening. The engine watches that curve, not a picture of you.</p></div></div>
+      <div class="step reveal"><div class="n">3</div><div><h4>It counts the rep.</h4><p>Only a full, clean cycle counts, with hysteresis, so half-hearted wobbles never double up.</p></div></div>
+      <div class="step reveal"><div class="n">4</div><div><h4>It throws the frame away.</h4><p>The math is done, the frame is gone. Nothing is stored, nothing is sent.</p></div></div>
+    </div>
+    <p class="note reveal">Written by hand in C++, compiled to run at camera speed. <b>92 native tests.</b> No API bill, which is exactly why it stays free.</p>
+  </div>
+</section>
+
+<!-- ============ PROOF ============ -->
+<section class="proof">
+  <div class="wrap">
+    <p class="eyebrow reveal">Proof</p>
+    <h2 class="reveal">Calibrated on a real body, <em>rep after rep.</em></h2>
+    <div class="ledger wide reveal">
+      <div class="line"><span class="k">Native tests passing</span><span class="v">92</span></div>
+      <div class="line"><span class="k">Body points read per frame</span><span class="v">33</span></div>
+      <div class="line"><span class="k">Form score range</span><span class="v">0 to 100</span></div>
+      <div class="line"><span class="k">Frames that leave your device</span><span class="v hi">0</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRIVACY ============ -->
+<section class="privacy" id="privacy">
+  <div class="wrap">
+    <p class="eyebrow reveal">Where does the video go?</p>
+    <div class="grid">
+      <div class="reveal">
+        <div class="big">Nowhere.</div>
+        <p>There is no upload button, because there is no upload code. The camera feed lives for a fraction of a second in your browser and is gone. It cannot be leaked, because it never exists anywhere but here.</p>
+      </div>
+      <div class="term reveal">
+        <div class="cmd">grep -r "upload" .</div>
+        <div class="out">searching the whole codebase.</div>
+        <div class="zero">0 results.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MOVES ============ -->
+<section class="moves" id="moves">
+  <div class="wrap">
+    <p class="eyebrow reveal">Your sport is already here</p>
+    <h2 class="reveal">One engine, many rooms. <em>You pick the room.</em></h2>
+    <div class="tiles">
+      <div class="tile reveal"><div class="ic">🧘</div><h4>Wall pilates</h4><p>Slow, precise, counted.</p></div>
+      <div class="tile reveal"><div class="ic">🩰</div><h4>Ballet at home</h4><p>Form scored gently.</p></div>
+      <div class="tile reveal"><div class="ic">🌿</div><h4>Yoga</h4><p>Held poses, timed.</p></div>
+      <div class="tile reveal"><div class="ic">💪</div><h4>Bodyweight</h4><p>Every rep graded.</p></div>
+    </div>
+    <p class="allrow reveal"><a href="../moves.html">See the full moves list.</a></p>
+  </div>
+</section>
+
+<!-- ============ PATCH NOTES ============ -->
+<section class="patch" id="patch">
+  <div class="wrap">
+    <div class="grid">
+      <div class="intro reveal">
+        <p class="eyebrow">Patch notes</p>
+        <h2>Built in the open.</h2>
+        <p>Every real change ships here, dated and honest.</p>
+      </div>
+      <div class="log">
+        <div class="entry founder reveal">
+          <div class="ver">day one</div>
+          <div class="what">
+            I built the whole engine and calibrated it on myself, rep after rep.
+            <span>Damla, Bilkent CS. Every threshold in gymgyme was tuned on the body in these frames.</span>
+            <div class="shots">
+              <img src="../img/damla_5289_crop.jpg" alt="Damla training in front of the gymgyme engine.">
+              <img src="../img/damla_5263.jpg" alt="The engine tracking a rep live on Damla.">
+              <img src="../img/damla_5275.jpg" alt="Damla building the gymgyme engine.">
+            </div>
+          </div>
+        </div>
+        <div class="entry reveal"><div class="ver">v3.16</div><div class="what">Squat depth threshold made adaptive.<span>Short and deep squats now both count, no more missed reps.</span></div></div>
+        <div class="entry reveal"><div class="ver">v3.13</div><div class="what">Plank and wall sit timing added.<span>Held moves scored on duration and form, not reps.</span></div></div>
+        <div class="entry reveal"><div class="ver">v3.09</div><div class="what">Multi person frame handling.<span>The engine locks onto one body and ignores the rest of the room.</span></div></div>
+        <div class="entry reveal"><div class="ver">v3.00</div><div class="what">One Euro filter tuned.<span>Jitter down, latency held, a cleaner rep curve.</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TRY ============ -->
+<section class="try">
+  <div class="wrap reveal">
+    <p class="eyebrow"><span class="rb">🎀</span>The only step left</p>
+    <h2>Open the camera. Do one rep.</h2>
+    <p>You do not book a class, you do not make an account, you do not stand in front of anyone. You open a tab in the room you already train in, and the counting starts.</p>
+    <a class="cta" href="../coach.html">Open the camera and try a rep.</a>
+    <p class="micro">Free, always. Stays on your device. <b>No one watching but you.</b></p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>gymgyme.</span>
+    <span>No ads, no tracking, no cookies.</span>
+    <span>Built by <a href="https://github.com/nosey-dewdrop">nosey-dewdrop</a>.</span>
+  </div>
+</footer>
+
+<script>
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach((el, i) => {
+    el.style.transitionDelay = (Math.min(i % 4, 3) * 60) + 'ms';
+    io.observe(el);
+  });
+</script>
+</body>
+</html>

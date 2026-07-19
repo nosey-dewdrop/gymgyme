@@ -489,11 +489,40 @@ async function loadPose() {
   }
 }
 
+// motor kataloğunu UI'a uygula: eksik hareketler için MOVES kaydı (aile base
+// kelimeleriyle) + seçiciye <option> ekle. Kanonik 14 zaten HTML'de; bu adım
+// AİLE VARYANTLARINI ekler. base MOVES kaydı yoksa (beklenmez) atlanır.
+function applyEngineCatalog(catalog) {
+  if (!Array.isArray(catalog)) return;
+  const have = new Set([...moveSel.options].map((o) => o.value));
+  for (const it of catalog) {
+    const id = it.name, base = it.base;
+    // MOVES: varyant faz kelimelerini ailesinden alır (dürüstlük: motor bu
+    // varyanti gercekten ailesi gibi okur, dil de ailesinden gelsin).
+    if (!MOVES[id] && MOVES[base]) MOVES[id] = MOVES[base];
+    if (it.repBased === false && MOVES[id]) MOVES[id] = { ...MOVES[id], hold: true };
+    if (have.has(id)) continue;
+    const o = document.createElement("option");
+    o.value = id;
+    o.textContent = id;   // kütüphane adı zaten insana dönük ("diamond push-up")
+    moveSel.appendChild(o);
+    have.add(id);
+  }
+  // HOLD kümesini kataloğa göre tazele (search etiketi + plan dili doğru olsun).
+  for (const it of catalog) if (it.repBased === false && MOVES[it.name]) HOLD_MOVES.add(it.name);
+}
+
 // düşünen beyin: bizim c++ motorumuz, wasm'a derli. yoksa iskelet yine görünür.
 async function loadEngine() {
   try {
     const { default: createMotor } = await import("../engine/motor.js");
     motorMod = await createMotor();
+    // ── DÜRÜSTLÜK (Loop 02): koçlanabilir hareket listesi motorun GERÇEK
+    // kataloğundan gelir (elle liste çoğaltma yok). Motor 14 kanonik + aile
+    // varyantlarını verir; her varyant faz kelimelerini AİLE base'inden miras
+    // alır. Motorun bilmediği hareket seçicide "counts reps/coached hold" gibi
+    // GÖRÜNMEZ — koçlanmayan hareket koçlanabilir gibi sunulmaz. ──
+    if (typeof motorMod.coachableMoves === "function") applyEngineCatalog(motorMod.coachableMoves());
     engine = new motorMod.Engine(moveSel.value);
     engine.setCalibration(true);   // önce vücudu öğren, sonra ona kilitlen
     bufPtr = motorMod._malloc(2 * FLOATS * 4);        // 4 byte/float, 2 poz (Faz 2)
@@ -1507,7 +1536,7 @@ skipRestBtn.addEventListener("click", () => { if (engine) engine.skipRest(); });
 // ── akış: workout kur → "start the workout" (TEK buton) → ilk sefer izin → kamera.
 // ara "start camera" ekranı YOK; en az bir hareket olmadan kamera açılmaz. ──
 const readyBtn = $("ready"), startWrap = $("startWrap");
-const camstageEl = $("camstage");
+const camstageEl = $("camera");
 if (camstageEl) camstageEl.addEventListener("click", (e) => {
   if (e.target.id === "ready") return;   // buton kendi dinleyicisiyle başlatır
   beginWorkout();

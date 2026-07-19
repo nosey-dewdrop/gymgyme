@@ -1,15 +1,13 @@
 // gymgyme service worker: ana ekrana kurulan personal trainer offline da açılsın.
 // kamera + motor zaten cihazda çalışıyor; burada sadece dosyaları önbelleğe alıyoruz.
 // vendor/ ya da engine/ değişirse CACHE sürümünü artır — eski önbellek silinir.
-const CACHE = "gg-pwa-v67";  // v67: adaptive ROM band — compressed real-camera range starts the rep cycle (engine change)
+const CACHE = "gg-pwa-v70";  // v70: faz 1 single shell — one css/site.css, old stylesheets removed
 
 const CORE = [
   "coach.html",
   "my-moves.html",
   "my-program.html",
-  "styles.css",
-  "css/coach.css",
-  "css/marquee.css",
+  "css/site.css",
   "js/coach.js",
   "js/mesh.js",
   "js/topbar.js",

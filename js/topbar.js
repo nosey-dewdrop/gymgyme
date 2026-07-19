@@ -3,12 +3,13 @@
 (function () {
   // gorunur surum etiketi (Damla kurali: github.io testinde hangi surume
   // baktigin belli olsun) - sw.js cache surumuyle birlikte elle guncellenir.
-  const GG_V = "v63";
-  const bar = document.querySelector(".topbar");
+  const GG_V = "v69";
+  const bar = document.querySelector(".tnav .links") || document.querySelector(".tnav") || document.querySelector(".topbar");
   if (bar) {
     const v = document.createElement("span");
     v.className = "vtag";
     v.textContent = GG_V;
+    v.style.cssText = "font-size:11px;color:#948d93;opacity:.9;margin-left:4px;";
     bar.appendChild(v);
   }
   // HER SAYFANIN ALTINA da görünür sürüm (Damla: aşağı kaydırınca da görülsün,
@@ -16,7 +17,7 @@
   window.addEventListener("DOMContentLoaded", function () {
     const f = document.createElement("p");
     f.textContent = "gymgyme " + GG_V;
-    f.style.cssText = "text-align:center;font-size:11px;opacity:.5;color:#7a0a24;margin:18px 0 14px;";
+    f.style.cssText = "text-align:center;font-size:11px;opacity:.7;color:#948d93;margin:18px 0 14px;";
     document.body.appendChild(f);
   });
 

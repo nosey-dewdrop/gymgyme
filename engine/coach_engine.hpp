@@ -220,6 +220,18 @@ struct Summary {
 // hazır hareket kütüphanesi. bilinmeyen isim → squat döner.
 MoveSpec builtinMove(const std::string& name);
 
+// ── koçlanabilir hareket kataloğu (Loop 02): motorun GERÇEKTEN kural taşıdığı
+// hareketlerin TEK KAYNAĞI. UI (coach.html seçici + moves.html "reference"
+// etiketi) bu listeden beslenir — elle liste çoğaltılmaz, koçlanmayan hareket
+// koçlanabilir gibi görünmez. name = builtinMove'a verilecek id, repBased =
+// true (sayar) / false (süre tutar HOLD). Kanonik 14 + aile varyantları. ──
+struct CoachEntry {
+  std::string name;   // builtinMove id / kütüphane adı
+  std::string base;   // klonlandığı kanonik aile ("squat", "pushup"...); kanonik ise name==base
+  bool repBased;      // true = sayar, false = süre tutar (HOLD)
+};
+std::vector<CoachEntry> coachableMoves();
+
 // ── motor ────────────────────────────────────────────────────────────────────
 // durumlu (stateful): tekrar tekrar update() çağırırsın, o yumuşatmayı ve
 // faz geçişlerini kareler arasında hatırlar.

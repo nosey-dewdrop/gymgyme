@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gymgyme mockup — landing gusto v1</title>
+<style>
+  /* ── gerçek gymgyme paleti (styles.css'ten), AMA gusto düzeltmeleri:
+       radius 20px→2px, gölge yok, emoji tiyatrosu yok, sol hizalı, sıkı ── */
+  :root{
+    --bg:#FFBDD4; --card:#ffffff; --tint:#FFE3EE; --tint-2:#FFCEDF;
+    --ink:#33000E; --ink-soft:#7A2647; --cherry:#8E0038; --cherry-deep:#6E0030;
+    --on-cherry:#FFDCE9;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink);font:15px/1.5 Arial,Helvetica,sans-serif;-webkit-font-smoothing:antialiased}
+  a{color:inherit}
+  .wrap{max-width:920px;margin:0 auto;padding:0 22px}
+
+  /* topbar — sol hizalı, sıkı, tek satır */
+  header{display:flex;align-items:baseline;gap:20px;padding:18px 0 14px;border-bottom:1px solid var(--tint-2)}
+  .logo{font-weight:bold;font-size:17px;letter-spacing:-.2px}
+  nav{display:flex;gap:16px;font-size:13px;color:var(--ink-soft)}
+  nav a{text-decoration:none}
+  nav a:hover{color:var(--cherry)}
+  nav .on{color:var(--ink);font-weight:bold}
+  .ver{margin-left:auto;font-size:11px;color:var(--ink-soft)}
+
+  /* hero — sol blok, sağ boş değil: kanıt sütunu. ortada şişme YOK */
+  .hero{display:grid;grid-template-columns:1.35fr 1fr;gap:40px;padding:48px 0 40px;align-items:start}
+  @media(max-width:720px){.hero{grid-template-columns:1fr;gap:28px;padding:32px 0}}
+
+  h1{font-size:34px;line-height:1.15;letter-spacing:-.8px;max-width:15ch}
+  .sub{margin-top:14px;font-size:16px;color:var(--ink-soft);max-width:42ch}
+  .cta{display:inline-block;margin-top:22px;background:var(--cherry);color:var(--on-cherry);
+       text-decoration:none;font-weight:bold;font-size:14px;padding:11px 20px;border-radius:2px}
+  .cta:hover{background:var(--cherry-deep)}
+  .cta.ghost{background:none;color:var(--cherry);padding-left:0;margin-left:14px}
+  .cta.ghost:hover{color:var(--cherry-deep)}
+
+  /* kanıt sütunu — fiş değil, tiyatro değil: düz, dürüst satırlar, sol hizalı */
+  .proof{border-left:none;font-size:13px}
+  .proof .row{padding:9px 0;border-bottom:1px solid var(--tint-2);display:flex;justify-content:space-between;gap:14px}
+  .proof .row:last-child{border-bottom:none}
+  .proof .k{color:var(--ink-soft)}
+  .proof .v{color:var(--ink);text-align:right}
+  .proof .big{font-size:22px;font-weight:bold;letter-spacing:-.4px}
+
+  /* alt şerit — üç generic kart DEĞİL: tek satır, sol hizalı, sıkı liste */
+  .how{padding:8px 0 44px}
+  .how h2{font-size:13px;color:var(--ink-soft);font-weight:normal;text-transform:none;margin-bottom:14px}
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+  @media(max-width:720px){.steps{grid-template-columns:1fr;gap:16px}}
+  .step .n{font-size:12px;color:var(--cherry);font-weight:bold}
+  .step p{margin-top:5px;font-size:14px;color:var(--ink)}
+
+  footer{border-top:1px solid var(--tint-2);padding:16px 0 30px;font-size:12px;color:var(--ink-soft);display:flex;gap:16px}
+  footer a{text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="logo">gymgyme</span>
+    <nav>
+      <a class="on" href="#">home</a>
+      <a href="#">moves</a>
+      <a href="#">blog</a>
+      <a href="#">my program</a>
+    </nav>
+    <span class="ver">v-mock</span>
+  </header>
+
+  <!-- hero: sol vaat, sağ kanıt. samimi ton, emoji tiyatrosu yok, em dash yok -->
+  <section class="hero">
+    <div>
+      <h1>your camera is the coach.</h1>
+      <p class="sub">stand back, hit start, and it counts every rep, scores your form out of 100 and tells you what to fix. live, on your phone, free.</p>
+      <a class="cta" href="#">try it now</a>
+      <a class="cta ghost" href="#">see the moves</a>
+    </div>
+
+    <div class="proof">
+      <div class="row"><span class="k">reps this week</span><span class="v big">128</span></div>
+      <div class="row"><span class="k">form score</span><span class="v">reads 33 points of your body</span></div>
+      <div class="row"><span class="k">where it runs</span><span class="v">on your device, nothing uploaded</span></div>
+      <div class="row"><span class="k">cost</span><span class="v">free</span></div>
+    </div>
+  </section>
+
+  <!-- how: üç generic ikon-kart değil. numaralı, sol hizalı, düz cümle -->
+  <section class="how">
+    <h2>how it works</h2>
+    <div class="steps">
+      <div class="step"><span class="n">01</span><p>pick a move or let a program pick for you.</p></div>
+      <div class="step"><span class="n">02</span><p>the camera watches, counts, and rests you between sets.</p></div>
+      <div class="step"><span class="n">03</span><p>it scores your form and tells you the one thing to fix.</p></div>
+    </div>
+  </section>
+
+  <footer>
+    <a href="#">your data</a>
+    <a href="#">terms</a>
+    <span>nothing you film ever leaves this device.</span>
+  </footer>
+
+</div>
+</body>
+</html>

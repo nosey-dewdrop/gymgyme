@@ -1237,6 +1237,143 @@ int main() {
     check(rLoose.reps == 1 && rLoose.rejectedReps == 0, "override: lower per-move acceptPct accepts the same rep");
   }
 
+  // ── LOOP 02: AİLE ŞABLONU SİSTEMİ — 14 sınırı kalkar. Her aile varyantı, aile
+  // base spec'ini (eklem zinciri + faz döngüsü + form) miras alır; motor kodu
+  // aynı. Bu blok: (a) katalog motordan gelir, (b) her REP ailesinden bir varyant
+  // GERÇEKTEN sayar, (c) her HOLD ailesinden bir varyant SÜRE tutar. Sentetik
+  // poz üretilemeyen varyant eklenmedi (dalga-dışı, günlükte nedeniyle). ──
+  {
+    auto catalog = coachableMoves();
+    check(catalog.size() >= 60, "catalog: engine exposes at least 60 coachable moves (14 limit lifted)");
+    int repN = 0, holdN = 0;
+    for (auto& e : catalog) (e.repBased ? repN : holdN)++;
+    check(repN >= 50, "catalog: 50+ rep-based moves");
+    check(holdN >= 8, "catalog: 8+ hold-based moves");
+    // varyant AİLE mantığını miras alır: dış ad kimlikte, iç geometri base'in.
+    check(builtinMove("diamond push-up").primaryLeft.b == 13, "variant: push-up family tracks the elbow joint");
+    check(builtinMove("reverse lunge").primaryLeft.b == 25, "variant: lunge family tracks the knee joint");
+    check(builtinMove("forearm plank").kind == MoveKind::Hold, "variant: plank family stays a hold");
+    check(builtinMove("crunches").name == "crunches", "variant: identity carries the variant's own name");
+  }
+
+  // ── SQUAT ailesi varyantı: "bodyweight squat" diz açısından sayar (base squat) ──
+  {
+    Engine e(builtinMove("bodyweight squat"));
+    Reading r; double t = 0;
+    for (int i = 0; i < 6; i++) r = e.update(pose(false), (t += 100));
+    for (int i = 0; i < 12; i++) r = e.update(pose(true), (t += 100));
+    for (int i = 0; i < 12; i++) r = e.update(pose(false), (t += 100));
+    check(r.reps == 1, "squat family: bodyweight squat counts a rep");
+  }
+  // ── LUNGE ailesi varyantı: "reverse lunge" öndeki dizden sayar ──
+  {
+    Engine e(builtinMove("reverse lunge"));
+    Reading r; double t = 0;
+    for (int i = 0; i < 6; i++) r = e.update(pose(false), (t += 100));
+    for (int i = 0; i < 12; i++) r = e.update(pose(true), (t += 100));
+    for (int i = 0; i < 12; i++) r = e.update(pose(false), (t += 100));
+    check(r.reps == 1, "lunge family: reverse lunge counts a rep");
+  }
+  // ── PUSH-UP ailesi varyantı: "diamond push-up" dirsekten sayar, bacaksız kadraj ──
+  {
+    Engine e(builtinMove("diamond push-up"));
+    Reading r;
+    for (int i = 0; i < 6; i++) r = e.update(poseArms(false));
+    for (int i = 0; i < 10; i++) r = e.update(poseArms(true));
+    for (int i = 0; i < 12; i++) r = e.update(poseArms(false));
+    check(r.reps == 1, "pushup family: diamond push-up counts a rep");
+  }
+  // ── KNEELING PUSH-UP ailesi varyantı: "knee push-up" ──
+  {
+    Engine e(builtinMove("knee push-up"));
+    Reading r;
+    for (int i = 0; i < 6; i++) r = e.update(poseArms(false));
+    for (int i = 0; i < 10; i++) r = e.update(poseArms(true));
+    for (int i = 0; i < 12; i++) r = e.update(poseArms(false));
+    check(r.reps == 1, "pushup family: knee push-up counts a rep");
+  }
+  // ── SIT-UP ailesi varyantı: "crunches" kalça açısından, doğrulmada sayar ──
+  {
+    Engine e(builtinMove("crunches"));
+    Reading r; double t = 0;
+    for (int i = 0; i < 6; i++) r = e.update(poseHips(true), (t += 100));    // yerde: kalça açık (top)
+    for (int i = 0; i < 12; i++) r = e.update(poseHips(false), (t += 100));  // doğruldu: kalça kapalı (bottom)
+    for (int i = 0; i < 12; i++) r = e.update(poseHips(true), (t += 100));   // geri yattı → sayar
+    check(r.reps == 1, "situp family: crunches counts a rep");
+  }
+  // ── BRIDGE ailesi varyantı: "glute bridge" kalça açılışında sayar ──
+  {
+    Engine e(builtinMove("glute bridge"));
+    Reading r; double t = 0;
+    for (int i = 0; i < 6; i++) r = e.update(poseHips(false), (t += 100));   // yerde: kalça bükülü (bottom)
+    for (int i = 0; i < 14; i++) r = e.update(poseHips(true), (t += 100));   // köprü: kalça açık (top) → sayar
+    check(r.reps == 1, "bridge family: glute bridge counts a rep");
+  }
+  // ── RAISE ailesi varyantı: "lateral raise" omuz açısından (armraise base) ──
+  {
+    // armraise geometrisi = jumping jack pozu (kalça-omuz-dirsek). aşağıda ~15°, tepede ~165°.
+    auto poseRaise = [](bool up) {
+      std::vector<Landmark> p(33);
+      auto set = [&](int i, double x, double y) { p[i].x = x; p[i].y = y; p[i].z = 0; p[i].visibility = 1; };
+      set(11, 0.45, 0.30); set(12, 0.55, 0.30);
+      set(23, 0.46, 0.60); set(24, 0.54, 0.60);
+      if (up) { set(13, 0.44, 0.05); set(14, 0.56, 0.05); }
+      else    { set(13, 0.46, 0.55); set(14, 0.54, 0.55); }
+      return p;
+    };
+    Engine e(builtinMove("lateral raise"));
+    Reading r;
+    for (int i = 0; i < 6; i++) r = e.update(poseRaise(false));
+    for (int i = 0; i < 12; i++) r = e.update(poseRaise(true));
+    check(r.reps == 1, "raise family: lateral raise counts a rep");
+  }
+  // ── PRESS ailesi varyantı: "overhead press" dirsekten (press base) ──
+  {
+    Engine e(builtinMove("overhead press"));
+    Reading r; double t = 0;
+    for (int i = 0; i < 6; i++) r = e.update(poseArms(true), (t += 100));    // racked: dirsek bükülü
+    for (int i = 0; i < 12; i++) r = e.update(poseArms(false), (t += 100));  // locked: kol açık → sayar
+    check(r.reps == 1, "press family: overhead press counts a rep");
+  }
+  // ── PLANK ailesi (HOLD) varyantı: "forearm plank" süre biriktirir ──
+  {
+    // yatay gövde (tilt bandı), omuz-kalça-diz düz çizgi (~180°), banttan sayar.
+    auto posePlank = []() {
+      std::vector<Landmark> p(33);
+      auto set = [&](int i, double x, double y, double z) { p[i].x=x; p[i].y=y; p[i].z=z; p[i].visibility=1; };
+      // yatay: y ekseninde düz sıra, gövde dikeyden ~90° (plank tilt bandı 55-125)
+      set(11, -0.40, 0.0, 0);  set(12, -0.40, 0.02, 0);   // omuzlar
+      set(23,  0.0,  0.0, 0);  set(24,  0.0,  0.02, 0);   // kalçalar
+      set(25,  0.40, 0.0, 0);  set(26,  0.40, 0.02, 0);   // dizler (omuz-kalça-diz ~düz)
+      set(27,  0.75, 0.0, 0);  set(28,  0.75, 0.02, 0);   // ayak bilekleri
+      return p;
+    };
+    Engine e(builtinMove("forearm plank"));
+    Reading r; double t = 0;
+    check(r.reps == 0, "plank family: nothing before frames");
+    for (int i = 0; i < 60; i++) r = e.update(posePlank(), (t += 100));   // ~6s tutuş
+    check(r.isHold, "plank family: forearm plank is a hold");
+    check(r.heldSeconds > 3.0, "plank family: forearm plank accumulates held time");
+  }
+  // ── WALL-SIT ailesi (HOLD) varyantı: "wall sit hold" diz ~90° bandında süre ──
+  {
+    // dik gövde (tilt < 45), diz ~90° (band 75-110).
+    auto poseWallsit = []() {
+      std::vector<Landmark> p(33);
+      auto set = [&](int i, double x, double y, double z) { p[i].x=x; p[i].y=y; p[i].z=z; p[i].visibility=1; };
+      set(11, 0.0, 0.0, 0);  set(12, 0.05, 0.0, 0);      // omuzlar (dikey gövde: y küçük)
+      set(23, 0.0, 0.40, 0); set(24, 0.05, 0.40, 0);     // kalçalar altta
+      set(25, 0.40, 0.40, 0);set(26, 0.45, 0.40, 0);     // dizler ileride (uyluk yatay)
+      set(27, 0.40, 0.80, 0);set(28, 0.45, 0.80, 0);     // bilekler dizin altında → diz ~90°
+      return p;
+    };
+    Engine e(builtinMove("wall sit hold"));
+    Reading r; double t = 0;
+    for (int i = 0; i < 60; i++) r = e.update(poseWallsit(), (t += 100));
+    check(r.isHold, "wallsit family: wall sit hold is a hold");
+    check(r.heldSeconds > 3.0, "wallsit family: wall sit hold accumulates held time");
+  }
+
   std::printf(failed ? "\n%d test FAILED\n" : "\nall tests passed\n", failed);
   return failed ? 1 : 0;
 }

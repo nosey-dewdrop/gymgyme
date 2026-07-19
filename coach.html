@@ -7,11 +7,11 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob:; worker-src 'self' blob:; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self' blob: https://xjtmqncfhuidctxgthhv.supabase.co wss://xjtmqncfhuidctxgthhv.supabase.co; style-src 'self' 'unsafe-inline'; base-uri 'self'">
   <title>gymgyme personal trainer - on-device camera form coach</title>
   <meta name="description" content="A personal trainer fully in your browser: it reads your joint angles, counts reps and scores your form. C++ to WebAssembly; video never leaves your device.">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎀</text></svg>">
-  <link rel="stylesheet" href="css/theme.css">
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="css/marquee.css">
-  <link rel="stylesheet" href="css/coach.css">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+  <link rel="stylesheet" href="css/site.css">
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="theme-color" content="#ffffff">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -26,90 +26,25 @@
   <meta name="twitter:title" content="gymgyme personal trainer - on-device camera form coach">
   <meta name="twitter:description" content="It counts your reps, scores each one, and coaches your form on the moves it can measure - fully in your browser. The video never leaves your device.">
   <meta name="twitter:image" content="https://gymgyme.noseydewdrop.com/icons/icon-512.png">
-  <link rel="stylesheet" href="css/calm.css">
-  <style>
-    /* de-cinema: unify into calm white + lila editorial world (this file only) */
-    .sub-sign.backstage,
-    .sub-sign.backstage .wrap { background: #fff; color: #111; }
-    .sub-sign.backstage .eyebrow { color: #8e6fd8; }
-    .sub-sign.backstage .lead { color: #6f6b74; }
-    .sub-sign.backstage .plbl { color: #6f6b74; }
-
-    /* camera placeholder: calm framed light-lila area, no heavy shadow */
-    .camstage, #camstage {
-      background: #efeafa;
-      color: #111;
-      border: 1px solid #e9e4ee;
-      border-radius: 3px;
-      box-shadow: none;
-    }
-    .camstage b, #camstage b { color: #111; }
-    .camstage span, #camstage span { color: #6f6b74; }
-    .stagestart {
-      background: #8e6fd8;
-      color: #fff;
-      border: none;
-      border-radius: 3px;
-      box-shadow: none;
-    }
-
-    /* workout list panel (was rotated theater receipt): flat, upright, hairline */
-    .receipt, #setReceipt {
-      background: #fff;
-      color: #111;
-      border: 1px solid #e9e4ee;
-      border-radius: 3px;
-      box-shadow: none;
-      transform: none;
-    }
-    .receipt .rhead, #setReceipt .rhead { color: #111; }
-    .receipt .rnote, #setReceipt .rnote,
-    .receipt .rdrag, #setReceipt .rdrag { color: #6f6b74; }
-    .receipt .rrule, #setReceipt .rrule { border-top: 1px solid #e9e4ee; background: none; }
-    .receipt-tab, #rtab {
-      background: #8e6fd8;
-      color: #fff;
-      border: none;
-      border-radius: 3px;
-      box-shadow: none;
-      transform: none;
-    }
-
-    /* accent + calm cards */
-    .coach a, .sub-sign.backstage a { color: #8e6fd8; }
-    .read.card, .summary.card {
-      background: #fff;
-      color: #111;
-      border: 1px solid #e9e4ee;
-      border-radius: 3px;
-      box-shadow: none;
-    }
-    .mainbtn {
-      background: #8e6fd8;
-      color: #fff;
-      border: none;
-      border-radius: 3px;
-      box-shadow: none;
-    }
-  </style>
 </head>
 <body class="coach has-strip">
 
 <nav class="tnav">
   <div class="wrap">
     <a class="brand" href="index.html">gymgyme</a>
-    <span class="searchwrap">
-      <input class="topsearch" id="topSearch" placeholder="search moves, categories...">
-      <span class="mag">🔍</span>
-      <div class="searchdrop" id="searchDrop"></div>
+    <span class="search">
+      <span class="searchwrap">
+        <input class="topsearch" id="topSearch" placeholder="search moves, categories...">
+        <div class="searchdrop" id="searchDrop"></div>
+      </span>
     </span>
     <div class="links">
       <a href="moves.html">moves</a>
       <a href="my-program.html">build a workout</a>
-      <a href="my-moves.html" id="movesBtn">my moves (0)</a>
+      <a href="my-moves.html" id="movesBtn">my moves</a>
       <a href="blog.html">blog</a>
       <a href="patch-notes.html">patch notes</a>
-      <a class="go on" href="coach.html"><span>open the camera</span></a>
+      <a class="go" href="coach.html"><span>open the camera</span></a>
     </div>
   </div>
 </nav>
@@ -123,7 +58,7 @@
       <div class="plbl">PROGRAMS · TAP ONE TO FILL YOUR WORKOUT</div>
       <span id="progBtns"></span>
       <div class="plbl plbl-gap">OR SEARCH A MOVE TO ADD IT</div>
-      <span class="tsw"><input id="trainSearch" placeholder="search a move to add..." autocomplete="off"><span class="tmag">🔍</span><div class="tsuggest" id="trainSuggest"></div></span>
+      <span class="tsw"><input id="trainSearch" placeholder="search a move to add..." autocomplete="off"><div class="tsuggest" id="trainSuggest"></div></span>
     </div>
   </div>
 </section>
@@ -162,16 +97,16 @@
 <div class="stagefloor">
   <!-- TEK ALAN: warming (camstage) ve video (stage) aynı yerde, biri gizli. -->
   <div class="stageslot">
-    <div class="camstage" id="camstage">
-      <span class="cam">📸</span>
+    <div id="camera">
+      <span class="cam"></span>
       <b>your camera opens here</b>
       <span>your camera opens in this spot and never leaves your device.<br>it learns YOUR body first, then locks onto you.</span>
       <span class="framehint">before you start: stand back so your <b>whole body fits</b> the frame, side-on for squats and holds, in an evenly lit spot. it won't count until it can see you clearly.</span>
       <div class="stagestatus" id="stageStatus" aria-live="polite"></div>
-      <button id="ready" class="stagestart">▸ start the workout</button>
+      <button id="ready" class="stagestart">start the workout</button>
     </div>
 
-    <div class="stage" id="stage" hidden>
+    <div class="panel" id="stage" hidden>
       <video id="cam" autoplay playsinline muted></video>
       <canvas id="overlay"></canvas>
     </div>
@@ -230,7 +165,7 @@
     <div class="summary-body" id="sumBody"></div>
   </div>
 
-  <div class="receipt" id="setReceipt" hidden>
+  <div class="summary" id="setReceipt" hidden>
     <button class="rclose" id="rclose" type="button" aria-label="close your workout list">×</button>
     <div class="rhead"><b>GYMGYME</b><br>your workout<br><span class="rdrag">drag me anywhere</span></div>
     <div class="rrule"></div>
@@ -246,18 +181,36 @@
 
 <div class="coach-foot">
 <details class="foldcard" id="history" role="region" aria-label="your workouts" hidden>
-  <summary class="foldcard-head">your workouts <span class="fold-chev">▾</span></summary>
+  <summary class="foldcard-head">your workouts <span class="fold-chev"></span></summary>
   <div class="history-list" id="histList"></div>
 </details>
 
 <details class="foldcard" id="accountFold">
-  <summary class="foldcard-head">your account <span class="fold-chev">▾</span></summary>
+  <summary class="foldcard-head">your account <span class="fold-chev"></span></summary>
   <div id="authbar" class="authbar"></div>
 </details>
 </div><!-- /coach-foot -->
 
 <p class="private" id="private" hidden>the pose and all the math run inside your browser. the camera image never leaves this device - there is no upload. if you are signed in, only your workout numbers (never the video) are saved to your account. <a href="gizlilik.html">your data</a>.</p>
 
+
+<footer class="tfoot">
+  <div class="wrap">
+    <span class="b">gymgyme.</span>
+    <a href="moves.html">moves</a>
+    <a href="my-moves.html">my moves</a>
+    <a href="my-program.html">build a workout</a>
+    <a href="coach.html">open the camera</a>
+    <a href="blog.html">blog</a>
+    <a href="patch-notes.html">patch notes</a>
+    <a href="suggest.html">suggest a move</a>
+    <a href="gizlilik.html">privacy</a>
+    <a href="terms.html">terms</a>
+    <a href="https://github.com/nosey-dewdrop">github</a>
+    <span>No ads, no tracking, no cookies.</span>
+    <span class="vtag">v63</span>
+  </div>
+</footer>
 
 <!-- ortak Supabase client + config: klasik scriptler, modülden ÖNCE çalışır
      (window.supabase ve window.GG_CONFIG modül grafiği yüklenmeden hazır olsun) -->

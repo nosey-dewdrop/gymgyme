@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>gymgyme. the tiny theater where your camera counts the reps.</title>
+<style>
+/* gymgyme landing v5. damla-ui law: no rounded past 2px, no cards, no card
+   shadows, no gradients, no colored word for emphasis, no colored-edge border,
+   no floating navbar. separation = whitespace + colour only. arial, lowercase.
+   one pink world (+ lilac as the second category colour, never emphasis).
+   hierarchy by SIZE. filled, ordered, dense. no em dash. */
+:root{
+  --paper:#ffffff;
+  --pink:#8E0038;        /* the strong pink, category/state only */
+  --pink-soft:#C24C74;
+  --lilac:#6E51B8;       /* second category colour */
+  --ink:#241019;         /* near-black plum */
+  --ink-2:#6A4F5B;       /* muted */
+  --ink-3:#9A8891;       /* faint */
+  --hair:#EAD9E0;        /* 1px hairline */
+  --wash:#FBF4F7;        /* faint pink band, not a card */
+  --wash-2:#F4ECF6;      /* faint lilac band */
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:Arial,Helvetica,sans-serif;background:var(--paper);color:var(--ink);line-height:1.4;font-size:16px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto;padding:0 28px}
+a{color:inherit;text-decoration:none}
+.reveal{opacity:0;transform:translateY(12px);transition:opacity .5s ease,transform .5s ease}
+.reveal.in{opacity:1;transform:none}
+
+/* nav: sits in flow, hairline under it, no blur, no float, no radius */
+.nav{border-bottom:1px solid var(--hair)}
+.nav .wrap{display:flex;align-items:baseline;gap:26px;padding:18px 28px}
+.nav .brand{font-size:20px;font-weight:bold}
+.nav .brand b{color:var(--pink);font-weight:bold}
+.nav .links{display:flex;gap:22px;margin-left:auto}
+.nav .links a{font-size:14px;color:var(--ink-2)}
+.nav .links a:hover{color:var(--pink)}
+.nav .go{font-size:14px;color:var(--pink);font-weight:bold}
+
+/* section rhythm: dense, hairline separated, no big airy padding */
+section{padding:40px 0;border-bottom:1px solid var(--hair)}
+.kicker{font-size:13px;color:var(--ink-3);margin-bottom:14px}
+
+/* hero: two columns, both full, size does the hierarchy */
+.hero{padding:44px 0 40px}
+.hero .row{display:grid;grid-template-columns:1.15fr .85fr;gap:40px;align-items:start}
+.hero .now{font-size:13px;color:var(--pink);margin-bottom:16px}
+.hero h1{font-size:46px;line-height:1.04;font-weight:bold;margin-bottom:16px}
+.hero .sub{font-size:17px;color:var(--ink-2);max-width:40ch;margin-bottom:20px}
+.hero .go{display:inline-block;font-size:16px;font-weight:bold;color:var(--pink)}
+.hero .go:hover{color:var(--pink-soft)}
+.hero .stub{display:block;font-size:13px;color:var(--ink-3);margin-top:12px}
+/* the live ticket: hairline box, 2px radius, no shadow, real numbers */
+.ticket{border:1px solid var(--hair);border-radius:2px;padding:20px 22px}
+.ticket .r{display:flex;justify-content:space-between;font-size:13px;color:var(--ink-3);padding-bottom:14px;margin-bottom:16px;border-bottom:1px solid var(--hair)}
+.ticket .r .now{color:var(--pink);margin:0}
+.ticket .big{display:flex;align-items:baseline;justify-content:space-between}
+.ticket .big .n{font-size:52px;font-weight:bold;line-height:1}
+.ticket .big .n small{font-size:15px;color:var(--ink-3);font-weight:normal}
+.ticket .big .f{text-align:right}
+.ticket .big .f b{font-size:34px;font-weight:bold;color:var(--pink)}
+.ticket .big .f small{display:block;font-size:12px;color:var(--ink-3)}
+.ticket .g{margin-top:18px;font-size:13px;color:var(--ink-2);display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.ticket .g div{display:flex;justify-content:space-between;border-bottom:1px solid var(--hair);padding:5px 0}
+.ticket .foot{font-size:12px;color:var(--ink-3);margin-top:14px}
+
+/* how: 4 numbered lines, dense, no cards */
+.how h2{font-size:26px;font-weight:bold;margin-bottom:6px}
+.how .lead{font-size:15px;color:var(--ink-2);max-width:60ch;margin-bottom:22px}
+.how .rows{display:grid;grid-template-columns:1fr 1fr;gap:20px 40px}
+.how .item{display:grid;grid-template-columns:26px 1fr;gap:14px}
+.how .item .n{font-size:18px;font-weight:bold;color:var(--pink)}
+.how .item h4{font-size:15px;font-weight:bold;margin-bottom:3px}
+.how .item p{font-size:13.5px;color:var(--ink-2)}
+.how .note{margin-top:22px;font-size:13px;color:var(--ink-3)}
+
+/* q&a: the funny voice, two dense columns, hairline rows */
+.qa{background:var(--wash)}
+.qa h2{font-size:26px;font-weight:bold;margin-bottom:20px}
+.qa .grid{display:grid;grid-template-columns:1fr 1fr;gap:0 44px}
+.qa .item{padding:16px 0;border-bottom:1px solid var(--hair)}
+.qa .item b{display:block;font-size:15px;font-weight:bold;margin-bottom:5px}
+.qa .item span{font-size:13.5px;color:var(--ink-2)}
+
+/* privacy: size carries it, one huge word, no card */
+.privacy h2{font-size:26px;font-weight:bold;margin-bottom:18px}
+.privacy .row{display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:center}
+.privacy .huge{font-size:88px;font-weight:bold;line-height:1;color:var(--pink)}
+.privacy p{font-size:15px;color:var(--ink-2);margin-top:14px;max-width:44ch}
+.privacy .term{font-family:ui-monospace,Menlo,monospace;font-size:13.5px;background:var(--ink);color:#EAD9E0;border-radius:2px;padding:18px 20px}
+.privacy .term .c{color:#F4A8C8}
+.privacy .term .c::before{content:"$ ";color:#8A6A78}
+.privacy .term .o{color:#9A8891;margin-top:6px}
+.privacy .term .z{color:#fff;margin-top:2px;font-weight:bold}
+
+/* moves: dense list, colour = category, size = hierarchy, no cards */
+.moves h2{font-size:26px;font-weight:bold;margin-bottom:4px}
+.moves .lead{font-size:15px;color:var(--ink-2);margin-bottom:20px}
+.moves .list{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--hair)}
+.moves .m{padding:16px 16px 16px 0;border-bottom:1px solid var(--hair);border-right:1px solid var(--hair)}
+.moves .m:nth-child(4n){border-right:0}
+.moves .m h4{font-size:16px;font-weight:bold}
+.moves .m p{font-size:13px;color:var(--ink-3);margin-top:3px}
+.moves .all{margin-top:18px;font-size:14px}
+.moves .all a{color:var(--pink);font-weight:bold}
+
+/* try: last, full, pink is the world here */
+.try{background:var(--wash);border-bottom:0;text-align:left}
+.try .row{display:grid;grid-template-columns:1fr auto;gap:30px;align-items:center}
+.try h2{font-size:32px;font-weight:bold;margin-bottom:8px}
+.try p{font-size:15px;color:var(--ink-2);max-width:52ch}
+.try .go{font-size:17px;font-weight:bold;color:var(--pink);white-space:nowrap}
+.try .stub{display:block;font-size:13px;color:var(--ink-3);margin-top:10px}
+
+/* footer: hairline, muted, no colour word, no mega columns */
+footer{padding:22px 0 40px}
+footer .wrap{display:flex;flex-wrap:wrap;gap:6px 20px;font-size:13px;color:var(--ink-3)}
+footer a{color:var(--ink-2)}
+footer a:hover{color:var(--pink)}
+
+@media(max-width:860px){
+  .hero .row,.privacy .row,.how .rows,.qa .grid,.try .row{grid-template-columns:1fr;gap:22px}
+  .moves .list{grid-template-columns:1fr 1fr}
+  .moves .m:nth-child(4n){border-right:1px solid var(--hair)}
+  .moves .m:nth-child(2n){border-right:0}
+  .hero h1{font-size:34px}
+  .privacy .huge{font-size:64px}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top">gym<b>gyme</b></a>
+    <div class="links">
+      <a href="#how">how it counts</a>
+      <a href="#privacy">privacy</a>
+      <a href="#moves">moves</a>
+      <a href="patch-notes.html">patch notes</a>
+    </div>
+    <a class="go" href="../coach.html">open the camera</a>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <div class="row">
+      <div class="reveal">
+        <p class="now">now showing, every night, your living room.</p>
+        <h1>your camera is the trainer. you are the whole cast.</h1>
+        <p class="sub">point your phone at yourself and start moving. it counts every rep, scores your form out of 100, and never lets a single frame leave the room. free, forever.</p>
+        <a class="go" href="../coach.html">open the camera. no ticket needed.</a>
+        <span class="stub">admit one. seat: your living room. price: a few squats.</span>
+      </div>
+      <div class="ticket reveal">
+        <div class="r"><span class="now">live on device</span><span>row a, seat 1</span></div>
+        <div class="big">
+          <div class="n">12<small> clean reps</small></div>
+          <div class="f"><b>94</b><small>form score</small></div>
+        </div>
+        <div class="g">
+          <div><span>depth</span><span>88</span></div>
+          <div><span>tempo</span><span>74</span></div>
+          <div><span>control</span><span>95</span></div>
+        </div>
+        <p class="foot">every rep graded on the three things a good coach watches.</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="how" id="how">
+  <div class="wrap">
+    <p class="kicker reveal">how it counts</p>
+    <h2 class="reveal">no chatgpt, no server squinting at you. just geometry, running on your phone.</h2>
+    <p class="lead reveal">your joints make angles, angles make reps. that is the whole trick, and it happens right where you stand.</p>
+    <div class="rows">
+      <div class="item reveal"><span class="n">1</span><div><h4>it reads you.</h4><p>an open pose model marks 33 points of your body every frame, in 3d, on your own screen.</p></div></div>
+      <div class="item reveal"><span class="n">2</span><div><h4>it measures the angle.</h4><p>a squat is your knee angle closing and opening. it watches that curve, not a picture of you.</p></div></div>
+      <div class="item reveal"><span class="n">3</span><div><h4>it counts the rep.</h4><p>only a full, clean cycle counts. half hearted wobbles never sneak a second rep in.</p></div></div>
+      <div class="item reveal"><span class="n">4</span><div><h4>it forgets the frame.</h4><p>the math is done, the frame is gone. nothing stored, nothing sent, nothing kept.</p></div></div>
+    </div>
+    <p class="note reveal">hand written in c++, compiled to keep up with your camera instead of your patience. 92 native tests. no api bill, which is exactly why it stays free.</p>
+  </div>
+</section>
+
+<section class="qa">
+  <div class="wrap">
+    <p class="kicker reveal">okay but how, in human words</p>
+    <div class="grid">
+      <div class="item reveal"><b>is it chatgpt?</b><span>no. no llm, no api call, no server thinking for you. it is trigonometry running at camera speed.</span></div>
+      <div class="item reveal"><b>then what sees me?</b><span>an open, already trained pose model on your own gpu. it returns 33 landmarks a frame and none of them go anywhere.</span></div>
+      <div class="item reveal"><b>did you train it on my body?</b><span>no. each frame does its math in memory and is thrown away. there is no training pipeline to feed you into, even if i wanted one.</span></div>
+      <div class="item reveal"><b>so how did you make it?</b><span>i did not train, i engineered. the pose model came pre trained. on top sits my own engine, tuned move by move on myself.</span></div>
+      <div class="item reveal"><b>who does the counting?</b><span>my own engine, written in c++ and compiled to run in your browser. one math pass per frame, so it keeps pace with you.</span></div>
+      <div class="item reveal"><b>and why is it free?</b><span>because it costs me nothing to run. no cluster, no api, no server bill. so there is nothing to charge you for.</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="privacy" id="privacy">
+  <div class="wrap">
+    <p class="kicker reveal">so where does the video go?</p>
+    <div class="row">
+      <div class="reveal">
+        <div class="huge">nowhere.</div>
+        <p>there is no upload button, because there is no upload code. the camera feed lives for a blink in your browser and is gone. it cannot leak, because it never exists anywhere but here.</p>
+      </div>
+      <div class="term reveal">
+        <div class="c">grep -r "upload" .</div>
+        <div class="o">searching the whole codebase.</div>
+        <div class="z">0 results.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="moves" id="moves">
+  <div class="wrap">
+    <p class="kicker reveal">your sport is already on the bill</p>
+    <h2 class="reveal">one engine, many rooms. you pick the room, not the rules.</h2>
+    <div class="list">
+      <div class="m reveal"><h4>wall pilates</h4><p>slow, precise, counted.</p></div>
+      <div class="m reveal"><h4>ballet at home</h4><p>form scored, gently.</p></div>
+      <div class="m reveal"><h4>yoga</h4><p>held poses, timed.</p></div>
+      <div class="m reveal"><h4>bodyweight</h4><p>every rep graded.</p></div>
+    </div>
+    <p class="all reveal"><a href="../moves.html">see the full moves list.</a></p>
+  </div>
+</section>
+
+<section class="try">
+  <div class="wrap reveal">
+    <div class="row">
+      <div>
+        <h2>open the camera. do one rep.</h2>
+        <p>you do not book a class, you do not make an account, you do not stand in front of anyone. you open a tab in the room you already train in, and the counting starts.</p>
+        <span class="stub">free, always. stays on your device. no one watching but you.</span>
+      </div>
+      <a class="go" href="../coach.html">open the camera. no ticket needed.</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>gymgyme.</span>
+    <span>no ads, no tracking, no cookies.</span>
+    <span><a href="patch-notes.html">patch notes</a></span>
+    <span>built by <a href="https://github.com/nosey-dewdrop">nosey-dewdrop</a>.</span>
+  </div>
+</footer>
+
+<script>
+  const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.1,rootMargin:'0px 0px -30px 0px'});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>

@@ -14,8 +14,12 @@
   <meta name="twitter:title" content="gymgyme - a camera trainer that counts your reps">
   <meta name="twitter:description" content="Browse home workouts, build your own plan, then open the camera. It counts and scores your form on your device. Free, no ads, forever.">
   <meta name="twitter:image" content="https://gymgyme.noseydewdrop.com/icons/icon-512.png">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎀</text></svg>">
+  <link rel="icon" href="icons/icon-192.png">
   <link rel="canonical" href="https://gymgyme.noseydewdrop.com/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
+  <link rel="stylesheet" href="css/site.css">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -28,182 +32,25 @@
     "keywords": "home workout, wall pilates, adult ballet at home, yoga for beginners, bodyweight exercises, no equipment workout, free workout program"
   }
   </script>
-<style>
-  :root {
-    --paper: #ffffff;
-    --ink: #111111;
-    --mut: #6f6b74;
-    --lila: #8e6fd8;
-    --lila-soft: #efeafa;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html { -webkit-text-size-adjust: 100%; }
-  body {
-    background: var(--paper);
-    color: var(--ink);
-    font-family: Helvetica, Arial, sans-serif;
-    font-size: 15px;
-    line-height: 1.5;
-  }
-  a { color: inherit; }
-  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 30px; }
-
-  nav.top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px 0;
-  }
-  .brand { font-size: 20px; font-weight: bold; letter-spacing: -0.02em; text-decoration: none; }
-  .brand i { font-style: normal; color: var(--lila); }
-  nav.top .links { display: flex; align-items: center; gap: 22px; font-size: 13.5px; }
-  nav.top .links a { color: var(--mut); text-decoration: none; }
-  nav.top .links a:hover { color: var(--ink); }
-  .btn {
-    display: inline-block;
-    background: var(--ink);
-    color: #fff;
-    text-decoration: none;
-    font-size: 14px;
-    padding: 10px 18px;
-    border-radius: 3px;
-    transition: background 0.15s, transform 0.15s;
-  }
-  .btn, .btn:visited { color: #fff; }
-  .btn:hover { background: var(--lila); color: #fff; transform: translateY(-1px); }
-  nav.top .btn { padding: 8px 14px; font-size: 13px; background: var(--lila); color: #fff; }
-  nav.top .btn:hover { background: var(--ink); color: #fff; }
-
-  /* hero */
-  .hero { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 48px; align-items: center; padding: 44px 0 40px; }
-  .hero h1 { font-size: 38px; line-height: 1.08; letter-spacing: -0.025em; max-width: 16ch; }
-  .hero h1 i { font-style: normal; color: var(--lila); }
-  .hero .sub { margin-top: 14px; font-size: 15.5px; color: var(--mut); max-width: 44ch; }
-  .hero .acts { margin-top: 22px; display: flex; align-items: center; gap: 16px; }
-  .hero .quiet { font-size: 13px; color: var(--mut); text-decoration: none; border-bottom: 1px solid var(--lila); padding-bottom: 1px; }
-  .hero .quiet:hover { color: var(--ink); }
-  .hero .stub { display: block; margin-top: 14px; font-size: 12.5px; color: var(--mut); }
-
-  /* live demo */
-  .demo { position: relative; }
-  .demo canvas { width: 100%; height: auto; display: block; }
-  .demo .tag { font-size: 12px; color: var(--mut); }
-  .demo .read {
-    position: absolute;
-    top: 8px;
-    right: 0;
-    text-align: right;
-    display: grid;
-    justify-items: end;
-    row-gap: 2px;
-  }
-  .demo .read .n {
-    font-size: 58px;
-    font-weight: bold;
-    letter-spacing: -0.04em;
-    line-height: 1;
-    font-variant-numeric: tabular-nums;
-    position: relative;
-  }
-  .demo .read .lbl { font-size: 12px; color: var(--mut); max-width: 16ch; }
-  .demo .read .angle { margin-top: 8px; font-size: 15px; color: var(--lila); font-variant-numeric: tabular-nums; }
-  .demo .read .plus {
-    position: absolute;
-    right: 0;
-    top: -6px;
-    font-size: 16px;
-    font-weight: bold;
-    color: var(--lila);
-    opacity: 0;
-    pointer-events: none;
-  }
-  .demo .read .plus.fly { animation: fly 0.9s ease-out; }
-  @keyframes fly {
-    0% { opacity: 0; transform: translateY(6px); }
-    20% { opacity: 1; }
-    100% { opacity: 0; transform: translateY(-26px); }
-  }
-  .brand i.hop { animation: hop 0.45s cubic-bezier(.34,1.56,.64,1); display: inline-block; }
-  @keyframes hop {
-    0%, 100% { transform: translateY(0); }
-    45% { transform: translateY(-6px); }
-  }
-
-  section { padding: 40px 0; }
-  .eyebrow { font-size: 12.5px; color: var(--lila); margin-bottom: 8px; }
-  h2 { font-size: 25px; letter-spacing: -0.02em; line-height: 1.2; max-width: 26ch; }
-
-  /* worth: claim on the left, the three jobs across the right */
-  .worth { display: grid; grid-template-columns: 0.85fr 1.15fr; gap: 56px; align-items: start; }
-  .worth .big p { margin-top: 12px; color: var(--mut); max-width: 34ch; }
-  .worth ul { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 24px 32px; }
-  .worth li { display: grid; grid-template-columns: 26px 1fr; gap: 12px; align-items: baseline; }
-  .worth li b { font-weight: bold; }
-  .worth li .k { color: var(--lila); font-weight: bold; font-variant-numeric: tabular-nums; }
-  .worth li p { color: var(--mut); font-size: 13.5px; margin-top: 3px; }
-
-  /* how: a real four-across row, filling the width */
-  .how { background: var(--lila-soft); }
-  .how .cols { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; margin-top: 22px; }
-  .how .c b { display: block; margin-bottom: 4px; }
-  .how .c p { font-size: 13.5px; color: var(--mut); }
-  .how .note { margin-top: 26px; font-size: 13px; color: var(--mut); }
-  .how .note i { font-style: normal; color: var(--ink); }
-
-  /* privacy */
-  .priv { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
-  .priv .mega { font-size: 52px; font-weight: bold; letter-spacing: -0.03em; }
-  .priv .mega i { font-style: normal; color: var(--lila); }
-  .priv p { color: var(--mut); max-width: 42ch; margin-top: 10px; }
-  .priv .term { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 13px; background: var(--ink); color: #eee; padding: 20px 22px; border-radius: 3px; justify-self: end; width: 100%; }
-  .priv .term .zero { color: #9df2b0; margin-top: 6px; }
-
-  /* loop: heading left, numbered steps fill the right */
-  .loop .split { display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 56px; align-items: start; }
-  .loop ol { list-style: none; counter-reset: s; }
-  .loop li { counter-increment: s; padding: 12px 0; display: grid; grid-template-columns: 44px 1fr; gap: 16px; align-items: baseline; border-top: 1px solid var(--lila-soft); }
-  .loop li:first-child { border-top: none; }
-  .loop li::before { content: "0" counter(s); color: var(--lila); font-weight: bold; font-size: 22px; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
-  .loop li a { color: var(--ink); }
-  .loop li span { color: var(--mut); }
-
-  /* close: anchored right, mirrors the hero */
-  .close { padding: 48px 0 60px; }
-  .close .wrap { display: grid; justify-items: end; text-align: right; }
-  .close h2 { font-size: 34px; max-width: 20ch; }
-  .close p { color: var(--mut); margin-top: 10px; max-width: 46ch; }
-  .close .acts { margin-top: 22px; display: flex; align-items: center; gap: 16px; }
-
-  footer { padding: 26px 0 34px; font-size: 12.5px; color: var(--mut); }
-  footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: baseline; }
-  footer a { color: var(--mut); text-decoration: none; }
-  footer a:hover { color: var(--ink); }
-  footer .b { color: var(--ink); font-weight: bold; }
-
-  @media (max-width: 860px) {
-    .hero { grid-template-columns: 1fr; gap: 28px; padding-top: 24px; }
-    .hero h1 { font-size: 29px; }
-    .worth, .priv { grid-template-columns: 1fr; gap: 22px; }
-    .worth ul { grid-template-columns: 1fr; }
-    .how .cols { grid-template-columns: 1fr 1fr; }
-    .loop .split { grid-template-columns: 1fr; gap: 14px; }
-    .close .wrap { justify-items: start; text-align: left; }
-    .priv .mega { font-size: 42px; }
-    nav.top .links a:not(.btn) { display: none; }
-  }
-</style>
 </head>
 <body>
 
-<nav class="top">
-  <div class="wrap" style="display:flex;align-items:center;justify-content:space-between">
-    <a class="brand" href="index.html">gymgyme<i>.</i></a>
+<nav class="tnav">
+  <div class="wrap">
+    <a class="brand" href="index.html">gymgyme</a>
+    <span class="search">
+      <span class="searchwrap">
+        <input class="topsearch" id="topSearch" placeholder="search moves, categories...">
+        <div class="searchdrop" id="searchDrop"></div>
+      </span>
+    </span>
     <div class="links">
       <a href="moves.html">moves</a>
       <a href="my-program.html">build a workout</a>
+      <a href="my-moves.html" id="movesBtn">my moves</a>
       <a href="blog.html">blog</a>
       <a href="patch-notes.html">patch notes</a>
-      <a class="btn" href="coach.html">open the camera</a>
+      <a class="go" href="coach.html"><span>open the camera</span></a>
     </div>
   </div>
 </nav>
@@ -338,7 +185,7 @@
 <h2 class="center push-down">contributors (thank you!)</h2>
 <p id="contributors" class="contribs center">…</p>
 
-<footer>
+<footer class="tfoot">
   <div class="wrap">
     <span class="b">gymgyme.</span>
     <a href="moves.html">moves</a>
@@ -352,7 +199,7 @@
     <a href="terms.html">terms</a>
     <a href="https://github.com/nosey-dewdrop">github</a>
     <span>No ads, no tracking, no cookies.</span>
-    <span>Move data from the public-domain free-exercise-db.</span>
+    <span class="vtag">v63</span>
   </div>
 </footer>
 
