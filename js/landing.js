@@ -76,9 +76,12 @@
       b: { head:[.50,.07], neck:[.50,.14], sho:[.50,.18], elb:[.62,.24], wri:[.74,.14], hip:[.50,.50], kneeF:[.53,.72], ankF:[.53,.94], kneeB:[.47,.72], ankB:[.47,.94], toe:[.58,.96] } },
   };
   const SEQ = ['squat', 'plank', 'bridge', 'lunge', 'raise'];
-  const FIG = 0.92, PADX = 0.06;
-  // map a normalized pose to canvas coords, filling the panel.
-  function place(pt) { return { x: (PADX + pt[0] * (1 - 2 * PADX)) * CW, y: (0.04 + pt[1] * FIG) * CH }; }
+  // FIG = fraction of panel HEIGHT the figure's normalized box occupies (<=0.70
+  // so it is not a tall column). PADX/box width give human proportions: the pose
+  // y-coords already put legs at ~48% of the standing height. centered vertically.
+  const FIG = 0.68, FIGW = 0.5, PADY = (1 - FIG) / 2, PADX = (1 - FIGW) / 2;
+  // map a normalized pose to canvas coords (box centered in the panel).
+  function place(pt) { return { x: (PADX + pt[0] * FIGW) * CW, y: (PADY + pt[1] * FIG) * CH }; }
   function poseFor(move, d) {
     const P = POSES[move], A = P.a, B = P.b, out = { figH: CH * FIG };
     for (const k in A) out[k] = { x: lrp(place(A[k]).x, place(B[k]).x, d), y: lrp(place(A[k]).y, place(B[k]).y, d) };
