@@ -536,6 +536,42 @@ body.running #intro,body.running #progCard{display:none}
 .yearwall i.lv4{background:var(--pink)}
 .weekwall{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-top:6px}
 
+/* ---------------------------------------------------------------- FAZ 5
+   blog tabs, patch-notes three columns, suggest form. */
+
+/* blog: tabs are underline-only (defined in .tabs already), prose 66ch */
+.blog-body{padding:20px 0 44px}
+.blog-body .prose{margin:0}
+.blog-empty{margin-top:20px}
+
+/* patch-notes: three columns. entries 66ch in the middle; damla's photos in
+   the ~200px side rails, alternating rows, never two on one line. rails hidden
+   on mobile. these photos appear ONLY on this page. */
+.patch-grid{display:grid;grid-template-columns:200px minmax(0,66ch) 200px;gap:32px;justify-content:center;margin-top:20px}
+.patch-rail{display:flex;flex-direction:column}
+.patch-photo{margin:0}
+.patch-photo img{width:200px;height:250px;object-fit:cover;border-radius:var(--r);display:block}
+.patch-photo figcaption{font-family:var(--mono);font-size:11px;color:var(--mut);margin-top:8px}
+/* row alignment: push each photo down to sit beside its entry (approx) */
+.patch-photo.r2{margin-top:180px}
+.patch-photo.r4{margin-top:560px}
+.patch-photo.r6{margin-top:120px}
+.timeline{display:grid;gap:26px}
+.patch{display:block}
+.patch .pmeta{display:flex;gap:12px;align-items:baseline;margin-bottom:6px}
+.patch .ver{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--lila)}
+.patch .date{font-family:var(--mono);font-size:11px;color:var(--mut)}
+.patch .pbody h3{font-size:18px;margin-bottom:5px}
+.patch .pbody p{font-size:15px;color:var(--mut);max-width:66ch}
+@media(max-width:900px){
+  .patch-grid{grid-template-columns:1fr}
+  .patch-rail{display:none}
+}
+
+/* suggest: the .field form system (defined in forms), centered column */
+.suggest-body{padding:20px 0 44px}
+.office{max-width:560px;margin:0 auto}
+
 /* ---------------------------------------------------------------- footer
    single row, holds everything, one hairline over. */
 .tfoot{border-top:1px solid var(--line);padding:26px 0 40px;background:var(--paper)}

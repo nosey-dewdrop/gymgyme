@@ -41,30 +41,82 @@
   <div class="wrap">
     <p class="eyebrow">patch notes</p>
     <h2>what changed, and why?</h2>
-    <p class="lead" style="margin-top:6px">every technical change to the engine and the site lands here, dated, with the reason behind it. this is the developer's corner.</p>
+    <p class="lead">every technical change to the engine and the site lands here, dated, with the reason behind it. this is the developer's corner.</p>
 
-    <div class="timeline">
+    <!-- three columns: entries in the middle (66ch), damla's photos alternating
+         in the ~200px side rails, one per row, never two on the same line,
+         hidden on mobile. these photos live ONLY on this page. -->
+    <div class="patch-grid">
+      <aside class="patch-rail left" aria-hidden="true">
+        <figure class="patch-photo r2"><img src="img/damla_5289_crop.jpg" width="200" height="250" loading="lazy" alt="damla training in front of the engine"><figcaption>tested on herself</figcaption></figure>
+        <figure class="patch-photo r6"><img src="img/damla_5263.jpg" width="200" height="250" loading="lazy" alt="the engine tracking damla"><figcaption>built the whole engine</figcaption></figure>
+      </aside>
 
-      <!-- first patch: the person behind it -->
-      <article class="patch">
-        <div class="pmeta">
-          <span class="ver">who</span>
-          <span class="date">the person behind it</span>
-        </div>
-        <div class="pbody">
-          <h3>hi, i am the one in the photos.</h3>
-          <p>i build gymgyme, and i test every move on myself before it ships. the camera engine is hand-written, calibrated on the body you see here. that is the first patch note: a real person, not a template.</p>
-          <div class="polaroids">
-            <figure><img src="img/damla_5289_crop.jpg" alt="damla training in front of the engine"><figcaption>tested on herself</figcaption></figure>
-            <figure><img src="img/damla_5275.jpg" alt="damla, bilkent cs"><figcaption>damla, bilkent cs</figcaption></figure>
-            <figure><img src="img/damla_5263.jpg" alt="the engine tracking damla"><figcaption>built the whole engine</figcaption></figure>
+      <div class="timeline">
+        <article class="patch">
+          <div class="pmeta"><span class="ver">v73</span><span class="date">19 jul 2026</span></div>
+          <div class="pbody">
+            <h3>the whole library became cards.</h3>
+            <p>386 moves used to be a plain list. now each one is a card that shows its muscle group and whether the engine coaches it live or just shows it for reference. saved moves turn pink, the calendar year became a dot density instead of a copied contribution graph.</p>
           </div>
-        </div>
-      </article>
+        </article>
+        <article class="patch">
+          <div class="pmeta"><span class="ver">v72</span><span class="date">19 jul 2026</span></div>
+          <div class="pbody">
+            <h3>the camera page got an onboarding.</h3>
+            <p>four steps before the camera opens: pick a move, set reps, allow the camera, step into the frame. no skip button, no way to rush past a step. the last step confirms itself the moment the engine can see your whole body. the pink theme that did not belong is gone.</p>
+          </div>
+        </article>
+        <article class="patch">
+          <div class="pmeta"><span class="ver">v71</span><span class="date">19 jul 2026</span></div>
+          <div class="pbody">
+            <h3>the home page counts your reps.</h3>
+            <p>the figure on the landing page is a point cloud, not a skeleton. press "open the camera" and it loads the engine right there, tracks your own body, counts your real squats without leaving the page. mediapipe only downloads when you press it, so the first load stays fast.</p>
+          </div>
+        </article>
+        <article class="patch">
+          <div class="pmeta"><span class="ver">v70</span><span class="date">19 jul 2026</span></div>
+          <div class="pbody">
+            <h3>one stylesheet for the whole site.</h3>
+            <p>the site had drifted into five design worlds with four css files fighting each other. all of it collapsed into a single stylesheet and one shared nav and footer, so the pages can never split apart again. no more per-page overrides.</p>
+          </div>
+        </article>
+        <article class="patch">
+          <div class="pmeta"><span class="ver">v69</span><span class="date">16 jul 2026</span></div>
+          <div class="pbody">
+            <h3>the overlay draws thin corner boxes.</h3>
+            <p>the tracked joints get a fine box that turns mint when your form is good and cherry when it needs a fix. the color comes from the engine's real form cue, not decoration. the face mesh was removed: it painted your face and helped nothing.</p>
+          </div>
+        </article>
+        <article class="patch">
+          <div class="pmeta"><span class="ver">v66</span><span class="date">14 jul 2026</span></div>
+          <div class="pbody">
+            <h3>the engine locks onto your body.</h3>
+            <p>a one euro filter smooths the landmarks, an occlusion recovery keeps tracking when a limb hides, and a calibration step learns your body first before it locks on. 386 moves loaded, holds like plank and wall sit timed by duration instead of counted.</p>
+          </div>
+        </article>
+        <article class="patch">
+          <div class="pmeta"><span class="ver">v62</span><span class="date">15 jul 2026</span></div>
+          <div class="pbody">
+            <h3>a miss, fixed: it would not count a seated person.</h3>
+            <p>the default move was a squat, so anyone sitting down was counted as squatting. changed the default to an arm raise and tightened the calibration shift. an honest note: growing the engine did not make the product better on its own, testing it on camera did.</p>
+          </div>
+        </article>
+        <article class="patch">
+          <div class="pmeta"><span class="ver">v10</span><span class="date">13 jul 2026</span></div>
+          <div class="pbody">
+            <h3>the first working camera trainer shipped.</h3>
+            <p>rep counting, a 0 to 100 score from depth, tempo and control, form correction in 3d, all on device, nothing uploaded. added a service worker so it opens offline, a privacy policy and terms, and an in-app account deletion before anyone else could use it.</p>
+          </div>
+        </article>
+      </div>
 
+      <aside class="patch-rail right" aria-hidden="true">
+        <figure class="patch-photo r4"><img src="img/damla_5275.jpg" width="200" height="250" loading="lazy" alt="damla, bilkent cs"><figcaption>damla, bilkent cs</figcaption></figure>
+      </aside>
     </div>
 
-    <p class="note" style="margin-top:24px">new patches land at the top as the engine and the site change. dated, honest, misses included.</p>
+    <p class="note">new patches land at the top as the engine and the site change. dated, honest, misses included.</p>
   </div>
 </section>
 
