@@ -47,3 +47,22 @@ Karar: Damla "onaylıyorum, FAZ 3'e geç" dedi. I3 (worth+how) ritim-kırma
 haliyle kabul; tam birleştirme yapılmadı, itiraz gelmedi.
 Gerekçe: canlı gösterildi, kabul edildi.
 Etki: FAZ 3 açıldı.
+
+## 19 Tem · FAZ 4 · kartta "mono hedef" verisi yok
+Durum: HANDOFF M3 "her kartta hangi eklem + mono hedef" istiyor. MOVE_DB
+sadece {kategori: [isim]} tutuyor — eklem grubu VAR (kategori), ama
+per-hareket "mono hedef" (reps/açı) verisi YOK.
+Karar: kartta eklem grubu (kategori) + coached/reference + kalp gösterildi.
+"Mono hedef" gösterilmedi çünkü veri yok; uydurma yasak (§4).
+Gerekçe: olmayan veriyi uydurmak dürüstlük ihlali (STRATEJI: coached ölçüm
+sonucu). Hedef değerleri motor spec'inden FAZ 8'de (spec DSL) gelecek.
+Etki: M3 "mono hedef" kısmı AÇIK, FAZ 8'de kapanır. Kapsam küçülmedi —
+veri üretilince eklenecek (§5b: yapılamayan "açık" yazıldı).
+
+## 19 Tem · FAZ 4 · yearwall nokta yoğunluğu (github rampası kalktı)
+Durum: MP1 "less▪▪▪more" GitHub katkı grafiği kopyasıydı (lv1-4 yeşil rampa).
+Karar: legend kaldırıldı; lv1-4 tek pink tonuna bağlandı (yoğunluk = opaklık
+.5/.75/1 + pink-soft), GitHub yeşil rampası gitti. JS lv class'larını üretmeye
+devam ediyor (dokunulmadı), sadece CSS anlamı değişti.
+Gerekçe: PROTOKOL reddedilenler + MP1; nokta motifi tutarlılığı.
+Etki: MP1 kapandı. Geri alınır: legend geri + lv CSS eski rampaya.

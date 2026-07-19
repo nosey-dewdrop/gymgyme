@@ -96,6 +96,24 @@ Miras kuruldu: --dur-fast/--dur/--dur-slow/--ease, --r-sm/--r/--r-lg, .empty, .l
 Radius sistemi (SÖZLEŞME DEĞİŞİKLİĞİ, DECISIONS'ta): --r:3px→16px sistemine geçti, tüm site yumuşak köşe.
 Sonraki: FAZ 4.
 Açık (Damla canlı test): onboarding izin ver/reddet, adım 4 otomatik onay, kamera sayıyor mu.
-## FAZ 4 — moves · my-moves · my-program   [başlamadı]
+## FAZ 4 — moves · my-moves · my-program   [kapı geçti — 19 Tem]
+| kod | durum | kanıt |
+|-----|-------|------|
+| M1 386 render | kapandı | .lib-mv liste → .card sistemi (mv-card); render MOVE_DB'nin 386 hareketini geziyor; canlı mv-card + card-grid; kesin sayı Damla'da (JS render, curl göremez) |
+| M2 filtre+sayaç | kapandı | libfilters çipleri + mono #libCount "N / 386" canlı |
+| M3 coached/reference | KISMİ | her kartta eklem grubu (kategori) + coached(lila-soft)/reference(nötr) + kalp SVG. "mono hedef" verisi MOVE_DB'de YOK → uydurulmadı, FAZ 8 spec'ten gelecek (DECISIONS) |
+| M4 emoji arama/kalp | kapandı | kalp SVG (FAZ 1), arama emoji yok |
+| MM1 boş durum eylem | kapandı | my-moves boş → .empty deseni (dot + satır + "browse 386 moves" btn) |
+| MM2 save boşken gizli | kapandı | createBtn.hidden = kept.length===0 (mevcut) |
+| MM3 kimlik | kapandı | kaydedilenler pink-soft kart (.kept-row.card.saved), moves kopyası değil |
+| MP1 github grafiği | kapandı | "less▪▪▪more" legend kalktı (canlı grep 0), yearwall pink nokta yoğunluğu |
+| MP2 takvim genişlik | kapandı | .mcal/.wcal/.ycal max-width:none, tam genişlik |
+| MP3 gün hücresi | kapandı | .monthwall .d.lit hareket+skor (mevcut), dolu gün pink-soft, bugün lila ring |
+| MP4 manifesto | kapandı | başlık tek satır (copy'ye dokunulmadı, h1 sistemi) |
+| MP5 week/month/year | kapandı | .viewpick çip sistemi (999px, lila aktif) |
+| G7 boş durum çıkış | kapandı | moves/my-moves/my-program boş durumların HEPSİNDE .empty + buton; inline #8e6fd8 palet kaçakları temizlendi |
+Kapı: gate.sh 4 GEÇTİ (universal 13/13 + no github graph). SÖZLEŞME DEĞİŞİKLİĞİ: M3 mono-hedef açık (veri yok, FAZ 8), MP1 dot-density (DECISIONS).
+Sonraki: FAZ 5.
+Açık: 386 kesin render sayısı (Damla canlı), M3 mono hedef (FAZ 8).
 ## FAZ 5 — blog · patch-notes · gizlilik · terms · suggest   [başlamadı]
 ## FAZ 6 — Generic denetimi   [başlamadı]
