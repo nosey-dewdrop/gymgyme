@@ -45,107 +45,78 @@
   let s = 20260719;
   const rand = () => (s = (s * 16807) % 2147483647) / 2147483647;
 
-  // ---- demo figure geometry (side view), built limb by limb from joint
-  // positions so head→shoulder→hip→knee→ankle reads as a clear side profile,
-  // with a neck joining the head to the torso and the two legs kept apart.
-  // the figure cycles through five moves; poseFor(move,d) returns the joints for
-  // that move at phase d (0 = start/top, 1 = bottom/extended). ----
-  const FIG = 0.84;
-  // limb lengths as fractions of figure height
-  const L = { neck: 0.05, torso: 0.30, upperArm: 0.15, foreArm: 0.14, thigh: 0.24, shin: 0.24, foot: 0.07 };
-  // a joints frame from a few driving angles (radians, side view, x+ = forward)
-  function frame(o) {
-    const figH = CH * FIG, cx = CW * 0.5;
-    const spread = figH * 0.09;                    // gap between the two legs
-    // anchor: hips. torso rises from hips at torsoAng; head above shoulders.
-    const hip = { x: cx + (o.hipX || 0) * figH, y: CH * (1 - FIG) / 2 + figH * (o.hipY != null ? o.hipY : 0.52) };
-    const up = (len, ang) => ({ dx: Math.sin(ang) * len * figH, dy: -Math.cos(ang) * len * figH });
-    const dn = (len, ang) => ({ dx: Math.sin(ang) * len * figH, dy: Math.cos(ang) * len * figH });
-    let d1 = up(L.torso, o.torso);
-    const sho = { x: hip.x + d1.dx, y: hip.y + d1.dy };
-    let dn1 = up(L.neck, o.torso + o.neck);
-    const neck = { x: sho.x + dn1.dx * 0.5, y: sho.y + dn1.dy * 0.5 };
-    const headC = { x: sho.x + dn1.dx, y: sho.y + dn1.dy - figH * 0.045 };
-    const headR = figH * 0.062;
-    // arm: shoulder -> elbow -> wrist
-    let a1 = dn(L.upperArm, o.arm);
-    const elb = { x: sho.x + a1.dx, y: sho.y + a1.dy };
-    let a2 = dn(L.foreArm, o.arm + o.foreArm);
-    const wri = { x: elb.x + a2.dx, y: elb.y + a2.dy };
-    // FRONT leg (tracked side): hip -> knee -> ankle
-    const hipF = { x: hip.x + spread * 0.5, y: hip.y };
-    let l1 = dn(L.thigh, o.thighF);
-    const kneeF = { x: hipF.x + l1.dx, y: hipF.y + l1.dy };
-    let l2 = dn(L.shin, o.thighF + o.shinF);
-    const ankF = { x: kneeF.x + l2.dx, y: kneeF.y + l2.dy };
-    const toe = { x: ankF.x + L.foot * figH, y: ankF.y + figH * 0.005 };
-    // BACK leg
-    const hipB = { x: hip.x - spread * 0.5, y: hip.y };
-    let b1 = dn(L.thigh, o.thighB);
-    const kneeB = { x: hipB.x + b1.dx, y: hipB.y + b1.dy };
-    let b2 = dn(L.shin, o.thighB + o.shinB);
-    const ankB = { x: kneeB.x + b2.dx, y: kneeB.y + b2.dy };
-    return { headC, headR, neck, sho, hip: hipF, hip2: hipB, elb, wri,
-             knee: kneeF, ankle: ankF, knee2: kneeB, ankle2: ankB, toe, figH };
-  }
+  // ---- demo figure: HAND-PLACED side-profile joint coordinates per move.
+  // each joint is a normalized {x,y} in a 0..1 box (x right, y down). every move
+  // has a START pose and an END pose; phase d interpolates between them. this
+  // guarantees a readable skeleton (not a random blob) for each move. ----
   const lrp = (a, b, t) => a + (b - a) * t;
-  // the five moves. each maps phase d (0..1) to the driving angles for frame().
-  // 'joint' = which joint the engine tracks for this move.
-  const MOVES = {
-    squat: { joint: 'knee', label: 'squat', pose: (d) => ({
-      hipY: lrp(0.42, 0.60, d), hipX: lrp(0, -0.05, d),
-      torso: lrp(0.02, 0.5, d), neck: -0.15, arm: lrp(0.1, 0.9, d), foreArm: 0.2,
-      thighF: lrp(0.05, 0.95, d), shinF: lrp(-0.05, -1.5, d),
-      thighB: lrp(-0.05, 0.85, d), shinB: lrp(0.05, -1.4, d) }) },
-    plank: { joint: 'hip', label: 'plank', pose: (d) => ({
-      hipY: 0.70, hipX: 0.0,
-      torso: lrp(1.35, 1.45, d), neck: 0.1, arm: lrp(2.4, 2.5, d), foreArm: 0.7,
-      thighF: lrp(1.65, 1.7, d), shinF: 0.05, thighB: 1.6, shinB: 0.05 }) },
-    bridge: { joint: 'hip', label: 'glute bridge', pose: (d) => ({
-      hipY: lrp(0.72, 0.6, d), hipX: 0,
-      torso: lrp(2.1, 2.4, d), neck: -0.3, arm: lrp(2.7, 2.8, d), foreArm: 0.1,
-      thighF: lrp(1.1, 0.7, d), shinF: lrp(-1.9, -2.2, d),
-      thighB: lrp(1.15, 0.75, d), shinB: lrp(-1.9, -2.2, d) }) },
-    lunge: { joint: 'knee', label: 'lunge', pose: (d) => ({
-      hipY: lrp(0.44, 0.58, d), hipX: 0.02,
-      torso: 0.05, neck: -0.15, arm: 0.15, foreArm: 0.15,
-      thighF: lrp(0.15, 0.75, d), shinF: lrp(-0.15, -0.85, d),
-      thighB: lrp(-0.35, -0.75, d), shinB: lrp(-0.1, 0.9, d) }) },
-    raise: { joint: 'shoulder', label: 'arm raise', pose: (d) => ({
-      hipY: 0.42, hipX: 0,
-      torso: 0.02, neck: -0.12, arm: lrp(0.15, 1.9, d), foreArm: 0.05,
-      thighF: 0.06, shinF: -0.06, thighB: -0.06, shinB: 0.06 }) },
+  // joints, hand-drawn as a stick side profile. keys:
+  // head, neck, sho(ulder), elb(ow), wri(st), hip, kneeF/ankF (front leg),
+  // kneeB/ankB (back leg), toe. coords chosen so the profile reads clearly.
+  const POSES = {
+    // STANDING squat: upright -> deep squat (hips back+down, knees forward)
+    squat: { joint: 'knee', label: 'squat',
+      a: { head:[.50,.06], neck:[.50,.13], sho:[.50,.17], elb:[.52,.34], wri:[.53,.50], hip:[.50,.50], kneeF:[.55,.72], ankF:[.55,.94], kneeB:[.45,.72], ankB:[.45,.94], toe:[.60,.96] },
+      b: { head:[.44,.20], neck:[.45,.27], sho:[.46,.31], elb:[.56,.42], wri:[.66,.50], hip:[.40,.58], kneeF:[.60,.70], ankF:[.55,.94], kneeB:[.52,.70], ankB:[.45,.94], toe:[.60,.96] } },
+    // PLANK: horizontal line, forearms + toes down. barely moves (a small dip).
+    plank: { joint: 'hip', label: 'plank',
+      a: { head:[.18,.52], neck:[.24,.53], sho:[.30,.54], elb:[.30,.70], wri:[.22,.84], hip:[.62,.54], kneeF:[.78,.66], ankF:[.90,.80], kneeB:[.78,.62], ankB:[.90,.78], toe:[.94,.82] },
+      b: { head:[.18,.54], neck:[.24,.55], sho:[.30,.56], elb:[.30,.72], wri:[.22,.84], hip:[.62,.58], kneeF:[.78,.68], ankF:[.90,.80], kneeB:[.78,.64], ankB:[.90,.78], toe:[.94,.82] } },
+    // GLUTE BRIDGE: lying on back, knees bent, hips lift up (b = hips high)
+    bridge: { joint: 'hip', label: 'glute bridge',
+      a: { head:[.14,.72], neck:[.20,.72], sho:[.28,.72], elb:[.24,.82], wri:[.18,.90], hip:[.62,.72], kneeF:[.80,.62], ankF:[.86,.86], kneeB:[.80,.66], ankB:[.86,.88], toe:[.90,.88] },
+      b: { head:[.14,.72], neck:[.20,.71], sho:[.28,.70], elb:[.24,.80], wri:[.18,.90], hip:[.60,.54], kneeF:[.80,.60], ankF:[.86,.86], kneeB:[.80,.62], ankB:[.86,.88], toe:[.90,.88] } },
+    // LUNGE: front leg bent forward, back leg extended behind, torso upright
+    lunge: { joint: 'knee', label: 'lunge',
+      a: { head:[.48,.08], neck:[.48,.15], sho:[.48,.19], elb:[.49,.36], wri:[.50,.52], hip:[.47,.50], kneeF:[.60,.70], ankF:[.62,.94], kneeB:[.36,.72], ankB:[.26,.94], toe:[.68,.96] },
+      b: { head:[.46,.18], neck:[.46,.25], sho:[.46,.29], elb:[.47,.44], wri:[.48,.58], hip:[.45,.56], kneeF:[.66,.74], ankF:[.62,.94], kneeB:[.30,.80], ankB:[.22,.94], toe:[.68,.96] } },
+    // ARM RAISE: standing, arms lift from sides up to shoulder height / overhead
+    raise: { joint: 'shoulder', label: 'arm raise',
+      a: { head:[.50,.07], neck:[.50,.14], sho:[.50,.18], elb:[.51,.35], wri:[.52,.52], hip:[.50,.50], kneeF:[.53,.72], ankF:[.53,.94], kneeB:[.47,.72], ankB:[.47,.94], toe:[.58,.96] },
+      b: { head:[.50,.07], neck:[.50,.14], sho:[.50,.18], elb:[.62,.24], wri:[.74,.14], hip:[.50,.50], kneeF:[.53,.72], ankF:[.53,.94], kneeB:[.47,.72], ankB:[.47,.94], toe:[.58,.96] } },
   };
   const SEQ = ['squat', 'plank', 'bridge', 'lunge', 'raise'];
-  function poseFor(move, d) { return frame(MOVES[move].pose(d)); }
-  // the tracked joint's live angle, per move.
+  const FIG = 0.92, PADX = 0.06;
+  // map a normalized pose to canvas coords, filling the panel.
+  function place(pt) { return { x: (PADX + pt[0] * (1 - 2 * PADX)) * CW, y: (0.04 + pt[1] * FIG) * CH }; }
+  function poseFor(move, d) {
+    const P = POSES[move], A = P.a, B = P.b, out = { figH: CH * FIG };
+    for (const k in A) out[k] = { x: lrp(place(A[k]).x, place(B[k]).x, d), y: lrp(place(A[k]).y, place(B[k]).y, d) };
+    // aliases the drawing code expects
+    out.headC = out.head; out.headR = CH * 0.03;
+    out.knee = out.kneeF; out.ankle = out.ankF; out.knee2 = out.kneeB; out.ankle2 = out.ankB;
+    out.hip2 = out.hip;
+    return out;
+  }
   function trackedAngle(move, J) {
-    if (move === 'squat' || move === 'lunge') return angleAt(J.knee, J.hip, J.ankle);
-    if (move === 'plank' || move === 'bridge') return angleAt(J.hip, J.sho, J.knee);
+    if (move === 'plank' || move === 'bridge') return angleAt(J.hip, J.sho, J.kneeF);
     if (move === 'raise') return angleAt(J.sho, J.hip, J.elb);
-    return angleAt(J.knee, J.hip, J.ankle);
+    return angleAt(J.kneeF, J.hip, J.ankF);
   }
   function trackedPoint(move, J) {
     if (move === 'plank' || move === 'bridge') return J.hip;
     if (move === 'raise') return J.sho;
-    return J.knee;
+    return J.kneeF;
   }
 
   // dot budget: 450 total, allocated in PROPORTION to each segment's length so a
   // long limb gets more dots and nothing clumps. widths (spread as a fraction of
   // figH) give each limb its volume; the two legs stay separate.
+  // segments follow the hand-placed skeleton. spread = HALF-thickness of the
+  // limb as a fraction of figH — kept SMALL so dots hug the bone line and the
+  // profile stays readable. torso a touch wider; arms/shins thin.
   const SEG_DEFS = [
-    ['sho', 'neck', 0.020, 1.2], // neck — joins head to torso
-    ['hip', 'sho', 0.052, 2.6],   // torso — widest
-    ['sho', 'elb', 0.020, 1.0],   // upper arm
-    ['elb', 'wri', 0.018, 0.9],   // forearm
-    ['hip', 'knee', 0.034, 1.5],  // front thigh
-    ['knee', 'ankle', 0.026, 1.5],// front shin
-    ['hip2', 'knee2', 0.034, 1.4],// back thigh
-    ['knee2', 'ankle2', 0.026, 1.4],// back shin
-    ['ankle', 'toe', 0.022, 0.5], // foot
+    ['neck', 'sho', 0.012, 0.8],  // neck
+    ['hip', 'sho', 0.030, 2.4],   // torso — widest
+    ['sho', 'elb', 0.013, 1.0],   // upper arm
+    ['elb', 'wri', 0.011, 0.9],   // forearm
+    ['hip', 'kneeF', 0.020, 1.5], // front thigh
+    ['kneeF', 'ankF', 0.015, 1.5],// front shin
+    ['hip', 'kneeB', 0.020, 1.3], // back thigh
+    ['kneeB', 'ankB', 0.015, 1.3],// back shin
+    ['ankF', 'toe', 0.013, 0.5],  // foot
   ];
-  const HEAD_WEIGHT = 1.4, HEAD_SPREAD = 0.06;
+  const HEAD_WEIGHT = 1.1, HEAD_SPREAD = 0.06;
   const TOTAL_DOTS = 450;
   const cloud = [];
   // build once at a reference figure to measure segment lengths for the split
@@ -221,7 +192,7 @@
         base = { x: mid.x + nrm.x * w * dt.off, y: mid.y + nrm.y * w * dt.off };
       }
       const jit = reduce ? 0 : 1;
-      const vx = Math.sin(ts / 900 + dt.ph) * 0.8 * jit, vy = Math.cos(ts / 1050 + dt.ph) * 0.8 * jit;
+      const vx = Math.sin(ts / 900 + dt.ph) * 0.5 * jit, vy = Math.cos(ts / 1050 + dt.ph) * 0.5 * jit;
       ctx.globalAlpha = dt.aBase;
       ctx.fillStyle = INK;
       ctx.beginPath(); ctx.arc(base.x + vx, base.y + vy, Math.min(2, dt.r), 0, Math.PI * 2); ctx.fill();
