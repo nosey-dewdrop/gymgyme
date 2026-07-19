@@ -42,7 +42,7 @@
   </div>
 </section>
 
-<section class="sub-body">
+<section class="lib-body">
   <div class="wrap">
     <span class="mvsw">
       <input class="mvsearch" id="kSearch" placeholder="search your moves...">
@@ -162,9 +162,12 @@
     createBtn.hidden = kept.length === 0;
     renderFilters();
     if (!kept.length) {
-      const e = document.createElement("p");
-      e.className = "kept-empty";
-      e.innerHTML = 'nothing here yet. open the <a href="moves.html" style="color:#8e6fd8;font-weight:bold">moves list</a> and save whatever you want to try.';
+      const e = document.createElement("div");
+      e.className = "empty";
+      e.innerHTML = '<div class="empty-dots"><i></i><i></i><i></i></div>' +
+        '<div class="big">nothing here yet</div>' +
+        '<p>save whatever you want to try, then line it up into a workout.</p>' +
+        '<a class="btn" href="moves.html">browse 386 moves</a>';
       keptList.appendChild(e);
       return;
     }
@@ -178,7 +181,7 @@
     }
     for (const m of shown) {
       const row = document.createElement("div");
-      row.className = "kept-row";
+      row.className = "kept-row card saved";
       const grow = document.createElement("span");
       grow.className = "grow"; grow.textContent = m + " ";
       const cat = document.createElement("small");

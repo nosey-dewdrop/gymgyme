@@ -51,13 +51,16 @@
   </div>
 </section>
 
-<section class="sub-body">
+<section class="lib-body">
   <div class="wrap">
-    <span class="mvsw">
-      <input class="mvsearch" id="mvSearch" placeholder="search a move...">
-    </span>
+    <div class="lib-controls">
+      <span class="mvsw">
+        <input class="mvsearch" id="mvSearch" placeholder="search a move...">
+      </span>
+      <span class="lib-count mono" id="libCount">386 / 386</span>
+    </div>
     <div class="libfilters" id="libFilters"></div>
-    <div id="allMoves"></div>
+    <div id="allMoves"><div class="loading" aria-label="loading the library"><i></i><i></i><i></i><i></i></div></div>
   </div>
 </section>
 
@@ -92,41 +95,62 @@
   const allMoves = document.getElementById("allMoves");
   const searchEl = document.getElementById("mvSearch");
   const libFilters = document.getElementById("libFilters");
+  const countEl = document.getElementById("libCount");
   let libCat = "all";
   const total = Object.values(MOVE_DB).reduce((a, l) => a + l.length, 0);
+
+  const HEART = '<svg class="icon-inline" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.9-10-9.2C.4 8.7 1.9 5.5 5 5.5c1.9 0 3.2 1.1 4 2.3.8-1.2 2.1-2.3 4-2.3 3.1 0 4.6 3.2 3 6.3C19.5 16.1 12 21 12 21z"/></svg>';
+
+  function countShown() {
+    const filter = searchEl.value.trim().toLowerCase();
+    let n = 0;
+    Object.keys(MOVE_DB).forEach((cat) => {
+      if (libCat !== "all" && cat !== libCat) return;
+      n += MOVE_DB[cat].filter((m) => !filter || m.indexOf(filter) !== -1).length;
+    });
+    return n;
+  }
 
   function render() {
     const filter = searchEl.value.trim().toLowerCase();
     const kept = GG_MYMOVES.get();
     allMoves.innerHTML = "";
+    if (countEl) countEl.textContent = countShown() + " / " + total;
     Object.keys(MOVE_DB).forEach((cat) => {
       if (libCat !== "all" && cat !== libCat) return;
       const moves = MOVE_DB[cat].filter((m) => !filter || m.indexOf(filter) !== -1);
       if (!moves.length) return;
-      const h = document.createElement("div");
+      const h = document.createElement("h2");
       h.className = "lib-cat";
-      h.innerHTML = cat + " (" + moves.length + ")<small>" + (QUIPS[cat] || "") + "</small>";
+      h.innerHTML = cat + " <small>(" + moves.length + ") " + (QUIPS[cat] || "") + "</small>";
       allMoves.appendChild(h);
       const grid = document.createElement("div");
-      grid.className = "lib-grid";
+      grid.className = "card-grid moves-grid";
       moves.forEach((m) => {
         const coached = COACHED.has(m);
-        const d = document.createElement("div");
-        d.className = "lib-mv" + (kept.indexOf(m) !== -1 ? " kept" : "") + (coached ? " coached" : "");
-        const name = document.createElement("span"); name.textContent = m;
-        const tag = document.createElement("small"); tag.className = "mvtag";
-        tag.textContent = coached ? (COACHED_HOLD.has(m) ? "coached hold" : "coached") : "reference";
-        const hh = document.createElement("span"); hh.className = "hh"; hh.innerHTML = '<svg class="icon-inline" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.9-10-9.2C.4 8.7 1.9 5.5 5 5.5c1.9 0 3.2 1.1 4 2.3.8-1.2 2.1-2.3 4-2.3 3.1 0 4.6 3.2 3 6.3C19.5 16.1 12 21 12 21z"/></svg>';
-        d.append(name, tag, hh);
+        const saved = kept.indexOf(m) !== -1;
+        const d = document.createElement("article");
+        d.className = "card mv-card" + (saved ? " saved" : "");
+        // name + the muscle group it works (the joint data we actually have) + tag + heart
+        d.innerHTML =
+          '<button class="mv-heart" type="button" aria-label="' + (saved ? "remove from" : "save to") + ' my moves" aria-pressed="' + saved + '">' + HEART + '</button>' +
+          '<h4 class="mv-name">' + m + '</h4>' +
+          '<div class="mv-meta"><span class="mv-joint">' + cat + '</span>' +
+          '<span class="mv-tag ' + (coached ? "coached" : "reference") + '">' + (coached ? (COACHED_HOLD.has(m) ? "coached hold" : "coached") : "reference") + '</span></div>' +
+          '<span class="card-dots"><i></i><i></i><i></i><i></i><i></i><i></i></span>';
+        d.querySelector(".mv-heart").addEventListener("click", (e) => { e.stopPropagation(); GG_MYMOVES.toggle(m); });
         d.addEventListener("click", () => GG_MYMOVES.toggle(m));
         grid.appendChild(d);
       });
       allMoves.appendChild(grid);
     });
     if (!allMoves.children.length) {
-      const e = document.createElement("p");
-      e.className = "small";
-      e.textContent = "no move by that name yet. suggest it and it can be added.";
+      const e = document.createElement("div");
+      e.className = "empty";
+      e.innerHTML = '<div class="empty-dots"><i></i><i></i><i></i></div>' +
+        '<div class="big">no move by that name yet</div>' +
+        '<p>suggest it and it can be added to the library.</p>' +
+        '<a class="btn" href="suggest.html">suggest a move</a>';
       allMoves.appendChild(e);
     }
   }

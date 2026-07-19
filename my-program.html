@@ -42,7 +42,7 @@
   </div>
 </section>
 
-<section class="sub-body">
+<section class="cal-body">
   <div class="wrap">
   <div class="viewpick" id="viewPick">
     <button type="button" data-v="week">week</button>
@@ -76,7 +76,6 @@
     </div>
     <small class="caltotals" id="yTotals"></small>
     <div class="yearwall" id="yearWall"></div>
-    <small class="ylegend">less <i class="l0"></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i> more</small>
   </div>
   <div class="hist">
     <div class="lbl">PAST SESSIONS</div>
@@ -200,9 +199,12 @@
     hist.innerHTML = "";
     const past = sessions.slice(-10).reverse();
     if (!past.length) {
-      const e = document.createElement("p");
-      e.className = "loading";
-      e.innerHTML = 'no sessions yet. start a workout on the <a href="coach.html" style="color:#8e6fd8;font-weight:bold">personal trainer</a> and the calendar fills itself.';
+      const e = document.createElement("div");
+      e.className = "empty";
+      e.innerHTML = '<div class="empty-dots"><i></i><i></i><i></i></div>' +
+        '<div class="big">no sessions yet</div>' +
+        '<p>the calendar fills itself once the camera counts a workout.</p>' +
+        '<a class="btn" href="coach.html">open the camera</a>';
       hist.appendChild(e);
     }
     const fmt = (isoD) => {

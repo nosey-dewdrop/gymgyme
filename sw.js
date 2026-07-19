@@ -1,7 +1,7 @@
 // gymgyme service worker: ana ekrana kurulan personal trainer offline da açılsın.
 // kamera + motor zaten cihazda çalışıyor; burada sadece dosyaları önbelleğe alıyoruz.
 // vendor/ ya da engine/ değişirse CACHE sürümünü artır — eski önbellek silinir.
-const CACHE = "gg-pwa-v72";  // v72: faz 3 coach — onboarding, radius token system, .empty/.loading, single name
+const CACHE = "gg-pwa-v73";  // v73: faz 4 moves/my-moves/my-program — cards, empty states, dot-density year, no github graph
 
 const CORE = [
   "coach.html",
