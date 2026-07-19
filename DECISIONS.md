@@ -66,3 +66,11 @@ Karar: legend kaldırıldı; lv1-4 tek pink tonuna bağlandı (yoğunluk = opakl
 devam ediyor (dokunulmadı), sadece CSS anlamı değişti.
 Gerekçe: PROTOKOL reddedilenler + MP1; nokta motifi tutarlılığı.
 Etki: MP1 kapandı. Geri alınır: legend geri + lv CSS eski rampaya.
+
+## 19 Tem · FAZ 5 · patch fotoğraf sırası (zevk kararı → ajan)
+Durum: 3 foto, hangisi hangi kolonda/sırada belirsizdi (eski "zevk kararı").
+Karar: sol ray = 5289_crop (tested on herself, r2) + 5263 (built the engine, r6);
+sağ ray = 5275 (damla bilkent cs, r4). Dönüşümlü, aynı satırda iki yok.
+Gerekçe: PROTOKOL §4 zevk kararı ajana; dengeli dağılım (2 sol 1 sağ, hizalar
+çakışmıyor). Damla itiraz ederse foto/sıra değişir (geri alınır).
+Etki: P2 kapandı.

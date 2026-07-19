@@ -115,5 +115,17 @@ Açık (Damla canlı test): onboarding izin ver/reddet, adım 4 otomatik onay, k
 Kapı: gate.sh 4 GEÇTİ (universal 13/13 + no github graph). SÖZLEŞME DEĞİŞİKLİĞİ: M3 mono-hedef açık (veri yok, FAZ 8), MP1 dot-density (DECISIONS).
 Sonraki: FAZ 5.
 Açık: 386 kesin render sayısı (Damla canlı), M3 mono hedef (FAZ 8).
-## FAZ 5 — blog · patch-notes · gizlilik · terms · suggest   [başlamadı]
+## FAZ 5 — blog · patch-notes · gizlilik · terms · suggest   [kapı geçti — 19 Tem]
+| kod | durum | kanıt |
+|-----|-------|------|
+| B2 blog sekme | kapandı | .tabs (kutu yok, aktif altı 2px lila) canlı; .blogtabs→.tabs |
+| B3 blog boş durum | kapandı | .empty deseni (dot + satır + "open the camera" btn); inline style kaldırıldı |
+| P1 patch ≥1 girdi | kapandı | 8 gerçek git girdisi (v73→v10, tarih+versiyon+ne+neden, v62 "miss" kaçırılan dahil) — canlı grep 8 |
+| P2 fotoğraf kenar+dönüşümlü | kapandı | 3-kolon .patch-grid; 3 foto sağ/sol raylarda dönüşümlü (sol r2/r6, sağ r4 — aynı hizada iki yok); 4:5, object-fit cover, mono altyazı, lazy+width/height, mobilde gizli |
+| P3 who başlığı | kapandı | parçalı "who/person behind" kalktı, girdiler tutarlı |
+| Z4 okuma genişliği | kapandı | gizlilik/terms/gizlilik-tr .prose 66ch (FAZ 1'de kabuk, .prose sınıfı) |
+| S1 form sistemi | kapandı | suggest .field/.office; input/select/textarea site.css forms; .sub-body→.suggest-body |
+| FOTOĞRAF sadece bu sayfa | kapandı | img/damla yalnız patch-notes'ta; index/coach/moves + 6 sayfada <img> foto = 0 (canlı) |
+Kapı: gate.sh 5 GEÇTİ (universal 13/13 + no photo outside patch + entries≥8). Canlı: 8 girdi, 3 foto lazy, index'te foto 0.
+Sonraki: FAZ 6.
 ## FAZ 6 — Generic denetimi   [başlamadı]
