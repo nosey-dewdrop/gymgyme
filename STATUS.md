@@ -1,17 +1,18 @@
 # gymgyme REWORK — STATUS
 
-## FAZ 0 — Kritik hatalar   [kapı geçildi]
+## FAZ 0 — Kritik hatalar   [kapı geçildi — 19 Tem]
 | kod | durum | kanıt |
 |-----|-------|-------|
-| G8  | kapandı | `diff root index.html` = AYNI; root'ta NOW SHOWING/starring you/ADMIT ONE = 0 |
-| I5  | kapandı | index.html canlı: is it chatgpt = 1, calisthenics = 1 (9 Q&A + 8 kategori dizin) |
-| Z3  | kapandı | gizlilik.html + gizlilik-tr.html + terms.html linki my-program.html'e; site geneli index.html# = 0 |
+| cache | kapandı | freshness testi: işaretli deploy → root'ta 1, işaret kaldırıldı deploy → root'ta 0; edge her deploy'da anında tazeleniyor (HIT görünse de stale dönmüyor). Ölçüt "MISS/BYPASS" → "içerik taze" güncellendi (Damla). |
+| G8  | kapandı | `diff root index.html` = AYNI; root NOW SHOWING = 0, is it chatgpt = 1 |
+| I5  | kapandı | 9 Q&A native `<details>/<summary>`, dizinden sonra + contributors'tan önce, metin cf49e20'den BİREBİR; canlı: details = 9, the strictest privacy policy = 1, calisthenics = 1, healthy-living-articles = 1 |
+| Z3  | kapandı | gizlilik/terms link kırığı önceki oturumda düzeldi; site geneli sinema kalıntısı canlıda yok |
 
-Kapı sonucu: GEÇTİ (ikinci deneme).
-- İLK denemede kapı DÜŞTÜ: root eski sinema sayfasını serve ediyordu. Sebep DOSYA DEĞİL, Vercel edge CACHE'iydi (repoda sinema HTML yok; x-vercel-cache HIT eski deploy'u tutuyordu).
-- Düzeltme: FAZ 0 push'u yeni deploy'u yaydı + vercel.json'a html için `cache-control: max-age=0, must-revalidate, s-maxage=0` eklendi -> root bir daha stale dönmez.
-- landing-mock.html silindi (takipsiz, yayına çıkmıyordu).
-- Düzeltme: dizin = topluluk link dizini (articles/workouts, hep boş); 386 hareket moves.html kütüphanesinde, AYRI şey.
+Kapı sonucu: GEÇTİ.
+- Cache: gerçek sebep vercel.json'daki `/(.*\\.html)?` regex'iydi — opsiyonel `.html?` çıplak root `/`'u kapsamıyordu, sadece tarayıcı cache'i kapanıyor, CDN açık kalıyordu. Düzeltme: `source: "/"` + `source: "/(.*\\.html)"` ayrı iki kural, ikisine de `s-maxage=0`. Statik varlıklar (css/js/img/wasm) kasıtlı cache'li bırakıldı.
+- I5 uyarı: `ed6394a` commit mesajı "restore 9-question qa" diyor ama içeriği boş — commit mesajına değil içeriğe bakıldı. Gerçek kaynak cf49e20 (sinema orijinali). Beklenen "does my video / will it work / who made" ifadeleri hiç var olmamış (Damla teyit etti).
+- Dizin = topluluk link dizini (articles/workouts sayacı, hep 0); 386 hareket moves.html'de, AYRI şey.
+- AÇIK (FAZ 1'e devir): topbar arama kutusu (`#topSearch`) HTML'den düşmüş, topbar.js onu arıyor. FAZ 0 kapısında değil; topbar FAZ 1'de kanonikleşecek, orada geri gelir.
 
 ## FAZ 1 — Tek kabuk, tek CSS   [başlamadı]
 ## FAZ 2 — index   [başlamadı]
