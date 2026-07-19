@@ -68,14 +68,14 @@
     </div>
 
     <div class="hero-demo">
+      <div class="panel-read">
+        <div class="n" id="reps">0<span class="plus" id="plus">+1</span></div>
+        <div class="lbl">reps counted live, of this figure</div>
+      </div>
       <div class="panel" id="heroPanel">
         <canvas id="rig" width="520" height="560"></canvas>
         <video id="heroVideo" playsinline muted hidden></video>
-        <div class="panel-read">
-          <div class="n" id="reps">0<span class="plus" id="plus">+1</span></div>
-          <div class="lbl">reps counted live, of this figure</div>
-          <div class="angle"><span id="knee">172</span>° knee</div>
-        </div>
+        <span id="knee" hidden></span>
       </div>
       <p class="panel-cap">What the camera sees: joints, angles, a full clean cycle. Not a picture of you.</p>
       <a class="panel-link" href="coach.html">full workout with sets and scores &rarr;</a>
@@ -115,7 +115,7 @@
   </div>
 </section>
 
-<section class="how band-lila">
+<section class="how">
   <div class="wrap">
     <p class="eyebrow">How does it work?</p>
     <h2>No chatbot, no server. Geometry, running on your phone.</h2>

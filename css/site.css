@@ -57,8 +57,8 @@ h1{font-size:clamp(30px,3.4vw,42px)}
 h2{font-size:clamp(23px,2.4vw,30px);line-height:1.14}
 h3{font-size:19px}
 h4{font-size:15px}
-p{max-width:66ch}
-.lead{font-size:16px;color:var(--mut);max-width:60ch}
+p{max-width:66ch;line-height:1.45}
+.lead{font-size:16px;color:var(--mut);max-width:60ch;line-height:1.5}
 .note{font-size:13px;color:var(--mut)}
 .link{color:var(--lila-deep);font-weight:600}
 /* every number / angle / score / time / version / terminal / eyebrow is mono */
@@ -79,16 +79,19 @@ section{padding:44px 0}
 /* ---------------------------------------------------------------- nav
    sits on the paper, single hairline under. current = bold. one primary action. */
 .tnav{border-bottom:1px solid var(--line);background:var(--paper)}
-.tnav .wrap{display:flex;align-items:center;gap:20px;height:60px}
-.tnav .brand,.tnav .brand:visited{font-family:var(--head);font-size:19px;font-weight:600;letter-spacing:-.01em;color:var(--ink)}
-.tnav .search{flex:1;display:flex;justify-content:center;min-width:0}
-.tnav .links{display:flex;gap:18px;align-items:center}
+.tnav .wrap{display:flex;align-items:center;gap:22px;height:60px}
+.tnav .brand,.tnav .brand:visited{font-family:var(--head);font-size:19px;font-weight:600;letter-spacing:-.01em;color:var(--ink);flex:none}
+/* brand left · links centered · search + primary action grouped right */
+.tnav .search{order:3;flex:none;width:auto}
+.tnav .search .searchwrap{width:200px}
+.tnav .search .topsearch{width:200px}
+.tnav .links{order:2;flex:1;display:flex;gap:18px;align-items:center;justify-content:center}
 .tnav .links a,.tnav .links a:visited{font-size:14px;color:var(--mut)}
 .tnav .links a:hover{color:var(--lila-deep)}
 .tnav .links a.on{color:var(--ink);font-weight:600}
 
 /* the one primary action */
-.go,.go:visited{background:var(--ink);color:#fff;padding:9px 16px;border-radius:var(--r-sm);font-size:13px;font-weight:600;transition:transform var(--t)}
+.go,.go:visited{background:var(--lila);color:var(--ink);padding:9px 16px;border-radius:var(--r-sm);font-size:13px;font-weight:600;transition:transform var(--t)}
 .go:hover{transform:translateY(-1px)}
 
 /* top search — mono, hairline, no shadow. id #topSearch preserved for topbar.js */
@@ -106,9 +109,9 @@ section{padding:44px 0}
 .searchdrop .srall{font-weight:600;color:var(--lila-deep)}
 
 /* ---------------------------------------------------------------- buttons
-   one language: ink fill for primary, hairline ghost for secondary. lila is
-   never a button ground (palette rule, 19 tem). */
-.btn,.btn:visited{display:inline-block;background:var(--ink);color:#fff;
+   one language: LILA fill + ink text for primary, hairline ghost for secondary
+   (palette rule, 19 tem — lila is the button ground). */
+.btn,.btn:visited{display:inline-block;background:var(--lila);color:var(--ink);
   font-family:var(--body);font-size:15px;font-weight:600;padding:12px 22px;border-radius:var(--r-sm);
   border:none;cursor:pointer;transition:transform var(--t),background var(--t)}
 .btn:hover{transform:translateY(-2px)}
@@ -141,11 +144,12 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
    open block, no accordion. two columns, question bold, answer visible.
    no box, no frame, no click. */
 .qa-band{padding:30px 0}
-.qa-band .lbl{color:var(--lila-deep);margin-bottom:18px}
-.qa-grid{columns:2;column-gap:44px;max-width:none}
-.qa-grid .q{break-inside:avoid;margin-bottom:18px}
-.qa-grid .q b{display:block;font-weight:600;color:var(--ink);margin-bottom:4px;font-size:15px}
-.qa-grid .q span{display:block;color:var(--mut);font-size:14px;line-height:1.55}
+.qa-band .lbl{color:var(--lila-deep);margin-bottom:16px}
+/* two columns filled top-to-bottom: 1-5 left, 6-9 right (not left-to-right) */
+.qa-grid{display:grid;grid-auto-flow:column;grid-template-rows:repeat(5,auto);grid-template-columns:1fr 1fr;column-gap:44px;row-gap:28px;max-width:none}
+.qa-grid .q{margin:0}
+.qa-grid .q b{display:block;font-weight:600;color:var(--ink);margin-bottom:6px;font-size:15px}
+.qa-grid .q span{display:block;color:var(--mut);font-size:14px;line-height:1.45}
 @media(max-width:720px){.qa-grid{columns:1}}
 
 /* ---------------------------------------------------------------- directory
@@ -243,7 +247,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .moves-panel .krow button{background:none;border:none;color:var(--lila-deep);font-weight:600;cursor:pointer}
 .moves-panel .plrow{display:flex;gap:6px;margin:10px 0 0}
 .moves-panel .plrow input{flex:1;min-width:0}
-.moves-panel .plrow button{background:var(--ink);color:#fff;border:none;border-radius:var(--r-sm);font-weight:600;padding:8px 12px;cursor:pointer}
+.moves-panel .plrow button{background:var(--lila);color:var(--ink);border:none;border-radius:var(--r-sm);font-weight:600;padding:8px 12px;cursor:pointer}
 
 /* ---------------------------------------------------------------- calendar
    full width, day cell holds move + mono score. filled day = user data = pink.
@@ -300,7 +304,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 .card-dots i:nth-child(8){right:21px;bottom:13px}
 .card-grid{display:grid;gap:16px}
 
-.mainbtn{font-family:var(--body);font-size:16px;font-weight:600;color:#fff;background:var(--ink);
+.mainbtn{font-family:var(--body);font-size:16px;font-weight:600;color:var(--ink);background:var(--lila);
   border:none;border-radius:var(--r-sm);padding:11px 20px;cursor:pointer;margin:8px 12px 2px 0;transition:transform var(--t)}
 .mainbtn:hover{transform:translateY(-1px)}
 .mainbtn:disabled{opacity:.45;cursor:default;transform:none}
@@ -320,7 +324,7 @@ input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-
 #camera{position:relative;background:var(--wash);color:var(--ink);width:min(720px,86%);aspect-ratio:4/3;margin:0 auto;
   display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:8px;font-size:13px;cursor:pointer;border-radius:var(--r-lg);overflow:hidden}
 #camera b{font-size:16px}
-#camera .stagestart{font-family:var(--body);font-size:14px;font-weight:600;background:var(--ink);color:#fff;
+#camera .stagestart{font-family:var(--body);font-size:14px;font-weight:600;background:var(--lila);color:var(--ink);
   border:none;border-radius:var(--r-sm);padding:11px 20px;margin-top:10px;cursor:pointer;position:relative;z-index:2}
 #camera .stagestatus{font-family:var(--mono);font-size:13px;min-height:18px;max-width:85%;color:var(--mut);position:relative;z-index:2}
 #camera .framehint{max-width:78%;font-size:12px;color:var(--mut);line-height:1.5;margin-top:2px;position:relative;z-index:2}
@@ -430,7 +434,7 @@ body.running #intro,body.running #progCard{display:none}
 .gate-opts{display:flex;flex-direction:column;gap:10px}
 .gate-opt{display:block;width:100%;text-align:center;font-family:var(--body);font-size:15px;font-weight:600;
   padding:12px 22px;border-radius:var(--r-sm);cursor:pointer;transition:transform var(--t),border-color var(--t)}
-.gate-opt.primary{background:var(--ink);color:#fff;border:1px solid var(--ink)}
+.gate-opt.primary{background:var(--lila);color:var(--ink);border:1px solid var(--ink)}
 .gate-opt.primary:hover{transform:translateY(-2px)}
 .gate-opt.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
 .gate-opt.ghost:hover{border-color:var(--lila-deep);color:var(--lila-deep)}
@@ -487,7 +491,7 @@ body.running #intro,body.running #progCard{display:none}
 .summary .rtotal{display:flex;justify-content:space-between;font-family:var(--mono);font-weight:600;margin-top:6px}
 .summary .rnote{font-size:12px;color:var(--mut);margin-top:8px}
 .summary .rclose{position:absolute;top:12px;right:14px;background:none;border:none;color:var(--mut);font-size:18px;cursor:pointer}
-.receipt-tab{position:fixed;right:20px;bottom:20px;font-family:var(--mono);font-size:12px;background:var(--ink);color:#fff;border:none;border-radius:var(--r-sm);padding:9px 14px;cursor:pointer;z-index:30}
+.receipt-tab{position:fixed;right:20px;bottom:20px;font-family:var(--mono);font-size:12px;background:var(--lila);color:var(--ink);border:none;border-radius:var(--r-sm);padding:9px 14px;cursor:pointer;z-index:30}
 .receipt-tab[hidden]{display:none}
 
 /* phase word + mini button (HUD, mono, spaced) */
@@ -612,7 +616,7 @@ body.running #intro,body.running #progCard{display:none}
    sits beside an entry. damla's polaroids are sparse (beside the 1st, 4th and
    7th entries), scattered down the rail, hidden on mobile. these photos appear
    ONLY on this page. */
-.patch-grid{display:grid;grid-template-columns:180px minmax(0,66ch);gap:36px;justify-content:center;margin-top:20px}
+.patch-grid{display:grid;grid-template-columns:180px minmax(0,66ch);gap:32px;justify-content:start;margin-top:20px}
 .patch-rail{display:flex;flex-direction:column}
 /* polaroid: white frame with a thicker bottom edge, soft ink shadow, a slight
    alternating tilt and a mono caption below the frame. */
@@ -645,7 +649,8 @@ body.running #intro,body.running #progCard{display:none}
 .tfoot .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;font-size:13px;color:var(--mut)}
 .tfoot .b{font-family:var(--head);font-weight:600;color:var(--ink)}
 .tfoot a,.tfoot a:visited{color:var(--lila-deep)}
-.tfoot .vtag{margin-left:auto}
+/* version drops to its own line under the links, not alone at the right edge */
+.tfoot .vtag{flex-basis:100%;margin:6px 0 0;color:var(--mut)}
 
 /* ---------------------------------------------------------------- reveal + a11y */
 .reveal{opacity:0;transform:translateY(12px);transition:opacity var(--dur-slow) ease,transform var(--dur-slow) var(--ease)}
@@ -662,14 +667,14 @@ body.running #intro,body.running #progCard{display:none}
 /* ---------------------------------------------------------------- index (faz 2)
    hero two columns; the counter lives INSIDE the panel; the point cloud is the
    only figure. one signature moment: your own dots, your real count. */
-.hero{display:grid;grid-template-columns:1.02fr .98fr;gap:48px;align-items:center;padding:48px 0 44px}
+.hero{display:grid;grid-template-columns:1.02fr .98fr;gap:48px;align-items:start;padding:48px 0 44px}
 .hero-copy h1{max-width:15ch}
 .hero-copy h1 i{font-style:normal;color:var(--lila-deep)}
 .hero .sub{font-size:16px;color:var(--mut);max-width:46ch;margin:14px 0 0}
 .hero .acts{display:flex;align-items:center;gap:18px;margin:22px 0 0;flex-wrap:wrap}
 .hero .stub{display:block;font-family:var(--mono);font-size:12px;color:var(--mut);margin:16px 0 0}
 
-.hero-demo{display:flex;flex-direction:column;gap:8px}
+.hero-demo{display:flex;flex-direction:column;align-items:flex-start;gap:8px}
 /* the panel: coach camera stage (dark elsewhere) — but the HERO panel has no
    card: no ground, no frame, no radius. dots sit straight on the page. */
 .panel{position:relative;background:var(--wash);border:1px solid var(--line);border-radius:var(--r-lg);
@@ -679,13 +684,13 @@ body.running #intro,body.running #progCard{display:none}
 .panel #heroVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
 #heroPanel #heroVideo{border-radius:var(--r-lg)}
 /* counter inside the panel, top-right — no longer orphaned at the page edge */
-.panel-read{position:absolute;top:14px;right:16px;text-align:right;pointer-events:none}
+/* counter sits ABOVE the figure, same column, ~24px up — not orphaned in a corner */
+.panel-read{position:relative;text-align:left;pointer-events:none;margin-bottom:24px;display:flex;align-items:baseline;gap:10px}
 .panel-read .n{position:relative;font-family:var(--mono);font-size:40px;font-weight:600;color:var(--ink);line-height:1;letter-spacing:-.02em}
 .panel-read .n .plus{position:absolute;top:-6px;right:-20px;font-size:15px;color:var(--lila-deep);opacity:0}
 .panel-read .n .plus.fly{animation:plusFly .8s ease-out}
 @keyframes plusFly{0%{opacity:0;transform:translateY(6px)}25%{opacity:1}100%{opacity:0;transform:translateY(-14px)}}
-.panel-read .lbl{font-family:var(--mono);font-size:10px;color:var(--mut);margin-top:4px;max-width:16ch;text-transform:none;letter-spacing:0}
-.panel-read .angle{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--lila-deep);margin-top:6px}
+.panel-read .lbl{font-family:var(--mono);font-size:10.5px;color:var(--mut);max-width:22ch;text-transform:none;letter-spacing:0;line-height:1.35}
 /* caption UNDER the panel (not overlapping the figure) */
 .panel-cap{font-family:var(--mono);font-size:11px;color:var(--mut);line-height:1.4;margin:0;max-width:52ch}
 /* mono link under the panel, the way through to the full workout */
@@ -694,7 +699,7 @@ body.running #intro,body.running #progCard{display:none}
 
 /* worth: three jobs, no numbers (there is no order here) */
 .worth{display:grid;grid-template-columns:1fr 1.1fr;gap:40px;align-items:start}
-.worth .big h2{margin:8px 0 10px}
+.worth .big h2{margin:6px 0 6px}
 .worth .big p{font-size:15px;color:var(--mut)}
 .worth ul{list-style:none;display:grid;gap:16px}
 .worth li{display:block}
@@ -702,7 +707,18 @@ body.running #intro,body.running #progCard{display:none}
 .worth li p{font-size:14px;color:var(--mut)}
 
 /* how: full-width band, four columns — a different rhythm from worth */
-.how .cols{display:grid;grid-template-columns:repeat(4,1fr);gap:26px;margin:20px 0 0}
+/* how: a rounded block inside .wrap (not a full-bleed band), on a faint dot
+   texture (the site motif) — reads flat from afar, textured up close. */
+.how .wrap{background:var(--lila-soft);
+  background-image:radial-gradient(rgba(25,19,32,.06) 1px, transparent 1px);
+  background-size:24px 24px;
+  border-radius:var(--r-lg);padding:34px 34px 38px}
+.how .cols{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin:20px 0 0}
+/* thin dotted vertical divider between the four columns */
+.how .c{padding:0 22px}
+.how .c + .c{border-left:1px dotted var(--line)}
+.how .c:first-child{padding-left:0}
+.how .c:last-child{padding-right:0}
 .how .c b{display:block;font-size:15px;margin-bottom:4px}
 .how .c p{font-size:13px;color:var(--mut)}
 .how .note{font-size:13px;color:var(--mut);margin-top:20px;max-width:64ch}
@@ -717,8 +733,10 @@ body.running #intro,body.running #progCard{display:none}
 
 /* nowhere — big "Nowhere!" alone on the left, no box beside it */
 .nowhere{max-width:none}
-.nowhere .mega{font-size:clamp(56px,9vw,110px);margin:6px 0 10px}
-.nowhere .mega i{font-style:normal;color:var(--lila-deep)}
+/* "Nowhere." in the heading font, ink, no bigger than the hero h1 — related to
+   the other headings, not a lone mono display piece. */
+.nowhere .mega{font-family:var(--head);font-weight:600;font-size:clamp(30px,3.4vw,42px);letter-spacing:-.01em;color:var(--ink);line-height:1.1;margin:6px 0 10px}
+.nowhere .mega i{font-style:normal;color:var(--ink)}
 .nowhere p{font-size:15px;color:var(--mut);max-width:52ch}
 
 /* whole loop: the one place numbers mean something (four real steps) */
@@ -731,11 +749,10 @@ body.running #intro,body.running #progCard{display:none}
 .loop ol li a:hover{color:var(--lila-deep)}
 .loop ol li span{color:var(--mut)}
 
-/* close: full-width single line, a different shape again */
-.close{text-align:center}
-.close h2{max-width:20ch;margin:0 auto}
-.close p{max-width:52ch;margin:10px auto 0;color:var(--mut)}
-.close .acts{display:flex;gap:18px;justify-content:center;margin-top:22px}
+/* close: left-aligned like the rest of the page, not a centered AI-landing block */
+.close h2{max-width:24ch}
+.close p{max-width:52ch;margin:10px 0 0;color:var(--mut)}
+.close .acts{display:flex;flex-direction:column;align-items:flex-start;gap:10px;margin-top:22px}
 
 /* greet line */
 .greet{font-family:var(--mono);font-size:13px;color:var(--lila-deep);text-align:center;min-height:0}
@@ -762,7 +779,7 @@ body.running .summary .rline .rgrab{opacity:.2;cursor:default}
 .set-card{margin:14px 0 0}
 .set-card-canvas{display:block;width:100%;max-width:320px;height:auto;border-radius:var(--r);border:1px solid var(--line)}
 .set-card-actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
-.set-card-btn{font-family:var(--body);font-size:14px;font-weight:600;color:#fff;background:var(--ink);
+.set-card-btn{font-family:var(--body);font-size:14px;font-weight:600;color:var(--ink);background:var(--lila);
   border:none;border-radius:var(--r-sm);padding:10px 18px;cursor:pointer;transition:transform var(--t)}
 .set-card-btn:hover{transform:translateY(-1px)}
 .set-card-btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}

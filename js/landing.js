@@ -46,62 +46,89 @@
   const rand = () => (s = (s * 16807) % 2147483647) / 2147483647;
 
   // ---- demo figure geometry (side view). d: 0 standing, 1 bottom of squat.
-  // the figure occupies ~84% of the panel height, centred at ~46% width. ----
+  // the figure's head-to-heel span IS ~84% of the drawing height. anatomical
+  // proportions so head, torso, arm and the TWO legs each read separately, with
+  // a real gap between the legs. ----
+  const FIG = 0.84;
   function joints(d) {
     const H = CH, W = CW;
-    const figH = H * 0.84;
-    const cx = W * 0.46;
-    const footY = H * 0.5 + figH * 0.5;          // bottom of the figure
-    const u = figH / 560;                          // scale unit vs the old 560 design
-    const ankle = { x: cx, y: footY };
-    const knee = { x: cx + 46 * d * u, y: footY - (82 - 14 * d) * u };
-    const hip = { x: cx - 52 * d * u, y: footY - (170 - 92 * d) * u };
-    const lean = 0.42 * d, tor = 128 * u;
-    const sho = { x: hip.x + tor * Math.sin(lean), y: hip.y - tor * Math.cos(lean) };
-    const head = { x: sho.x + 34 * u * Math.sin(lean), y: sho.y - 42 * u * Math.cos(lean) };
-    const aAng = -0.45 + (Math.PI / 2 + 0.35) * d;
-    const elb = { x: sho.x + 62 * u * Math.sin(aAng) * 0.55, y: sho.y + 62 * u * Math.cos(aAng) };
-    const wri = { x: elb.x + 58 * u * (0.3 + 0.7 * d), y: elb.y + 58 * u * (1 - d) * 0.5 - 10 * u * d };
-    const toe = { x: ankle.x + 34 * u, y: footY + 6 * u };
-    // second leg, offset back so a gap reads between the two in side profile
-    const gap = 26 * u;
-    const hip2 = { x: hip.x - gap * 0.5, y: hip.y };
-    const knee2 = { x: knee.x - gap, y: knee.y + 4 * u };
-    const ankle2 = { x: ankle.x - gap * 0.7, y: footY };
-    return { ankle, knee, hip, sho, head, elb, wri, toe, hip2, knee2, ankle2, u };
+    const figH = H * FIG;                 // full head-to-heel height
+    const cx = W * 0.5;
+    const topY = H * (1 - FIG) / 2;       // crown of the head
+    const footY = topY + figH;            // heel line
+    // vertical anatomy as fractions of figH (standing): head .13, torso to hip
+    // .40, thigh .26, shin .27 → sums to full height.
+    const headR = figH * 0.065;           // head radius
+    const headC = { x: cx, y: topY + headR };            // head centre
+    const sho = { x: cx, y: topY + figH * 0.20 };        // shoulders
+    // hip sinks and shifts back as the squat deepens; knees push forward.
+    const hipStand = topY + figH * 0.52;
+    const hip = { x: cx - figH * 0.10 * d, y: hipStand + figH * 0.14 * d };
+    // torso leans forward into the squat
+    const lean = 0.40 * d;
+    const shoLean = { x: hip.x + (sho.y - hip.y) * Math.sin(-lean) * 0.0 + figH * 0.10 * Math.sin(lean),
+                      y: hip.y - figH * 0.32 * Math.cos(lean) };
+    const shoulder = { x: shoLean.x, y: shoLean.y };
+    const head = { x: shoulder.x + figH * 0.05 * Math.sin(lean), y: shoulder.y - figH * 0.09 * Math.cos(lean) };
+    // arm hangs, swings slightly forward at the bottom
+    const aAng = -0.35 + (Math.PI / 2 + 0.3) * d;
+    const elb = { x: shoulder.x + figH * 0.16 * Math.sin(aAng) * 0.6, y: shoulder.y + figH * 0.16 * Math.cos(aAng) };
+    const wri = { x: elb.x + figH * 0.15 * (0.3 + 0.6 * d), y: elb.y + figH * 0.15 * (1 - d) * 0.5 };
+    // FRONT leg (nearer camera): knee pushes forward, ankle stays under.
+    const spread = figH * 0.085;          // horizontal gap between the two legs
+    const kneeF = { x: cx + spread * 0.6 + figH * 0.06 * d, y: hip.y + figH * 0.24 };
+    const ankF = { x: cx + spread * 0.6, y: footY };
+    // BACK leg: offset behind, its own knee + ankle, so a gap reads.
+    const kneeB = { x: cx - spread * 0.6 + figH * 0.04 * d, y: hip.y + figH * 0.25 };
+    const ankB = { x: cx - spread * 0.6, y: footY };
+    const toe = { x: ankF.x + figH * 0.06, y: footY + figH * 0.005 };
+    // knee = front knee (the tracked joint)
+    return {
+      head, headC, headR, sho: shoulder, hip, elb, wri, toe,
+      knee: kneeF, ankle: ankF, hip2: { x: hip.x - spread * 0.5, y: hip.y },
+      knee2: kneeB, ankle2: ankB, figH,
+    };
   }
 
-  // dot budget per region (19 tem spread weights, tighter limbs so the side
-  // profile reads and the two legs keep a gap between them).
-  //   torso .055 · thigh .038 · shin .028 · arm .022 · head .04
-  const SEGS = [
-    ['hip', 'sho', 0.055, 130],   // torso
-    ['hip', 'knee', 0.038, 74],   // thigh (front leg)
-    ['knee', 'ankle', 0.028, 54], // shin (front leg)
-    ['hip2', 'knee2', 0.038, 60], // thigh (back leg — offset for the gap)
-    ['knee2', 'ankle2', 0.028, 44], // shin (back leg)
-    ['sho', 'elb', 0.022, 40],    // upper arm
-    ['elb', 'wri', 0.022, 30],    // forearm
-    ['ankle', 'toe', 0.024, 20],  // foot
+  // dot budget: 450 total, allocated in PROPORTION to each segment's length so a
+  // long limb gets more dots and nothing clumps. widths (spread as a fraction of
+  // figH) give each limb its volume; the two legs stay separate.
+  const SEG_DEFS = [
+    ['hip', 'sho', 0.052, 2.6],   // torso — widest
+    ['sho', 'elb', 0.020, 1.0],   // upper arm
+    ['elb', 'wri', 0.018, 0.9],   // forearm
+    ['hip', 'knee', 0.034, 1.5],  // front thigh
+    ['knee', 'ankle', 0.026, 1.5],// front shin
+    ['hip2', 'knee2', 0.034, 1.4],// back thigh
+    ['knee2', 'ankle2', 0.026, 1.4],// back shin
+    ['ankle', 'toe', 0.022, 0.5], // foot
   ];
-  const HEAD_N = 60, HEAD_SPREAD = 0.04;
-
+  const HEAD_WEIGHT = 1.4, HEAD_SPREAD = 0.06;
+  const TOTAL_DOTS = 450;
   const cloud = [];
-  for (const [a, b, spread, count] of SEGS) {
-    for (let i = 0; i < count; i++) {
-      cloud.push({
-        kind: 'seg', a, b, spread,
-        t: rand(), off: (rand() - 0.5) * 2, along: (rand() - 0.5) * 0.16,
-        r: 1 + rand() * 1, aBase: 0.38 + rand() * 0.5, ph: rand() * Math.PI * 2,
-      });
-    }
-  }
-  for (let i = 0; i < HEAD_N; i++) {
-    cloud.push({
-      kind: 'head', ang: rand() * Math.PI * 2, rr: rand(),
-      r: 1 + rand() * 1.5, aBase: 0.38 + rand() * 0.5, ph: rand() * Math.PI * 2,
+  // build once at a reference figure to measure segment lengths for the split
+  (function buildCloud() {
+    const ref = joints(0);
+    let totalW = HEAD_WEIGHT;
+    const segLens = SEG_DEFS.map(([a, b, spread, weight]) => {
+      const L = Math.hypot(ref[b].x - ref[a].x, ref[b].y - ref[a].y) * weight;
+      totalW += L / ref.figH;
+      return L / ref.figH;
     });
-  }
+    const headN = Math.round(TOTAL_DOTS * (HEAD_WEIGHT / totalW));
+    for (let i = 0; i < headN; i++) {
+      cloud.push({ kind: 'head', ang: rand() * Math.PI * 2, rr: Math.sqrt(rand()),
+        r: 1 + rand(), aBase: 0.4 + rand() * 0.5, ph: rand() * Math.PI * 2 });
+    }
+    SEG_DEFS.forEach(([a, b, spread], i) => {
+      const n = Math.round(TOTAL_DOTS * (segLens[i] / totalW));
+      for (let j = 0; j < n; j++) {
+        cloud.push({ kind: 'seg', a, b, spread,
+          t: rand(), off: (rand() - 0.5) * 2, along: (rand() - 0.5) * 0.06,
+          r: 1 + rand(), aBase: 0.4 + rand() * 0.5, ph: rand() * Math.PI * 2 });
+      }
+    });
+  })();
 
   const lerp = (p, q, t) => ({ x: p.x + (q.x - p.x) * t, y: p.y + (q.y - p.y) * t });
   function normal(p, q) { const dx = q.x - p.x, dy = q.y - p.y, L = Math.hypot(dx, dy) || 1; return { x: -dy / L, y: dx / L }; }
@@ -128,26 +155,27 @@
 
   // ---- drawing helpers ----
   let ringT = -1;
-  function floorDots() {
+  // the floor line sits AT the ankle/heel, so feet touch the ground dots.
+  function floorDots(J) {
     ctx.fillStyle = 'rgba(142,107,168,.18)';
-    const y = CH * 0.5 + CH * 0.84 * 0.5 + 14;
-    for (let x = CW * 0.14; x <= CW * 0.86; x += CW * 0.066) {
-      ctx.beginPath(); ctx.arc(x, Math.min(y, CH - 6), 1.4, 0, Math.PI * 2); ctx.fill();
+    const y = (J ? J.ankle.y : CH * 0.92) + 2;
+    for (let x = CW * 0.14; x <= CW * 0.86; x += CW * 0.06) {
+      ctx.beginPath(); ctx.arc(x, Math.min(y, CH - 3), 1.4, 0, Math.PI * 2); ctx.fill();
     }
   }
   // draw a cloud from a joints() map (demo) with a lit knee + angle.
   function drawCloudFig(J, ts, kneeAngle) {
     ctx.clearRect(0, 0, CW, CH);
-    floorDots();
+    floorDots(J);
     for (const dt of cloud) {
       let base;
       if (dt.kind === 'head') {
-        const rr = (18 + dt.rr * 16) * J.u;
-        base = { x: J.head.x + Math.cos(dt.ang) * rr, y: J.head.y + Math.sin(dt.ang) * rr * (0.7 + 0.6 * (1 - HEAD_SPREAD)) };
+        const rr = J.headR * (0.6 + dt.rr * 0.9);
+        base = { x: J.headC.x + Math.cos(dt.ang) * rr, y: J.headC.y + Math.sin(dt.ang) * rr };
       } else {
         const tt = Math.min(1, Math.max(0, dt.t + dt.along));
         const mid = lerp(J[dt.a], J[dt.b], tt), nrm = normal(J[dt.a], J[dt.b]);
-        const w = dt.spread * CH * 1.0;
+        const w = dt.spread * J.figH;
         base = { x: mid.x + nrm.x * w * dt.off, y: mid.y + nrm.y * w * dt.off };
       }
       const jit = reduce ? 0 : 1;

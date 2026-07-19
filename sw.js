@@ -1,7 +1,7 @@
 // gymgyme service worker: ana ekrana kurulan personal trainer offline da açılsın.
 // kamera + motor zaten cihazda çalışıyor; burada sadece dosyaları önbelleğe alıyoruz.
 // vendor/ ya da engine/ değişirse CACHE sürümünü artır — eski önbellek silinir.
-const CACHE = "gg-pwa-v77";  // v77: membership — signup/signin/account pages, coach sign-in gate, guest trial, account link in footer
+const CACHE = "gg-pwa-v78";  // v78: hero fixes (anatomical dot figure, counter above, nav groups, Qconst CACHE = "gg-pwa-v77";  // v77: membership — signup/signin/account pages, coach sign-in gate, guest trial, account link in footerA vertical), lila buttons, nowhere in head font, how dot-texture block, left-aligned close, patch photos closer
 
 const CORE = [
   "coach.html",

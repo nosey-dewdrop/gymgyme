@@ -34,7 +34,7 @@ kadar durmaz.
    --line --lila #C9A9D9 --lila-soft #F0E6F5 --lila-deep #8E6BA8 --pink
    --pink-soft`. Başka renk yok. **Lila = motorun çıktısı** (aksan metin =
    --lila-deep, çip/fill/dot/aktif = --lila), **pembe = kullanıcının verisi**.
-   **Butonlar --ink zemin beyaz yazı; lila ASLA buton zemini değil.**
+   **Butonlar --lila zemin + --ink (siyah) yazı (19 tem son karar).**
    **Hiçbir yerde koyu kutu / terminal görünümü yok.** İkisi de dekoratif değil.
 4. Emoji yok. Gradient yok. Siyah/dar gölge yok. Chevron yok.
    Radius: `--r-sm 10px` (buton, çip, input), `--r 16px` (kart, blok),
