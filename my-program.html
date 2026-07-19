@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600&family=Inter:wght@400;600&family=JetBrains+Mono:wght@400;600&display=swap">
   <link rel="stylesheet" href="css/site.css">
 </head>
-<body class="has-strip">
+<body>
 <nav class="tnav">
   <div class="wrap">
     <a class="brand" href="index.html">gymgyme</a>
@@ -51,18 +51,18 @@
   </div>
   <div class="wcal" id="weekView" hidden>
     <div class="calhead">
-      <button class="calnav" id="wkPrev" type="button">‹</button>
+      <button class="calnav" id="wkPrev" type="button" aria-label="previous"><svg class="icon-inline" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
       <b id="wkLabel">this week</b>
-      <button class="calnav" id="wkNext" type="button">›</button>
+      <button class="calnav" id="wkNext" type="button" aria-label="next"><svg class="icon-inline" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
     </div>
     <small class="caltotals" id="wkTotals"></small>
     <div class="weekwall" id="weekWall7"></div>
   </div>
   <div class="mcal" id="monthView">
     <div class="calhead">
-      <button class="calnav" id="wPrev" type="button">‹</button>
+      <button class="calnav" id="wPrev" type="button" aria-label="previous"><svg class="icon-inline" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
       <b id="wLabel">this month</b>
-      <button class="calnav" id="wNext" type="button">›</button>
+      <button class="calnav" id="wNext" type="button" aria-label="next"><svg class="icon-inline" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
     </div>
     <small class="caltotals" id="wTotals"></small>
     <div class="dow"><span>m</span><span>t</span><span>w</span><span>t</span><span>f</span><span>s</span><span>s</span></div>
@@ -70,9 +70,9 @@
   </div>
   <div class="ycal" id="yearView" hidden>
     <div class="calhead">
-      <button class="calnav" id="yPrev" type="button">‹</button>
+      <button class="calnav" id="yPrev" type="button" aria-label="previous"><svg class="icon-inline" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
       <b id="yLabel">2026</b>
-      <button class="calnav" id="yNext" type="button">›</button>
+      <button class="calnav" id="yNext" type="button" aria-label="next"><svg class="icon-inline" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
     </div>
     <small class="caltotals" id="yTotals"></small>
     <div class="yearwall" id="yearWall"></div>
