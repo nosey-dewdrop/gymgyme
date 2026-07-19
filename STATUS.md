@@ -19,7 +19,7 @@ Kapı sonucu: GEÇTİ.
 |-----|-------|------|
 | tek stylesheet | kapandı | 13 URL (root + 12 sayfa) hepsi yalnız css/site.css; eski css'ler canlıda 404; site.css 200 text/css |
 | G1 G2 | kapandı | tek css/site.css = tek tasarım dünyası; nav 12/12 + footer 12/12 partial'a BİREBİR (diff ok) |
-| G3 emoji | KISMİ | 🔍♥📸✨🎀🤸▸▾ tümü söküldü; TEK istisna moves.html'de görünür cümle içindeki ♥ ("tap the ♥...") — copy'ye dokunma kuralı emoji yasağıyla çakışıyor, Damla kararı bekliyor |
+| G3 emoji | kapandı | 🔍♥📸✨🎀🤸▸▾ tümü söküldü; canlı emoji taraması 13 URL = 0. moves.html'deki görünür ♥ cümle KORUNARAK inline SVG kalbe çevrildi (.icon-inline helper); moves listesi (.hh) + my-moves unlike butonu da aynı SVG ile eşlendi (ajanların boşalttığı butonlar geri geldi) |
 | G4 buton | kapandı | tek buton dili site.css (.btn lila / .ghost hairline); pembe hap + siyah dikdörtgen kalktı |
 | G5 | kapandı | site.css reset + tipografi (Bricolage/Inter/JetBrains Mono google fonts) — tarayıcı varsayılanı yok |
 | G9 | kapandı | favicon 🎀 → icons/icon-192.png tüm sayfalar; fontlar her head'de |
@@ -36,6 +36,26 @@ Notlar / açık:
 - INLINE STYLE SİLİNDİ → index (hero .worth/.how/.priv/.loop), patch-notes (polaroid/timeline) ve moves/my-program sayfa-özel görselleri şu an STİLSİZ. FAZ 2/4/5 onları site.css sistemiyle yeniden kuracak. Bu FAZ 1'in doğası (tek CSS'e in), FAZ 2 index'i baştan tasarlıyor zaten.
 - sw.js CACHE v69→v70, CORE'dan silinen css'ler çıkarıldı + css/site.css eklendi (install kırılmasın).
 - Ekran görüntüsü: Damla kendi dev'inde bakar (headless screenshot kuralı gereği ben üretmiyorum).
+
+### 12 sayfa (HANDOFF "10 sayfa" dedi; gerçekte deploy edilen 12 HTML var)
+HANDOFF'un saydığı 10: index · moves · my-moves · my-program · coach · suggest · blog · patch-notes · gizlilik · terms.
+Ek 2: **gizlilik-tr.html** (privacy'nin TR sürümü — gizlilik.html ile ikiz) ve **reset-password.html** (şifre sıfırlama form sayfası). İkisi de aynı tek kabuğa alındı.
+
+### css/site.css — 399 satır, bölüm başlıkları
+tokens · type · the dot motif · nav · buttons · forms · bands/prose · Q&A accordion ·
+directory · flow/how grids · cards/posts · empty state · blog tabs · moves library ·
+calendar · coach · footer · reveal+a11y · responsive.
+
+### YARI-ÇIPLAK (inline <style> silindi, site.css'te henüz karşılığı yok — FAZ 2/4/5'te kurulacak)
+Bu bloklar canlıda şu an stilsiz akar; kaybolmasın diye burada:
+- **index.html** (→ FAZ 2 zaten baştan tasarlıyor): sayfa-özel sınıfların HİÇBİRİ site.css'te yok —
+  .hero .sub .acts .stub .demo .read .worth .how .cols .priv .loop .split .close.
+  (nav, footer, .btn, .quiet, .term, .eyebrow, Q&A, directory ZATEN site.css'te — onlar stilli.)
+- **patch-notes.html** (→ FAZ 5): .timeline · .polaroids · patch-* (girdi/foto düzeni) stilsiz.
+- **moves.html / my-moves.html / my-program.html / coach.html / suggest.html** (→ FAZ 4/3/5):
+  mekanik sınıflar (moves library, calendar, coach, form) site.css'te KURULU ve stilli;
+  yalnız her sayfanın kendi başlık/hero/yerleşim inline'ından gelen ufak süsler gitti.
+  Bu sayfaların işlevi (liste render, takvim, kamera, form) çalışır; görsel cila ilgili fazda.
 
 
 ## FAZ 2 — index   [başlamadı]
