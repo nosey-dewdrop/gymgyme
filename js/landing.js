@@ -170,7 +170,7 @@
   let ringT = -1;
   // the floor line sits at the lowest foot; its dots are PEACH (user-data hue).
   function floorDots(J) {
-    ctx.fillStyle = 'rgba(232,180,160,.5)';
+    ctx.fillStyle = 'rgba(217,107,160,.45)';   /* pink — user's ground line */
     const y = Math.max(J.ankle.y, J.ankle2.y) + 4;
     for (let x = CW * 0.12; x <= CW * 0.88; x += CW * 0.055) {
       ctx.beginPath(); ctx.arc(x, Math.min(y, CH - 3), 1.4, 0, Math.PI * 2); ctx.fill();
