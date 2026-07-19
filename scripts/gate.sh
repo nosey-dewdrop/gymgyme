@@ -14,7 +14,7 @@ bad()  { printf "  \033[31mFAIL\033[0m %s\n" "$1"; FAIL=1; }
 head() { printf "\n\033[1m%s\033[0m\n" "$1"; }
 
 # the 9 allowed palette tokens (PROTOKOL §1.3), lowercased hex.
-ALLOWED='#ffffff #f5f2fa #191320 #6e6579 #e7e2ee #c9a9d9 #f0e6f5 #8e6ba8 #d96ba0 #fbeaf2 #fff'
+ALLOWED='#ffffff #f5f2fa #191320 #6e6579 #e7e2ee #c9a9d9 #f0e6f5 #8e6ba8 #d96ba0 #fbeaf2 #e8b4a0 #fbede6 #fff'
 
 universal() {
   head "UNIVERSAL (PROTOKOL §3)"

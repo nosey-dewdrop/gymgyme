@@ -45,55 +45,97 @@
   let s = 20260719;
   const rand = () => (s = (s * 16807) % 2147483647) / 2147483647;
 
-  // ---- demo figure geometry (side view). d: 0 standing, 1 bottom of squat.
-  // the figure's head-to-heel span IS ~84% of the drawing height. anatomical
-  // proportions so head, torso, arm and the TWO legs each read separately, with
-  // a real gap between the legs. ----
+  // ---- demo figure geometry (side view), built limb by limb from joint
+  // positions so head→shoulder→hip→knee→ankle reads as a clear side profile,
+  // with a neck joining the head to the torso and the two legs kept apart.
+  // the figure cycles through five moves; poseFor(move,d) returns the joints for
+  // that move at phase d (0 = start/top, 1 = bottom/extended). ----
   const FIG = 0.84;
-  function joints(d) {
-    const H = CH, W = CW;
-    const figH = H * FIG;                 // full head-to-heel height
-    const cx = W * 0.5;
-    const topY = H * (1 - FIG) / 2;       // crown of the head
-    const footY = topY + figH;            // heel line
-    // vertical anatomy as fractions of figH (standing): head .13, torso to hip
-    // .40, thigh .26, shin .27 → sums to full height.
-    const headR = figH * 0.065;           // head radius
-    const headC = { x: cx, y: topY + headR };            // head centre
-    const sho = { x: cx, y: topY + figH * 0.20 };        // shoulders
-    // hip sinks and shifts back as the squat deepens; knees push forward.
-    const hipStand = topY + figH * 0.52;
-    const hip = { x: cx - figH * 0.10 * d, y: hipStand + figH * 0.14 * d };
-    // torso leans forward into the squat
-    const lean = 0.40 * d;
-    const shoLean = { x: hip.x + (sho.y - hip.y) * Math.sin(-lean) * 0.0 + figH * 0.10 * Math.sin(lean),
-                      y: hip.y - figH * 0.32 * Math.cos(lean) };
-    const shoulder = { x: shoLean.x, y: shoLean.y };
-    const head = { x: shoulder.x + figH * 0.05 * Math.sin(lean), y: shoulder.y - figH * 0.09 * Math.cos(lean) };
-    // arm hangs, swings slightly forward at the bottom
-    const aAng = -0.35 + (Math.PI / 2 + 0.3) * d;
-    const elb = { x: shoulder.x + figH * 0.16 * Math.sin(aAng) * 0.6, y: shoulder.y + figH * 0.16 * Math.cos(aAng) };
-    const wri = { x: elb.x + figH * 0.15 * (0.3 + 0.6 * d), y: elb.y + figH * 0.15 * (1 - d) * 0.5 };
-    // FRONT leg (nearer camera): knee pushes forward, ankle stays under.
-    const spread = figH * 0.085;          // horizontal gap between the two legs
-    const kneeF = { x: cx + spread * 0.6 + figH * 0.06 * d, y: hip.y + figH * 0.24 };
-    const ankF = { x: cx + spread * 0.6, y: footY };
-    // BACK leg: offset behind, its own knee + ankle, so a gap reads.
-    const kneeB = { x: cx - spread * 0.6 + figH * 0.04 * d, y: hip.y + figH * 0.25 };
-    const ankB = { x: cx - spread * 0.6, y: footY };
-    const toe = { x: ankF.x + figH * 0.06, y: footY + figH * 0.005 };
-    // knee = front knee (the tracked joint)
-    return {
-      head, headC, headR, sho: shoulder, hip, elb, wri, toe,
-      knee: kneeF, ankle: ankF, hip2: { x: hip.x - spread * 0.5, y: hip.y },
-      knee2: kneeB, ankle2: ankB, figH,
-    };
+  // limb lengths as fractions of figure height
+  const L = { neck: 0.05, torso: 0.30, upperArm: 0.15, foreArm: 0.14, thigh: 0.24, shin: 0.24, foot: 0.07 };
+  // a joints frame from a few driving angles (radians, side view, x+ = forward)
+  function frame(o) {
+    const figH = CH * FIG, cx = CW * 0.5;
+    const spread = figH * 0.09;                    // gap between the two legs
+    // anchor: hips. torso rises from hips at torsoAng; head above shoulders.
+    const hip = { x: cx + (o.hipX || 0) * figH, y: CH * (1 - FIG) / 2 + figH * (o.hipY != null ? o.hipY : 0.52) };
+    const up = (len, ang) => ({ dx: Math.sin(ang) * len * figH, dy: -Math.cos(ang) * len * figH });
+    const dn = (len, ang) => ({ dx: Math.sin(ang) * len * figH, dy: Math.cos(ang) * len * figH });
+    let d1 = up(L.torso, o.torso);
+    const sho = { x: hip.x + d1.dx, y: hip.y + d1.dy };
+    let dn1 = up(L.neck, o.torso + o.neck);
+    const neck = { x: sho.x + dn1.dx * 0.5, y: sho.y + dn1.dy * 0.5 };
+    const headC = { x: sho.x + dn1.dx, y: sho.y + dn1.dy - figH * 0.045 };
+    const headR = figH * 0.062;
+    // arm: shoulder -> elbow -> wrist
+    let a1 = dn(L.upperArm, o.arm);
+    const elb = { x: sho.x + a1.dx, y: sho.y + a1.dy };
+    let a2 = dn(L.foreArm, o.arm + o.foreArm);
+    const wri = { x: elb.x + a2.dx, y: elb.y + a2.dy };
+    // FRONT leg (tracked side): hip -> knee -> ankle
+    const hipF = { x: hip.x + spread * 0.5, y: hip.y };
+    let l1 = dn(L.thigh, o.thighF);
+    const kneeF = { x: hipF.x + l1.dx, y: hipF.y + l1.dy };
+    let l2 = dn(L.shin, o.thighF + o.shinF);
+    const ankF = { x: kneeF.x + l2.dx, y: kneeF.y + l2.dy };
+    const toe = { x: ankF.x + L.foot * figH, y: ankF.y + figH * 0.005 };
+    // BACK leg
+    const hipB = { x: hip.x - spread * 0.5, y: hip.y };
+    let b1 = dn(L.thigh, o.thighB);
+    const kneeB = { x: hipB.x + b1.dx, y: hipB.y + b1.dy };
+    let b2 = dn(L.shin, o.thighB + o.shinB);
+    const ankB = { x: kneeB.x + b2.dx, y: kneeB.y + b2.dy };
+    return { headC, headR, neck, sho, hip: hipF, hip2: hipB, elb, wri,
+             knee: kneeF, ankle: ankF, knee2: kneeB, ankle2: ankB, toe, figH };
+  }
+  const lrp = (a, b, t) => a + (b - a) * t;
+  // the five moves. each maps phase d (0..1) to the driving angles for frame().
+  // 'joint' = which joint the engine tracks for this move.
+  const MOVES = {
+    squat: { joint: 'knee', label: 'squat', pose: (d) => ({
+      hipY: lrp(0.42, 0.60, d), hipX: lrp(0, -0.05, d),
+      torso: lrp(0.02, 0.5, d), neck: -0.15, arm: lrp(0.1, 0.9, d), foreArm: 0.2,
+      thighF: lrp(0.05, 0.95, d), shinF: lrp(-0.05, -1.5, d),
+      thighB: lrp(-0.05, 0.85, d), shinB: lrp(0.05, -1.4, d) }) },
+    plank: { joint: 'hip', label: 'plank', pose: (d) => ({
+      hipY: 0.70, hipX: 0.0,
+      torso: lrp(1.35, 1.45, d), neck: 0.1, arm: lrp(2.4, 2.5, d), foreArm: 0.7,
+      thighF: lrp(1.65, 1.7, d), shinF: 0.05, thighB: 1.6, shinB: 0.05 }) },
+    bridge: { joint: 'hip', label: 'glute bridge', pose: (d) => ({
+      hipY: lrp(0.72, 0.6, d), hipX: 0,
+      torso: lrp(2.1, 2.4, d), neck: -0.3, arm: lrp(2.7, 2.8, d), foreArm: 0.1,
+      thighF: lrp(1.1, 0.7, d), shinF: lrp(-1.9, -2.2, d),
+      thighB: lrp(1.15, 0.75, d), shinB: lrp(-1.9, -2.2, d) }) },
+    lunge: { joint: 'knee', label: 'lunge', pose: (d) => ({
+      hipY: lrp(0.44, 0.58, d), hipX: 0.02,
+      torso: 0.05, neck: -0.15, arm: 0.15, foreArm: 0.15,
+      thighF: lrp(0.15, 0.75, d), shinF: lrp(-0.15, -0.85, d),
+      thighB: lrp(-0.35, -0.75, d), shinB: lrp(-0.1, 0.9, d) }) },
+    raise: { joint: 'shoulder', label: 'arm raise', pose: (d) => ({
+      hipY: 0.42, hipX: 0,
+      torso: 0.02, neck: -0.12, arm: lrp(0.15, 1.9, d), foreArm: 0.05,
+      thighF: 0.06, shinF: -0.06, thighB: -0.06, shinB: 0.06 }) },
+  };
+  const SEQ = ['squat', 'plank', 'bridge', 'lunge', 'raise'];
+  function poseFor(move, d) { return frame(MOVES[move].pose(d)); }
+  // the tracked joint's live angle, per move.
+  function trackedAngle(move, J) {
+    if (move === 'squat' || move === 'lunge') return angleAt(J.knee, J.hip, J.ankle);
+    if (move === 'plank' || move === 'bridge') return angleAt(J.hip, J.sho, J.knee);
+    if (move === 'raise') return angleAt(J.sho, J.hip, J.elb);
+    return angleAt(J.knee, J.hip, J.ankle);
+  }
+  function trackedPoint(move, J) {
+    if (move === 'plank' || move === 'bridge') return J.hip;
+    if (move === 'raise') return J.sho;
+    return J.knee;
   }
 
   // dot budget: 450 total, allocated in PROPORTION to each segment's length so a
   // long limb gets more dots and nothing clumps. widths (spread as a fraction of
   // figH) give each limb its volume; the two legs stay separate.
   const SEG_DEFS = [
+    ['sho', 'neck', 0.020, 1.2], // neck — joins head to torso
     ['hip', 'sho', 0.052, 2.6],   // torso — widest
     ['sho', 'elb', 0.020, 1.0],   // upper arm
     ['elb', 'wri', 0.018, 0.9],   // forearm
@@ -108,12 +150,12 @@
   const cloud = [];
   // build once at a reference figure to measure segment lengths for the split
   (function buildCloud() {
-    const ref = joints(0);
+    const ref = poseFor('squat', 0);
     let totalW = HEAD_WEIGHT;
     const segLens = SEG_DEFS.map(([a, b, spread, weight]) => {
-      const L = Math.hypot(ref[b].x - ref[a].x, ref[b].y - ref[a].y) * weight;
-      totalW += L / ref.figH;
-      return L / ref.figH;
+      const len = Math.hypot(ref[b].x - ref[a].x, ref[b].y - ref[a].y) * weight;
+      totalW += len / ref.figH;
+      return len / ref.figH;
     });
     const headN = Math.round(TOTAL_DOTS * (HEAD_WEIGHT / totalW));
     for (let i = 0; i < headN; i++) {
@@ -155,16 +197,16 @@
 
   // ---- drawing helpers ----
   let ringT = -1;
-  // the floor line sits AT the ankle/heel, so feet touch the ground dots.
+  // the floor line sits at the lowest foot; its dots are PEACH (user-data hue).
   function floorDots(J) {
-    ctx.fillStyle = 'rgba(142,107,168,.18)';
-    const y = (J ? J.ankle.y : CH * 0.92) + 2;
-    for (let x = CW * 0.14; x <= CW * 0.86; x += CW * 0.06) {
+    ctx.fillStyle = 'rgba(232,180,160,.5)';
+    const y = Math.max(J.ankle.y, J.ankle2.y) + 4;
+    for (let x = CW * 0.12; x <= CW * 0.88; x += CW * 0.055) {
       ctx.beginPath(); ctx.arc(x, Math.min(y, CH - 3), 1.4, 0, Math.PI * 2); ctx.fill();
     }
   }
-  // draw a cloud from a joints() map (demo) with a lit knee + angle.
-  function drawCloudFig(J, ts, kneeAngle) {
+  // draw the point-cloud figure with the tracked joint lit lila + its angle.
+  function drawCloudFig(J, ts, angle, trackPt) {
     ctx.clearRect(0, 0, CW, CH);
     floorDots(J);
     for (const dt of cloud) {
@@ -184,16 +226,17 @@
       ctx.fillStyle = INK;
       ctx.beginPath(); ctx.arc(base.x + vx, base.y + vy, Math.min(2, dt.r), 0, Math.PI * 2); ctx.fill();
     }
-    litKnee(J.knee, ts, kneeAngle);
+    litJoint(trackPt || J.knee, ts, angle);
     if (ringT >= 0 && ts - ringT < 700) {
       const k = (ts - ringT) / 700;
-      ctx.beginPath(); ctx.arc(J.hip.x, J.hip.y, 20 + 70 * k, 0, Math.PI * 2);
+      const rp = trackPt || J.hip;
+      ctx.beginPath(); ctx.arc(rp.x, rp.y, 20 + 70 * k, 0, Math.PI * 2);
       ctx.strokeStyle = 'rgba(142,107,168,' + (0.5 * (1 - k)) + ')'; ctx.lineWidth = 2; ctx.stroke();
     }
     ctx.globalAlpha = 1;
   }
   // the tracked joint: lila filled dot + breathing ring + live angle. no bone line.
-  function litKnee(knee, ts, angle) {
+  function litJoint(knee, ts, angle) {
     ctx.globalAlpha = 1;
     ctx.fillStyle = LILA;
     ctx.beginPath(); ctx.arc(knee.x, knee.y, 4.5, 0, Math.PI * 2); ctx.fill();
@@ -219,34 +262,79 @@
       ctx.fillStyle = INK;
       ctx.beginPath(); ctx.arc(x, y, 2, 0, Math.PI * 2); ctx.fill();
     }
-    if (kneePt) litKnee({ x: (1 - kneePt.x) * CW, y: kneePt.y * CH }, ts, kneeAngle);
+    if (kneePt) litJoint({ x: (1 - kneePt.x) * CW, y: kneePt.y * CH }, ts, kneeAngle);
     ctx.globalAlpha = 1;
   }
 
-  // ---- demo loop ----
-  const CYCLE = 5200;
+  // small mono label naming the current move, drawn beside the figure.
+  function moveLabel(name) {
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = INK;
+    ctx.font = '600 12px "JetBrains Mono", ui-monospace, monospace';
+    ctx.fillText(name, CW * 0.08, CH * 0.14);
+  }
+
+  // ---- demo loop: cycle squat → plank → glute bridge → lunge → arm raise.
+  // each move runs REPS_PER reps, then a smooth MORPH into the next pose.
+  const CYCLE = 2600;                 // one rep, ms
+  const REPS_PER = 3;                 // reps before switching move
+  const MORPH = 900;                  // transition time, ms
   let t0 = null, demoRAF = 0, mode = 'demo';
+  let seqI = 0, repsInMove = 0, wasDown = false;
+  let morphFrom = null, morphStart = -1;   // during a transition
+  function currentMove() { return SEQ[seqI]; }
+  function nextMove() { return SEQ[(seqI + 1) % SEQ.length]; }
+
   function demoFrame(ts) {
     if (mode !== 'demo') return;
     if (t0 === null) t0 = ts;
+    const move = currentMove();
+    // are we mid-morph into the next move?
+    if (morphStart >= 0) {
+      const k = Math.min(1, (ts - morphStart) / MORPH);
+      const nm = nextMove();
+      const A = morphFrom, B = poseFor(nm, 0);
+      const e = smoothstep(k);
+      const J = morphJoints(A, B, e);
+      drawCloudFig(J, ts, null, trackedPoint(nm, J));
+      moveLabel(MOVES[nm].label);
+      if (k >= 1) { seqI = (seqI + 1) % SEQ.length; repsInMove = 0; wasDown = false; morphStart = -1; t0 = ts; }
+      demoRAF = requestAnimationFrame(demoFrame);
+      return;
+    }
     const ph = ((ts - t0) % CYCLE) / CYCLE;
     const tri = ph < 0.5 ? ph * 2 : (1 - ph) * 2;
     const d = smoothstep(tri);
-    // motor's own rule: a rep closes after going deep (d>0.86) then back up (d<0.12)
     if (d > 0.86) wasDown = true;
-    if (wasDown && d < 0.12) { wasDown = false; reps++; setReps(reps); onRep(ts); }
-    const J = joints(d);
-    const ka = angleAt(J.knee, J.hip, J.ankle);
-    setKnee(ka);
-    drawCloudFig(J, ts, ka);
+    if (wasDown && d < 0.12) {
+      wasDown = false; reps++; setReps(reps); onRep(ts); repsInMove++;
+      if (repsInMove >= REPS_PER) { morphFrom = poseFor(move, 0); morphStart = ts; }
+    }
+    const J = poseFor(move, d);
+    const ang = trackedAngle(move, J);
+    setKnee(ang);
+    drawCloudFig(J, ts, ang, trackedPoint(move, J));
+    moveLabel(MOVES[move].label);
     demoRAF = requestAnimationFrame(demoFrame);
   }
-  let wasDown = false;
+  // blend two joints frames (same keys) for a smooth pose-to-pose transition.
+  function morphJoints(A, B, t) {
+    const out = {};
+    for (const k in A) {
+      if (typeof A[k] === 'number') out[k] = lrp(A[k], B[k], t);
+      else if (A[k] && A[k].x != null) out[k] = { x: lrp(A[k].x, B[k].x, t), y: lrp(A[k].y, B[k].y, t) };
+      else out[k] = A[k];
+    }
+    return out;
+  }
   function startDemo() {
     mode = 'demo';
-    if (reduce) { const J = joints(0.62); drawCloudFig(J, 0, angleAt(J.knee, J.hip, J.ankle)); setKnee(angleAt(J.knee, J.hip, J.ankle)); return; }
+    if (reduce) {
+      const J = poseFor('squat', 0.6); const ang = trackedAngle('squat', J);
+      drawCloudFig(J, 0, ang, trackedPoint('squat', J)); moveLabel('squat'); setKnee(ang); return;
+    }
     cancelAnimationFrame(demoRAF);
-    t0 = null;
+    t0 = null; seqI = 0; repsInMove = 0; wasDown = false; morphStart = -1;
     demoRAF = requestAnimationFrame(demoFrame);
   }
 
