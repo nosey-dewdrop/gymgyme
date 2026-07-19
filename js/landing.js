@@ -268,7 +268,7 @@
       const e = smoothstep(k);
       const J = morphJoints(A, B, e);
       drawCloudFig(J, ts, null, trackedPoint(nm, J));
-      moveLabel(MOVES[nm].label);
+      moveLabel(POSES[nm].label);
       if (k >= 1) { seqI = (seqI + 1) % SEQ.length; repsInMove = 0; wasDown = false; morphStart = -1; t0 = ts; }
       demoRAF = requestAnimationFrame(demoFrame);
       return;
@@ -285,7 +285,7 @@
     const ang = trackedAngle(move, J);
     setKnee(ang);
     drawCloudFig(J, ts, ang, trackedPoint(move, J));
-    moveLabel(MOVES[move].label);
+    moveLabel(POSES[move].label);
     demoRAF = requestAnimationFrame(demoFrame);
   }
   // blend two joints frames (same keys) for a smooth pose-to-pose transition.

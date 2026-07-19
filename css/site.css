@@ -15,10 +15,8 @@
   --lila:#C9A9D9;        /* soft lila — chips, fills, dots, active state */
   --lila-soft:#F0E6F5;   /* faint lila wash */
   --lila-deep:#8E6BA8;   /* engine output text: angle, score, count, accent */
-  --pink:#D96BA0;        /* (legacy) */
+  --pink:#D96BA0;        /* the user's own data: saved move, filled day, history, my-moves count */
   --pink-soft:#FBEAF2;
-  --peach:#E8B4A0;       /* the user's own data: saved move, filled day, history, my-moves count */
-  --peach-soft:#FBEDE6;
 
   /* radius system (PROTOKOL §1.4): small controls, cards/blocks, big panels */
   --r-sm:10px;   /* button, chip, input */
@@ -73,7 +71,7 @@ section{padding:64px 0}
 
 /* ---------------------------------------------------------------- the dot motif */
 .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--lila)}
-.dot.user{background:var(--peach)}
+.dot.user{background:var(--pink)}
 
 /* inline icon inside running text — matches the on-screen button glyph.
    ~1em, follows text color, optically centered on the baseline. */
@@ -137,11 +135,15 @@ input[type=number]{font-family:var(--mono);text-align:center;width:64px}
 input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 
 /* ---------------------------------------------------------------- bands / prose */
-/* ambient dot texture: a faint 24px dot grid on the page, flat from afar,
-   textured up close. the site motif as the ground itself. */
+/* ambient dot texture: two layers — a faint even 24px grid (.05), plus a
+   sparser, larger, offset scatter (.08) that clusters in the open space. flat
+   from afar, textured up close. no extra DOM. */
 body{background-color:var(--paper);
-  background-image:radial-gradient(rgba(25,19,32,.05) 1px, transparent 1px);
-  background-size:24px 24px}
+  background-image:
+    radial-gradient(rgba(217,107,160,.08) 1.4px, transparent 1.6px),
+    radial-gradient(rgba(25,19,32,.05) 1px, transparent 1px);
+  background-size:132px 168px, 24px 24px;
+  background-position:40px 60px, 0 0}
 .band-lila{background:transparent}
 .prose{max-width:66ch;margin:0 auto}
 .prose h2{margin:26px 0 8px}
@@ -163,7 +165,7 @@ body{background-color:var(--paper);
 /* ---------------------------------------------------------------- directory
    community link index. counters are the user's data → pink. */
 .dir-tag{font-size:13px;color:var(--mut);margin:8px 0}
-.dir-tag .stat{font-family:var(--mono);color:var(--peach);font-weight:600}
+.dir-tag .stat{font-family:var(--mono);color:var(--pink);font-weight:600}
 #nav{display:flex;flex-wrap:wrap;gap:8px 16px;margin:12px 0 4px}
 #nav a,#nav a:visited{font-size:13px;color:var(--mut)}
 #nav a:hover{color:var(--lila-deep)}
@@ -241,9 +243,9 @@ body{background-color:var(--paper);
 #allMoves .lib-mv .mvtag{margin-left:auto;font-family:var(--mono);font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);opacity:.6;white-space:nowrap}
 #allMoves .lib-mv.coached .mvtag{color:var(--lila-deep);opacity:1}
 #allMoves .lib-mv .hh{margin-left:8px;color:var(--line);transition:color var(--t)}
-#allMoves .lib-mv.kept .hh{color:var(--peach)}    /* saved = user data = pink */
+#allMoves .lib-mv.kept .hh{color:var(--pink)}    /* saved = user data = pink */
 /* my-moves unlike control — saved item, so pink; plain glyph button, no fill */
-.unlike{background:none;border:none;padding:2px 4px;cursor:pointer;color:var(--peach);line-height:1}
+.unlike{background:none;border:none;padding:2px 4px;cursor:pointer;color:var(--pink);line-height:1}
 @media(max-width:900px){#allMoves .lib-grid{columns:1}}
 
 /* saved-moves dropdown panel */
@@ -274,7 +276,7 @@ body{background-color:var(--paper);
   align-items:center;justify-content:center;gap:2px;font-family:var(--mono);font-size:12px;color:var(--mut);transition:transform var(--t)}
 .monthwall .d:hover{transform:translateY(-2px)}
 .monthwall .d.blank{background:none}
-.monthwall .d.lit{background:var(--peach-soft);color:var(--ink);font-weight:600}
+.monthwall .d.lit{background:var(--pink-soft);color:var(--ink);font-weight:600}
 .monthwall .d.lit small{font-size:8.5px;font-weight:normal;opacity:.85;line-height:1.1;text-align:center;padding:0 2px}
 .monthwall .d.today{box-shadow:inset 0 0 0 2px var(--lila)}
 
@@ -296,7 +298,7 @@ body{background-color:var(--paper);
    signature in the lower-right. hover lifts with a soft lila shadow. */
 .card{position:relative;background:var(--wash);border:none;border-radius:var(--r);padding:26px;margin:0;transition:transform var(--dur) var(--ease),box-shadow var(--dur) var(--ease)}
 .card:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(122,91,176,.12)}
-.card.saved{background:var(--peach-soft)}
+.card.saved{background:var(--pink-soft)}
 .card-title{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--lila-deep);margin:0 0 10px}
 /* dot signature — the engine's dot language becomes the card's material.
    6-8 faint dots clustered bottom-right, one notch darker than the card. */
@@ -419,7 +421,7 @@ body.running #intro,body.running #progCard{display:none}
 .auth-alt a{color:var(--lila-deep);font-weight:600}
 .auth-msg[role]{min-height:18px}
 .auth-card .auth-msg{font-size:13px;color:var(--lila-deep);margin:12px 0 0;min-height:18px}
-.auth-card .auth-msg.bad{color:var(--peach)}
+.auth-card .auth-msg.bad{color:var(--pink)}
 /* account: signed-in identity + history + destructive actions */
 .acct-who{font-size:14px;color:var(--ink);margin:0 0 4px}
 .acct-who b{color:var(--lila-deep);font-weight:600}
@@ -431,8 +433,8 @@ body.running #intro,body.running #progCard{display:none}
 .acct-hist .empty{color:var(--mut);font-family:var(--body);font-size:13px}
 .acct-actions{display:flex;flex-direction:column;gap:10px;margin:22px 0 0}
 .acct-actions .btn{width:100%;text-align:center}
-.acct-actions .btn.danger,.acct-actions .btn.danger:visited{background:transparent;color:var(--peach);border:1px solid var(--line)}
-.acct-actions .btn.danger:hover{border-color:var(--peach)}
+.acct-actions .btn.danger,.acct-actions .btn.danger:visited{background:transparent;color:var(--pink);border:1px solid var(--line)}
+.acct-actions .btn.danger:hover{border-color:var(--pink)}
 
 /* sign-in gate before the coach onboarding (calm, not a hard wall) */
 .gate[hidden]{display:none}
@@ -577,14 +579,14 @@ body.running #intro,body.running #progCard{display:none}
 .mv-card .mv-tag.coached{background:var(--lila-soft);color:var(--lila-deep)}
 .mv-card .mv-tag.reference{color:var(--mut)}
 .mv-card .mv-heart{position:absolute;top:14px;right:12px;background:none;border:none;padding:2px;cursor:pointer;color:var(--line);line-height:1;transition:color var(--t)}
-.mv-card .mv-heart:hover{color:var(--peach)}
-.mv-card.saved .mv-heart{color:var(--peach)}      /* saved = user data = pink */
-.mv-card.saved .card-dots i{background:var(--peach)}
+.mv-card .mv-heart:hover{color:var(--pink)}
+.mv-card.saved .mv-heart{color:var(--pink)}      /* saved = user data = pink */
+.mv-card.saved .card-dots i{background:var(--pink)}
 
 /* my-moves: saved list — pink-soft cards (user's own data) */
 #keptList{display:grid;gap:12px;margin-top:14px}
-.kept-row.card{display:flex;align-items:center;gap:10px;background:var(--peach-soft);padding:14px 16px;cursor:default}
-.kept-row.card .card-dots i{background:var(--peach)}
+.kept-row.card{display:flex;align-items:center;gap:10px;background:var(--pink-soft);padding:14px 16px;cursor:default}
+.kept-row.card .card-dots i{background:var(--pink)}
 .kept-row .grow{flex:1;font-size:15px;font-weight:600}
 .kept-row .grow small{font-family:var(--mono);font-weight:normal;font-size:11px;color:var(--mut)}
 .kept-row .addbtn{font-family:var(--mono);font-size:12px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-sm);padding:7px 12px;cursor:pointer;transition:border-color var(--t)}
@@ -605,10 +607,10 @@ body.running #intro,body.running #progCard{display:none}
 .yearwall{display:grid;grid-template-columns:repeat(53,1fr);grid-auto-flow:column;grid-template-rows:repeat(7,1fr);gap:3px;margin-top:6px}
 .yearwall i{aspect-ratio:1;border-radius:50%;background:var(--wash)}
 .yearwall i.pad{background:none}
-.yearwall i.lv1{background:var(--peach-soft)}
-.yearwall i.lv2{background:var(--peach);opacity:.5}
-.yearwall i.lv3{background:var(--peach);opacity:.75}
-.yearwall i.lv4{background:var(--peach)}
+.yearwall i.lv1{background:var(--pink-soft)}
+.yearwall i.lv2{background:var(--pink);opacity:.5}
+.yearwall i.lv3{background:var(--pink);opacity:.75}
+.yearwall i.lv4{background:var(--pink)}
 .weekwall{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-top:6px}
 
 /* ---------------------------------------------------------------- FAZ 5
@@ -706,7 +708,8 @@ body.running #intro,body.running #progCard{display:none}
 .panel-link:hover{text-decoration:underline;text-underline-offset:3px}
 
 /* worth: three jobs, no numbers (there is no order here) */
-.worth{display:grid;grid-template-columns:1fr 1.1fr;gap:40px;align-items:start}
+/* three jobs — narrow, left-aligned (asymmetry vs the wide hero/loop) */
+.worth{max-width:720px;display:grid;grid-template-columns:1fr;gap:20px;align-items:start}
 .worth .big h2{margin:0 0 8px}
 .worth .big p{font-size:15px;color:var(--mut)}
 .worth ul{list-style:none;display:grid;gap:16px}
@@ -730,20 +733,24 @@ body.running #intro,body.running #progCard{display:none}
 .how .note{font-size:13px;color:var(--mut);margin-top:20px;max-width:64ch}
 .how .note i{font-style:normal;font-family:var(--mono);color:var(--lila-deep)}
 
-/* real output — box shrinks to its content (max 640), left-aligned. label 12px above. */
-.output-band .eyebrow{margin-bottom:12px}
+/* real output — box max 640, RIGHT-aligned (asymmetry). label 12px above. */
+.output-band .wrap{display:flex;flex-direction:column;align-items:flex-end}
+.output-band .eyebrow{margin-bottom:12px;align-self:flex-end}
 .output-band .output{display:inline-block;font-family:var(--mono);font-size:14px;line-height:1.7;color:var(--ink);
   background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:18px 22px;margin:0;max-width:640px;overflow-x:auto;white-space:pre}
 .output-band .output .l{color:var(--mut)}
 .output-band .output .v{color:var(--lila-deep);font-weight:600}   /* engine measure = lila */
-.output-band .output .u{color:var(--peach);font-weight:600}       /* user's own data = peach */
+.output-band .output .u{color:var(--pink);font-weight:600}       /* user's own data = peach */
 .output-band .output .ok{color:var(--lila-deep)}
 
-/* nowhere — narrow section (single column, no dead right half). left-aligned. */
-.nowhere{max-width:720px}
-.nowhere .mega{font-family:var(--head);font-weight:600;font-size:26px;letter-spacing:-.02em;color:var(--ink);line-height:1.25;margin:6px 0 8px}
+/* nowhere — narrow content, but LEFT-ALIGNED inside the normal .wrap so it
+   starts at the same left edge as every other block (not centered, no right
+   half hanging). the .wrap keeps the shared 1080 gutter; we just cap the text. */
+.nowhere > *{max-width:640px}
+.nowhere .eyebrow{margin-bottom:8px}
+.nowhere .mega{font-family:var(--head);font-weight:600;font-size:26px;letter-spacing:-.02em;color:var(--ink);line-height:1.25;margin:0 0 8px}
 .nowhere .mega i{font-style:normal;color:var(--ink)}
-.nowhere p{font-size:15px;color:var(--mut);max-width:52ch}
+.nowhere p{font-size:15px;color:var(--mut);max-width:52ch;margin:0}
 
 /* whole loop: the one place numbers mean something (four real steps) */
 .loop .split{display:grid;grid-template-columns:1fr 1.3fr;gap:40px;align-items:start}
