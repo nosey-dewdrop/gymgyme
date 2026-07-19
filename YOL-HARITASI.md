@@ -1,47 +1,57 @@
 # gymgyme — YOL HARİTASI (FAZ 7+)
 
-`PROTOKOL.md`'nin devamı. Aynı sözleşme şeması, aynı otonomi kuralları,
-aynı kapı mantığı. FAZ 6 (tasarım denetimi) bittikten sonra buradan devam.
+`PROTOKOL.md`'nin devamı. Aynı sözleşme şeması, aynı otonomi kuralları
+(§4: SORMA, YAP), aynı kapı mantığı. FAZ 6 bittikten sonra buradan devam.
 
-Gerekçeler ve strateji: `STRATEJI.md`.
+Gerekçeler: `STRATEJI.md`.
 
-**Yeni değişmez (FAZ 7'den itibaren geçerli):**
+**Ek değişmezler (FAZ 7'den itibaren):**
 11. Motor davranışı değişiyorsa regresyon süiti koşmadan deploy edilmez.
 12. Doğruluk iddiası ölçülmeden yayınlanmaz. "coached" etiketi ölçüm
     sonucudur, karar değil.
 13. Ürün içinde LLM yok. Toolchain'de kullanılabilir, patch notes'ta yazılır.
+14. Telifli video izinsiz kullanılmaz. Korpus yalnızca açık lisanslı
+    (CC0 / ticari kullanıma açık) veya telifi bizde olan kliplerden kurulur.
+    Her klibin yanında lisans kaydı bulunur.
 
-**İnsan işi (ajan yapamaz, planda yer tutar):** klip çekimi, klip
-etiketleme, antrenör görüşmeleri, video üretimi, stüdyo temasları.
-Ajan bunlar için araç yazar, veriyi insan üretir.
+**İnsan işi — sadece bunlar:** belirsiz kalan klip etiketlerini onaylamak,
+antrenör görüşmeleri, video/içerik üretimi, fiyat kararı.
+Klip aramak, indirmek, ön etiketlemek AJAN İŞİDİR.
 
 ---
 
 ## FAZ 7 — ölçüm altyapısı
 ```yaml
-kapsam: [X10 regresyon süiti, X11 etiketleme aracı]
-girdi: [çalışan motor, spec değerleri (data/specs.json)]
+kapsam: [X10 regresyon süiti, X11 etiketleme aracı, X28 klip toplama]
+girdi: [çalışan motor, data/specs.json]
 teslim:
-  - tools/labeler: yerel çalışan tek sayfalık araç. Klibi oynatır,
-    boşlukla tekrar işaretlenir, tuşlarla hata etiketlenir (valgus,
-    heel_lift, trunk_lean, butt_wink, asymmetry, tempo_collapse),
-    çıktı JSON. Tasarım önemsiz, hız önemli.
-  - corpus/ klasör yapısı: <hareket>/<klip>.mp4 + <klip>.labels.json
-  - tests/regression: korpusu motordan geçirir, hareket başına
-    kaçırılan tekrar / yanlış sayım / hata precision-recall üretir
-  - scripts/validate.sh: tam süit; CI'da gecelik, commit'te hızlı süit
+  - tools/fetch-clips: Pexels / Pixabay / Mixkit API'lerinden hareket
+    adına göre video arar, indirir, corpus/<hareket>/ altına koyar,
+    yanına <klip>.license.txt yazar (kaynak URL, lisans, tarih).
+    Çeşitlilik hedefi: farklı vücut tipi, farklı kamera açısı, farklı
+    ışık. Aynı kanaldan/modelden art arda klip alınmaz.
+  - tools/labeler: motor ÖNCE kendi tahminini üretir (kaç tekrar, hangi
+    karede dip, hangi hatalar). İnsan sadece onaylar veya düzeltir:
+    tek tuş onay, sürükleyerek düzeltme, klavyeyle sonraki klibe geçiş.
+    Fare gerekmez. Yüksek güvenli tahminler OTOMATİK kabul edilir;
+    yalnızca düşük güvenli klipler onay kuyruğuna düşer (aktif öğrenme).
+  - corpus/ yapısı: <hareket>/<klip>.mp4 + .labels.json + .license.txt
+  - tests/regression: korpusu motordan geçirir, hareket başına kaçırılan
+    tekrar / yanlış sayım / hata precision-recall üretir
+  - scripts/validate.sh: tam süit (gecelik) + hızlı süit (her commit)
   - baseline.json: mevcut doğruluk taban çizgisi
 miras:
   - her motor değişikliği bu süitten geçer
 kapı:
-  - labeler ile 1 klip uçtan uca etiketlenebiliyor
+  - fetch-clips ile ≥5 hareket için klip indirildi, lisans dosyaları var
+  - labeler ile 1 klip uçtan uca onaylanabiliyor
   - validate.sh çalışıyor, metrik üretiyor
   - baseline.json commit'li
   - motorda kasıtlı bozma → süit kırmızı veriyor (negatif test)
-zevk_karari: yok
+hedef:
+  - hareket başına 15 klip + motorun zorlandığı ek klipler
 insan_isi:
-  - ilk 5 hareket × 40 klip çekimi (çeşitli vücut, açı, ışık, kıyafet,
-    telefon yüksekliği, düşük fps cihaz)
+  - onay kuyruğunu boşaltmak (belirsiz klipler)
 ```
 
 ## FAZ 8 — spec sanayileşmesi (14 → 50 hareket)
@@ -56,16 +66,16 @@ teslim:
   - spec DSL (YAML) + derleyici → C++/wasm. Yeni hareket = satır eklemek
   - hata taksonomisi: ilk 5 hareket için tam hata seti (eşik + kaç kare
     üst üste + hangi faz)
-  - üretim hattı: taslak (LLM, toolchain) → insan onayı → klip doğrulama
-    → coached/reference OTOMATİK etiket
+  - üretim hattı: taslak (LLM, toolchain) → doğrulama → coached/reference
+    OTOMATİK etiket
 kapı:
   - 12 şablon tanımlı, testli
   - yeni hareket eklemek yalnızca DSL satırı gerektiriyor (kanıt: bir
     hareketi sıfırdan ekle, kod değişmeden çalışsın)
   - coached/reference etiketi ölçümden geliyor (elle atanmış = 0)
   - 50 harekette süit yeşil, baseline düşmemiş
-zevk_karari:
-  - coached eşiği ne olsun (kaçırma/yanlış sayım üst sınırı)
+karar:
+  - coached eşiği → ajan belirler, DECISIONS'a yazar
 ```
 
 ## FAZ 9 — motor kalitesi
@@ -76,18 +86,18 @@ girdi: [FAZ 8 çıktısı, ≥10 hareketlik korpus]
 teslim:
   - One Euro / Kalman filtresi landmark'lara
   - görüş açısı sınıflandırma (omuz/kalça genişlik oranı) → açıya göre
-    spec seçimi; ölçülemeyen açıda "bu açıdan ölçemiyorum" der
-  - görünürlük eşiği: düşükse saymaz, "can't see you clearly" der
+    spec seçimi; ölçülemeyen açıda "bu açıdan ölçemiyorum"
+  - görünürlük eşiği: düşükse saymaz
   - antropometrik normalizasyon: ilk sette kişisel ROM ölçülür, eşikler
-    taban çizgisine göre normalize edilir, cihazda saklanır (yükleme yok)
-  - düşük fps modu: adaptif örnekleme, eski Android'de faz kaçırmaz
+    taban çizgisine göre normalize edilir, cihazda saklanır
+  - düşük fps modu: adaptif örnekleme
 kapı:
   - her madde öncesi/sonrası baseline karşılaştırması, hepsinde iyileşme
   - yanlış sayım oranı düştü
   - 15 fps klip setinde kaçırma oranı hedef altında
   - hiçbir maddede regresyon yok
-zevk_karari:
-  - "ölçemiyorum" mesajının dili
+karar:
+  - "ölçemiyorum" mesajının dili → ajan yazar (mevcut sese uygun)
 ```
 
 ## FAZ 10 — kütüphane ölçeği + SEO
@@ -96,56 +106,53 @@ kapsam: [X20 hareket sayfaları, X21 500'e ölçek]
 girdi: [FAZ 9 motoru, üretim hattı, tasarım sistemi]
 teslim:
   - hareket sayfası şablonu: her hareket kendi URL'inde, sayfada O
-    HAREKETİ ölçen canlı kamera (index hero modülünün hareket-parametreli
-    hali), altında spec bilgisi + doğruluk satırı + ilgili hareketler
-  - 500 harekete ölçek (coached olanlar ölçülüyor, gerisi reference)
+    HAREKETİ ölçen canlı kamera (index hero modülünün parametreli hali),
+    altında spec bilgisi + doğruluk satırı + ilgili hareketler
+  - 500 harekete ölçek
   - sitemap, structured data, canonical
   - iç bağlantı: kategori → hareket → benzer hareket
-miras:
-  - bu şablon blog ve program sayfalarında da kullanılır
 kapı:
   - hareket sayfası sayısı = kütüphane sayısı
-  - her sayfada canlı kamera çalışıyor (rastgele 10 sayfa testi)
+  - rastgele 10 sayfada canlı kamera çalışıyor
   - Lighthouse: performans ≥90, erişilebilirlik ≥95
   - sitemap geçerli, kırık iç link = 0
-  - mediapipe hâlâ lazy (ilk yüklemede inmiyor)
-zevk_karari:
-  - hareket sayfasının üst bloğu: kamera mı önce, açıklama mı
+  - mediapipe hâlâ lazy
+karar:
+  - sayfanın üst bloğu (kamera mı açıklama mı) → ajan karar verir
 ```
 
-## FAZ 11 — doğruluk kaydı (moat'ın görünür yüzü)
+## FAZ 11 — doğruluk kaydı
 ```yaml
 kapsam: [X22 kanıt yayını, X23 antrenör kalibrasyonu]
 girdi: [FAZ 9 metrikleri, ≥20 hareketlik korpus]
 teslim:
-  - /accuracy sayfası: hareket başına test edilen tekrar sayısı,
-    kaçırılan, yanlış sayılan. Kaçırılanlar dahil, dürüst.
+  - /accuracy sayfası: hareket başına test edilen tekrar, kaçırılan,
+    yanlış sayılan. Kaçırılanlar dahil, dürüst.
   - her hareket sayfasında kendi doğruluk satırı
   - patch notes'a doğruluk değişimleri otomatik düşer
-  - antrenör kalibrasyonu: 2-3 sertifikalı antrenör aynı kliplere puan
-    verir, skor eğrileri buna göre ayarlanır, uyum oranı yayınlanır
+  - antrenör kalibrasyonu: 2-3 antrenör aynı kliplere puan verir, skor
+    eğrileri buna göre ayarlanır, uyum oranı yayınlanır
   - KORPUS AÇIK DEĞİL — sayılar yayınlanır, klipler yayınlanmaz
 kapı:
-  - accuracy sayfası canlı, sayılar süitten otomatik üretiliyor (elle
-    yazılmış sayı = 0)
+  - accuracy sayfası canlı, sayılar süitten otomatik (elle yazılmış = 0)
   - antrenör uyum metriği hesaplanıyor
-  - hiçbir doğruluk iddiası ölçüm olmadan yayınlanmamış
-zevk_karari:
-  - kötü sayıların ne kadarı yayınlanacak (öneri: hepsi)
+  - ölçülmemiş hiçbir doğruluk iddiası yok
+karar:
+  - kötü sayıların hepsi yayınlanır (varsayılan: hepsi)
 insan_isi:
   - antrenör bulma ve puanlama seansları
 ```
 
 ## FAZ 12 — dağıtım ve para
 ```yaml
-kapsam: [X24 set kartı, X25 klip bağışı, X26 Pro, X27 içerik]
+kapsam: [X24 set kartı, X25 klip bağışı, X26 Pro, X27 ölçüm]
 girdi: [çalışan ürün, doğruluk kaydı]
 teslim:
   - set kartı: set sonunda tek kare — nokta figürü, tekrar, skor, tarih,
     alan adı. Vücut yok, fotoğraf yok. Paylaş/indir.
   - klip bağışı: opsiyonel, varsayılan KAPALI, açık rıza, geri alınabilir.
     Video değil, landmark zaman serisi. Ne gönderildiği ekranda görünür.
-    Gelen veri korpusa aday olarak düşer, insan onayıyla girer.
+    Gelen veri korpusa aday olarak düşer.
   - Pro katmanı: senkron, ilerleme analizi, çevrimdışı paket, seans
     tipleri. Aylık düşük band + ömür boyu seçeneği.
   - çekirdek ücretsiz kalır, hiçbir mevcut özellik Pro'ya taşınmaz
@@ -153,54 +160,51 @@ teslim:
   - kuzey yıldızı paneli: ilk 90 saniyede sayılmış tekrarı olan
     ziyaretçi oranı
 kapı:
-  - set kartı üretiliyor, paylaşılabiliyor, içinde kişisel görüntü yok
-  - bağış varsayılan kapalı, kapatınca gerçekten duruyor (ağ trafiği ile
+  - set kartı üretiliyor, içinde kişisel görüntü yok
+  - bağış varsayılan kapalı, kapatınca gerçekten duruyor (ağ trafiğiyle
     kanıtla)
   - hiçbir ücretsiz özellik Pro'ya taşınmamış (öncesi/sonrası liste)
   - kuzey yıldızı ölçülüyor
-zevk_karari:
-  - Pro fiyatı ve ömür boyu fiyatı
-  - set kartının görsel düzeni
+karar:
+  - set kartının görsel düzeni → ajan karar verir
+KIRMIZI (durulur):
+  - Pro fiyatı ve ömür boyu fiyatı → para kararı, insana aittir
 insan_isi:
-  - video üretimi, topluluk paylaşımları, stüdyo/fizyoterapist görüşmeleri
+  - video üretimi, topluluk paylaşımları, stüdyo görüşmeleri
 ```
 
 ---
 
-## SIRA VE PARALELLİK
+## SIRA
 
 ```
-FAZ 3-6  tasarım           → ajan yürütür
-FAZ 7    ölçüm altyapısı   → ajan yürütür + insan klip çeker (paralel başlar)
-FAZ 8    spec sanayisi     → ajan
-FAZ 9    motor kalitesi    → ajan
-FAZ 10   ölçek + SEO       → ajan
-FAZ 11   doğruluk kaydı    → ajan + insan (antrenör)
-FAZ 12   dağıtım + para    → ajan + insan (içerik)
+FAZ 3-6   tasarım           → ajan
+FAZ 7     ölçüm altyapısı   → ajan (klip toplama dahil)
+FAZ 8     spec sanayisi     → ajan
+FAZ 9     motor kalitesi    → ajan
+FAZ 10    ölçek + SEO       → ajan
+FAZ 11    doğruluk kaydı    → ajan + insan (antrenör)
+FAZ 12    dağıtım + para    → ajan + insan (fiyat, içerik)
 ```
 
-**Klip toplama FAZ 7'de başlar ve hiç durmaz.** Korpus büyümesi tüm
-sonraki fazların hızını belirler; en uzun süren iş odur, en erken
-başlaması gereken de.
+**Klip toplama FAZ 7'de başlar ve hiç durmaz.** Ajan arka planda indirmeye
+ve ön etiketlemeye devam eder; insana sadece belirsiz kalanlar gider.
 
-**Kritik bağımlılık:** FAZ 8-11 sırayla yapılmalı. Spec sanayisi olmadan
-ölçek, motor kalitesi olmadan doğruluk kaydı anlamsız. Sıra atlanamaz.
+**Kritik bağımlılık:** FAZ 8-11 sırayla yapılır. Spec sanayisi olmadan
+ölçek, motor kalitesi olmadan doğruluk kaydı anlamsız.
 
 ---
 
 ## BİTİŞ DURUMU
 
-FAZ 12 bittiğinde elde olan:
-
 - 12 sayfa + 500 hareket sayfası, tek tasarım sisteminde
 - 500 hareket, ölçülenler ölçüm sonucuyla etiketli
 - 20+ hareket × 8 hata kalibre edilmiş kural tablosu
-- 800+ klipli etiketli korpus (kapalı)
+- Lisanslı, etiketli, kapalı korpus
 - Regresyon süiti: motor bozulursa deploy durur
 - Yayınlanmış doğruluk kaydı + antrenör uyum metriği
-- Kişiselleştirilmiş eşikler (antropometrik normalizasyon)
-- Paylaşılabilir set kartı, klip bağışı akışı
+- Kişiselleştirilmiş eşikler
+- Set kartı, klip bağışı akışı
 - Pro + ömür boyu, çekirdek ücretsiz
 
-Bu noktada rakibin sorunu "motor yazmak" değil, "bu tabloyu üretmek" —
-ve o iki ay değil, iki yıl.
+Rakibin sorunu artık "motor yazmak" değil, "bu tabloyu üretmek".
