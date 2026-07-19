@@ -20,6 +20,37 @@
   <meta name="twitter:description" content="386 no-equipment home training moves across legs, core, back, chest, arms, glutes and shoulders. Like your favourites and line them up for a workout.">
   <meta name="twitter:image" content="https://gymgyme.noseydewdrop.com/icons/icon-512.png">
   <link rel="stylesheet" href="css/calm.css">
+  <style>
+    /* moves page: calm white + lila editorial world, no theater props */
+    .pagehead, .sub-body { background:#fff; }
+    .pagehead .eyebrow { color:#8e6fd8; }
+    .pagehead h1 { color:#111; }
+    .pagehead .lead { color:#6f6b74; }
+    .pagehead .lead b { color:#111; }
+    .lib-cat { color:#111; }
+    .lib-cat small { color:#6f6b74; }
+    .lib-mv {
+      background:#fff; border:1px solid #e9e4ee; border-radius:3px;
+      box-shadow:none; transform:none; color:#111;
+    }
+    .lib-mv:hover { border-color:#8e6fd8; }
+    .lib-mv.kept { background:#efeafa; border-color:#8e6fd8; }
+    .lib-mv .mvtag { color:#6f6b74; }
+    .lib-mv.coached .mvtag { color:#8e6fd8; }
+    .lib-mv .hh { color:#8e6fd8; }
+    .libfilters button {
+      background:#fff; color:#6f6b74; border:1px solid #e9e4ee;
+      border-radius:3px; box-shadow:none;
+    }
+    .libfilters button.on { background:#8e6fd8; color:#fff; border-color:#8e6fd8; }
+    .mvsw .mvsearch { border:1px solid #e9e4ee; border-radius:3px; background:#fff; color:#111; }
+    .mvsw .mvsearch:focus { border-color:#8e6fd8; outline:none; }
+    /* camera placeholder reads as a calm framed area, not a dark stage */
+    #camstage, .camstage {
+      background:#efeafa; color:#111; border:1px solid #e9e4ee;
+      border-radius:3px; box-shadow:none;
+    }
+  </style>
 </head>
 <body class="has-strip">
 
@@ -44,9 +75,9 @@
 
 <section class="pagehead">
   <div class="wrap">
-    <p class="eyebrow">the move library · 386 acts · zero equipment</p>
-    <h1>every act this stage knows.</h1>
-    <p class="lead">tap the ♥ on anything that looks like your kind of trouble. it lands in "my moves" up top and lines up for your next workout. moves the camera engine coaches live carry a <b>coached</b> tag; the rest are <b>reference</b>, shown honestly, not faked as counted.</p>
+    <p class="eyebrow">the move library · 386 moves · zero equipment</p>
+    <h1>every move in the library.</h1>
+    <p class="lead">tap the ♥ on anything you want to try. it lands in "my moves" up top and lines up for your next workout. moves the camera engine coaches live carry a <b>coached</b> tag; the rest are <b>reference</b>, shown honestly, not faked as counted.</p>
   </div>
 </section>
 
@@ -83,7 +114,7 @@
 <script src="js/topbar.js"></script>
 <script>
 (function () {
-  const QUIPS = { core: "the quiet boss", legs: "the foundation", glutes: "the show", shoulders: "hold them high", arms: "wave goodbye to noodle arms", back: "the unsung hero", chest: "you vs. the floor" };
+  const QUIPS = { core: "the quiet boss", legs: "the foundation", glutes: "the powerhouse", shoulders: "hold them high", arms: "wave goodbye to noodle arms", back: "the unsung hero", chest: "you vs. the floor" };
   // koçlanabilir hareket kümesi motorun GERÇEK kataloğundan gelir (tek kaynak,
   // elle liste yok). wasm yüklenene kadar boş: hiçbir hareket yanlışlıkla
   // "coached" etiketlenmez (dürüstlük under-claim tarafına düşer).
@@ -126,7 +157,7 @@
     if (!allMoves.children.length) {
       const e = document.createElement("p");
       e.className = "small";
-      e.textContent = "no move by that name yet - the stage is always auditioning, suggest it!";
+      e.textContent = "no move by that name yet. suggest it and it can be added.";
       allMoves.appendChild(e);
     }
   }

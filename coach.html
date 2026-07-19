@@ -27,6 +27,71 @@
   <meta name="twitter:description" content="It counts your reps, scores each one, and coaches your form on the moves it can measure - fully in your browser. The video never leaves your device.">
   <meta name="twitter:image" content="https://gymgyme.noseydewdrop.com/icons/icon-512.png">
   <link rel="stylesheet" href="css/calm.css">
+  <style>
+    /* de-cinema: unify into calm white + lila editorial world (this file only) */
+    .sub-sign.backstage,
+    .sub-sign.backstage .wrap { background: #fff; color: #111; }
+    .sub-sign.backstage .eyebrow { color: #8e6fd8; }
+    .sub-sign.backstage .lead { color: #6f6b74; }
+    .sub-sign.backstage .plbl { color: #6f6b74; }
+
+    /* camera placeholder: calm framed light-lila area, no heavy shadow */
+    .camstage, #camstage {
+      background: #efeafa;
+      color: #111;
+      border: 1px solid #e9e4ee;
+      border-radius: 3px;
+      box-shadow: none;
+    }
+    .camstage b, #camstage b { color: #111; }
+    .camstage span, #camstage span { color: #6f6b74; }
+    .stagestart {
+      background: #8e6fd8;
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      box-shadow: none;
+    }
+
+    /* workout list panel (was rotated theater receipt): flat, upright, hairline */
+    .receipt, #setReceipt {
+      background: #fff;
+      color: #111;
+      border: 1px solid #e9e4ee;
+      border-radius: 3px;
+      box-shadow: none;
+      transform: none;
+    }
+    .receipt .rhead, #setReceipt .rhead { color: #111; }
+    .receipt .rnote, #setReceipt .rnote,
+    .receipt .rdrag, #setReceipt .rdrag { color: #6f6b74; }
+    .receipt .rrule, #setReceipt .rrule { border-top: 1px solid #e9e4ee; background: none; }
+    .receipt-tab, #rtab {
+      background: #8e6fd8;
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      box-shadow: none;
+      transform: none;
+    }
+
+    /* accent + calm cards */
+    .coach a, .sub-sign.backstage a { color: #8e6fd8; }
+    .read.card, .summary.card {
+      background: #fff;
+      color: #111;
+      border: 1px solid #e9e4ee;
+      border-radius: 3px;
+      box-shadow: none;
+    }
+    .mainbtn {
+      background: #8e6fd8;
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      box-shadow: none;
+    }
+  </style>
 </head>
 <body class="coach has-strip">
 
@@ -51,13 +116,13 @@
 
 <section class="sub-sign backstage">
   <div class="wrap">
-    <p class="eyebrow">backstage · where the show is built</p>
-    <h1>build tonight's set list.</h1>
-    <p class="lead">line up your moves in order. the camera plays them one by one, counts each with a tick, rests you between sets, then calls the next act. reps 0 means count freely until you take a bow.</p>
+    <p class="eyebrow">build your workout</p>
+    <h1>set up your workout.</h1>
+    <p class="lead">line up your moves in order. the camera runs them one by one, counts each rep, rests you between sets, then moves to the next one. reps 0 means count freely until you stop.</p>
     <div class="pickband">
-      <div class="plbl">PROGRAMS · TAP ONE AND THE SET LIST PRINTS ITSELF</div>
+      <div class="plbl">PROGRAMS · TAP ONE TO FILL YOUR WORKOUT</div>
       <span id="progBtns"></span>
-      <div class="plbl plbl-gap">OR SEARCH A MOVE - IT ADDS STRAIGHT TO THE RECEIPT</div>
+      <div class="plbl plbl-gap">OR SEARCH A MOVE TO ADD IT</div>
       <span class="tsw"><input id="trainSearch" placeholder="search a move to add..." autocomplete="off"><span class="tmag">🔍</span><div class="tsuggest" id="trainSuggest"></div></span>
     </div>
   </div>
@@ -95,15 +160,15 @@
 </div>
 
 <div class="stagefloor">
-  <!-- TEK SAHNE: warming (camstage) ve video (stage) aynı yerde, biri gizli. -->
+  <!-- TEK ALAN: warming (camstage) ve video (stage) aynı yerde, biri gizli. -->
   <div class="stageslot">
     <div class="camstage" id="camstage">
       <span class="cam">📸</span>
-      <b>the stage goes here</b>
-      <span>your camera opens in this spot and never leaves the building.<br>it learns YOUR body first, then locks onto you.</span>
-      <span class="framehint">before you start: stand back so your <b>whole body fits</b> the frame, side-on for squats and holds, in an evenly lit spot. the coach won't count until it can see you clearly.</span>
+      <b>your camera opens here</b>
+      <span>your camera opens in this spot and never leaves your device.<br>it learns YOUR body first, then locks onto you.</span>
+      <span class="framehint">before you start: stand back so your <b>whole body fits</b> the frame, side-on for squats and holds, in an evenly lit spot. it won't count until it can see you clearly.</span>
       <div class="stagestatus" id="stageStatus" aria-live="polite"></div>
-      <button id="ready" class="stagestart">▸ start the show</button>
+      <button id="ready" class="stagestart">▸ start the workout</button>
     </div>
 
     <div class="stage" id="stage" hidden>
@@ -122,7 +187,7 @@
   <div id="startWrap" hidden>
     <p class="safety">go at your own pace and warm up first. stop if anything hurts. your personal trainer reads your form to help you move better - it is not medical advice, and it does not replace a doctor.</p>
     <button id="stop" class="mainbtn soft" hidden>stop</button>
-    <button id="backProg" class="mini" type="button">back to the stage</button>
+    <button id="backProg" class="mini" type="button">back to your workout</button>
   </div>
   <p class="status" id="status" role="status" aria-live="polite"></p>
 
@@ -166,15 +231,15 @@
   </div>
 
   <div class="receipt" id="setReceipt" hidden>
-    <button class="rclose" id="rclose" type="button" aria-label="close the set list">×</button>
-    <div class="rhead"><b>GYMGYME</b><br>tonight's set list<br><span class="rdrag">drag me anywhere</span></div>
+    <button class="rclose" id="rclose" type="button" aria-label="close your workout list">×</button>
+    <div class="rhead"><b>GYMGYME</b><br>your workout<br><span class="rdrag">drag me anywhere</span></div>
     <div class="rrule"></div>
     <div id="progList"></div>
     <div class="rrule"></div>
     <div class="rtotal"><span>TOTAL REPS</span><span id="rtot">0</span></div>
-    <p class="rnote">tap a line to cross it off. no refunds, only rest days.</p>
+    <p class="rnote">tap a line to cross it off.</p>
   </div>
-  <button class="receipt-tab" id="rtab" type="button" hidden>🧾 your set list</button>
+  <button class="receipt-tab" id="rtab" type="button" hidden>your workout</button>
 </div><!-- /stagefloor -->
 
 

@@ -81,16 +81,6 @@ body.has-strip::before{ display:none; }   /* drop the potikare top strip */
 /* footstrip links calm */
 .footstrip a, .tfoot a{ color:var(--lila) !important; }
 
-/* the dot motif on inner nav: a faint 3-dot cluster before the brand */
-.topbar .brand::before, .tnav .brand::before{
-  content:"";display:inline-block;width:12px;height:6px;margin-right:8px;vertical-align:2px;
-  background-image:
-    radial-gradient(circle, var(--lila) 1.1px, transparent 1.3px),
-    radial-gradient(circle, var(--lila) 1.1px, transparent 1.3px),
-    radial-gradient(circle, var(--lila) 1.1px, transparent 1.3px);
-  background-size:4px 4px;background-position:0 0,4px 2px,8px 0;background-repeat:no-repeat;
-}
-
 /* smooth same-app page transitions */
 @media (prefers-reduced-motion: no-preference){
   @view-transition{ navigation:auto; }

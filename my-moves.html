@@ -3,51 +3,50 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>gymgyme my moves - the acts you loved, ready to book</title>
-  <meta name="description" content="The moves you loved. Search them, filter them, pick the ones for tonight - they print onto a program slip you can name and save.">
+  <title>gymgyme my moves - the moves you saved</title>
+  <meta name="description" content="the moves you saved. search them, filter them, pick the ones you want. they go onto a workout list you can name and save.">
   <meta name="robots" content="noindex">
   <link rel="icon" href="icons/icon-192.png">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="css/theme.css">
   <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="css/marquee.css">
   <style>
-    /* beğenilenler: moves list gibi ara + filtrele, seçtiklerin fişe basılır */
+    /* saved moves: search + filter, picks go onto a workout list */
     .kept-wrap { max-width: 720px; margin: 0 auto; }
-    .kept-row { display: flex; align-items: center; gap: 10px; padding: 10px 6px; border-bottom: 1px solid var(--tint-2); font-size: 14.5px; font-weight: bold; color: var(--ink); }
-    .kept-row small { font-weight: normal; color: var(--ink-soft); }
+    .kept-row { display: flex; align-items: center; gap: 10px; padding: 10px 6px; border-bottom: 1px solid #e9e4ee; font-size: 14.5px; font-weight: bold; color: #111; }
+    .kept-row small { font-weight: normal; color: #6f6b74; }
     .kept-row .grow { flex: 1; min-width: 0; }
-    .kept-row .addbtn { background: var(--tint-2); color: var(--cherry); border: none; border-radius: 8px; font: bold 13px Arial, Helvetica, sans-serif; padding: 7px 12px; cursor: pointer; box-shadow: none; }
-    .kept-row .addbtn:hover { background: var(--cherry); color: var(--on-cherry); transform: none; }
-    .kept-row .addbtn.inslip { background: var(--cherry); color: var(--on-cherry); }
-    .kept-row .unlike { background: none; border: none; color: var(--cherry); font: bold 14px Arial, Helvetica, sans-serif; cursor: pointer; box-shadow: none; padding: 4px 6px; }
-    .kept-empty { text-align: center; color: var(--ink-soft); font-size: 14px; margin: 30px 0; }
+    .kept-row .addbtn { background: #efeafa; color: #111; border: none; border-radius: 3px; font: bold 13px Arial, Helvetica, sans-serif; padding: 7px 12px; cursor: pointer; box-shadow: none; }
+    .kept-row .addbtn:hover { background: #8e6fd8; color: #fff; transform: none; }
+    .kept-row .addbtn.inslip { background: #8e6fd8; color: #fff; }
+    .kept-row .unlike { background: none; border: none; color: #8e6fd8; font: bold 14px Arial, Helvetica, sans-serif; cursor: pointer; box-shadow: none; padding: 4px 6px; }
+    .kept-empty { text-align: center; color: #6f6b74; font-size: 14px; margin: 30px 0; }
     .createbar { max-width: 720px; margin: 14px auto 0; text-align: right; }
 
-    /* program fişi: kapanabilir, sürüklenebilir pencere (coach'taki fişin kardeşi) */
-    .slip { position: fixed; right: 4vw; top: 150px; width: 272px; background: #fff; color: var(--cherry); font-family: "Courier New", Courier, monospace; font-size: 12.5px; padding: 20px 16px 18px; transform: rotate(-3deg); cursor: grab; box-shadow: 0 14px 26px rgba(25,21,24,.32); z-index: 40; touch-action: none; }
+    /* workout list: a closable, draggable panel */
+    .slip { position: fixed; right: 4vw; top: 150px; width: 272px; background: #fff; color: #111; font-family: Arial, Helvetica, sans-serif; font-size: 13px; padding: 18px 16px 16px; border: 1px solid #e9e4ee; border-radius: 3px; cursor: grab; box-shadow: none; z-index: 40; touch-action: none; }
     .slip[hidden] { display: none; }
-    .slip.dragging { cursor: grabbing; box-shadow: 0 24px 44px rgba(25,21,24,.4); }
-    .slip .rhead { text-align: center; margin-bottom: 8px; letter-spacing: .08em; }
-    .slip .rhead b { font-size: 15px; }
-    .slip .rclose { position: absolute; top: 4px; right: 6px; background: none; border: none; color: var(--cherry); font: bold 14px Arial, Helvetica, sans-serif; cursor: pointer; padding: 2px 6px; box-shadow: none; }
-    .slip .rrule { border-top: 2px dashed var(--tint-2); margin: 8px 0; }
+    .slip.dragging { cursor: grabbing; }
+    .slip .rhead { text-align: left; margin-bottom: 8px; }
+    .slip .rhead b { font-size: 15px; color: #111; }
+    .slip .rclose { position: absolute; top: 4px; right: 6px; background: none; border: none; color: #6f6b74; font: bold 14px Arial, Helvetica, sans-serif; cursor: pointer; padding: 2px 6px; box-shadow: none; }
+    .slip .rrule { border-top: 1px solid #e9e4ee; margin: 8px 0; }
     .slip .sline { display: flex; align-items: center; gap: 6px; padding: 2.5px 0; }
     .slip .sline .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .slip .sline button { background: none; border: none; color: var(--cherry); font: bold 12px Arial, Helvetica, sans-serif; cursor: pointer; padding: 0 3px; box-shadow: none; }
-    .slip .rempty { text-align: center; opacity: .7; }
-    .slip input { width: 100%; font: 12.5px "Courier New", Courier, monospace; color: var(--cherry); background: var(--tint); border: none; border-radius: 6px; padding: 8px 10px; outline: none; margin: 4px 0 8px; box-sizing: border-box; }
-    .slip .savebtn { width: 100%; background: var(--cherry); color: var(--on-cherry); border: none; border-radius: 8px; font: bold 13px Arial, Helvetica, sans-serif; padding: 10px 0; cursor: pointer; box-shadow: none; }
-    .slip .savebtn:hover { background: var(--cherry-deep); }
-    .slip-tab { position: fixed; right: 4vw; top: 150px; z-index: 39; background: #fff; color: var(--cherry); border: none; font: bold 12.5px "Courier New", Courier, monospace; padding: 10px 14px; transform: rotate(-3deg); cursor: pointer; box-shadow: 0 10px 20px rgba(25,21,24,.28); }
+    .slip .sline button { background: none; border: none; color: #8e6fd8; font: bold 12px Arial, Helvetica, sans-serif; cursor: pointer; padding: 0 3px; box-shadow: none; }
+    .slip .rempty { text-align: left; color: #6f6b74; }
+    .slip input { width: 100%; font: 13px Arial, Helvetica, sans-serif; color: #111; background: #efeafa; border: 1px solid #e9e4ee; border-radius: 3px; padding: 8px 10px; outline: none; margin: 4px 0 8px; box-sizing: border-box; }
+    .slip .savebtn { width: 100%; background: #8e6fd8; color: #fff; border: none; border-radius: 3px; font: bold 13px Arial, Helvetica, sans-serif; padding: 10px 0; cursor: pointer; box-shadow: none; }
+    .slip .savebtn:hover { background: #7a5bb0; }
+    .slip-tab { position: fixed; right: 4vw; top: 150px; z-index: 39; background: #8e6fd8; color: #fff; border: none; border-radius: 3px; font: bold 12.5px Arial, Helvetica, sans-serif; padding: 10px 14px; cursor: pointer; box-shadow: none; }
     .slip-tab[hidden] { display: none; }
 
     .pl-list { max-width: 720px; margin: 26px auto 0; }
-    .pl-list .lbl { font-size: 11px; font-weight: bold; letter-spacing: .13em; color: var(--cherry); margin-bottom: 6px; }
-    .pl-row { display: flex; align-items: center; gap: 10px; padding: 9px 6px; border-bottom: 1px solid var(--tint-2); font-size: 14px; color: var(--ink); }
-    .pl-row b { color: var(--cherry); }
+    .pl-list .lbl { font-size: 11px; font-weight: bold; letter-spacing: .13em; color: #8e6fd8; margin-bottom: 6px; }
+    .pl-row { display: flex; align-items: center; gap: 10px; padding: 9px 6px; border-bottom: 1px solid #e9e4ee; font-size: 14px; color: #111; }
+    .pl-row b { color: #8e6fd8; }
     .pl-row .grow { flex: 1; min-width: 0; }
-    .pl-row button { background: none; border: none; color: var(--cherry); font: bold 13px Arial, Helvetica, sans-serif; cursor: pointer; box-shadow: none; padding: 4px 8px; }
+    .pl-row button { background: none; border: none; color: #8e6fd8; font: bold 13px Arial, Helvetica, sans-serif; cursor: pointer; box-shadow: none; padding: 4px 8px; }
   </style>
   <link rel="stylesheet" href="css/calm.css">
 </head>
@@ -73,9 +72,9 @@
 
 <section class="pagehead">
   <div class="wrap">
-    <p class="eyebrow">my moves · your ♥ collection</p>
-    <h1>the acts you ♥'d.</h1>
-    <p class="lead">everything you ♥'d on the moves list lands here. search it, filter it, tap "+ add" on tonight's picks. they print onto a program slip you can name and save. saved programs light up on the personal trainer sign.</p>
+    <p class="eyebrow">my moves · your saved collection</p>
+    <h1>the moves you saved.</h1>
+    <p class="lead">everything you saved on the moves list lands here. search it, filter it, tap "+ add" on the ones you want. they go onto a workout list you can name and save. saved workouts show up in your trainer.</p>
   </div>
 </section>
 
@@ -87,21 +86,21 @@
     </span>
     <div class="libfilters" id="kFilters"></div>
     <div class="kept-wrap" id="keptList"></div>
-    <div class="createbar"><button class="mainbtn" id="createBtn" type="button" hidden>create a program 🧾</button></div>
+    <div class="createbar"><button class="mainbtn" id="createBtn" type="button" hidden>create a workout</button></div>
     <div class="pl-list" id="plList"></div>
   </div>
 </section>
 
 <div class="slip" id="slip" hidden>
   <button class="rclose" id="slipClose" type="button" aria-label="close">×</button>
-  <div class="rhead"><b>GYMGYME</b><br>new program<br>drag me anywhere</div>
+  <div class="rhead"><b>gymgyme</b><br>new workout<br>drag me anywhere</div>
   <div class="rrule"></div>
-  <div id="slipLines"><p class="rempty">tap "+ add" on your moves - they print here.</p></div>
+  <div id="slipLines"><p class="rempty">tap "+ add" on your moves and they show up here.</p></div>
   <div class="rrule"></div>
-  <input id="slipName" placeholder="name this program..." maxlength="30">
-  <button class="savebtn" id="slipSave" type="button">save to the trainer sign ♥</button>
+  <input id="slipName" placeholder="name this workout..." maxlength="30">
+  <button class="savebtn" id="slipSave" type="button">save to your trainer</button>
 </div>
-<button class="slip-tab" id="slipTab" type="button" hidden>🧾 new program</button>
+<button class="slip-tab" id="slipTab" type="button" hidden>new workout</button>
 
 <footer class="tfoot">
   <div class="wrap">
@@ -156,7 +155,7 @@
     if (!picked.length) {
       const e = document.createElement("p");
       e.className = "rempty";
-      e.textContent = 'tap "+ add" on your moves - they print here.';
+      e.textContent = 'tap "+ add" on your moves and they show up here.';
       slipLines.appendChild(e);
     }
     picked.forEach((m, i) => {
@@ -201,7 +200,7 @@
     if (!kept.length) {
       const e = document.createElement("p");
       e.className = "kept-empty";
-      e.innerHTML = 'nothing here yet - open the <a href="moves.html" style="color:var(--cherry);font-weight:bold">moves list</a> and ♥ whatever looks like your kind of trouble.';
+      e.innerHTML = 'nothing here yet. open the <a href="moves.html" style="color:#8e6fd8;font-weight:bold">moves list</a> and save whatever you want to try.';
       keptList.appendChild(e);
       return;
     }
@@ -225,7 +224,7 @@
       const inSlip = picked.includes(m);
       add.type = "button";
       add.className = "addbtn" + (inSlip ? " inslip" : "");
-      add.textContent = inSlip ? "on the slip ✓" : "+ add";
+      add.textContent = inSlip ? "added ✓" : "+ add";
       add.onclick = () => {
         if (picked.includes(m)) picked = picked.filter((x) => x !== m);
         else { picked.push(m); openSlip(); }
@@ -249,7 +248,7 @@
     if (!pls.length) return;
     const lbl = document.createElement("div");
     lbl.className = "lbl";
-    lbl.textContent = "YOUR PROGRAMS · ON THE TRAINER SIGN";
+    lbl.textContent = "YOUR WORKOUTS · IN YOUR TRAINER";
     plList.appendChild(lbl);
     for (const pl of pls) {
       const row = document.createElement("div");
@@ -257,7 +256,7 @@
       const grow = document.createElement("span");
       grow.className = "grow";
       const b = document.createElement("b");
-      b.textContent = "♡ " + pl.name;
+      b.textContent = pl.name;
       grow.append(b, " · " + (pl.moves || []).length + " moves");
       const edit = document.createElement("button");
       edit.type = "button"; edit.textContent = "open";
