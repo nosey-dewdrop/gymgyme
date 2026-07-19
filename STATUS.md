@@ -58,7 +58,27 @@ Bu bloklar canlıda şu an stilsiz akar; kaybolmasın diye burada:
   Bu sayfaların işlevi (liste render, takvim, kamera, form) çalışır; görsel cila ilgili fazda.
 
 
-## FAZ 2 — index   [başlamadı]
+## FAZ 2 — index   [Damla canlı kamera onayı bekliyor — 19 Tem]
+Kapsam I1 I2 I3 I4 I6 I7 I8 G6 + kart sistemi + canlı kamera.
+| kod | durum | kanıt |
+|-----|-------|------|
+| I7 sayaç panelde | kapandı | DOM: #reps → .panel-read → .panel#heroPanel içinde (sağ üst köşe); artık sayfa kenarında öksüz değil |
+| I8 nokta bulutu | kapandı | landing.js ~450 nokta HANDOFF katsayılarıyla (gövde .082/130 · uyluk .058 · baldır .042 · kol .034/.028 · baş .052), boyut ≤2.7px, opaklık .38-.88, figür %84 yükseklik %46 yatay, diz lila+nefes halkası+canlı açı; ÇİZGİ YOK (grep lineTo/moveTo = 0; stroke sadece halka) |
+| I4 canlı kamera | kapandı (Damla test edecek) | "open the camera" butonu → lazy import engine-core → mediapipe pose + wasm motor, panelde kullanıcının KENDİ noktaları + gerçek sayaç; toggle stop → track.stop() + _free; izin/hata → sessizce demo (mesaj yok); tab gizlenince/pagehide otomatik stop |
+| I2 numaralar | kapandı | three-jobs'tan 01/02/03 kalktı (HTML'de 0); numaralandırma yalnız .loop'ta (CSS counter, dört gerçek adım) |
+| I3 worth+how | KISMİ | worth ve how ayrı kaldı AMA how artık band-lila (farklı zemin) + real output bloğu araya girdi; "aynı şeyi iki kez" hissi kırıldı. Not: Damla "tek bölümde birleştir" dedi — ben ritmi kırıp araya output koydum; tam birleştirme YAPILMADI, Damla'ya sorulacak |
+| I6 gerçek çıktı | kapandı | .output-band mono bloğu: squat·set 3/12·tempo 2-1-2 / knee angle min 94° target <110° ✓ / knee cave on reps 4,7,11; skor+açı lila |
+| I1 ritim | kapandı | worth(2-kolon) · how(lila band 4-kolon) · output(mono blok) · priv(2-kolon+terminal) · loop(numaralı) · close(ortalı tek cümle) — kalıp kırıldı |
+| G6 ürün sinyali | kapandı | sayaç+açı+nokta+output artık index'in her yerinde, sadece hero'da değil |
+| kart sistemi | site.css'te | .card wash/16px/26px/no-frame + hover lila shadow + .saved pink-soft + .card-dots imza (6-8 nokta sağ alt, 1.5px .12 opaklık); coach FAZ 3'te bu sisteme oturacak |
+| engine-core | çıkarıldı | js/engine-core.js ortak (mediapipe pose loader + wasm motor + writePosesToHeap); index kullanıyor. KARAR: coach.js'e DOKUNULMADI (git temiz) — coach canlı/kırılgan, recovery+mesh+calibration state iç içe; davranış riske girmesin (Damla onayı). Küçük kod tekrarı kabul edildi |
+
+Lazy-load kanıtı: canlı index HTML'inde vendor/mediapipe ve engine/motor referansı = 0 (ilk açılışta indirilmiyor, sadece butona basınca import()). js/landing.js + engine-core.js + site.css hepsi 200.
+site.css 417→499 satır; yeni bölümler: card system + dot signature + index (faz 2).
+sw.js v70→v71.
+
+AÇIK (Damla kararı): (1) I3 tam birleştirme mi yoksa ritim-kırma yeterli mi? (2) kamera 4 senaryo canlı test (izin ver / reddet / stop / mobil).
+
 ## FAZ 3 — coach   [başlamadı]
 ## FAZ 4 — moves · my-moves · my-program   [başlamadı]
 ## FAZ 5 — blog · patch-notes · gizlilik · terms · suggest   [başlamadı]
